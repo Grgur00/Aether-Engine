@@ -55,6 +55,9 @@ include(
     ":modules:aether-cluster-codec",
     ":modules:aether-cluster-core",
     ":modules:aether-codec",
+    ":modules:aether-codec-annotations",
+    ":modules:aether-codec-processor",
     ":modules:aether-embedded-typed",
     ":examples:aether-sample-app",
+    ":examples:aether-persistent-notes",
 )

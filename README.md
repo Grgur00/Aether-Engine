@@ -2,7 +2,7 @@
 
 Aether Engine is a modular Java storage-engine project built around LSM-tree, replication, RPC, Raft, and typed application API foundations.
 
-The current release includes a deterministic in-memory engine suitable for development, semantic testing, and learning. Persistent and distributed components are under active development and are not yet exposed as a production database.
+The current release includes a deterministic in-memory engine and a first local persistent embedded path. The persistent path provides WAL-backed close/reopen durability and atomic checkpoint recovery, but remains pre-production.
 
 > **Status:** pre-release (`0.1.0-SNAPSHOT`). Do not use it for durable production data yet.
 
@@ -72,6 +72,24 @@ try (var database = AetherEmbedded.openInMemory()) {
 }
 ```
 
+Use a path to retain the same typed data after close and reopen:
+
+```java
+import java.nio.file.Path;
+
+Path directory = Path.of("./data/aether");
+
+try (var database = AetherEmbedded.open(directory)) {
+    database.collection(greetings).put("en", "Persistent hello");
+}
+
+try (var database = AetherEmbedded.open(directory)) {
+    System.out.println(database.collection(greetings).get("en").requireValue());
+}
+```
+
+`openInMemory()` discards data on close. `open(path)` creates or reopens a local database, holds an operating-system-backed exclusive writer lock, and rejects a second concurrent writer. The default `GROUP_SYNC` mode forces the WAL before publishing a successful write.
+
 For a local multi-module consumer, use:
 
 ```kotlin
@@ -79,45 +97,120 @@ dependencies {
     implementation(project(":modules:aether-api"))
     implementation(project(":modules:aether-codec"))
     implementation(project(":modules:aether-embedded-typed"))
+    annotationProcessor(project(":modules:aether-codec-processor"))
 }
 ```
 
 Artifacts are not currently published to Maven Central.
 
+### Generated record codecs
+
+Custom Java records use compile-time generated codecs rather than handwritten serialization:
+
+```java
+@AetherRecord(schemaId = "a0e988c2-74f0-4243-b44f-c395916e0a74", version = 1)
+public record LedgerEntry(
+        @AetherField(id = 16) UUID accountId,
+        @AetherField(id = 17) long amountMinor,
+        @AetherField(id = 18) @AetherMaxLength(3) String currency,
+        @AetherField(id = 19) Instant bookedAt) {}
+```
+
+Open it by Java type:
+
+```java
+var entries = database.defineCollection(
+        CollectionId.of("74ee12fd-6544-44fd-b858-2e51c4101066"),
+        "ledger-entries",
+        UUID.class,
+        LedgerEntry.class);
+```
+
+The processor validates schema identities, stable field IDs, supported types, and variable-length bounds. It generates a deterministic AER1 codec, canonical descriptor, SHA-256 fingerprint, and runtime provider registration.
+
+For quick applications, identities may instead come from a committed Chapter 23C schema lock:
+
+```java
+@AetherRecord(version = 1)
+public record Todo(String id, String title, boolean completed) {}
+```
+
+The authoritative `src/main/aether-schemas/index.json` and per-schema JSON lock provide the UUID, field IDs, bounds, and descriptor fingerprint. Normal compilation is verification-only: missing, stale, or mismatched locks fail with an actionable schema command and are never rewritten by the annotation processor.
+
 ## Sample application
 
-The typed social-profile sample demonstrates:
+The typed social-network sample demonstrates:
 
-- a domain-specific, versioned value codec;
-- typed point operations;
-- atomic multi-profile batches;
-- snapshot isolation;
-- ordered scans; and
-- explicit absence through `Optional`.
+- profile and post CRUD;
+- three related collections for profiles, posts, and follows;
+- foreign-key and uniqueness validation;
+- atomic relationship and follower-count updates;
+- one-to-many queries and a joined social feed; and
+- compile-time generated, versioned value codecs.
 
 Run it with:
 
 ```bash
 ./gradlew :examples:aether-sample-app:run
+
+# Persistent sample storage
+./gradlew :examples:aether-sample-app:run --args="./data/social-network"
 ```
 
 Expected output:
 
 ```text
-Ada before campaign: 128450 followers
-Ada latest:          130000 followers
-Profiles in the social service:
-  @ada.codes — Ada Lovelace
-  @grace.debugs — Grace Hopper
+Profiles (READ after CREATE/UPDATE):
+  @ada.codes — Ada Lovelace (1 relational follower)
+  @grace.debugs — Grace Hopper (0 relational follower)
+
+Ada's posts (profile -> posts relationship):
+  The Analytical Engine weaves algebraic patterns.
+  Poetical science meets machinery.
+
+Grace's joined feed (follows -> profiles -> posts):
+  @ada.codes: Poetical science meets machinery.
+  @ada.codes: The Analytical Engine weaves algebraic patterns.
+
+Deleted draft exists: false
 ```
 
 See [the sample README](examples/aether-sample-app/README.md) and its [main class](examples/aether-sample-app/src/main/java/io/aetherdb/examples/social/SocialNetworkApplication.java).
+
+### Persistent notes desktop demo
+
+The persistent notes sample opens a small desktop window containing seeded notes, a text field, and an **Add and persist** button. Notes added through the UI are stored by Aether Engine and appear again after you close and restart the application.
+
+Run it from the repository root:
+
+```bash
+./gradlew :examples:aether-persistent-notes:run
+```
+
+By default, its database is stored in `./examples/aether-persistent-notes/data/aether-notes`. Pass a different directory when needed:
+
+```bash
+./gradlew :examples:aether-persistent-notes:run --args="./data/my-notes"
+```
+
+See [the persistent notes README](examples/aether-persistent-notes/README.md) and its [main class](examples/aether-persistent-notes/src/main/java/io/aetherdb/examples/notes/PersistentNotesApplication.java).
+
+### Open a database in Aether Workbench
+
+Close any application currently using the database, then pass its directory to the Workbench:
+
+```bash
+./gradlew :modules:aether-workbench:run \
+  --args="./examples/aether-persistent-notes/data/aether-notes"
+```
+
+The persistent view recognizes typed record envelopes and displays text payloads, UUID keys, and collection IDs without requiring the original application to be running. **Add entry** and **Edit selected** use registered collection definitions and codecs; the entry dialog identifies the target collection and exposes its typed key and value. Unknown typed collections remain read-only until their definitions and codecs are registered. Aether opens one database directory at a time, and its exclusive lock prevents the Workbench and an application from opening the same database simultaneously.
 
 ## Module overview
 
 | Area | Modules |
 |---|---|
-| Public and typed APIs | `aether-api`, `aether-codec`, `aether-embedded-typed` |
+| Public and typed APIs | `aether-api`, `aether-codec`, `aether-codec-annotations`, `aether-codec-processor`, `aether-embedded-typed` |
 | Reference engine | `aether-engine` |
 | Storage | `aether-memory`, `aether-memtable`, `aether-wal`, `aether-sstable`, `aether-lsm`, `aether-cache` |
 | Networking | `aether-rpc-api`, `aether-rpc-codec`, `aether-rpc-transport` |
@@ -128,9 +221,9 @@ See [the sample README](examples/aether-sample-app/README.md) and its [main clas
 
 ## Current limitations
 
-- The public embedded entry point is in-memory only.
-- Database contents are discarded when the process exits.
-- Persistent reopen and recovery are not exposed through the public API.
+- The persistent path uses one WAL segment plus atomic checkpoint/manifest publication; WAL rotation and reclamation are not yet integrated.
+- Checkpoints are published during graceful close; size-triggered background MemTable flush is not yet integrated.
+- Leveled compaction and obsolete checkpoint reclamation are not yet integrated.
 - TCP/TLS cluster clients and servers are not yet complete.
 - Dynamic membership foundations exist, but full runtime orchestration is incomplete.
 - API and persistent formats may change before the first stable release.

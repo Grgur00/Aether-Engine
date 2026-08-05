@@ -1,0 +1,12 @@
+{
+  "formatVersion": 1,
+  "projectId": "b1ce0528-1e0b-4a2b-a024-431960554efa",
+  "schemas": [
+    {
+      "javaType": "io.aetherdb.embedded.typed.Todo",
+      "schemaId": "7c4d8b15-e87d-48fc-a5d0-8324fae35852",
+      "currentVersion": 1,
+      "lockFile": "7c4d8b15-e87d-48fc-a5d0-8324fae35852.schema.json"
+    }
+  ]
+}

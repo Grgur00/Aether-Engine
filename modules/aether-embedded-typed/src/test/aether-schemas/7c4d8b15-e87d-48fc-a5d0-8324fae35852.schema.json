@@ -1,0 +1,42 @@
+{
+  "formatVersion": 1,
+  "schemaId": "7c4d8b15-e87d-48fc-a5d0-8324fae35852",
+  "javaType": "io.aetherdb.embedded.typed.Todo",
+  "currentVersion": 1,
+  "unknownFieldPolicy": "SKIP",
+  "reservedFieldIds": [],
+  "versions": [
+    {
+      "version": 1,
+      "payloadFormat": "AER1",
+      "fields": [
+        {
+          "id": 16,
+          "javaName": "id",
+          "wireType": "STRING_UTF8",
+          "type": "java.lang.String",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 64
+        },
+        {
+          "id": 17,
+          "javaName": "title",
+          "wireType": "STRING_UTF8",
+          "type": "java.lang.String",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 256
+        },
+        {
+          "id": 18,
+          "javaName": "completed",
+          "wireType": "BOOL",
+          "type": "boolean",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 1
+        }
+      ],
+      "descriptorSha256": "a6157cae3a2da7cd1635aa0ff8d58b6f46e0a900094ac7050ee6516922112905",
+      "compatibilityFromPrevious": "INITIAL"
+    }
+  ]
+}

@@ -187,6 +187,13 @@ public final class InMemoryAetherDatabase implements AetherDatabase {
         return store.versionCount(key(key));
     }
 
+    /** Recovery hook for a visible checkpoint image; does not allocate a new sequence. */
+    void restoreVisible(byte[] key, byte[] value, long sequence) {
+        ensureOpen();
+        if (sequence < 0 || sequence > lastVisibleSequence) throw new IllegalArgumentException("invalid recovery sequence");
+        store.insert(key(key), VersionedRecord.value(sequence, value(value)));
+    }
+
     @Override
     public boolean isClosed() {
         return closed;
