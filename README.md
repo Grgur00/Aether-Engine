@@ -1,125 +1,144 @@
 # Aether Engine
 
-Aether Engine is a byte-oriented storage engine for Java, developed as a small, auditable implementation of log-structured merge-tree (LSM-tree) concepts.
+Aether Engine is a modular Java storage-engine project built around LSM-tree, replication, RPC, Raft, and typed application API foundations.
 
-The current public release provides a deterministic in-memory database with point reads, writes, deletes, snapshots, ordered range scans, and atomic write batches. Native-memory, WAL, and SSTable building blocks are under active development and are not yet connected to a durable public database.
+The current release includes a deterministic in-memory engine suitable for development, semantic testing, and learning. Persistent and distributed components are under active development and are not yet exposed as a production database.
 
-> **Project status:** pre-release. Use the in-memory engine for development, education, and semantic testing—not for durable production data.
+> **Status:** pre-release (`0.1.0-SNAPSHOT`). Do not use it for durable production data yet.
 
-## Documentation
+## Highlights
 
-- [User guide](docs/handbook/User_Guide.md) — installation, quick start, behavior, and troubleshooting
-- [API reference](docs/handbook/API_Reference.md) — contracts for database, snapshots, cursors, batches, and lookup results
-- [Data Workbench](docs/handbook/Data_Workbench.md) — graphical browsing and editing for an in-memory session
-- [Operations and CLI](docs/handbook/Operations_and_CLI.md) — metadata formats, locking, inspection, and limitations
-- [Networking and RPC](docs/handbook/Networking_and_RPC.md) — binary framing, limits, and protocol inspector
-- [Replication contracts](docs/handbook/Replication.md) — replicated commands, sequence planning, and current limits
-- [Social Profile Service sample](examples/aether-sample-app/README.md) — a realistic social-network project using Aether and the live workbench
-- [Build and test commands](docs/wiki/Build_and_Test_Commands.md) — contributor workflows
-- [Technical specification](docs/Aether_Engine_Master_Technical_Specification.md) — architecture and design requirements
+- Typed collections with stable UUID identities
+- Versioned key and value codecs with compatibility fingerprints
+- Point reads, writes, and deletes
+- Atomic cross-collection write batches
+- Stable MVCC snapshots
+- Ordered typed collection scans
+- Structured applied, rejected, and indeterminate write outcomes
+- Native-memory and skip-list MemTable foundations
+- WAL, SSTable, manifest, cache, compaction, and read-path components
+- Binary RPC and replicated-command codecs
+- Raft persistence, quorum, and joint-consensus configuration foundations
+- Cluster identity and stable/joint membership codecs
 
 ## Requirements
 
-- JDK 21
-- The checked-in Gradle wrapper; a global Gradle installation is not required
+- JDK 21 or newer
+- The checked-in Gradle wrapper
 
-Aether uses Java 21 preview APIs in its internal native-memory modules. The build configures the required compiler and runtime flags.
+A global Gradle installation is not required.
 
-## Quick start
+## Build and test
+
+Clone the repository and run the complete test suite:
+
+```bash
+git clone https://github.com/Grgur00/Aether-Engine.git
+cd Aether-Engine
+./gradlew test
+```
+
+Run all verification tasks with:
+
+```bash
+./gradlew check
+```
+
+## Typed API quick start
+
+Define a typed collection with stable collection and schema identities:
 
 ```java
-import static java.nio.charset.StandardCharsets.UTF_8;
+import io.aetherdb.api.typed.CollectionDefinition;
+import io.aetherdb.api.typed.CollectionId;
+import io.aetherdb.codec.BuiltInKeyCodecs;
+import io.aetherdb.codec.BuiltInValueCodecs;
+import io.aetherdb.embedded.typed.AetherEmbedded;
+import java.util.UUID;
 
-import io.aetherdb.api.AetherDatabase;
-import io.aetherdb.api.result.LookupResult;
-import io.aetherdb.engine.Aether;
+var greetings = CollectionDefinition.of(
+        CollectionId.of("c64ef96c-4ef4-40ae-aef8-f30c555665c2"),
+        "greetings",
+        BuiltInKeyCodecs.utf8String(),
+        BuiltInValueCodecs.utf8String(
+                UUID.fromString("4a191d19-71fe-43e8-b941-4ce11b44961e")));
 
-try (AetherDatabase database = Aether.openInMemory()) {
-    database.put("greeting".getBytes(UTF_8), "hello".getBytes(UTF_8));
+try (var database = AetherEmbedded.openInMemory()) {
+    var collection = database.collection(greetings);
 
-    LookupResult result = database.get("greeting".getBytes(UTF_8));
-    if (result.isFound()) {
-        System.out.println(new String(result.value(), UTF_8));
-    }
+    collection.put("en", "Hello, Aether!");
+    String message = collection.get("en").requireValue();
+    System.out.println(message);
 }
 ```
 
-The artifacts are not currently published to a package repository. From this repository, depend on the API and engine projects:
+For a local multi-module consumer, use:
 
 ```kotlin
 dependencies {
     implementation(project(":modules:aether-api"))
-    implementation(project(":modules:aether-engine"))
+    implementation(project(":modules:aether-codec"))
+    implementation(project(":modules:aether-embedded-typed"))
 }
 ```
 
-## Verify the repository
+Artifacts are not currently published to Maven Central.
 
-```shell
-./gradlew check
-```
+## Sample application
 
-## Graphical data workbench
+The typed social-profile sample demonstrates:
 
-Launch the desktop editor with:
+- a domain-specific, versioned value codec;
+- typed point operations;
+- atomic multi-profile batches;
+- snapshot isolation;
+- ordered scans; and
+- explicit absence through `Optional`.
 
-```shell
-./gradlew :modules:aether-workbench:run
-```
+Run it with:
 
-The workbench groups slash-delimited keys by their shared parent path and lets you add, edit, rename, sort, refresh, and delete UTF-8 text records. It uses the current in-memory engine, so closing the window discards the session.
-
-Its **RPC Frame Inspector** tab can encode and decode exact v1 request/response frames, verify checksums, and demonstrate corruption rejection.
-
-Applications can also open the workbench on their own live database:
-
-```java
-AetherWorkbench.open(database);
-```
-
-The **Replication Inspector** tab encodes and validates deterministic replicated write commands and leader-assigned state sequences.
-
-## Sample project
-
-Run the Social Profile Service example:
-
-```shell
+```bash
 ./gradlew :examples:aether-sample-app:run
 ```
 
-It stores realistic user profiles through a domain repository backed by Aether. The application demonstrates atomic profile updates, historical snapshot reads, ordered profile discovery, and live inspection or editing in the workbench.
+Expected output:
 
-## Feature status
-
-| Capability | Status |
-|---|---|
-| Point reads, puts, and deletes | Available in memory |
-| Atomic ordered write batches | Available in memory |
-| Snapshots and snapshot scans | Available in memory |
-| Unsigned byte-ordered range scans | Available in memory |
-| Native-memory allocator and memtable components | Internal / experimental |
-| WAL and SSTable format components | Internal / experimental |
-| Read-view, iterator, and block-cache components | Internal / experimental |
-| Compaction policy, reclamation, and backpressure components | Internal / experimental |
-| Snapshot IDs, limits, and bounded one-shot batches | Available in memory |
-| Identity/options codecs, locking, and metadata CLI | Internal / experimental |
-| RPC v1 framing, HELLO, fragmentation, and flow accounting | Internal / experimental |
-| Replicated-log identity, command codec, and sequence planning | Internal / experimental |
-| Raft vote codecs, persistent-state slots, quorum and commit foundations | Internal / experimental |
-| Client command opcodes, statuses, deduplicated retry class, and write codec | Internal / experimental |
-| TCP/TLS RPC server and distributed database | Not available |
-| Reopening persisted data | Not available |
-| Compaction and production durability | Not available |
-
-## Operational CLI
-
-```shell
-./gradlew :modules:aether-tools:installDist
-./modules/aether-tools/build/install/aether-tools/bin/aether-tools version
+```text
+Ada before campaign: 128450 followers
+Ada latest:          130000 followers
+Profiles in the social service:
+  @ada.codes — Ada Lovelace
+  @grace.debugs — Grace Hopper
 ```
 
-The CLI validates and inspects Chapter 16 `DB-IDENTITY` and `FORMAT-OPTIONS` metadata. The public engine still cannot create or reopen a durable database directory.
+See [the sample README](examples/aether-sample-app/README.md) and its [main class](examples/aether-sample-app/src/main/java/io/aetherdb/examples/social/SocialNetworkApplication.java).
+
+## Module overview
+
+| Area | Modules |
+|---|---|
+| Public and typed APIs | `aether-api`, `aether-codec`, `aether-embedded-typed` |
+| Reference engine | `aether-engine` |
+| Storage | `aether-memory`, `aether-memtable`, `aether-wal`, `aether-sstable`, `aether-lsm`, `aether-cache` |
+| Networking | `aether-rpc-api`, `aether-rpc-codec`, `aether-rpc-transport` |
+| Replication | `aether-replication-api`, `aether-replicated-log`, `aether-state-machine` |
+| Consensus | `aether-raft-api`, `aether-raft-core`, `aether-raft-storage` |
+| Cluster membership | `aether-cluster-api`, `aether-cluster-codec`, `aether-cluster-core` |
+| Tooling | `aether-tools`, `aether-workbench`, testkits and benchmarks |
+
+## Current limitations
+
+- The public embedded entry point is in-memory only.
+- Database contents are discarded when the process exits.
+- Persistent reopen and recovery are not exposed through the public API.
+- TCP/TLS cluster clients and servers are not yet complete.
+- Dynamic membership foundations exist, but full runtime orchestration is incomplete.
+- API and persistent formats may change before the first stable release.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), and [SECURITY.md](SECURITY.md).
 
 ## License
 
-No license has been declared yet. Until one is added, standard copyright restrictions apply.
+Licensed under the terms in [LICENSE](LICENSE).
