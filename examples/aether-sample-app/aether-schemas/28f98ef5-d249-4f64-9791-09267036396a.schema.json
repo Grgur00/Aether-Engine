@@ -1,0 +1,91 @@
+{
+  "formatVersion": 1,
+  "schemaId": "28f98ef5-d249-4f64-9791-09267036396a",
+  "javaType": "io.aetherdb.examples.social.UserProfile",
+  "currentVersion": 1,
+  "unknownFieldPolicy": "SKIP",
+  "reservedFieldIds": [],
+  "retiredFields": [  ],
+  "versions": [
+    {
+      "version": 1,
+      "payloadFormat": "AER1",
+      "fields": [
+        {
+          "id": 16,
+          "javaName": "id",
+          "wireType": "STRING_UTF8",
+          "type": "java.lang.String",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 64
+        },
+        {
+          "id": 17,
+          "javaName": "username",
+          "wireType": "STRING_UTF8",
+          "type": "java.lang.String",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 64
+        },
+        {
+          "id": 18,
+          "javaName": "displayName",
+          "wireType": "STRING_UTF8",
+          "type": "java.lang.String",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 256
+        },
+        {
+          "id": 19,
+          "javaName": "email",
+          "wireType": "STRING_UTF8",
+          "type": "java.lang.String",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 320
+        },
+        {
+          "id": 20,
+          "javaName": "bio",
+          "wireType": "STRING_UTF8",
+          "type": "java.lang.String",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 4096
+        },
+        {
+          "id": 21,
+          "javaName": "location",
+          "wireType": "STRING_UTF8",
+          "type": "java.lang.String",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 256
+        },
+        {
+          "id": 22,
+          "javaName": "followerCount",
+          "wireType": "SIGNED_VARINT",
+          "type": "long",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 10
+        },
+        {
+          "id": 23,
+          "javaName": "verified",
+          "wireType": "BOOL",
+          "type": "boolean",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 1
+        },
+        {
+          "id": 24,
+          "javaName": "createdAt",
+          "wireType": "TEMPORAL",
+          "type": "java.time.Instant",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 20
+        }
+      ],
+      "descriptorSha256": "fe23890ba7f57c340387e0a59738693fcc1bd2bebe8e39970fa3106979b8beb0",
+      "compatibilityFromPrevious": "INITIAL"
+    }
+  ]
+}

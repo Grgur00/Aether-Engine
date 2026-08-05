@@ -21,6 +21,10 @@ public final class CompactionDroppingIterator implements InternalIterator {
     private long droppedTombstones;
     private boolean closed;
 
+    /** Creates snapshot-aware reclamation over a sorted internal stream.
+     * @param source merged internal source
+     * @param oldestSnapshotSequence oldest protected sequence
+     * @param baseLevelForKey predicate proving lower-level absence */
     public CompactionDroppingIterator(InternalIterator source, long oldestSnapshotSequence, Predicate<byte[]> baseLevelForKey) {
         this.source = Objects.requireNonNull(source); this.baseLevelForKey = Objects.requireNonNull(baseLevelForKey);
         if (oldestSnapshotSequence < 0) throw new IllegalArgumentException("snapshot sequence must be non-negative");
@@ -56,7 +60,11 @@ public final class CompactionDroppingIterator implements InternalIterator {
         return source.next() ? source.current() : null;
     }
     @Override public InternalEntry current() { ensureOpen(); if (current == null) throw new IllegalStateException("iterator is not positioned"); return current; }
+    /** Returns discarded obsolete values.
+     * @return dropped version count */
     public long droppedVersions() { return droppedVersions; }
+    /** Returns discarded base-level tombstones.
+     * @return dropped tombstone count */
     public long droppedTombstones() { return droppedTombstones; }
     @Override public void close() { if (!closed) { closed = true; source.close(); } }
     private void ensureOpen() { if (closed) throw new IllegalStateException("iterator is closed"); }

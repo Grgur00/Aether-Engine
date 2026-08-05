@@ -62,12 +62,28 @@ public final class ReadView {
         }
     }
 
+    /** Returns the publication generation.
+     * @return monotonic generation */
     public long generation() { return generation; }
+    /** Returns the visibility boundary.
+     * @return maximum visible sequence */
     public long visibleSequence() { return visibleSequence; }
+    /** Returns the retained active MemTable.
+     * @return source or null */
     public RetainedSource activeMemTable() { return activeMemTable; }
+    /** Returns retained immutable MemTables.
+     * @return immutable source list */
     public List<RetainedSource> immutableMemTables() { return immutableMemTables; }
+    /** Returns the retained table version.
+     * @return version source or null */
     public RetainedSource version() { return version; }
+    /** Returns creation time.
+     * @return view creation instant */
     public Instant createdAt() { return createdAt; }
+    /** Reports whether the manager retired its owner reference.
+     * @return retirement state */
     public boolean isRetired() { return retired; }
+    /** Returns current ownership and reader references.
+     * @return reference count */
     public int referenceCount() { return references.get(); }
 }

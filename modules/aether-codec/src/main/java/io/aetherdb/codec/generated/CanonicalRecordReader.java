@@ -20,6 +20,9 @@ public final class CanonicalRecordReader {
     private int wireType;
     private byte[] payload;
 
+    /** Creates a strict reader after validating header, length, order marker, and checksum.
+     * @param bytes complete AER1 payload
+     * @param maximumBytes configured record-size bound */
     public CanonicalRecordReader(byte[] bytes, int maximumBytes) {
         if (bytes == null || bytes.length < CanonicalRecordWriter.HEADER_BYTES
                 || bytes.length > maximumBytes) throw invalid("RECORD_LENGTH_EXCEEDED");
@@ -40,6 +43,8 @@ public final class CanonicalRecordReader {
         }
     }
 
+    /** Advances to the next canonical field.
+     * @return {@code true} when positioned on a field */
     public boolean next() {
         if (fieldsRead == fieldCount) {
             if (offset != bytes.length) throw invalid("trailing record bytes");
@@ -64,18 +69,26 @@ public final class CanonicalRecordReader {
         return true;
     }
 
+    /** Returns the current stable field ID.
+     * @return positive field ID */
     public int fieldId() { return fieldId; }
 
-    /** Returns the current field's stable AER1 wire-type identifier. */
+    /** Returns the current field's stable AER1 wire-type identifier.
+     * @return wire-type code */
     public int wireType() { return wireType; }
 
-    /** Returns a defensive copy of the current field's canonical payload. */
+    /** Returns a defensive copy of the current field's canonical payload.
+     * @return payload copy */
     public byte[] rawPayload() { return Arrays.copyOf(payload, payload.length); }
 
+    /** Verifies the current field's wire type.
+     * @param expected expected wire-type code */
     public void requireWireType(int expected) {
         if (wireType != expected) throw invalid("FIELD_WIRE_TYPE_MISMATCH at field " + fieldId);
     }
 
+    /** Decodes the current payload as a canonical boolean.
+     * @return decoded boolean */
     public boolean boolValue() {
         if (payload.length != 1 || (payload[0] != 0 && payload[0] != 1)) {
             throw invalid("invalid boolean at field " + fieldId);
@@ -83,17 +96,24 @@ public final class CanonicalRecordReader {
         return payload[0] == 1;
     }
 
+    /** Decodes the current payload as a zigzag signed integer.
+     * @return decoded long */
     public long signedLongValue() {
         long raw = payloadUnsignedVarint();
         return (raw >>> 1) ^ -(raw & 1);
     }
 
+    /** Decodes the current payload as a canonical IEEE-754 value.
+     * @return decoded double */
     public double fixed64Value() {
         if (payload.length != 8) throw invalid("invalid fixed64 at field " + fieldId);
         return Double.longBitsToDouble(ByteBuffer.wrap(payload)
                 .order(ByteOrder.LITTLE_ENDIAN).getLong());
     }
 
+    /** Decodes the current payload as strict UTF-8.
+     * @param maximumBytes field-specific byte bound
+     * @return decoded string */
     public String stringValue(int maximumBytes) {
         if (payload.length > maximumBytes) throw invalid("FIELD_LENGTH_EXCEEDED");
         try {
@@ -107,12 +127,16 @@ public final class CanonicalRecordReader {
         }
     }
 
+    /** Decodes the current payload as a UUID.
+     * @return decoded UUID */
     public UUID uuidValue() {
         if (payload.length != 16) throw invalid("invalid UUID at field " + fieldId);
         ByteBuffer input = ByteBuffer.wrap(payload).order(ByteOrder.BIG_ENDIAN);
         return new UUID(input.getLong(), input.getLong());
     }
 
+    /** Decodes the current payload as an instant.
+     * @return decoded instant */
     public Instant instantValue() {
         int[] position = {0};
         long secondsRaw = payloadUnsignedVarint(position);

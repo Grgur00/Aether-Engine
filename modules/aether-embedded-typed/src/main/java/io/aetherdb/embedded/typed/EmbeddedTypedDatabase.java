@@ -1,5 +1,9 @@
 package io.aetherdb.embedded.typed;
 import io.aetherdb.api.*;import io.aetherdb.api.result.LookupResult;import io.aetherdb.api.typed.*;import io.aetherdb.codec.*;import java.util.*;
+/**
+ * Adapts the byte-oriented embedded database to typed collections and manages
+ * the collection definitions used by those adapters.
+ */
 final class EmbeddedTypedDatabase implements TypedAetherDatabase{
  private final AetherDatabase raw;private final boolean owns;private final Map<CollectionId,CollectionDefinition<?,?>>definitions=new HashMap<>();private boolean closed;
  EmbeddedTypedDatabase(AetherDatabase raw,boolean owns){this.raw=Objects.requireNonNull(raw);this.owns=owns;}

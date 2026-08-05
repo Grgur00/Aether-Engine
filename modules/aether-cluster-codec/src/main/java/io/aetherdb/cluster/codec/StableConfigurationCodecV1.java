@@ -7,9 +7,14 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.*;
 
+/** Canonical v1 codec for stable cluster configurations and member endpoints. */
 public final class StableConfigurationCodecV1 {
+    /** Fixed configuration, member, and endpoint header lengths. */
     public static final int HEADER_BYTES=160, MEMBER_HEADER_BYTES=96, ENDPOINT_HEADER_BYTES=24;
     private StableConfigurationCodecV1(){}
+    /** Encodes and hashes a stable configuration.
+     * @param value configuration to encode
+     * @return canonical bytes */
     public static byte[] encode(StableConfiguration value){
         int memberBytes=value.members().stream().mapToInt(StableConfigurationCodecV1::memberLength).sum();
         byte[] out=new byte[Math.addExact(HEADER_BYTES,memberBytes)];ByteBuffer b=le(out);
@@ -20,6 +25,9 @@ public final class StableConfigurationCodecV1 {
         byte[] calculated=hash(out,112,144,156,160);byte[] supplied=value.hash();if(!allZero(supplied)&&!MessageDigest.isEqual(supplied,calculated))throw new IllegalArgumentException("configuration hash mismatch");
         b.position(112).put(calculated);le(out).putInt(156,MaskedCrc32c.masked(out,0,156));return out;
     }
+    /** Decodes and validates a v1 stable configuration.
+     * @param in canonical bytes
+     * @return decoded configuration */
     public static StableConfigurationV1 decode(byte[] in){
         if(in==null||in.length<HEADER_BYTES)throw invalid();ByteBuffer b=le(in);byte[] magic=new byte[4];b.get(magic);if(!Arrays.equals(magic,"AECF".getBytes(StandardCharsets.US_ASCII))||b.getShort()!=1||b.getShort()!=HEADER_BYTES||b.get()!=1||b.get()!=0||b.getShort()!=0||b.getInt()!=in.length)throw invalid();
         UUID cluster=IdentityCodecV1.getUuid(b);long version=b.getLong();UUID id=IdentityCodecV1.getUuid(b);byte[] previous=IdentityCodecV1.get(b,32);int voters=b.getInt(),staged=b.getInt(),count=b.getInt(),memberBytes=b.getInt();long created=b.getLong();byte[] stored=IdentityCodecV1.get(b,32);IdentityCodecV1.zero(in,144,156);b.position(156);if(b.getInt()!=MaskedCrc32c.masked(in,0,156)||memberBytes!=in.length-HEADER_BYTES||count!=voters+staged)throw invalid();

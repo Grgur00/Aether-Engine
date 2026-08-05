@@ -1,0 +1,59 @@
+{
+  "formatVersion": 1,
+  "schemaId": "6553812e-0d82-4078-bfa2-5818d8fe670d",
+  "javaType": "io.aetherdb.examples.social.SocialPost",
+  "currentVersion": 1,
+  "unknownFieldPolicy": "SKIP",
+  "reservedFieldIds": [],
+  "retiredFields": [  ],
+  "versions": [
+    {
+      "version": 1,
+      "payloadFormat": "AER1",
+      "fields": [
+        {
+          "id": 16,
+          "javaName": "id",
+          "wireType": "STRING_UTF8",
+          "type": "java.lang.String",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 64
+        },
+        {
+          "id": 17,
+          "javaName": "authorId",
+          "wireType": "STRING_UTF8",
+          "type": "java.lang.String",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 64
+        },
+        {
+          "id": 18,
+          "javaName": "content",
+          "wireType": "STRING_UTF8",
+          "type": "java.lang.String",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 8192
+        },
+        {
+          "id": 19,
+          "javaName": "createdAt",
+          "wireType": "TEMPORAL",
+          "type": "java.time.Instant",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 20
+        },
+        {
+          "id": 20,
+          "javaName": "updatedAt",
+          "wireType": "TEMPORAL",
+          "type": "java.time.Instant",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 20
+        }
+      ],
+      "descriptorSha256": "a83dbfafccd2a753c7e8fc106e7a4a18b3a06bd7acd0a8e644d83123aabb7b92",
+      "compatibilityFromPrevious": "INITIAL"
+    }
+  ]
+}

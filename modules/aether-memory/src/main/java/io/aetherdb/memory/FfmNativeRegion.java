@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("preview")
+/** Native memory region backed by a Foreign Function and Memory API arena. */
 final class FfmNativeRegion implements NativeRegion {
     private final String ownerId;
     private final long capacity;

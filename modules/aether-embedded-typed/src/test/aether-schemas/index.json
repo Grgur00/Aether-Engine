@@ -3,6 +3,12 @@
   "projectId": "b1ce0528-1e0b-4a2b-a024-431960554efa",
   "schemas": [
     {
+      "javaType": "io.aetherdb.embedded.typed.LedgerEntry",
+      "schemaId": "a0e988c2-74f0-4243-b44f-c395916e0a74",
+      "currentVersion": 1,
+      "lockFile": "a0e988c2-74f0-4243-b44f-c395916e0a74.schema.json"
+    },
+    {
       "javaType": "io.aetherdb.embedded.typed.Todo",
       "schemaId": "7c4d8b15-e87d-48fc-a5d0-8324fae35852",
       "currentVersion": 1,

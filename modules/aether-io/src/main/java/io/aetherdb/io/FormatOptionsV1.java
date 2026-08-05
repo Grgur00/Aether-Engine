@@ -9,18 +9,31 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.UUID;
 
-/** Exact immutable 4 KiB FORMAT-OPTIONS v1 codec and compatibility fingerprint. */
+/**
+ * Exact immutable 4 KiB FORMAT-OPTIONS v1 codec and compatibility fingerprint.
+ *
+ * @param databaseId durable non-zero database identity
+ * @param creationEpochMillis database creation time in Unix epoch milliseconds
+ */
 public record FormatOptionsV1(UUID databaseId, long creationEpochMillis) {
+    /** Total encoded file length in bytes. */
     public static final int ENCODED_LENGTH = 4_096;
+    /** Checksummed header length in bytes. */
     public static final int HEADER_LENGTH = 512;
     private static final byte[] MAGIC = "AETHFMT1".getBytes(StandardCharsets.US_ASCII);
 
+    /** Validates database identity and creation time. */
     public FormatOptionsV1 {
         if (databaseId == null || databaseId.getMostSignificantBits() == 0 && databaseId.getLeastSignificantBits() == 0)
             throw new IllegalArgumentException("database UUID must be nonzero");
         if (creationEpochMillis < 0) throw new IllegalArgumentException("creation time must be non-negative");
     }
 
+    /**
+     * Encodes this options vector into its exact durable representation.
+     *
+     * @return newly allocated 4 KiB options image
+     */
     public byte[] encode() {
         byte[] encoded = new byte[ENCODED_LENGTH];
         ByteBuffer bytes = ByteBuffer.wrap(encoded).order(ByteOrder.LITTLE_ENDIAN);
@@ -34,6 +47,11 @@ public record FormatOptionsV1(UUID databaseId, long creationEpochMillis) {
         return encoded;
     }
 
+    /**
+     * Computes the SHA-256 fingerprint of format-affecting constants.
+     *
+     * @return newly allocated 32-byte compatibility fingerprint
+     */
     public byte[] compatibilityFingerprint() {
         ByteBuffer vector = ByteBuffer.allocate(128).order(ByteOrder.LITTLE_ENDIAN);
         vector.put("AETHER-COMPAT-V1".getBytes(StandardCharsets.US_ASCII));
@@ -42,6 +60,13 @@ public record FormatOptionsV1(UUID databaseId, long creationEpochMillis) {
         catch (NoSuchAlgorithmException impossible) { throw new AssertionError(impossible); }
     }
 
+    /**
+     * Validates and decodes a durable options image.
+     *
+     * @param encoded encoded FORMAT-OPTIONS bytes
+     * @return decoded options
+     * @throws IllegalArgumentException if the image is incompatible or corrupt
+     */
     public static FormatOptionsV1 decode(byte[] encoded) {
         if (encoded == null || encoded.length != ENCODED_LENGTH) throw new IllegalArgumentException("FORMAT-OPTIONS must be exactly 4096 bytes");
         ByteBuffer bytes = ByteBuffer.wrap(encoded).order(ByteOrder.LITTLE_ENDIAN);

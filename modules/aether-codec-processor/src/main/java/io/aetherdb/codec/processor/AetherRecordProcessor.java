@@ -36,9 +36,13 @@ import javax.tools.StandardLocation;
 
 /** Generates deterministic AER1 codecs and registration metadata for annotated records. */
 @SupportedAnnotationTypes("*")
-@SupportedOptions({"aether.schemaMode", "aether.schemaDirectory"})
+@SupportedOptions({"aether.schemaMode", "aether.schemaDirectory", "aether.schemaProposalDirectory"})
 public final class AetherRecordProcessor extends AbstractProcessor {
+    /** Creates an annotation processor instance for the Java compiler. */
+    public AetherRecordProcessor() {}
+
     private final List<GeneratedRecord> generated = new ArrayList<>();
+    private final List<ProposedSchema> proposals = new ArrayList<>();
     private boolean resourcesWritten;
 
     @Override public SourceVersion getSupportedSourceVersion() { return SourceVersion.RELEASE_21; }
@@ -53,6 +57,7 @@ public final class AetherRecordProcessor extends AbstractProcessor {
         if (roundEnvironment.processingOver() && !resourcesWritten && !generated.isEmpty()) {
             resourcesWritten = true;
             writeRegistrationResources();
+            writeSchemaProposals();
         }
         return true;
     }
@@ -69,17 +74,25 @@ public final class AetherRecordProcessor extends AbstractProcessor {
         }
         AetherRecord annotation = type.getAnnotation(AetherRecord.class);
         LockedSchema locked = loadLock(type);
+        boolean proposing = isProposalMode();
         UUID schemaId;
         try {
             String declaredSchemaId = annotation.schemaId();
             if (declaredSchemaId.isEmpty()) {
                 if (locked == null) {
-                    messages.printMessage(Diagnostic.Kind.ERROR,
-                            "AETHER_SCHEMA_LOCK_MISSING for " + type.getQualifiedName()
-                                    + ". Run: ./gradlew aetherSchemaInit", type);
-                    return false;
+                    if (!proposing) {
+                        messages.printMessage(Diagnostic.Kind.ERROR,
+                                "AETHER_SCHEMA_LOCK_MISSING: No committed Aether schema lock exists for "
+                                        + type.getQualifiedName() + ".\n\nRun:\n"
+                                        + "  ./gradlew aetherSchemaInit\n"
+                                        + "  ./gradlew aetherSchemaAccept", type);
+                        return false;
+                    }
+                    declaredSchemaId = UUID.nameUUIDFromBytes(
+                            ("aether-schema:" + type.getQualifiedName())
+                                    .getBytes(StandardCharsets.UTF_8)).toString();
                 }
-                declaredSchemaId = locked.schemaId.toString();
+                else declaredSchemaId = locked.schemaId.toString();
             }
             schemaId = UUID.fromString(declaredSchemaId);
             if (schemaId.equals(new UUID(0, 0))) throw new IllegalArgumentException("zero UUID");
@@ -92,7 +105,7 @@ public final class AetherRecordProcessor extends AbstractProcessor {
             messages.printMessage(Diagnostic.Kind.ERROR, "SCHEMA_VERSION_INVALID", type);
             return false;
         }
-        if (locked != null) {
+        if (locked != null && !proposing) {
             if (!locked.schemaId.equals(schemaId)) {
                 messages.printMessage(Diagnostic.Kind.ERROR, "AETHER_SCHEMA_ID_LOCK_MISMATCH", type);
                 return false;
@@ -108,25 +121,71 @@ public final class AetherRecordProcessor extends AbstractProcessor {
 
         List<FieldModel> fields = new ArrayList<>();
         Set<Integer> fieldIds = new HashSet<>();
+        Set<Integer> unavailableIds = new HashSet<>();
+        Set<String> sourceFieldNames = new HashSet<>();
+        type.getRecordComponents().forEach(component ->
+                sourceFieldNames.add(component.getSimpleName().toString()));
+        boolean schemaChanged = false;
+        if (locked != null) {
+            unavailableIds.addAll(locked.reservedIds);
+            locked.fields.values().forEach(field -> unavailableIds.add(field.id));
+        }
         boolean valid = true;
         for (RecordComponentElement component : type.getRecordComponents()) {
             AetherField field = component.getAnnotation(AetherField.class);
             int fieldId = field == null ? 0 : field.id();
             LockedField lockedField = locked == null ? null : locked.fields.get(
                     component.getSimpleName().toString());
-            if (fieldId == 0) {
+            if (lockedField == null && locked != null && field != null
+                    && !field.previousName().isBlank()) {
+                lockedField = locked.fields.get(field.previousName());
                 if (lockedField == null) {
                     messages.printMessage(Diagnostic.Kind.ERROR,
-                            "AETHER_SCHEMA_LOCK_MISSING field identity for "
-                                    + component.getSimpleName()
-                                    + ". Run: ./gradlew aetherSchemaUpdate", component);
+                            "AETHER_RENAME_SOURCE_NOT_FOUND: " + field.previousName(), component);
                     valid = false;
                     continue;
                 }
-                fieldId = lockedField.id;
+                schemaChanged = true;
+            }
+            if (lockedField == null && locked != null && fieldId == 0
+                    && (field == null || field.previousName().isBlank())) {
+                List<String> possibleRenames = locked.fields.entrySet().stream()
+                        .filter(entry -> !sourceFieldNames.contains(entry.getKey()))
+                        .filter(entry -> !entry.getValue().retired)
+                        .filter(entry -> entry.getValue().javaType.equals(component.asType().toString()))
+                        .map(java.util.Map.Entry::getKey).sorted().toList();
+                if (!possibleRenames.isEmpty()) {
+                    messages.printMessage(Diagnostic.Kind.ERROR,
+                            "AETHER_RENAME_AMBIGUOUS: new field " + component.getSimpleName()
+                                    + " may replace " + possibleRenames
+                                    + "; add @AetherField(previousName=\"...\")", component);
+                    valid = false;
+                    continue;
+                }
+            }
+            if (fieldId == 0) {
+                if (lockedField == null) {
+                    if (!proposing) {
+                        messages.printMessage(Diagnostic.Kind.ERROR,
+                                "Schema update required for " + type.getQualifiedName()
+                                        + ".\n\nNew field:\n  " + component.getSimpleName()
+                                        + "\n\nRun:\n  ./gradlew aetherSchemaUpdate", component);
+                        valid = false;
+                        continue;
+                    }
+                    fieldId = nextFieldId(unavailableIds);
+                    unavailableIds.add(fieldId);
+                    schemaChanged = locked != null;
+                }
+                else fieldId = lockedField.id;
             }
             else if (lockedField != null && lockedField.id != fieldId) {
                 messages.printMessage(Diagnostic.Kind.ERROR, "AETHER_FIELD_ID_LOCK_MISMATCH", component);
+                valid = false;
+            }
+            else if (lockedField == null && locked != null && unavailableIds.contains(fieldId)) {
+                messages.printMessage(Diagnostic.Kind.ERROR,
+                        "AETHER_REMOVED_FIELD_ID_REUSED: " + fieldId, component);
                 valid = false;
             }
             if (fieldId < 16 || fieldId > 536_870_911) {
@@ -151,24 +210,42 @@ public final class AetherRecordProcessor extends AbstractProcessor {
                 AetherMaxLength maximum = component.getAnnotation(AetherMaxLength.class);
                 if (maximum != null && maximum.value() > 0) bound = maximum.value();
                 else if (lockedField != null && lockedField.bound > 0) bound = lockedField.bound;
+                else if (proposing) bound = 65_536;
                 else {
                     messages.printMessage(Diagnostic.Kind.ERROR, "FIELD_BOUND_REQUIRED", component);
                     valid = false;
                     continue;
                 }
             }
-            if (lockedField != null
+            if (!proposing && lockedField != null
                     && (!lockedField.javaType.equals(component.asType().toString())
                             || lockedField.bound != bound)) {
                 messages.printMessage(Diagnostic.Kind.ERROR,
                         "AETHER_SCHEMA_UPDATE_REQUIRED for field " + component.getSimpleName(), component);
                 valid = false;
             }
+            if (proposing && lockedField != null
+                    && (!lockedField.javaType.equals(component.asType().toString())
+                            || lockedField.bound != bound)) schemaChanged = true;
             fields.add(new FieldModel(
                     fieldId, component.getSimpleName().toString(),
-                    component.asType().toString(), fieldType, bound));
+                    component.asType().toString(), fieldType, bound,
+                    fieldType == FieldType.OPTIONAL_INSTANT || (field != null && field.optional())));
         }
         if (!valid) return false;
+
+        if (proposing && locked != null) {
+            Set<Integer> currentIds = new HashSet<>();
+            fields.forEach(current -> currentIds.add(current.id));
+            if (locked.fields.values().stream().map(LockedField::id)
+                    .anyMatch(id -> !currentIds.contains(id))) schemaChanged = true;
+            if (schemaChanged && annotation.version() <= locked.version) {
+                messages.printMessage(Diagnostic.Kind.ERROR,
+                        "AETHER_SCHEMA_VERSION_NOT_INCREMENTED: source version must be greater than "
+                                + locked.version, type);
+                return false;
+            }
+        }
 
         fields.sort(Comparator.comparingInt(FieldModel::id));
         String qualifiedName = type.getQualifiedName().toString();
@@ -177,7 +254,7 @@ public final class AetherRecordProcessor extends AbstractProcessor {
         String simpleName = type.getSimpleName().toString();
         String descriptor = descriptor(schemaId, annotation.version(), qualifiedName, fields);
         byte[] fingerprint = sha256(descriptor.getBytes(StandardCharsets.UTF_8));
-        if (locked != null && !locked.descriptorSha256.isEmpty()
+        if (!proposing && locked != null && !locked.descriptorSha256.isEmpty()
                 && !locked.descriptorSha256.equals(hex(fingerprint))) {
             messages.printMessage(Diagnostic.Kind.ERROR,
                     "AETHER_SCHEMA_UPDATE_REQUIRED: descriptor fingerprint differs. Run: ./gradlew aetherSchemaUpdate",
@@ -196,6 +273,11 @@ public final class AetherRecordProcessor extends AbstractProcessor {
                     schemaId,
                     annotation.version(),
                     hex(fingerprint)));
+            if (proposing) proposals.add(new ProposedSchema(
+                    qualifiedName, schemaId, annotation.version(), List.copyOf(fields),
+                    locked == null ? Set.of() : removedAndReservedIds(locked, fields),
+                    locked == null ? java.util.Map.of() : retiredFields(locked, fields),
+                    hex(fingerprint)));
             return true;
         }
         catch (IOException failure) {
@@ -203,6 +285,39 @@ public final class AetherRecordProcessor extends AbstractProcessor {
                     Diagnostic.Kind.ERROR, "CODEC_GENERATION_FAILED: " + failure.getMessage(), type);
             return false;
         }
+    }
+
+    private boolean isProposalMode() {
+        return "PROPOSE".equalsIgnoreCase(
+                processingEnv.getOptions().getOrDefault("aether.schemaMode", "VERIFY"));
+    }
+
+    private static int nextFieldId(Set<Integer> unavailable) {
+        for (int candidate = 16; candidate <= 536_870_911; candidate++) {
+            if (!unavailable.contains(candidate)) return candidate;
+        }
+        throw new IllegalStateException("AETHER_FIELD_ID_SPACE_EXHAUSTED");
+    }
+
+    private static Set<Integer> removedAndReservedIds(
+            LockedSchema locked, List<FieldModel> current) {
+        Set<Integer> active = new HashSet<>();
+        current.forEach(field -> active.add(field.id));
+        Set<Integer> reserved = new java.util.TreeSet<>(locked.reservedIds);
+        locked.fields.values().stream().map(LockedField::id)
+                .filter(id -> !active.contains(id)).forEach(reserved::add);
+        return Set.copyOf(reserved);
+    }
+
+    private static java.util.Map<String, LockedField> retiredFields(
+            LockedSchema locked, List<FieldModel> current) {
+        Set<Integer> active = new HashSet<>();
+        current.forEach(field -> active.add(field.id));
+        java.util.Map<String, LockedField> retired = new java.util.TreeMap<>();
+        locked.fields.forEach((name, field) -> {
+            if (!active.contains(field.id)) retired.put(name, field);
+        });
+        return java.util.Map.copyOf(retired);
     }
 
     private LockedSchema loadLock(TypeElement type) {
@@ -233,21 +348,31 @@ public final class AetherRecordProcessor extends AbstractProcessor {
                             + "\\s*\\\"javaName\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"\\s*,"
                             + "\\s*\\\"wireType\\\"\\s*:\\s*\\\"[^\\\"]+\\\"\\s*,"
                             + "\\s*\\\"type\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"\\s*,"
-                            + "\\s*\\\"requiredness\\\"\\s*:\\s*\\\"[^\\\"]+\\\"\\s*,"
+                            + "\\s*\\\"requiredness\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"\\s*,"
                             + "\\s*\\\"maximumEncodedBytes\\\"\\s*:\\s*(\\d+)\\s*\\}")
                     .matcher(lockJson);
             java.util.Map<String, LockedField> fields = new java.util.HashMap<>();
             while (field.find()) {
                 fields.put(field.group(2), new LockedField(
                         Integer.parseInt(field.group(1)), field.group(3),
-                        Integer.parseInt(field.group(4))));
+                        Integer.parseInt(field.group(5)), field.group(4).equals("RETIRED")));
             }
             java.util.regex.Matcher fingerprint = java.util.regex.Pattern.compile(
                     "\\\"descriptorSha256\\\"\\s*:\\s*\\\"([0-9a-f]{64})\\\"")
                     .matcher(lockJson);
             String descriptorSha256 = fingerprint.find() ? fingerprint.group(1) : "";
+            Set<Integer> reservedIds = new HashSet<>();
+            java.util.regex.Matcher reserved = java.util.regex.Pattern.compile(
+                    "\\\"reservedFieldIds\\\"\\s*:\\s*\\[([^]]*)]")
+                    .matcher(lockJson);
+            if (reserved.find() && !reserved.group(1).isBlank()) {
+                for (String value : reserved.group(1).split(",")) {
+                    reservedIds.add(Integer.parseInt(value.strip()));
+                }
+            }
             return new LockedSchema(
-                    schemaId, version, java.util.Map.copyOf(fields), descriptorSha256);
+                    schemaId, version, java.util.Map.copyOf(fields),
+                    Set.copyOf(reservedIds), descriptorSha256);
         }
         catch (IOException | IllegalArgumentException failure) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
@@ -296,7 +421,7 @@ public final class AetherRecordProcessor extends AbstractProcessor {
             output.write("    return writer.finish();\n  }\n");
             output.write("  @Override public " + simpleName
                     + " decode(int schemaVersion, byte[] encoded) {\n");
-            output.write("    if (schemaVersion != " + version
+            output.write("    if (schemaVersion < 1 || schemaVersion > " + version
                     + ") throw new IllegalArgumentException(\"SCHEMA_VERSION_UNSUPPORTED: \" + schemaVersion);\n");
             for (RecordComponentElement component : constructorFields) {
                 FieldModel field = findByName(sortedFields, component.getSimpleName().toString());
@@ -311,7 +436,8 @@ public final class AetherRecordProcessor extends AbstractProcessor {
             output.write("      }\n    }\n");
             for (RecordComponentElement component : constructorFields) {
                 String name = component.getSimpleName().toString();
-                output.write("    if (!seen_" + name
+                FieldModel field = findByName(sortedFields, name);
+                if (!field.optional) output.write("    if (!seen_" + name
                         + ") throw new IllegalArgumentException(\"missing required field: "
                         + name + "\");\n");
             }
@@ -377,7 +503,110 @@ public final class AetherRecordProcessor extends AbstractProcessor {
         }
     }
 
+    private void writeSchemaProposals() {
+        if (!isProposalMode() || proposals.isEmpty()) return;
+        String configured = processingEnv.getOptions().get("aether.schemaProposalDirectory");
+        if (configured == null || configured.isBlank()) {
+            processingEnv.getMessager().printMessage(
+                    Diagnostic.Kind.ERROR, "AETHER_SCHEMA_PROPOSAL_DIRECTORY_MISSING");
+            return;
+        }
+        Path directory = Path.of(configured).normalize();
+        try {
+            Files.createDirectories(directory);
+            proposals.sort(Comparator.comparing(ProposedSchema::javaType));
+            StringBuilder index = new StringBuilder("{\n  \"formatVersion\": 1,\n  \"schemas\": [\n");
+            for (int proposalIndex = 0; proposalIndex < proposals.size(); proposalIndex++) {
+                ProposedSchema proposal = proposals.get(proposalIndex);
+                String fileName = proposal.schemaId + ".schema.json";
+                Files.writeString(directory.resolve(fileName), proposalJson(proposal), StandardCharsets.UTF_8);
+                if (proposalIndex > 0) index.append(",\n");
+                index.append("    {\n")
+                        .append("      \"javaType\": \"").append(proposal.javaType).append("\",\n")
+                        .append("      \"schemaId\": \"").append(proposal.schemaId).append("\",\n")
+                        .append("      \"currentVersion\": ").append(proposal.version).append(",\n")
+                        .append("      \"lockFile\": \"").append(fileName).append("\"\n")
+                        .append("    }");
+            }
+            index.append("\n  ]\n}\n");
+            Files.writeString(directory.resolve("index.json"), index, StandardCharsets.UTF_8);
+        }
+        catch (IOException failure) {
+            processingEnv.getMessager().printMessage(
+                    Diagnostic.Kind.ERROR, "AETHER_SCHEMA_PROPOSAL_FAILED: " + failure.getMessage());
+        }
+    }
+
+    private static String proposalJson(ProposedSchema proposal) {
+        StringBuilder json = new StringBuilder("{\n")
+                .append("  \"formatVersion\": 1,\n")
+                .append("  \"schemaId\": \"").append(proposal.schemaId).append("\",\n")
+                .append("  \"javaType\": \"").append(proposal.javaType).append("\",\n")
+                .append("  \"currentVersion\": ").append(proposal.version).append(",\n")
+                .append("  \"unknownFieldPolicy\": \"SKIP\",\n")
+                .append("  \"reservedFieldIds\": [");
+        proposal.reservedIds.stream().sorted().forEachOrdered(id -> {
+            if (json.charAt(json.length() - 1) != '[') json.append(", ");
+            json.append(id);
+        });
+        json.append("],\n  \"retiredFields\": [");
+        int retiredIndex = 0;
+        for (var retired : proposal.retiredFields.entrySet()) {
+            if (retiredIndex++ > 0) json.append(',');
+            LockedField field = retired.getValue();
+            json.append("\n    {\n")
+                    .append("      \"id\": ").append(field.id).append(",\n")
+                    .append("      \"javaName\": \"").append(retired.getKey()).append("\",\n")
+                    .append("      \"wireType\": \"").append(wireName(field.javaType)).append("\",\n")
+                    .append("      \"type\": \"").append(field.javaType).append("\",\n")
+                    .append("      \"requiredness\": \"RETIRED\",\n")
+                    .append("      \"maximumEncodedBytes\": ").append(field.bound).append("\n")
+                    .append("    }");
+        }
+        if (retiredIndex > 0) json.append('\n');
+        json.append("  ],\n  \"versions\": [\n    {\n")
+                .append("      \"version\": ").append(proposal.version).append(",\n")
+                .append("      \"payloadFormat\": \"AER1\",\n")
+                .append("      \"fields\": [\n");
+        for (int index = 0; index < proposal.fields.size(); index++) {
+            FieldModel field = proposal.fields.get(index);
+            if (index > 0) json.append(",\n");
+            json.append("        {\n")
+                    .append("          \"id\": ").append(field.id).append(",\n")
+                    .append("          \"javaName\": \"").append(field.name).append("\",\n")
+                    .append("          \"wireType\": \"").append(field.type.wireName()).append("\",\n")
+                    .append("          \"type\": \"").append(field.javaType).append("\",\n")
+                    .append("          \"requiredness\": \"")
+                    .append(field.optional ? "OPTIONAL" : "REQUIRED").append("\",\n")
+                    .append("          \"maximumEncodedBytes\": ").append(field.bound).append("\n")
+                    .append("        }");
+        }
+        return json.append("\n      ],\n")
+                .append("      \"descriptorSha256\": \"").append(proposal.fingerprint).append("\",\n")
+                .append("      \"compatibilityFromPrevious\": \"")
+                .append(proposal.version == 1 ? "INITIAL" : "COMPATIBLE")
+                .append("\"\n    }\n  ]\n}\n").toString();
+    }
+
+    private static String wireName(String javaType) {
+        return switch (javaType) {
+            case "boolean" -> "BOOL";
+            case "long", "int" -> "SIGNED_VARINT";
+            case "double" -> "FIXED64";
+            case "java.lang.String" -> "STRING_UTF8";
+            case "java.util.UUID" -> "UUID128";
+            case "java.time.Instant" -> "TEMPORAL";
+            case "java.util.Optional<java.time.Instant>" -> "TEMPORAL";
+            default -> "UNKNOWN";
+        };
+    }
+
     private static String encodeStatement(FieldModel field) {
+        if (field.type == FieldType.OPTIONAL_INSTANT) {
+            return "    value." + field.name + "().ifPresent(item -> writer.field(" + field.id
+                    + ", io.aetherdb.codec.generated.WireType.TEMPORAL, "
+                    + "io.aetherdb.codec.generated.CanonicalRecordWriter.instant(item)));\n";
+        }
         return "    writer.field(" + field.id + ", " + field.type.wireConstant + ", "
                 + field.type.writerExpression(field.name, field.bound) + ");\n";
     }
@@ -399,6 +628,7 @@ public final class AetherRecordProcessor extends AbstractProcessor {
             case INT -> "0";
             case BOOLEAN -> "false";
             case DOUBLE -> "0.0d";
+            case OPTIONAL_INSTANT -> "java.util.Optional.empty()";
             default -> "null";
         };
     }
@@ -412,6 +642,7 @@ public final class AetherRecordProcessor extends AbstractProcessor {
             case "java.lang.String" -> FieldType.STRING;
             case "java.util.UUID" -> FieldType.UUID;
             case "java.time.Instant" -> FieldType.INSTANT;
+            case "java.util.Optional<java.time.Instant>" -> FieldType.OPTIONAL_INSTANT;
             default -> null;
         };
     }
@@ -461,7 +692,8 @@ public final class AetherRecordProcessor extends AbstractProcessor {
         DOUBLE(8, "io.aetherdb.codec.generated.WireType.FIXED64"),
         STRING(-1, "io.aetherdb.codec.generated.WireType.STRING_UTF8"),
         UUID(16, "io.aetherdb.codec.generated.WireType.UUID128"),
-        INSTANT(20, "io.aetherdb.codec.generated.WireType.TEMPORAL");
+        INSTANT(20, "io.aetherdb.codec.generated.WireType.TEMPORAL"),
+        OPTIONAL_INSTANT(20, "io.aetherdb.codec.generated.WireType.TEMPORAL");
 
         private final int fixedBound;
         private final String wireConstant;
@@ -485,6 +717,7 @@ public final class AetherRecordProcessor extends AbstractProcessor {
                         + name + "())";
                 case INSTANT -> "io.aetherdb.codec.generated.CanonicalRecordWriter.instant(value."
                         + name + "())";
+                case OPTIONAL_INSTANT -> throw new IllegalStateException("optional writer is conditional");
             };
         }
 
@@ -497,12 +730,24 @@ public final class AetherRecordProcessor extends AbstractProcessor {
                 case STRING -> "reader.stringValue(" + bound + ")";
                 case UUID -> "reader.uuidValue()";
                 case INSTANT -> "reader.instantValue()";
+                case OPTIONAL_INSTANT -> "java.util.Optional.of(reader.instantValue())";
+            };
+        }
+
+        String wireName() {
+            return switch (this) {
+                case BOOLEAN -> "BOOL";
+                case LONG, INT -> "SIGNED_VARINT";
+                case DOUBLE -> "FIXED64";
+                case STRING -> "STRING_UTF8";
+                case UUID -> "UUID128";
+                case INSTANT, OPTIONAL_INSTANT -> "TEMPORAL";
             };
         }
     }
 
     private record FieldModel(
-            int id, String name, String javaType, FieldType type, int bound) {}
+            int id, String name, String javaType, FieldType type, int bound, boolean optional) {}
 
     private record GeneratedRecord(
             String qualifiedName,
@@ -515,6 +760,15 @@ public final class AetherRecordProcessor extends AbstractProcessor {
             UUID schemaId,
             int version,
             java.util.Map<String, LockedField> fields,
+            Set<Integer> reservedIds,
             String descriptorSha256) {}
-    private record LockedField(int id, String javaType, int bound) {}
+    private record LockedField(int id, String javaType, int bound, boolean retired) {}
+    private record ProposedSchema(
+            String javaType,
+            UUID schemaId,
+            int version,
+            List<FieldModel> fields,
+            Set<Integer> reservedIds,
+            java.util.Map<String, LockedField> retiredFields,
+            String fingerprint) {}
 }

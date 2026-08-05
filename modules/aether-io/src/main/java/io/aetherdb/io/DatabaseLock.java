@@ -13,6 +13,13 @@ public final class DatabaseLock implements AutoCloseable {
     private final FileLock lock;
     private DatabaseLock(FileChannel channel, FileLock lock) { this.channel = channel; this.lock = lock; }
 
+    /**
+     * Acquires the database's non-blocking, process-exclusive lock lease.
+     *
+     * @param databaseRoot validated database directory
+     * @return acquired lock that must be closed
+     * @throws IOException if the directory is unsafe or another process holds the lock
+     */
     public static DatabaseLock acquire(Path databaseRoot) throws IOException {
         Path root = PathSecurityValidator.validateRoot(databaseRoot, true);
         Path lockPath = root.resolve("LOCK");
@@ -27,5 +34,7 @@ public final class DatabaseLock implements AutoCloseable {
             throw failure;
         }
     }
+
+    /** Releases the operating-system lock and closes its channel. */
     @Override public void close() throws IOException { try { lock.release(); } finally { channel.close(); } }
 }

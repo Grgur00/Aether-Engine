@@ -17,6 +17,10 @@ public final class GeneratedCodecs {
 
     private GeneratedCodecs() {}
 
+    /** Resolves the generated codec for an annotated record.
+     * @param recordType annotated record class
+     * @param <T> record type
+     * @return generated codec */
     public static <T> ValueCodec<T> forRecord(Class<T> recordType) {
         if (recordType == null) throw new IllegalArgumentException("recordType must not be null");
         ValueCodec<?> codec = REGISTRY.codecs().get(recordType);
@@ -30,7 +34,10 @@ public final class GeneratedCodecs {
         return typed;
     }
 
-    /** Returns the authoritative generated descriptor bytes for a schema version, if installed. */
+    /** Returns the authoritative generated descriptor bytes for a schema version, if installed.
+     * @param schemaId schema identity
+     * @param version schema version
+     * @return defensive descriptor copy, or empty when unavailable */
     public static Optional<byte[]> descriptor(UUID schemaId, int version) {
         byte[] descriptor = REGISTRY.descriptors().get(new SchemaVersion(schemaId, version));
         return descriptor == null ? Optional.empty() : Optional.of(Arrays.copyOf(descriptor, descriptor.length));

@@ -6,11 +6,20 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-/** Exact 128-byte DB-IDENTITY format v1 codec. */
+/**
+ * Exact 128-byte DB-IDENTITY format v1 codec.
+ *
+ * @param databaseId durable non-zero database identity
+ * @param creationEpochMillis database creation time in Unix epoch milliseconds
+ * @param creatorMajor creator's major software version
+ * @param creatorMinor creator's minor software version
+ */
 public record DatabaseIdentityV1(UUID databaseId, long creationEpochMillis, int creatorMajor, int creatorMinor) {
+    /** Encoded DB-IDENTITY length in bytes. */
     public static final int ENCODED_LENGTH = 128;
     private static final byte[] MAGIC = "AETHDBI1".getBytes(StandardCharsets.US_ASCII);
 
+    /** Validates identity fields before the record becomes observable. */
     public DatabaseIdentityV1 {
         if (databaseId == null || databaseId.getMostSignificantBits() == 0 && databaseId.getLeastSignificantBits() == 0)
             throw new IllegalArgumentException("database UUID must be nonzero");
@@ -18,6 +27,11 @@ public record DatabaseIdentityV1(UUID databaseId, long creationEpochMillis, int 
             throw new IllegalArgumentException("identity values must be non-negative");
     }
 
+    /**
+     * Encodes this identity using the exact v1 layout and masked CRC32C trailer.
+     *
+     * @return newly allocated 128-byte representation
+     */
     public byte[] encode() {
         byte[] encoded = new byte[ENCODED_LENGTH];
         ByteBuffer bytes = ByteBuffer.wrap(encoded).order(ByteOrder.LITTLE_ENDIAN);
@@ -29,6 +43,13 @@ public record DatabaseIdentityV1(UUID databaseId, long creationEpochMillis, int 
         return encoded;
     }
 
+    /**
+     * Validates and decodes an exact v1 identity image.
+     *
+     * @param encoded encoded identity bytes
+     * @return decoded identity
+     * @throws IllegalArgumentException if length, header, reserved bytes, or checksum are invalid
+     */
     public static DatabaseIdentityV1 decode(byte[] encoded) {
         if (encoded == null || encoded.length != ENCODED_LENGTH) throw new IllegalArgumentException("DB-IDENTITY must be exactly 128 bytes");
         ByteBuffer bytes = ByteBuffer.wrap(encoded).order(ByteOrder.LITTLE_ENDIAN);

@@ -1,2 +1,2 @@
-/** aether-io subsystem boundary. */
+/** Database identity, format metadata, path-safety, and process-locking primitives. */
 package io.aetherdb.io;

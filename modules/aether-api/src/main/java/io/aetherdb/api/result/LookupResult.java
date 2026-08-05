@@ -12,6 +12,9 @@ public final class LookupResult {
         this.value = value;
     }
 
+    /** Creates a successful lookup result and copies the value.
+     * @param value non-null value bytes
+     * @return found result */
     public static LookupResult found(byte[] value) {
         if (value == null) {
             throw new IllegalArgumentException("value must not be null");
@@ -19,14 +22,21 @@ public final class LookupResult {
         return new LookupResult(Arrays.copyOf(value, value.length));
     }
 
+    /** Returns the shared logical-absence result.
+     * @return not-found result */
     public static LookupResult notFound() {
         return NOT_FOUND;
     }
 
+    /** Reports whether a value was found.
+     * @return {@code true} when this result contains a value */
     public boolean isFound() {
         return value != null;
     }
 
+    /** Returns the found value.
+     * @return defensive copy of the value
+     * @throws NoSuchElementException when no value was found */
     public byte[] value() {
         if (value == null) {
             throw new NoSuchElementException("lookup result is NOT_FOUND");

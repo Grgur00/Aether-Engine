@@ -13,19 +13,34 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-/** Exact command-envelope and replicated write-batch body v1 codec. */
+/**
+ * Exact command-envelope and replicated write-batch body v1 codec.
+ * @param commandId unique idempotency identity
+ * @param sequences leader-assigned state sequence range
+ * @param operations ordered mutations
+ */
 public record ReplicatedWriteCommandV1(UUID commandId, StateSequenceRange sequences, List<Operation> operations) {
+    /** Fixed command-envelope length. */
     public static final int ENVELOPE_BYTES = 128;
+    /** Fixed write-batch body-header length. */
     public static final int BATCH_HEADER_BYTES = 32;
+    /** Fixed per-operation header length. */
     public static final int OPERATION_HEADER_BYTES = 16;
+    /** Maximum encoded command body length. */
     public static final int MAX_BODY_BYTES = 32 * 1024 * 1024;
 
+    /** Validates command identity, sequence count, and operation ownership. */
     public ReplicatedWriteCommandV1 {
         if (isZero(commandId) || sequences == null || operations == null || operations.isEmpty() || operations.size() > 10_000
                 || sequences.operationCount() != operations.size()) throw new IllegalArgumentException("invalid replicated write command");
         operations = List.copyOf(operations);
     }
 
+    /** Converts an API write batch into a replicated command.
+     * @param commandId unique command identity
+     * @param sequences allocated state sequences
+     * @param batch source mutation batch
+     * @return immutable replicated command */
     public static ReplicatedWriteCommandV1 fromBatch(UUID commandId, StateSequenceRange sequences, WriteBatch batch) {
         List<Operation> operations = new ArrayList<>(); int ordinal = 0;
         for (WriteBatch.Mutation mutation : batch.mutations()) {
@@ -36,6 +51,8 @@ public record ReplicatedWriteCommandV1(UUID commandId, StateSequenceRange sequen
         return new ReplicatedWriteCommandV1(commandId, sequences, operations);
     }
 
+    /** Encodes the command envelope and body with integrity metadata.
+     * @return newly allocated wire payload */
     public byte[] encode() {
         byte[] body = encodeBody(); byte[] result = new byte[ENVELOPE_BYTES + body.length]; byte[] bodyHash = sha256(body);
         ByteBuffer envelope = ByteBuffer.wrap(result).order(ByteOrder.LITTLE_ENDIAN);
@@ -47,6 +64,9 @@ public record ReplicatedWriteCommandV1(UUID commandId, StateSequenceRange sequen
         System.arraycopy(body, 0, result, ENVELOPE_BYTES, body.length); return result;
     }
 
+    /** Decodes and validates a complete command payload.
+     * @param payload encoded command bytes
+     * @return decoded command */
     public static ReplicatedWriteCommandV1 decode(byte[] payload) {
         if (payload == null || payload.length < ENVELOPE_BYTES + BATCH_HEADER_BYTES || payload.length > ENVELOPE_BYTES + MAX_BODY_BYTES)
             throw new IllegalArgumentException("invalid replicated command length");
@@ -103,10 +123,30 @@ public record ReplicatedWriteCommandV1(UUID commandId, StateSequenceRange sequen
     private static void putUuid(ByteBuffer bytes, UUID id) { bytes.putLong(id.getMostSignificantBits()).putLong(id.getLeastSignificantBits()); }
     private static UUID getUuid(ByteBuffer bytes) { return new UUID(bytes.getLong(), bytes.getLong()); }
 
-    public enum Type { PUT(1), DELETE(2); private final int code; Type(int code) { this.code = code; } static Type fromCode(int code) { if (code == 1) return PUT; if (code == 2) return DELETE; throw new IllegalArgumentException("unknown operation type"); } }
+    /** Mutation kind stored in a replicated command. */
+    public enum Type {
+        /** Inserts or replaces a value. */ PUT(1),
+        /** Removes a key. */ DELETE(2);
+        private final int code;
+        Type(int code) { this.code = code; }
+        static Type fromCode(int code) { if (code == 1) return PUT; if (code == 2) return DELETE; throw new IllegalArgumentException("unknown operation type"); }
+    }
+    /**
+     * One ordered replicated mutation.
+     * @param type mutation kind
+     * @param key copied key bytes
+     * @param value copied value bytes, empty for deletes
+     * @param ordinal zero-based position in the command
+     */
     public record Operation(Type type, byte[] key, byte[] value, int ordinal) {
+        /** Validates fields and takes defensive copies of byte arrays. */
         public Operation { if (type == null || key == null || value == null || ordinal < 0) throw new IllegalArgumentException("invalid operation"); key = key.clone(); value = value.clone(); }
-        @Override public byte[] key() { return key.clone(); } @Override public byte[] value() { return value.clone(); }
+        /** Returns the mutation key.
+         * @return defensive key copy */
+        @Override public byte[] key() { return key.clone(); }
+        /** Returns the mutation value.
+         * @return defensive value copy */
+        @Override public byte[] value() { return value.clone(); }
         @Override public boolean equals(Object other) {
             return this == other || other instanceof Operation operation && type == operation.type && ordinal == operation.ordinal
                     && Arrays.equals(key, operation.key) && Arrays.equals(value, operation.value);

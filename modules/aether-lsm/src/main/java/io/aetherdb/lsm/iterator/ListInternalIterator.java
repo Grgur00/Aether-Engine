@@ -7,6 +7,8 @@ public final class ListInternalIterator implements InternalIterator {
     private final List<InternalEntry> entries;
     private int index = -1;
     private boolean closed;
+    /** Creates an iterator after validating strict internal ordering.
+     * @param entries ordered entries */
     public ListInternalIterator(List<InternalEntry> entries) {
         this.entries = List.copyOf(entries);
         for (int i = 1; i < this.entries.size(); i++)

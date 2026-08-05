@@ -44,6 +44,39 @@ Run all verification tasks with:
 ./gradlew check
 ```
 
+## Runtime latency metrics
+
+The optional metered database decorator reports rolling p50, p95, and p99
+latency together with cumulative throughput, average/min/max latency, operation
+counts, failures, and error rate. It has no external monitoring dependency and
+uses a bounded 16,384-sample reservoir per operation.
+
+```java
+import io.aetherdb.engine.Aether;
+import io.aetherdb.engine.DatabaseOperation;
+
+try (var database = Aether.openWithMetrics(Path.of("./data/metrics-demo"))) {
+    for (int i = 0; i < 10_000; i++) {
+        byte[] key = ("key-" + i).getBytes(StandardCharsets.UTF_8);
+        database.put(key, new byte[] {1});
+        database.get(key);
+    }
+
+    var reads = database.metrics().operation(DatabaseOperation.GET);
+    System.out.printf(
+            "GET throughput=%.0f ops/s p50=%.3f ms p95=%.3f ms p99=%.3f ms errors=%d%n",
+            reads.operationsPerSecond(),
+            reads.p50LatencyNanos() / 1_000_000.0,
+            reads.p95LatencyNanos() / 1_000_000.0,
+            reads.p99LatencyMillis(),
+            reads.errors());
+}
+```
+
+Use `Aether.openInMemoryWithMetrics()` for ephemeral workloads or
+`Aether.instrument(existingDatabase)` to instrument an existing implementation.
+Call `resetMetrics()` before a warm benchmark measurement interval.
+
 ## Typed API quick start
 
 Define a typed collection with stable collection and schema identities:
@@ -108,12 +141,12 @@ Artifacts are not currently published to Maven Central.
 Custom Java records use compile-time generated codecs rather than handwritten serialization:
 
 ```java
-@AetherRecord(schemaId = "a0e988c2-74f0-4243-b44f-c395916e0a74", version = 1)
+@AetherRecord(version = 1)
 public record LedgerEntry(
-        @AetherField(id = 16) UUID accountId,
-        @AetherField(id = 17) long amountMinor,
-        @AetherField(id = 18) @AetherMaxLength(3) String currency,
-        @AetherField(id = 19) Instant bookedAt) {}
+        UUID accountId,
+        long amountMinor,
+        @AetherMaxLength(3) String currency,
+        Instant bookedAt) {}
 ```
 
 Open it by Java type:
@@ -126,7 +159,21 @@ var entries = database.defineCollection(
         LedgerEntry.class);
 ```
 
-The processor validates schema identities, stable field IDs, supported types, and variable-length bounds. It generates a deterministic AER1 codec, canonical descriptor, SHA-256 fingerprint, and runtime provider registration.
+Initialize and explicitly accept its durable identity once:
+
+```bash
+./gradlew aetherSchemaInit
+./gradlew aetherSchemaAccept
+```
+
+For later changes, increment the record version and run:
+
+```bash
+./gradlew aetherSchemaUpdate
+./gradlew aetherSchemaAccept
+```
+
+The processor validates schema identities, lock-managed stable field IDs, supported types, and variable-length bounds. It generates a deterministic AER1 codec, canonical descriptor, SHA-256 fingerprint, and runtime provider registration.
 
 For quick applications, identities may instead come from a committed Chapter 23C schema lock:
 
@@ -135,7 +182,7 @@ For quick applications, identities may instead come from a committed Chapter 23C
 public record Todo(String id, String title, boolean completed) {}
 ```
 
-The authoritative `src/main/aether-schemas/index.json` and per-schema JSON lock provide the UUID, field IDs, bounds, and descriptor fingerprint. Normal compilation is verification-only: missing, stale, or mismatched locks fail with an actionable schema command and are never rewritten by the annotation processor.
+The authoritative project-level `aether-schemas/index.json` and per-schema JSON lock provide the UUID, field IDs, bounds, retired identities, and descriptor fingerprint. Proposals are written below `build/aether-schema/proposal`; only `aetherSchemaAccept` changes committed locks. Normal compilation and `./gradlew aetherSchemaCheck` are verification-only.
 
 ## Sample application
 

@@ -12,6 +12,11 @@ import java.util.List;
 public final class WalFragmentCodec {
     private WalFragmentCodec() {}
 
+    /** Fragments one logical record along physical block boundaries.
+     * @param logical logical record bytes
+     * @param startOffset physical file offset
+     * @param recordNumber positive segment-local record number
+     * @return encoded physical fragments including block padding */
     public static byte[] fragment(byte[] logical, long startOffset, int recordNumber) {
         if (logical == null || logical.length == 0 || logical.length > WalFormatV1.MAX_LOGICAL_GROUP_BYTES || recordNumber <= 0)
             throw new IllegalArgumentException("invalid logical WAL record");
@@ -38,6 +43,10 @@ public final class WalFragmentCodec {
         return output.toByteArray();
     }
 
+    /** Strictly reassembles complete logical records from physical bytes.
+     * @param physical physical fragment bytes
+     * @param startOffset file offset corresponding to the first byte
+     * @return complete verified logical records; an incomplete tail is ignored */
     public static List<byte[]> reassemble(byte[] physical, long startOffset) {
         List<byte[]> records = new ArrayList<>();
         ByteArrayOutputStream assembling = null;

@@ -9,8 +9,12 @@ public final class ReadViewManager implements AutoCloseable {
     private final AtomicReference<ReadView> current = new AtomicReference<>();
     private final AtomicLong nextGeneration = new AtomicLong();
 
+    /** Creates a manager and publishes its initial topology.
+     * @param initial initial source inventory */
     public ReadViewManager(ReadTopology initial) { publish(initial); }
 
+    /** Pins the currently published view.
+     * @return closeable read-view handle */
     public ReadViewHandle pinCurrent() {
         for (;;) {
             ReadView view = current.get();
@@ -19,6 +23,8 @@ public final class ReadViewManager implements AutoCloseable {
         }
     }
 
+    /** Atomically replaces the published topology.
+     * @param topology new source inventory */
     public void publish(ReadTopology topology) {
         Objects.requireNonNull(topology, "topology");
         if (current.get() == null && nextGeneration.get() != 0)
@@ -28,6 +34,7 @@ public final class ReadViewManager implements AutoCloseable {
         if (previous != null) previous.retireOwner();
     }
 
+    /** Retires the published owner reference and rejects new pins. */
     @Override public void close() {
         ReadView previous = current.getAndSet(null);
         if (previous != null) previous.retireOwner();

@@ -11,6 +11,12 @@ public final class WritePressureController {
     private static final long DEBT_SLOW = 2 * LevelCompactionConfig.GIB;
     private static final long DEBT_STOP = 8 * LevelCompactionConfig.GIB;
 
+    /** Creates a stateless pressure evaluator. */
+    public WritePressureController() {}
+
+    /** Evaluates one consistent set of pressure measurements.
+     * @param input current storage measurements
+     * @return admission state, reasons, and optional delay */
     public WritePressureSnapshot evaluate(WritePressureInput input) {
         Set<WritePressureReason> reasons = EnumSet.noneOf(WritePressureReason.class);
         boolean failed = input.backgroundFailed();

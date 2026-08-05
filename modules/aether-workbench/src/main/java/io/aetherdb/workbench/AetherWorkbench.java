@@ -48,6 +48,8 @@ public final class AetherWorkbench {
         refresh("Ready");
     }
 
+    /** Starts a standalone in-memory or path-backed Workbench session.
+     * @param arguments optional database directory */
     public static void main(String[] arguments) {
         SwingUtilities.invokeLater(() -> {
             try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); }
@@ -73,7 +75,8 @@ public final class AetherWorkbench {
         });
     }
 
-    /** Opens the workbench on an application's existing live database without taking ownership of it. */
+    /** Opens the workbench on an application's existing live database without taking ownership of it.
+     * @param database live application database */
     public static void open(io.aetherdb.api.AetherDatabase database) {
         if (database == null) throw new IllegalArgumentException("database must not be null");
         SwingUtilities.invokeLater(() -> new AetherWorkbench(

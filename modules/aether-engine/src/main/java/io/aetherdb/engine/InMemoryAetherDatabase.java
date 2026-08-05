@@ -32,15 +32,26 @@ public final class InMemoryAetherDatabase implements AetherDatabase {
     private long nextSnapshotId = 1;
     private boolean closed;
 
+    /** Creates an empty database with the default snapshot limit. */
     public InMemoryAetherDatabase() {
         this(0, 1_024);
     }
 
-    /** Primarily useful for verifying overflow behavior. */
+    /**
+     * Creates a database starting at a specified visible sequence, primarily for overflow verification.
+     *
+     * @param initialSequence initial visible sequence
+     */
     public InMemoryAetherDatabase(long initialSequence) {
         this(initialSequence, 1_024);
     }
 
+    /**
+     * Creates a database with explicit sequence and snapshot limits.
+     *
+     * @param initialSequence initial visible sequence
+     * @param maximumSnapshots maximum concurrently active snapshots
+     */
     public InMemoryAetherDatabase(long initialSequence, int maximumSnapshots) {
         if (maximumSnapshots < 1 || maximumSnapshots > 65_536)
             throw new IllegalArgumentException("maximum snapshots must be between 1 and 65,536");
@@ -177,11 +188,22 @@ public final class InMemoryAetherDatabase implements AetherDatabase {
         return new WriteResult(prepared.size(), range.first(), range.last(), options.durabilityMode(), false);
     }
 
+    /**
+     * Returns the latest sequence visible to unsnapshotted reads.
+     *
+     * @return latest visible sequence
+     */
     public long lastVisibleSequence() {
         ensureOpen();
         return lastVisibleSequence;
     }
 
+    /**
+     * Counts retained MVCC versions for a key.
+     *
+     * @param key key to inspect
+     * @return retained version count
+     */
     public int retainedVersionCount(byte[] key) {
         ensureOpen();
         return store.versionCount(key(key));

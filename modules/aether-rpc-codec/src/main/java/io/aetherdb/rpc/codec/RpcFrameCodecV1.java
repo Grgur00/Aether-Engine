@@ -12,6 +12,9 @@ public final class RpcFrameCodecV1 {
     private static final byte[] MAGIC = "AERP".getBytes(StandardCharsets.US_ASCII);
     private RpcFrameCodecV1() {}
 
+    /** Encodes one frame with a big-endian header and masked CRC32C.
+     * @param frame frame to encode
+     * @return complete wire frame */
     public static byte[] encode(RpcFrame frame) {
         RpcFrameHeaderV1 header = frame.header(); byte[] payload = frame.payload();
         byte[] encoded = new byte[RpcFrameHeaderV1.HEADER_LENGTH + payload.length];
@@ -27,6 +30,9 @@ public final class RpcFrameCodecV1 {
         return encoded;
     }
 
+    /** Decodes and validates one complete wire frame.
+     * @param encoded header and payload bytes
+     * @return decoded frame */
     public static RpcFrame decode(byte[] encoded) {
         if (encoded == null || encoded.length < 64) throw new RpcProtocolException("incomplete RPC frame header");
         ByteBuffer bytes = ByteBuffer.wrap(encoded).order(ByteOrder.BIG_ENDIAN);

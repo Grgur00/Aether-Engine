@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "schemaId": "a0e988c2-74f0-4243-b44f-c395916e0a74",
+  "javaType": "io.aetherdb.embedded.typed.LedgerEntry",
+  "currentVersion": 1,
+  "unknownFieldPolicy": "SKIP",
+  "reservedFieldIds": [],
+  "retiredFields": [],
+  "versions": [
+    {
+      "version": 1,
+      "payloadFormat": "AER1",
+      "fields": [
+        {
+          "id": 16,
+          "javaName": "accountId",
+          "wireType": "UUID128",
+          "type": "java.util.UUID",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 16
+        },
+        {
+          "id": 17,
+          "javaName": "amountMinor",
+          "wireType": "SIGNED_VARINT",
+          "type": "long",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 10
+        },
+        {
+          "id": 18,
+          "javaName": "currency",
+          "wireType": "STRING_UTF8",
+          "type": "java.lang.String",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 3
+        },
+        {
+          "id": 19,
+          "javaName": "bookedAt",
+          "wireType": "TEMPORAL",
+          "type": "java.time.Instant",
+          "requiredness": "REQUIRED",
+          "maximumEncodedBytes": 20
+        }
+      ],
+      "descriptorSha256": "8c1b53d50d18dbbe22c67c998e3342cdbf220ac3577fb328e035d1f9d78b78a7",
+      "compatibilityFromPrevious": "INITIAL"
+    }
+  ]
+}

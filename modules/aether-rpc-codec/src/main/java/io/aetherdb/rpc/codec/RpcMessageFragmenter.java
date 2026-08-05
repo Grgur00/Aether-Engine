@@ -8,6 +8,15 @@ import java.util.UUID;
 /** Splits one bounded unary message into contiguous v1 frames. */
 public final class RpcMessageFragmenter {
     private RpcMessageFragmenter() {}
+    /** Splits a bounded request or response into contiguous frames.
+     * @param type request or response frame type
+     * @param streamId positive stream identity
+     * @param code operation or status code
+     * @param invocationId invocation identity
+     * @param timeoutMillis request timeout, ignored for responses
+     * @param message complete message bytes
+     * @param maximumPayload negotiated frame payload limit
+     * @return immutable ordered frame list */
     public static List<RpcFrame> fragment(RpcFrameType type, long streamId, int code, UUID invocationId,
             int timeoutMillis, byte[] message, int maximumPayload) {
         if (type != RpcFrameType.REQUEST && type != RpcFrameType.RESPONSE) throw new IllegalArgumentException("only request/response messages are fragmented");

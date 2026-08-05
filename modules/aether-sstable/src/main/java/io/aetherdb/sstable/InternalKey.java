@@ -10,17 +10,26 @@ public final class InternalKey implements Comparable<InternalKey> {
     private final long sequence;
     private final byte type;
 
+    /** Creates an internal key.
+     * @param userKey logical key bytes
+     * @param sequence positive MVCC sequence
+     * @param type durable value or tombstone type code */
     public InternalKey(byte[] userKey, long sequence, byte type) {
         if (userKey == null || userKey.length > 65_536 || sequence <= 0 || type < 1 || type > 2)
             throw new IllegalArgumentException("invalid internal key");
         this.userKey = userKey.clone(); this.sequence = sequence; this.type = type;
     }
 
+    /** Encodes the user key and fixed-width trailer.
+     * @return newly allocated internal-key bytes */
     public byte[] encode() {
         ByteBuffer bytes = ByteBuffer.allocate(userKey.length + 9).order(ByteOrder.LITTLE_ENDIAN);
         return bytes.put(userKey).putLong(sequence).put(type).array();
     }
 
+    /** Decodes and validates an internal key.
+     * @param encoded internal-key bytes
+     * @return decoded key */
     public static InternalKey decode(byte[] encoded) {
         if (encoded == null || encoded.length < 9) throw new SSTableCorruptionException("internal key too short");
         int userLength = encoded.length - 9;
@@ -35,7 +44,13 @@ public final class InternalKey implements Comparable<InternalKey> {
         int sequenceOrder = Long.compare(other.sequence, sequence);
         return sequenceOrder != 0 ? sequenceOrder : Integer.compare(Byte.toUnsignedInt(type), Byte.toUnsignedInt(other.type));
     }
+    /** Returns the logical key.
+     * @return defensive user-key copy */
     public byte[] userKey() { return userKey.clone(); }
+    /** Returns the MVCC sequence.
+     * @return positive sequence */
     public long sequence() { return sequence; }
+    /** Returns the value kind.
+     * @return durable type code */
     public byte type() { return type; }
 }

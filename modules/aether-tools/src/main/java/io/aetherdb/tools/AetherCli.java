@@ -14,6 +14,8 @@ public final class AetherCli {
     private static final String VERSION = "0.1.0-dev";
     private AetherCli() {}
 
+    /** Runs the command-line entry point and exits with the command status.
+     * @param arguments command name, database path, and options */
     public static void main(String[] arguments) {
         int exit = run(arguments);
         if (exit != 0) System.exit(exit);

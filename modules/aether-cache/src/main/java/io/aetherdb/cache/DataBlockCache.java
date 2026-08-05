@@ -13,9 +13,13 @@ import java.util.concurrent.atomic.LongAdder;
 
 /** Bounded, sharded segmented-LRU cache for verified immutable data blocks. */
 public final class DataBlockCache implements AutoCloseable {
+    /** Default total cache capacity. */
     public static final long DEFAULT_CAPACITY = 128L * 1024 * 1024;
+    /** Minimum supported total capacity. */
     public static final long MIN_CAPACITY = 16L * 1024 * 1024;
+    /** Maximum supported total capacity. */
     public static final long MAX_CAPACITY = 4L * 1024 * 1024 * 1024;
+    /** Default power-of-two shard count. */
     public static final int DEFAULT_SHARDS = 16;
     private static final long ENTRY_OVERHEAD = 96;
 
@@ -28,8 +32,12 @@ public final class DataBlockCache implements AutoCloseable {
     private final LongAdder admissionBypasses = new LongAdder();
     private volatile boolean closed;
 
+    /** Creates a cache with default capacity and shard count. */
     public DataBlockCache() { this(DEFAULT_CAPACITY, DEFAULT_SHARDS); }
 
+    /** Creates a cache with explicit capacity and concurrency sharding.
+     * @param capacity total charged byte capacity
+     * @param shardCount positive power-of-two shard count */
     public DataBlockCache(long capacity, int shardCount) {
         if (capacity < MIN_CAPACITY || capacity > MAX_CAPACITY)
             throw new IllegalArgumentException("capacity must be between 16 MiB and 4 GiB");
@@ -41,6 +49,11 @@ public final class DataBlockCache implements AutoCloseable {
         for (int i = 0; i < shardCount; i++) shards[i] = new Shard(base + (i < remainder ? 1 : 0));
     }
 
+    /** Acquires a resident block or coalesces a verified load.
+     * @param key immutable block identity
+     * @param loader loader invoked on a miss
+     * @param fillCache whether a loaded block should be admitted
+     * @return lease that must be closed */
     public BlockLease acquireOrLoad(BlockCacheKey key, BlockLoader loader, boolean fillCache) {
         Objects.requireNonNull(key, "key");
         Objects.requireNonNull(loader, "loader");
@@ -105,11 +118,15 @@ public final class DataBlockCache implements AutoCloseable {
         return lease(shard, admitted);
     }
 
+    /** Invalidates all resident blocks belonging to an SSTable file.
+     * @param fileNumber positive SSTable file number */
     public void invalidateFile(long fileNumber) {
         if (fileNumber <= 0) throw new IllegalArgumentException("fileNumber must be positive");
         for (Shard shard : shards) shard.invalidateFile(fileNumber);
     }
 
+    /** Captures cumulative counters and current residency.
+     * @return point-in-time cache metrics */
     public BlockCacheMetrics metrics() {
         long resident = 0, pinned = 0;
         for (Shard shard : shards) {
@@ -119,6 +136,7 @@ public final class DataBlockCache implements AutoCloseable {
                 evictions.sum(), admissionBypasses.sum(), resident, pinned);
     }
 
+    /** Clears residency, fails in-flight loads, and rejects new acquisitions. */
     @Override public void close() {
         closed = true;
         for (Shard shard : shards) shard.clear();

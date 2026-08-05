@@ -12,6 +12,10 @@ import java.util.List;
 public final class RestartBlock {
     private RestartBlock() {}
 
+    /** Encodes strictly sorted entries using restart-prefix compression.
+     * @param entries sorted key/value entries
+     * @param restartInterval positive entries per restart point
+     * @return encoded block bytes */
     public static byte[] encode(List<Entry> entries, int restartInterval) {
         if (restartInterval <= 0) throw new IllegalArgumentException("restart interval must be positive");
         ByteArrayOutputStream body = new ByteArrayOutputStream();
@@ -33,6 +37,9 @@ public final class RestartBlock {
         body.writeBytes(suffix.array()); return body.toByteArray();
     }
 
+    /** Strictly decodes a restart-prefix-compressed block.
+     * @param raw encoded block bytes
+     * @return decoded sorted entries */
     public static List<Entry> decode(byte[] raw) {
         if (raw.length < 8) throw corrupt("block too short");
         ByteBuffer end = ByteBuffer.wrap(raw).order(ByteOrder.LITTLE_ENDIAN);
@@ -66,9 +73,17 @@ public final class RestartBlock {
 
     private static int shared(byte[] left, byte[] right) { int limit = Math.min(left.length, right.length), i = 0; while (i < limit && left[i] == right[i]) i++; return i; }
     private static SSTableCorruptionException corrupt(String message) { return new SSTableCorruptionException(message); }
+    /** Immutable decoded block entry.
+     * @param key copied key bytes
+     * @param value copied value bytes */
     public record Entry(byte[] key, byte[] value) {
+        /** Takes defensive copies of entry bytes. */
         public Entry { key = key.clone(); value = value.clone(); }
+        /** Returns the entry key.
+         * @return defensive key copy */
         @Override public byte[] key(){return key.clone();}
+        /** Returns the entry value.
+         * @return defensive value copy */
         @Override public byte[] value(){return value.clone();}
         @Override public boolean equals(Object other) {
             return other instanceof Entry entry && Arrays.equals(key, entry.key) && Arrays.equals(value, entry.value);

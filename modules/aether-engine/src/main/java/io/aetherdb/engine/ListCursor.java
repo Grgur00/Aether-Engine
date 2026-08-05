@@ -5,6 +5,7 @@ import io.aetherdb.api.exceptions.AetherClosedException;
 import io.aetherdb.memtable.reference.VersionedKeyValueStore;
 import java.util.List;
 
+/** Cursor over a materialized list of entries visible to the reference engine. */
 final class ListCursor implements AetherCursor {
     private final InMemoryAetherDatabase database;
     private final List<VersionedKeyValueStore.VisibleEntry> entries;

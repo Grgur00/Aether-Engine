@@ -34,13 +34,13 @@ The application demonstrates:
 The domain records declare only durable schema metadata:
 
 ```java
-@AetherRecord(schemaId = "6553812e-0d82-4078-bfa2-5818d8fe670d", version = 1)
+@AetherRecord(version = 1)
 public record SocialPost(
-        @AetherField(id = 16) @AetherMaxLength(64) String id,
-        @AetherField(id = 17) @AetherMaxLength(64) String authorId,
-        @AetherField(id = 18) @AetherMaxLength(8192) String content,
-        @AetherField(id = 19) Instant createdAt,
-        @AetherField(id = 20) Instant updatedAt) {}
+        @AetherMaxLength(64) String id,
+        @AetherMaxLength(64) String authorId,
+        @AetherMaxLength(8192) String content,
+        Instant createdAt,
+        Instant updatedAt) {}
 ```
 
 No handwritten `ValueCodec` exists in the application. The annotation processor emits the canonical AER1 codec, descriptor, fingerprint, provider, and runtime registration.

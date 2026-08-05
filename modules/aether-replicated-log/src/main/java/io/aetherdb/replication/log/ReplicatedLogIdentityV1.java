@@ -9,13 +9,22 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.UUID;
 
-/** Exact 256-byte RLOG-IDENTITY local persistent format. */
+/**
+ * Exact 256-byte RLOG-IDENTITY local persistent format.
+ * @param clusterId owning cluster identity
+ * @param nodeId local node identity
+ * @param creationEpochMillis identity creation time in epoch milliseconds
+ */
 public record ReplicatedLogIdentityV1(UUID clusterId, UUID nodeId, long creationEpochMillis) {
+    /** Encoded identity length in bytes. */
     public static final int ENCODED_LENGTH = 256;
     private static final byte[] MAGIC = "AETHRLI1".getBytes(StandardCharsets.US_ASCII);
+    /** Validates non-zero identities and creation time. */
     public ReplicatedLogIdentityV1 {
         if (isZero(clusterId) || isZero(nodeId) || creationEpochMillis < 0) throw new IllegalArgumentException("invalid replicated-log identity");
     }
+    /** Encodes this identity with its compatibility fingerprint and checksum.
+     * @return newly allocated identity bytes */
     public byte[] encode() {
         byte[] result = new byte[ENCODED_LENGTH]; ByteBuffer bytes = ByteBuffer.wrap(result).order(ByteOrder.LITTLE_ENDIAN);
         bytes.put(MAGIC).putShort((short) 1).putShort((short) ENCODED_LENGTH).putInt(0);
@@ -25,6 +34,9 @@ public record ReplicatedLogIdentityV1(UUID clusterId, UUID nodeId, long creation
         bytes.put(compatibilityFingerprint()).putLong(creationEpochMillis);
         bytes.position(252).putInt(MaskedCrc32c.masked(result, 0, 252)); return result;
     }
+    /** Decodes and validates a replicated-log identity.
+     * @param encoded durable identity bytes
+     * @return decoded identity */
     public static ReplicatedLogIdentityV1 decode(byte[] encoded) {
         if (encoded == null || encoded.length != ENCODED_LENGTH) throw new IllegalArgumentException("RLOG-IDENTITY must be exactly 256 bytes");
         ByteBuffer bytes = ByteBuffer.wrap(encoded).order(ByteOrder.LITTLE_ENDIAN); byte[] magic = new byte[8]; bytes.get(magic);
@@ -41,6 +53,8 @@ public record ReplicatedLogIdentityV1(UUID clusterId, UUID nodeId, long creation
             throw new IllegalArgumentException("RLOG-IDENTITY integrity failure");
         return new ReplicatedLogIdentityV1(cluster, node, created);
     }
+    /** Computes the supported replicated-log format fingerprint.
+     * @return newly allocated SHA-256 fingerprint */
     public static byte[] compatibilityFingerprint() {
         ByteBuffer vector = ByteBuffer.allocate(128).order(ByteOrder.LITTLE_ENDIAN);
         vector.put("AETHER-RLOG-COMPAT-V1".getBytes(StandardCharsets.US_ASCII)).putLong(1).putLong(134_217_728L)

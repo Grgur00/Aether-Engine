@@ -2,6 +2,10 @@ package io.aetherdb.memory;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Aligned bump allocator over a fixed native region; individual allocations
+ * remain valid until the allocator is closed.
+ */
 final class MonotonicNativeAllocator implements NativeAllocator {
     private final FfmNativeRegion region;
     private final AtomicLong cursor = new AtomicLong(RegionConfig.FIRST_ALLOCATABLE_OFFSET);

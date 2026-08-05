@@ -11,7 +11,18 @@ import java.util.HexFormat;
 import java.util.Optional;
 import java.util.UUID;
 
-/** Durable, bounded collection/schema metadata used by administration tools. */
+/**
+ * Durable, bounded collection/schema metadata used by administration tools.
+ * @param id collection identity
+ * @param name human-readable collection name
+ * @param keyCodecId durable key-codec identity
+ * @param keyEncodingVersion key encoding version
+ * @param keyFingerprint key-codec fingerprint
+ * @param schemaId value schema identity
+ * @param schemaVersion value schema version
+ * @param schemaFingerprint value schema fingerprint
+ * @param schemaDescriptor generated schema descriptor, if available
+ */
 public record CollectionMetadata(
         CollectionId id,
         String name,
@@ -26,6 +37,7 @@ public record CollectionMetadata(
     private static final String MAGIC = "AETHER_COLLECTION_V1";
     private static final int MAXIMUM_BYTES = 1024 * 1024;
 
+    /** Validates metadata bounds and defensively copies binary fields. */
     public CollectionMetadata {
         if (id == null || name == null || name.isBlank() || keyCodecId == null
                 || keyEncodingVersion < 1 || schemaId == null || schemaVersion < 1
@@ -39,10 +51,20 @@ public record CollectionMetadata(
         schemaDescriptor = Arrays.copyOf(schemaDescriptor, schemaDescriptor.length);
     }
 
+    /** Returns the key-codec fingerprint.
+     * @return defensive fingerprint copy */
     @Override public byte[] keyFingerprint() { return Arrays.copyOf(keyFingerprint, keyFingerprint.length); }
+    /** Returns the value-schema fingerprint.
+     * @return defensive fingerprint copy */
     @Override public byte[] schemaFingerprint() { return Arrays.copyOf(schemaFingerprint, schemaFingerprint.length); }
+    /** Returns the generated schema descriptor.
+     * @return defensive descriptor copy */
     @Override public byte[] schemaDescriptor() { return Arrays.copyOf(schemaDescriptor, schemaDescriptor.length); }
 
+    /** Creates durable metadata from a collection definition.
+     * @param definition collection definition
+     * @param descriptor optional generated descriptor bytes
+     * @return immutable metadata */
     public static CollectionMetadata from(
             CollectionDefinition<?, ?> definition, Optional<byte[]> descriptor) {
         return new CollectionMetadata(
@@ -52,12 +74,17 @@ public record CollectionMetadata(
                 definition.valueCodec().fingerprint(), descriptor.orElseGet(() -> new byte[0]));
     }
 
+    /** Builds the reserved internal database key for this metadata.
+     * @return physical metadata key */
     public byte[] key() {
         return ByteBuffer.allocate(KEY_PREFIX.length + 16).order(ByteOrder.BIG_ENDIAN)
                 .put(KEY_PREFIX).putLong(id.value().getMostSignificantBits())
                 .putLong(id.value().getLeastSignificantBits()).array();
     }
 
+    /** Tests whether another definition may safely open the same collection.
+     * @param other metadata to compare
+     * @return {@code true} when durable codec identities match */
     public boolean compatibleWith(CollectionMetadata other) {
         return id.equals(other.id) && keyCodecId.equals(other.keyCodecId)
                 && keyEncodingVersion == other.keyEncodingVersion
@@ -66,6 +93,8 @@ public record CollectionMetadata(
                 && Arrays.equals(schemaFingerprint, other.schemaFingerprint);
     }
 
+    /** Encodes this metadata in the bounded administration format.
+     * @return UTF-8 metadata bytes */
     public byte[] encode() {
         Base64.Encoder base64 = Base64.getEncoder();
         String text = MAGIC + "\n"
@@ -83,6 +112,10 @@ public record CollectionMetadata(
         return encoded;
     }
 
+    /** Decodes metadata when the key belongs to the reserved metadata namespace.
+     * @param key physical database key
+     * @param value physical database value
+     * @return decoded metadata, or empty for an unrelated key */
     public static Optional<CollectionMetadata> decode(byte[] key, byte[] value) {
         if (key == null || key.length != KEY_PREFIX.length + 16
                 || !Arrays.equals(KEY_PREFIX, Arrays.copyOf(key, KEY_PREFIX.length))) {

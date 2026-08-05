@@ -9,14 +9,40 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.UUID;
 
-/** Exact 192-byte application handshake payload v1. */
+/**
+ * Exact 192-byte application handshake payload v1.
+ * @param role local connection role
+ * @param clusterId cluster identity
+ * @param nodeId node identity
+ * @param sessionId process-session identity
+ * @param connectionNonce non-zero connection nonce
+ * @param maximumFramePayload negotiated frame payload limit
+ * @param maximumMessageBytes negotiated reassembled message limit
+ * @param maximumConcurrentStreams negotiated stream limit
+ * @param initialReceiveWindowBytes initial connection receive credit
+ * @param keepaliveIdleMillis idle duration before a keepalive probe
+ * @param keepaliveTimeoutMillis keepalive response timeout
+ * @param engineMajor engine major version
+ * @param engineMinor engine minor version
+ * @param enginePatch engine patch version
+ * @param javaMajor Java feature version
+ */
 public record RpcHelloV1(Role role, UUID clusterId, UUID nodeId, UUID sessionId, long connectionNonce,
         int maximumFramePayload, int maximumMessageBytes, int maximumConcurrentStreams,
         int initialReceiveWindowBytes, int keepaliveIdleMillis, int keepaliveTimeoutMillis,
         int engineMajor, int engineMinor, int enginePatch, int javaMajor) {
+    /** Exact encoded HELLO length. */
     public static final int ENCODED_LENGTH = 192;
-    public enum Role { DIALER(1), ACCEPTOR(2); private final int code; Role(int code) { this.code = code; } int code() { return code; } }
+    /** Connection role encoded in the handshake. */
+    public enum Role {
+        /** Peer that initiated the transport connection. */ DIALER(1),
+        /** Peer that accepted the transport connection. */ ACCEPTOR(2);
+        private final int code;
+        Role(int code) { this.code = code; }
+        int code() { return code; }
+    }
 
+    /** Validates identities, bounds, timeouts, and runtime compatibility fields. */
     public RpcHelloV1 {
         if (role == null || isZero(clusterId) || isZero(nodeId) || isZero(sessionId) || connectionNonce == 0
                 || maximumFramePayload < 1 || maximumFramePayload > RpcFrameHeaderV1.MAX_FRAME_PAYLOAD
@@ -27,6 +53,8 @@ public record RpcHelloV1(Role role, UUID clusterId, UUID nodeId, UUID sessionId,
                 || enginePatch < 0 || javaMajor < 21) throw new IllegalArgumentException("invalid RPC HELLO values");
     }
 
+    /** Encodes this handshake with compatibility fingerprint and checksum.
+     * @return fixed-size HELLO payload */
     public byte[] encode() {
         byte[] result = new byte[ENCODED_LENGTH]; ByteBuffer bytes = ByteBuffer.wrap(result).order(ByteOrder.BIG_ENDIAN);
         bytes.put("AEHL".getBytes(StandardCharsets.US_ASCII)).putShort((short) 1).putShort((short) ENCODED_LENGTH);
@@ -38,6 +66,9 @@ public record RpcHelloV1(Role role, UUID clusterId, UUID nodeId, UUID sessionId,
         bytes.put(compatibilityFingerprint()); bytes.position(188).putInt(MaskedCrc32c.masked(result, 0, 188)); return result;
     }
 
+    /** Decodes and validates a complete HELLO payload.
+     * @param encoded fixed-size handshake bytes
+     * @return validated handshake */
     public static RpcHelloV1 decode(byte[] encoded) {
         if (encoded == null || encoded.length != ENCODED_LENGTH) throw new RpcProtocolException("HELLO must be exactly 192 bytes");
         ByteBuffer bytes = ByteBuffer.wrap(encoded).order(ByteOrder.BIG_ENDIAN); byte[] magic = new byte[4]; bytes.get(magic);
@@ -61,6 +92,8 @@ public record RpcHelloV1(Role role, UUID clusterId, UUID nodeId, UUID sessionId,
         return hello;
     }
 
+    /** Computes the frozen RPC v1 compatibility fingerprint.
+     * @return newly allocated SHA-256 fingerprint */
     public static byte[] compatibilityFingerprint() {
         try {
             return MessageDigest.getInstance("SHA-256").digest(

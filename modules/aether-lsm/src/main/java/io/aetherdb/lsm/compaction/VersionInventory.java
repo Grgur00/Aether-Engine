@@ -12,7 +12,12 @@ public final class VersionInventory {
     private final List<List<CompactionFile>> levels;
     private final List<byte[]> pointers;
 
+    /** Creates an inventory with no compaction pointers.
+     * @param levels exactly seven level file lists */
     public VersionInventory(List<? extends List<CompactionFile>> levels) { this(levels, emptyPointers()); }
+    /** Creates and validates an inventory and its six non-final-level pointers.
+     * @param levels exactly seven level file lists
+     * @param pointers six nullable picker pointers */
     public VersionInventory(List<? extends List<CompactionFile>> levels, List<byte[]> pointers) {
         if (levels.size() != LevelCompactionConfig.LEVEL_COUNT || pointers.size() != 6)
             throw new IllegalArgumentException("exactly seven levels and six pointers are required");
@@ -32,16 +37,33 @@ public final class VersionInventory {
         for (byte[] pointer : pointers) pointerCopies.add(pointer == null ? null : pointer.clone());
         this.pointers = Collections.unmodifiableList(pointerCopies);
     }
+    /** Returns files in one level.
+     * @param level level number
+     * @return immutable file list */
     public List<CompactionFile> level(int level) { return levels.get(level); }
+    /** Returns a level's picker pointer.
+     * @param level level zero through five
+     * @return defensive key copy or null */
     public byte[] pointer(int level) { byte[] pointer = pointers.get(level); return pointer == null ? null : pointer.clone(); }
+    /** Sums encoded bytes in one level.
+     * @param level level number
+     * @return total file bytes */
     public long levelBytes(int level) {
         long total = 0;
         for (CompactionFile file : levels.get(level)) total = Math.addExact(total, file.fileSize());
         return total;
     }
+    /** Finds files overlapping an inclusive key range.
+     * @param level level number
+     * @param smallest inclusive lower key
+     * @param largest inclusive upper key
+     * @return immutable overlapping file list */
     public List<CompactionFile> overlaps(int level, byte[] smallest, byte[] largest) {
         return levels.get(level).stream().filter(file -> file.overlaps(smallest, largest)).toList();
     }
+    /** Tests file-number membership.
+     * @param number file number
+     * @return whether present in any level */
     public boolean containsFile(long number) { return levels.stream().flatMap(List::stream).anyMatch(file -> file.fileNumber() == number); }
     private static void validateNonOverlapping(List<CompactionFile> files) {
         for (int i = 1; i < files.size(); i++)

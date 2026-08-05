@@ -13,11 +13,16 @@ public final class RpcMessageAssembler {
     private UUID invocation;
     private int declaredLength;
 
+    /** Creates an assembler with a pre-allocation message bound.
+     * @param maximumMessageBytes negotiated message limit */
     public RpcMessageAssembler(int maximumMessageBytes) {
         if (maximumMessageBytes < 0 || maximumMessageBytes > RpcFrameHeaderV1.MAX_MESSAGE_BYTES)
             throw new IllegalArgumentException("invalid message limit");
         this.maximumMessageBytes = maximumMessageBytes;
     }
+    /** Accepts the next contiguous frame.
+     * @param frame next frame in stream order
+     * @return complete message bytes on END, otherwise {@code null} */
     public byte[] accept(RpcFrame frame) {
         RpcFrameHeaderV1 header = frame.header();
         if (header.beginsMessage()) {
@@ -35,6 +40,9 @@ public final class RpcMessageAssembler {
         if (output.size() != declaredLength) throw new RpcProtocolException("END before declared message length");
         byte[] completed = output.toByteArray(); reset(); return completed;
     }
+    /** Discards any partially assembled message and identity state. */
     public void reset() { output = null; type = null; invocation = null; declaredLength = 0; streamId = 0; code = 0; }
+    /** Reports whether a message is currently incomplete.
+     * @return {@code true} between BEGIN and END */
     public boolean isAssembling() { return output != null; }
 }

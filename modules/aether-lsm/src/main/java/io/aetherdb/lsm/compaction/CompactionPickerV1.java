@@ -10,8 +10,15 @@ import java.util.Optional;
 /** Pure leveled-compaction picker implementing stable L0 overlap closure. */
 public final class CompactionPickerV1 {
     private final LevelCompactionConfig config;
+    /** Creates a picker for one compaction sizing policy.
+     * @param config level sizing configuration */
     public CompactionPickerV1(LevelCompactionConfig config) { this.config = Objects.requireNonNull(config); }
 
+    /** Selects the highest-priority eligible compaction.
+     * @param version immutable file inventory
+     * @param scores current level scores
+     * @param oldestSnapshotSequence oldest sequence that must remain visible
+     * @return selected plan, or empty when no level is eligible */
     public Optional<CompactionPlan> pick(VersionInventory version, CompactionScores scores, long oldestSnapshotSequence) {
         int level = selectedLevel(version, scores);
         if (level < 0) return Optional.empty();

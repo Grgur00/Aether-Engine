@@ -13,15 +13,21 @@ public final class BlockLease implements AutoCloseable {
         this.releaser = releaser;
     }
 
-    /** Returns read-only-by-contract raw bytes owned by the cache. */
+    /** Returns read-only-by-contract raw bytes owned by the cache.
+     * @return leased block bytes */
     public byte[] rawBytes() {
         if (closed.get()) throw new IllegalStateException("block lease is closed");
         return bytes;
     }
 
+    /** Returns the block length.
+     * @return raw byte length */
     public int rawLength() { return bytes.length; }
+    /** Reports whether the lease is closed.
+     * @return {@code true} after release */
     public boolean isClosed() { return closed.get(); }
 
+    /** Releases this block pin exactly once. */
     @Override public void close() {
         if (closed.compareAndSet(false, true)) releaser.run();
     }

@@ -5,14 +5,30 @@ import java.nio.*;
 import java.security.*;
 import java.util.*;
 
+/** Exact checksummed v1 codec for alternating durable Raft state slots. */
 public final class RaftStateSlotCodecV1 {
+    /** Encoded state-slot length in bytes. */
     public static final int SLOT_BYTES=512;
     private RaftStateSlotCodecV1() {}
+    /** Encodes one durable election-state slot.
+     * @param cluster cluster identity
+     * @param node local node identity
+     * @param state election state
+     * @param reason stable-update reason code
+     * @param fingerprint format compatibility fingerprint
+     * @param epochMillis update time in epoch milliseconds
+     * @return fixed-size slot bytes */
     public static byte[] encode(UUID cluster,UUID node,RaftPersistentState state,int reason,byte[] fingerprint,long epochMillis){
         if(fingerprint.length!=32||reason<1||reason>5) throw new IllegalArgumentException(); byte[] out=new byte[512]; ByteBuffer b=ByteBuffer.wrap(out).order(ByteOrder.LITTLE_ENDIAN);
         b.put("AETHRFS1".getBytes(java.nio.charset.StandardCharsets.US_ASCII)).putShort((short)1).putShort((short)512).putInt(0); put(b,cluster);put(b,node);b.putLong(state.generation()).putLong(state.currentTerm());
         b.put((byte)(state.votedFor().isPresent()?1:0)).position(72); put(b,state.votedFor().orElse(new UUID(0,0))); b.putLong(epochMillis).putInt(reason).putInt(0).put(fingerprint); b.put(hash(cluster,node,state,fingerprint)); b.position(508).putInt(MaskedCrc32c.masked(out,0,508)); return out;
     }
+    /** Decodes and authenticates one durable election-state slot.
+     * @param in encoded slot
+     * @param cluster expected cluster identity
+     * @param node expected node identity
+     * @param fingerprint expected compatibility fingerprint
+     * @return decoded persistent state */
     public static RaftPersistentState decode(byte[] in,UUID cluster,UUID node,byte[] fingerprint){
         if(in.length!=512||ByteBuffer.wrap(in).order(ByteOrder.LITTLE_ENDIAN).getInt(508)!=MaskedCrc32c.masked(in,0,508)) throw invalid(); ByteBuffer b=ByteBuffer.wrap(in).order(ByteOrder.LITTLE_ENDIAN); byte[] magic=new byte[8];b.get(magic);
         if(!Arrays.equals(magic,"AETHRFS1".getBytes(java.nio.charset.StandardCharsets.US_ASCII))||b.getShort()!=1||b.getShort()!=512||b.getInt()!=0||!get(b).equals(cluster)||!get(b).equals(node)) throw invalid();

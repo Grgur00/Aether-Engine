@@ -7,11 +7,20 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.UUID;
 
-/** Exact 32 KiB WAL segment header block codec. */
+/**
+ * Exact 32 KiB WAL segment header block codec.
+ * @param databaseId owning database identity
+ * @param segmentNumber positive segment number
+ * @param previousSegmentNumber preceding segment, or zero
+ * @param firstSequence first sequence eligible for this segment
+ * @param creationEpochMillis creation time in epoch milliseconds
+ */
 public record WalSegmentHeader(UUID databaseId, long segmentNumber, long previousSegmentNumber,
                                long firstSequence, long creationEpochMillis) {
     private static final byte[] MAGIC = "AETHWAL1".getBytes(StandardCharsets.US_ASCII);
 
+    /** Encodes and validates this header as a padded header block.
+     * @return newly allocated header block */
     public byte[] encodeBlock() {
         if (databaseId == null || segmentNumber <= 0 || previousSegmentNumber < 0 || firstSequence <= 0 || creationEpochMillis < 0)
             throw new IllegalArgumentException("invalid segment header");
@@ -25,6 +34,11 @@ public record WalSegmentHeader(UUID databaseId, long segmentNumber, long previou
         return block;
     }
 
+    /** Decodes and validates a header against expected durable identity.
+     * @param block complete header block
+     * @param expectedDatabase expected database UUID
+     * @param expectedSegment expected segment number
+     * @return decoded header */
     public static WalSegmentHeader decode(byte[] block, UUID expectedDatabase, long expectedSegment) {
         if (block.length != WalFormatV1.HEADER_BLOCK_BYTES) throw corrupt("wrong header block size");
         if (!Arrays.equals(Arrays.copyOf(block, 8), MAGIC)) throw corrupt("bad WAL magic");

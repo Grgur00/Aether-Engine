@@ -1,14 +1,13 @@
 package io.aetherdb.examples.social;
 
-import io.aetherdb.codec.annotation.AetherField;
 import io.aetherdb.codec.annotation.AetherMaxLength;
 import io.aetherdb.codec.annotation.AetherRecord;
 
 /** A directed edge from one profile to another. */
-@AetherRecord(schemaId = "b160834c-3a61-4811-830e-40d694abbcd6", version = 1)
+@AetherRecord(version = 1)
 public record FollowRelationship(
-        @AetherField(id = 16) @AetherMaxLength(64) String followerId,
-        @AetherField(id = 17) @AetherMaxLength(64) String followedId) {
+        @AetherMaxLength(64) String followerId,
+        @AetherMaxLength(64) String followedId) {
     public FollowRelationship {
         requireIdentifier(followerId, "followerId");
         requireIdentifier(followedId, "followedId");

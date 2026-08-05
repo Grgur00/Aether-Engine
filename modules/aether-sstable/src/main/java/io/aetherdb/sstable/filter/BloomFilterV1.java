@@ -9,10 +9,15 @@ import java.util.Map;
 
 /** Full-file Bloom filter v1 using 10 bits/key and seven probes. */
 public final class BloomFilterV1 {
+    /** Target filter bits allocated per distinct key. */
     public static final int BITS_PER_KEY = 10;
+    /** Hash probes performed per lookup. */
     public static final int PROBES = 7;
     private BloomFilterV1() {}
 
+    /** Builds a deterministic full-file filter from distinct key content.
+     * @param keys keys to include
+     * @return encoded filter bytes */
     public static byte[] build(Collection<byte[]> keys) {
         Map<Key, Boolean> unique = new LinkedHashMap<>();
         for (byte[] key : keys) unique.put(new Key(key), Boolean.TRUE);
@@ -25,6 +30,10 @@ public final class BloomFilterV1 {
         return result.array();
     }
 
+    /** Tests membership after validating the encoded filter header.
+     * @param encoded encoded filter bytes
+     * @param key candidate key
+     * @return {@code false} only when the key is definitely absent */
     public static boolean mayContain(byte[] encoded, byte[] key) {
         if (encoded.length < 32) throw corrupt();
         ByteBuffer header = ByteBuffer.wrap(encoded).order(ByteOrder.LITTLE_ENDIAN);
@@ -50,6 +59,9 @@ public final class BloomFilterV1 {
     }
 
     // AetherHash64 v1 constants and avalanche are format compatibility state.
+    /** Computes the frozen AetherHash64 v1 value.
+     * @param key key bytes
+     * @return 64-bit format-stable hash */
     public static long hash(byte[] key) {
         long hash = 0xCBF29CE484222325L ^ 0xA17E4E5D9B7C3F21L;
         for (byte value : key) { hash ^= Byte.toUnsignedLong(value); hash *= 0x100000001B3L; }

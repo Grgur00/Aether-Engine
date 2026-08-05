@@ -13,6 +13,8 @@ public final class MergingInternalIterator implements InternalIterator {
     private boolean initialized;
     private boolean closed;
 
+    /** Creates a merge over independently sorted sources.
+     * @param sources internal iterators */
     public MergingInternalIterator(List<? extends InternalIterator> sources) { this.sources = new ArrayList<>(sources); }
     @Override public boolean next() {
         ensureOpen();

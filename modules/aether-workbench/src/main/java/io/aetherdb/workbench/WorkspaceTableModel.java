@@ -3,6 +3,7 @@ package io.aetherdb.workbench;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
+/** Swing table model exposing the fields of the currently selected database entry. */
 final class WorkspaceTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
     private static final String[] COLUMNS = {"Group", "Field", "Value", "Value bytes"};

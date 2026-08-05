@@ -1,0 +1,23 @@
+{
+  "formatVersion": 1,
+  "schemas": [
+    {
+      "javaType": "io.aetherdb.examples.social.FollowRelationship",
+      "schemaId": "b160834c-3a61-4811-830e-40d694abbcd6",
+      "currentVersion": 1,
+      "lockFile": "b160834c-3a61-4811-830e-40d694abbcd6.schema.json"
+    },
+    {
+      "javaType": "io.aetherdb.examples.social.SocialPost",
+      "schemaId": "6553812e-0d82-4078-bfa2-5818d8fe670d",
+      "currentVersion": 1,
+      "lockFile": "6553812e-0d82-4078-bfa2-5818d8fe670d.schema.json"
+    },
+    {
+      "javaType": "io.aetherdb.examples.social.UserProfile",
+      "schemaId": "28f98ef5-d249-4f64-9791-09267036396a",
+      "currentVersion": 1,
+      "lockFile": "28f98ef5-d249-4f64-9791-09267036396a.schema.json"
+    }
+  ]
+}

@@ -9,5 +9,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.RECORD_COMPONENT)
 @Retention(RetentionPolicy.CLASS)
 public @interface AetherMaxLength {
+    /**
+     * Returns the maximum UTF-8 byte length or collection element count, as applicable.
+     *
+     * @return positive upper bound
+     */
     int value();
 }

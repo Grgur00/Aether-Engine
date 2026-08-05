@@ -3,6 +3,7 @@ package io.aetherdb.engine;
 import io.aetherdb.api.Snapshot;
 import io.aetherdb.api.exceptions.SnapshotException;
 
+/** Database-owned snapshot handle that releases its registration exactly once. */
 final class SnapshotHandle implements Snapshot {
     private final Object identity;
     private final long id;
