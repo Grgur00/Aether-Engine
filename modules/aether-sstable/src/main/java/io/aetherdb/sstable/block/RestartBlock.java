@@ -1,0 +1,78 @@
+package io.aetherdb.sstable.block;
+
+import io.aetherdb.sstable.SSTableCorruptionException;
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+/** Restart-prefix-compressed sorted key/value block. */
+public final class RestartBlock {
+    private RestartBlock() {}
+
+    public static byte[] encode(List<Entry> entries, int restartInterval) {
+        if (restartInterval <= 0) throw new IllegalArgumentException("restart interval must be positive");
+        ByteArrayOutputStream body = new ByteArrayOutputStream();
+        List<Integer> restarts = new ArrayList<>();
+        byte[] previous = new byte[0];
+        for (int index = 0; index < entries.size(); index++) {
+            Entry entry = entries.get(index);
+            if (index > 0 && Arrays.compareUnsigned(previous, entry.key) >= 0) throw new IllegalArgumentException("keys not strictly ordered");
+            boolean restart = index % restartInterval == 0;
+            int shared = restart ? 0 : shared(previous, entry.key);
+            if (restart) restarts.add(body.size());
+            body.writeBytes(Varint32.encode(shared)); body.writeBytes(Varint32.encode(entry.key.length - shared));
+            body.writeBytes(Varint32.encode(entry.value.length)); body.write(entry.key, shared, entry.key.length - shared); body.writeBytes(entry.value);
+            previous = entry.key;
+        }
+        if (entries.isEmpty()) restarts.add(0);
+        ByteBuffer suffix = ByteBuffer.allocate(restarts.size() * 4 + 4).order(ByteOrder.LITTLE_ENDIAN);
+        for (int offset : restarts) suffix.putInt(offset); suffix.putInt(restarts.size());
+        body.writeBytes(suffix.array()); return body.toByteArray();
+    }
+
+    public static List<Entry> decode(byte[] raw) {
+        if (raw.length < 8) throw corrupt("block too short");
+        ByteBuffer end = ByteBuffer.wrap(raw).order(ByteOrder.LITTLE_ENDIAN);
+        int restartCount = end.getInt(raw.length - 4);
+        if (restartCount <= 0 || restartCount > (raw.length - 4) / 4) throw corrupt("invalid restart count");
+        int restartStart = raw.length - 4 - restartCount * 4;
+        int previousRestart = -1;
+        for (int i = 0; i < restartCount; i++) {
+            int offset = end.getInt(restartStart + i * 4);
+            if (offset < 0 || (restartStart == 0 ? offset != 0 : offset >= restartStart)
+                    || offset <= previousRestart) throw corrupt("invalid restart offset");
+            previousRestart = offset;
+        }
+        List<Entry> entries = new ArrayList<>();
+        byte[] previous = new byte[0];
+        int cursor = 0;
+        while (cursor < restartStart) {
+            Varint32.Decoded shared = Varint32.decode(raw, cursor, restartStart); cursor += shared.bytes();
+            Varint32.Decoded suffix = Varint32.decode(raw, cursor, restartStart); cursor += suffix.bytes();
+            Varint32.Decoded value = Varint32.decode(raw, cursor, restartStart); cursor += value.bytes();
+            if (shared.value() > previous.length || (long) cursor + suffix.value() + value.value() > restartStart) throw corrupt("entry exceeds block");
+            byte[] key = Arrays.copyOf(previous, shared.value() + suffix.value());
+            System.arraycopy(raw, cursor, key, shared.value(), suffix.value()); cursor += suffix.value();
+            byte[] bytes = Arrays.copyOfRange(raw, cursor, cursor + value.value()); cursor += value.value();
+            if (!entries.isEmpty() && Arrays.compareUnsigned(previous, key) >= 0) throw corrupt("unsorted block");
+            entries.add(new Entry(key, bytes)); previous = key;
+        }
+        if (cursor != restartStart) throw corrupt("block not exactly consumed");
+        return entries;
+    }
+
+    private static int shared(byte[] left, byte[] right) { int limit = Math.min(left.length, right.length), i = 0; while (i < limit && left[i] == right[i]) i++; return i; }
+    private static SSTableCorruptionException corrupt(String message) { return new SSTableCorruptionException(message); }
+    public record Entry(byte[] key, byte[] value) {
+        public Entry { key = key.clone(); value = value.clone(); }
+        @Override public byte[] key(){return key.clone();}
+        @Override public byte[] value(){return value.clone();}
+        @Override public boolean equals(Object other) {
+            return other instanceof Entry entry && Arrays.equals(key, entry.key) && Arrays.equals(value, entry.value);
+        }
+        @Override public int hashCode() { return 31 * Arrays.hashCode(key) + Arrays.hashCode(value); }
+    }
+}

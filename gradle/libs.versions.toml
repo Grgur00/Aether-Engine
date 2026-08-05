@@ -1,0 +1,27 @@
+[versions]
+junit = "6.0.1"
+assertj = "3.27.7"
+jmh = "1.37"
+jcstress = "0.16"
+spotlessPlugin = "8.8.0"
+spotbugsPlugin = "6.5.9"
+errorpronePlugin = "5.1.0"
+jmhPlugin = "0.7.3"
+
+[libraries]
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
+jmh-generator = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh" }
+jcstress-core = { module = "org.openjdk.jcstress:jcstress-core", version.ref = "jcstress" }
+
+[bundles]
+unit-test = ["junit-jupiter", "assertj-core"]
+
+[plugins]
+spotless = { id = "com.diffplug.spotless", version.ref = "spotlessPlugin" }
+spotbugs = { id = "com.github.spotbugs", version.ref = "spotbugsPlugin" }
+errorprone = { id = "net.ltgt.errorprone", version.ref = "errorpronePlugin" }
+jmh = { id = "me.champeau.jmh", version.ref = "jmhPlugin" }

@@ -1,0 +1,3 @@
+package io.aetherdb.rpc.transport;
+
+public enum RpcConnectionState { NEW, CONNECTING, TLS_HANDSHAKING, HELLO_EXCHANGE, DUPLICATE_RESOLUTION, READY, DRAINING, CLOSING, CLOSED, FAILED }

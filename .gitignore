@@ -1,0 +1,14 @@
+.gradle/
+build/
+**/build/
+**/bin/
+build-logic/.build/
+.idea/
+*.iml
+.vscode/
+.DS_Store
+hs_err_pid*
+*.hprof
+benchmarks/results/raw/*
+benchmarks/results/reports/*
+!**/.gitkeep
