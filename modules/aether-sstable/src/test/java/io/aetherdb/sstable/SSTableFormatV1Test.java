@@ -5,12 +5,22 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.aetherdb.sstable.block.RestartBlock;
 import io.aetherdb.sstable.block.Varint32;
+import io.aetherdb.sstable.block.BlockEnvelope;
+import io.aetherdb.sstable.block.BlockHandle;
+import io.aetherdb.sstable.block.BlockKind;
 import io.aetherdb.sstable.filter.BloomFilterV1;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 class SSTableFormatV1Test {
+    @TempDir Path temporaryDirectory;
     @Test void internalKeyRoundTripsAndOrdersSequencesDescending() {
         InternalKey newest = new InternalKey(new byte[] {(byte) 0x80}, 9, (byte) 1);
         InternalKey older = new InternalKey(new byte[] {(byte) 0x80}, 2, (byte) 1);
@@ -45,6 +55,98 @@ class SSTableFormatV1Test {
         int positives = 0;
         for (int i = 0; i < 10_000; i++) { byte[] absent = new byte[8]; random.nextBytes(absent); if (BloomFilterV1.mayContain(filter, absent)) positives++; }
         assertThat(positives).isLessThan(300);
+    }
+
+    @Test void blockEnvelopeAuthenticatesRawBytesAndTrailerMetadata() {
+        byte[] physical = BlockEnvelope.encode(bytes("payload"), BlockKind.DATA);
+        assertThat(BlockEnvelope.decode(physical, BlockKind.DATA)).isEqualTo(bytes("payload"));
+
+        byte[] corruptPayload = physical.clone(); corruptPayload[0] ^= 1;
+        assertThatThrownBy(() -> BlockEnvelope.decode(corruptPayload, BlockKind.DATA))
+                .isInstanceOf(SSTableCorruptionException.class).hasMessageContaining("checksum");
+        assertThatThrownBy(() -> BlockEnvelope.decode(physical, BlockKind.INDEX))
+                .isInstanceOf(SSTableCorruptionException.class).hasMessageContaining("metadata");
+    }
+
+    @Test void blockHandleIsCanonicalBoundedAndRejectsReservedBytes() {
+        BlockHandle handle = new BlockHandle(4_096, 200);
+        assertThat(BlockHandle.decode(handle.encode())).isEqualTo(handle);
+        handle.validateWithin(8_192);
+        assertThatThrownBy(() -> handle.validateWithin(4_200)).isInstanceOf(SSTableCorruptionException.class);
+        byte[] reserved = handle.encode(); reserved[12] = 1;
+        assertThatThrownBy(() -> BlockHandle.decode(reserved)).isInstanceOf(SSTableCorruptionException.class);
+    }
+
+    @Test void exactHeaderRegionRoundTripsAndRejectsReservedOrChecksumCorruption() {
+        UUID databaseId = UUID.fromString("3b80c2d5-5044-4e3c-b34d-c574805d47e2");
+        SSTableHeaderV1 expected = new SSTableHeaderV1(7, databaseId, 19, 2, 31, 3, 1234, 8_192);
+        byte[] region = new byte[SSTableHeaderV1.HEADER_REGION_BYTES];
+        System.arraycopy(expected.encode(), 0, region, 0, SSTableHeaderV1.HEADER_BYTES);
+        assertThat(SSTableHeaderV1.decodeRegion(region)).isEqualTo(expected);
+
+        byte[] reserved = region.clone(); reserved[500] = 1;
+        assertThatThrownBy(() -> SSTableHeaderV1.decodeRegion(reserved)).isInstanceOf(SSTableCorruptionException.class);
+        byte[] corrupt = region.clone(); corrupt[56] ^= 1;
+        assertThatThrownBy(() -> SSTableHeaderV1.decodeRegion(corrupt)).isInstanceOf(SSTableCorruptionException.class);
+        assertThat(ByteBuffer.wrap(region).order(ByteOrder.LITTLE_ENDIAN).getLong(16)).isEqualTo(7);
+    }
+
+    @Test void footerRoundTripsValidatesIdentityHandlesAndOverlap() {
+        UUID databaseId = UUID.fromString("a791fb43-012a-4af8-93a9-34ae5ed988a7");
+        SSTableFooterV1 footer = new SSTableFooterV1(
+                new BlockHandle(4_096, 80), new BlockHandle(4_176, 80),
+                new BlockHandle(4_256, 80), new BlockHandle(4_336, 80),
+                9, 8_192, databaseId);
+        assertThat(SSTableFooterV1.decode(footer.encode())).isEqualTo(footer);
+        footer.validateHandles();
+
+        SSTableFooterV1 overlap = new SSTableFooterV1(
+                new BlockHandle(4_096, 80), new BlockHandle(4_100, 80),
+                new BlockHandle(4_256, 80), new BlockHandle(4_336, 80),
+                9, 8_192, databaseId);
+        assertThatThrownBy(overlap::validateHandles).isInstanceOf(SSTableCorruptionException.class);
+        byte[] corrupt = footer.encode(); corrupt[124] ^= 1;
+        assertThatThrownBy(() -> SSTableFooterV1.decode(corrupt)).isInstanceOf(SSTableCorruptionException.class);
+    }
+
+    @Test void completeTableBuildOpenLookupIterateAndVerifyRoundTrip() throws Exception {
+        Path table = temporaryDirectory.resolve("SST-00000000000000000042.aesst");
+        UUID databaseId = UUID.fromString("f381f09e-63a6-4dcc-ad22-e510aa7ad7d6");
+        SSTableBuilder builder = new SSTableBuilder(table, 42, databaseId, 12_345);
+        builder.add(new InternalKey(bytes("a"), 9, (byte) 1), bytes("new"));
+        builder.add(new InternalKey(bytes("a"), 4, (byte) 2), new byte[0]);
+        builder.add(new InternalKey(bytes("b"), 8, (byte) 1), bytes("bee"));
+        builder.add(new InternalKey(bytes("empty"), 7, (byte) 1), new byte[0]);
+        TableFileMetadata metadata = builder.finish();
+
+        assertThat(metadata.entryCount()).isEqualTo(4);
+        assertThat(metadata.smallestSequence()).isEqualTo(4);
+        assertThat(metadata.largestSequence()).isEqualTo(9);
+        try (SSTableReader reader = SSTableReader.open(table, metadata)) {
+            assertThat(reader.lookup(bytes("a"), 20)).isInstanceOfSatisfying(SSTableLookup.Found.class,
+                    found -> assertThat(found.value()).isEqualTo(bytes("new")));
+            assertThat(reader.lookup(bytes("a"), 5)).isInstanceOf(SSTableLookup.Tombstone.class);
+            assertThat(reader.lookup(bytes("a"), 3)).isInstanceOf(SSTableLookup.Absent.class);
+            assertThat(reader.lookup(bytes("missing"), 20)).isInstanceOf(SSTableLookup.Absent.class);
+            assertThat(reader.entries()).hasSize(4);
+            reader.verify();
+        }
+    }
+
+    @Test void completeTableSpansBlocksAndDetectsAuthenticatedCorruption() throws Exception {
+        Path table = temporaryDirectory.resolve("SST-00000000000000000077.aesst");
+        UUID databaseId = UUID.fromString("e82b385c-c36d-478b-aaef-45e5d790fa1d");
+        SSTableBuilder builder = new SSTableBuilder(table, 77, databaseId, 1);
+        byte[] value = new byte[1_024];
+        for (int index = 0; index < 100; index++) {
+            builder.add(new InternalKey(ByteBuffer.allocate(4).putInt(index).array(), 100 - index, (byte) 1), value);
+        }
+        TableFileMetadata metadata = builder.finish();
+        assertThat(metadata.dataBlockCount()).isGreaterThan(1);
+        byte[] bytes = Files.readAllBytes(table); bytes[SSTableHeaderV1.HEADER_REGION_BYTES + 3] ^= 1;
+        Files.write(table, bytes);
+        assertThatThrownBy(() -> SSTableReader.open(table, metadata))
+                .isInstanceOf(SSTableCorruptionException.class).hasMessageContaining("checksum");
     }
 
     private static byte[] bytes(String value) { return value.getBytes(java.nio.charset.StandardCharsets.UTF_8); }

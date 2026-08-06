@@ -5,9 +5,16 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import io.aetherdb.api.typed.ValueCodec;
 import java.util.zip.CRC32C;
 
 /** Bounded canonical writer used by generated codecs, never application code. */
@@ -74,6 +81,21 @@ public final class CanonicalRecordWriter {
         return output.toByteArray();
     }
 
+    /** Encodes an exact signed byte. */
+    public static byte[] signedByte(byte value) { return new byte[] {value}; }
+
+    /** Encodes an unsigned Java {@code char} code unit. */
+    public static byte[] character(char value) {
+        ByteArrayOutputStream output = new ByteArrayOutputStream(3);
+        writeUnsignedVarint(output, value); return output.toByteArray();
+    }
+
+    /** Encodes a canonical IEEE-754 single-precision value. */
+    public static byte[] fixed32(float value) {
+        int bits = Float.floatToIntBits(value);
+        return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(bits).array();
+    }
+
     /** Encodes a canonical fixed-width double.
      * @param value logical value
      * @return eight bytes */
@@ -114,6 +136,74 @@ public final class CanonicalRecordWriter {
         writeUnsignedVarint(output, (value.getEpochSecond() << 1) ^ (value.getEpochSecond() >> 63));
         writeUnsignedVarint(output, value.getNano());
         return output.toByteArray();
+    }
+
+    /** Encodes a local date as a zigzag epoch-day value. */
+    public static byte[] localDate(LocalDate value) {
+        if (value == null) throw new IllegalArgumentException("null LocalDate");
+        return signedLong(value.toEpochDay());
+    }
+
+    /** Encodes a local time as an unsigned nanosecond-of-day value. */
+    public static byte[] localTime(LocalTime value) {
+        if (value == null) throw new IllegalArgumentException("null LocalTime");
+        ByteArrayOutputStream output = new ByteArrayOutputStream(10);
+        writeUnsignedVarint(output, value.toNanoOfDay()); return output.toByteArray();
+    }
+
+    /** Encodes a local date-time as independently canonical date and time components. */
+    public static byte[] localDateTime(LocalDateTime value) {
+        if (value == null) throw new IllegalArgumentException("null LocalDateTime");
+        ByteArrayOutputStream output = new ByteArrayOutputStream(20);
+        output.writeBytes(signedLong(value.toLocalDate().toEpochDay()));
+        writeUnsignedVarint(output, value.toLocalTime().toNanoOfDay()); return output.toByteArray();
+    }
+
+    /** Encodes a duration as zigzag seconds followed by canonical nanos. */
+    public static byte[] duration(Duration value) {
+        if (value == null) throw new IllegalArgumentException("null Duration");
+        ByteArrayOutputStream output = new ByteArrayOutputStream(15);
+        output.writeBytes(signedLong(value.getSeconds()));
+        writeUnsignedVarint(output, value.getNano()); return output.toByteArray();
+    }
+
+    /** Encodes a minimally represented two's-complement integer under a byte bound. */
+    public static byte[] bigInteger(BigInteger value, int maximumBytes) {
+        if (value == null) throw new IllegalArgumentException("null BigInteger");
+        byte[] encoded = value.toByteArray();
+        if (encoded.length > maximumBytes) throw new IllegalArgumentException("FIELD_LENGTH_EXCEEDED");
+        return encoded;
+    }
+
+    /** Encodes a decimal scale followed by its canonical unscaled integer. */
+    public static byte[] bigDecimal(BigDecimal value, int maximumBytes) {
+        if (value == null) throw new IllegalArgumentException("null BigDecimal");
+        byte[] integer = value.unscaledValue().toByteArray();
+        ByteArrayOutputStream output = new ByteArrayOutputStream(integer.length + 5);
+        output.writeBytes(signedLong(value.scale())); output.writeBytes(integer);
+        byte[] encoded = output.toByteArray();
+        if (encoded.length > maximumBytes) throw new IllegalArgumentException("FIELD_LENGTH_EXCEEDED");
+        return encoded;
+    }
+
+    /** Copies a bounded byte-array field. */
+    public static byte[] bytes(byte[] value, int maximumBytes) {
+        if (value == null) throw new IllegalArgumentException("null byte array");
+        if (value.length > maximumBytes) throw new IllegalArgumentException("FIELD_LENGTH_EXCEEDED");
+        return java.util.Arrays.copyOf(value, value.length);
+    }
+
+    /** Encodes a nested record with explicit schema UUID, writer version, and payload length. */
+    public static <T> byte[] nested(ValueCodec<T> codec, T value, int maximumBytes) {
+        if (codec == null || value == null) throw new IllegalArgumentException("null nested codec or value");
+        byte[] payload = codec.encode(value); int total = Math.addExact(24, payload.length);
+        if (total > maximumBytes || payload.length > codec.maximumEncodedSize(value)) {
+            throw new IllegalArgumentException("FIELD_LENGTH_EXCEEDED");
+        }
+        return ByteBuffer.allocate(total).order(ByteOrder.BIG_ENDIAN)
+                .putLong(codec.schemaId().getMostSignificantBits())
+                .putLong(codec.schemaId().getLeastSignificantBits())
+                .putInt(codec.currentSchemaVersion()).putInt(payload.length).put(payload).array();
     }
 
     static int maskedCrc32c(byte[] bytes) {

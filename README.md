@@ -77,6 +77,48 @@ Use `Aether.openInMemoryWithMetrics()` for ephemeral workloads or
 `Aether.instrument(existingDatabase)` to instrument an existing implementation.
 Call `resetMetrics()` before a warm benchmark measurement interval.
 
+### Reproducible résumé benchmark
+
+Run the persistent million-record workload, measured reads, and four real
+abrupt-JVM recovery cycles with:
+
+```bash
+./scripts/cv-benchmark.sh
+```
+
+The benchmark prints and saves a complete JSON report containing the commit,
+machine/JVM configuration, workload parameters, throughput, HdrHistogram
+latency distribution, hit rate, logical and on-disk sizes, and every recovery
+trial. Benchmark data and the report are left at their printed paths for
+inspection. Override workload settings when needed:
+
+```bash
+AETHER_RECORDS=2000000 \
+AETHER_READS=500000 \
+AETHER_CRASH_POINTS=8 \
+./scripts/cv-benchmark.sh
+```
+
+The write result counts individual records submitted in bounded `GROUP_SYNC`
+batches. The read percentile is collected after reopening the persistent
+database and completing a warm-up interval. Each crash worker performs a
+durable marker write and calls `Runtime.halt`; the coordinator then reopens the
+database and verifies every prior marker and a base-dataset key.
+
+On macOS, an opt-in cold-open run purges the system filesystem cache before the
+timed database open:
+
+```bash
+AETHER_CACHE_MODE=cold-open ./scripts/cv-benchmark.sh
+```
+
+macOS displays its standard administrator authorization dialog immediately
+before the purge. Run on AC power; the purge may temporarily slow other
+applications. The current persistent implementation materializes its complete
+checkpoint into heap during `open()`, so cold-open mode measures cold database
+open/recovery cost; point reads afterward are heap-resident and are deliberately
+not presented as cold-disk reads.
+
 ## Typed API quick start
 
 Define a typed collection with stable collection and schema identities:

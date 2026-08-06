@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 /** Restart-prefix-compressed sorted key/value block. */
@@ -17,13 +18,26 @@ public final class RestartBlock {
      * @param restartInterval positive entries per restart point
      * @return encoded block bytes */
     public static byte[] encode(List<Entry> entries, int restartInterval) {
+        return encode(entries, restartInterval, Arrays::compareUnsigned);
+    }
+
+    /**
+     * Encodes entries using a context-specific strict key comparator.
+     *
+     * @param entries sorted key/value entries
+     * @param restartInterval positive entries per restart point
+     * @param comparator key ordering used by the enclosing block kind
+     * @return encoded block bytes
+     */
+    public static byte[] encode(List<Entry> entries, int restartInterval, Comparator<byte[]> comparator) {
         if (restartInterval <= 0) throw new IllegalArgumentException("restart interval must be positive");
+        if (comparator == null) throw new IllegalArgumentException("comparator is required");
         ByteArrayOutputStream body = new ByteArrayOutputStream();
         List<Integer> restarts = new ArrayList<>();
         byte[] previous = new byte[0];
         for (int index = 0; index < entries.size(); index++) {
             Entry entry = entries.get(index);
-            if (index > 0 && Arrays.compareUnsigned(previous, entry.key) >= 0) throw new IllegalArgumentException("keys not strictly ordered");
+            if (index > 0 && comparator.compare(previous, entry.key) >= 0) throw new IllegalArgumentException("keys not strictly ordered");
             boolean restart = index % restartInterval == 0;
             int shared = restart ? 0 : shared(previous, entry.key);
             if (restart) restarts.add(body.size());
@@ -41,6 +55,18 @@ public final class RestartBlock {
      * @param raw encoded block bytes
      * @return decoded sorted entries */
     public static List<Entry> decode(byte[] raw) {
+        return decode(raw, Arrays::compareUnsigned);
+    }
+
+    /**
+     * Decodes and validates entries with a context-specific key comparator.
+     *
+     * @param raw encoded block bytes
+     * @param comparator key ordering used by the enclosing block kind
+     * @return decoded sorted entries
+     */
+    public static List<Entry> decode(byte[] raw, Comparator<byte[]> comparator) {
+        if (comparator == null) throw new IllegalArgumentException("comparator is required");
         if (raw.length < 8) throw corrupt("block too short");
         ByteBuffer end = ByteBuffer.wrap(raw).order(ByteOrder.LITTLE_ENDIAN);
         int restartCount = end.getInt(raw.length - 4);
@@ -64,7 +90,7 @@ public final class RestartBlock {
             byte[] key = Arrays.copyOf(previous, shared.value() + suffix.value());
             System.arraycopy(raw, cursor, key, shared.value(), suffix.value()); cursor += suffix.value();
             byte[] bytes = Arrays.copyOfRange(raw, cursor, cursor + value.value()); cursor += value.value();
-            if (!entries.isEmpty() && Arrays.compareUnsigned(previous, key) >= 0) throw corrupt("unsorted block");
+            if (!entries.isEmpty() && comparator.compare(previous, key) >= 0) throw corrupt("unsorted block");
             entries.add(new Entry(key, bytes)); previous = key;
         }
         if (cursor != restartStart) throw corrupt("block not exactly consumed");

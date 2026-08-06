@@ -93,6 +93,30 @@ public record CollectionMetadata(
                 && Arrays.equals(schemaFingerprint, other.schemaFingerprint);
     }
 
+    /**
+     * Tests persistent collection and codec-family identity without requiring the same value version.
+     *
+     * @param other prospective collection metadata
+     * @return {@code true} when both definitions address the same durable collection and schema family
+     */
+    public boolean sameFamilyAs(CollectionMetadata other) {
+        return id.equals(other.id) && keyCodecId.equals(other.keyCodecId)
+                && keyEncodingVersion == other.keyEncodingVersion
+                && Arrays.equals(keyFingerprint, other.keyFingerprint)
+                && schemaId.equals(other.schemaId);
+    }
+
+    /**
+     * Validates a monotonic compatible metadata upgrade.
+     *
+     * @param newer prospective newer writer metadata
+     * @throws IllegalArgumentException when identity or generated descriptors are incompatible
+     */
+    public void requireCompatibleUpgradeTo(CollectionMetadata newer) {
+        if (!sameFamilyAs(newer)) throw new IllegalArgumentException("COLLECTION_SCHEMA_CONFLICT");
+        SchemaCompatibilityChecker.requireCompatible(schemaDescriptor, newer.schemaDescriptor);
+    }
+
     /** Encodes this metadata in the bounded administration format.
      * @return UTF-8 metadata bytes */
     public byte[] encode() {

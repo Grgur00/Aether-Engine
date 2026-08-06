@@ -66,5 +66,21 @@ class NativeSkipListMemTableTest {
         assertThatThrownBy(table::retain).isInstanceOf(IllegalStateException.class);
     }
 
+    @Test
+    void frozenInternalIterationPreservesVersionsAndTombstonesForFlush() {
+        NativeMemoryBudget budget = new NativeMemoryBudget(RegionConfig.MIN_CAPACITY_BYTES);
+        try (NativeSkipListMemTable table = new NativeSkipListMemTable(budget, RegionConfig.MIN_CAPACITY_BYTES, "flush", 11)) {
+            table.put(bytes("a"), bytes("old"), 1);
+            table.delete(bytes("a"), 2);
+            table.put(bytes("b"), bytes("value"), 3);
+            assertThatThrownBy(table::internalEntries).isInstanceOf(IllegalStateException.class);
+            table.freeze();
+            List<NativeSkipListMemTable.InternalEntry> entries = table.internalEntries();
+            assertThat(entries).hasSize(3);
+            assertThat(entries).extracting(NativeSkipListMemTable.InternalEntry::sequence).containsExactly(2L, 1L, 3L);
+            assertThat(entries).extracting(NativeSkipListMemTable.InternalEntry::tombstone).containsExactly(true, false, false);
+        }
+    }
+
     private static byte[] bytes(String value) { return value.getBytes(StandardCharsets.UTF_8); }
 }

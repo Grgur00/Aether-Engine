@@ -35,4 +35,35 @@ class WalFormatV1Test {
         assertThatThrownBy(() -> WalFragmentCodec.reassemble(physical, WalFormatV1.HEADER_BLOCK_BYTES))
                 .isInstanceOf(WalCorruptionException.class);
     }
+
+    @Test void forensicRecoveryReturnsOnlyCompleteGroupsBeforeCorruption() {
+        byte[] first = "first-group".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        byte[] second = "second-group".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        byte[] firstPhysical = WalFragmentCodec.fragment(first, WalFormatV1.HEADER_BLOCK_BYTES, 1);
+        byte[] secondPhysical = WalFragmentCodec.fragment(second,
+                WalFormatV1.HEADER_BLOCK_BYTES + firstPhysical.length, 2);
+        byte[] physical = new byte[firstPhysical.length + secondPhysical.length];
+        System.arraycopy(firstPhysical, 0, physical, 0, firstPhysical.length);
+        System.arraycopy(secondPhysical, 0, physical, firstPhysical.length, secondPhysical.length);
+        physical[firstPhysical.length + WalFormatV1.FRAGMENT_HEADER_BYTES] ^= 1;
+
+        WalFragmentCodec.PrefixRecovery recovery = WalFragmentCodec.recoverPrefix(
+                physical, WalFormatV1.HEADER_BLOCK_BYTES);
+
+        assertThat(recovery.records()).containsExactly(first);
+        assertThat(recovery.validEndOffset()).isEqualTo(WalFormatV1.HEADER_BLOCK_BYTES + firstPhysical.length);
+        assertThat(recovery.issue()).contains("checksum").contains("offset");
+    }
+
+    @Test void forensicRecoveryDoesNotExposeAnIncompleteLogicalRecord() {
+        byte[] logical = new byte[100_000]; new Random(17).nextBytes(logical);
+        byte[] physical = WalFragmentCodec.fragment(logical, WalFormatV1.HEADER_BLOCK_BYTES, 1);
+
+        WalFragmentCodec.PrefixRecovery recovery = WalFragmentCodec.recoverPrefix(
+                java.util.Arrays.copyOf(physical, physical.length - 10), WalFormatV1.HEADER_BLOCK_BYTES);
+
+        assertThat(recovery.records()).isEmpty();
+        assertThat(recovery.validEndOffset()).isEqualTo(WalFormatV1.HEADER_BLOCK_BYTES);
+        assertThat(recovery.hasIssue()).isTrue();
+    }
 }

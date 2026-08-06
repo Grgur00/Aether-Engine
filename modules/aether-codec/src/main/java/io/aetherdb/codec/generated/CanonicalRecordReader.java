@@ -6,8 +6,15 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.UUID;
+import io.aetherdb.api.typed.ValueCodec;
 
 /** Strict canonical payload reader used by generated codecs. */
 public final class CanonicalRecordReader {
@@ -103,12 +110,38 @@ public final class CanonicalRecordReader {
         return (raw >>> 1) ^ -(raw & 1);
     }
 
+    /** Decodes an exact signed byte. */
+    public byte signedByteValue() {
+        if (payload.length != 1) throw invalid("invalid signed byte at field " + fieldId);
+        return payload[0];
+    }
+
+    /** Decodes a zigzag short with range validation. */
+    public short signedShortValue() {
+        long value = signedLongValue();
+        if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) throw invalid("short overflow at field " + fieldId);
+        return (short) value;
+    }
+
     /** Decodes the current payload as a canonical IEEE-754 value.
      * @return decoded double */
     public double fixed64Value() {
         if (payload.length != 8) throw invalid("invalid fixed64 at field " + fieldId);
         return Double.longBitsToDouble(ByteBuffer.wrap(payload)
                 .order(ByteOrder.LITTLE_ENDIAN).getLong());
+    }
+
+    /** Decodes a canonical IEEE-754 single-precision payload. */
+    public float fixed32Value() {
+        if (payload.length != 4) throw invalid("invalid fixed32 at field " + fieldId);
+        return Float.intBitsToFloat(ByteBuffer.wrap(payload).order(ByteOrder.LITTLE_ENDIAN).getInt());
+    }
+
+    /** Decodes an unsigned Unicode code unit. */
+    public char characterValue() {
+        long value = payloadUnsignedVarint();
+        if (value > Character.MAX_VALUE) throw invalid("invalid char at field " + fieldId);
+        return (char) value;
     }
 
     /** Decodes the current payload as strict UTF-8.
@@ -146,6 +179,79 @@ public final class CanonicalRecordReader {
         }
         long seconds = (secondsRaw >>> 1) ^ -(secondsRaw & 1);
         return Instant.ofEpochSecond(seconds, nanos);
+    }
+
+    /** Decodes a canonical local date. */
+    public LocalDate localDateValue() { return LocalDate.ofEpochDay(signedLongValue()); }
+
+    /** Decodes a canonical local time. */
+    public LocalTime localTimeValue() {
+        long nanos = payloadUnsignedVarint();
+        if (nanos >= 86_400_000_000_000L) throw invalid("invalid LocalTime at field " + fieldId);
+        return LocalTime.ofNanoOfDay(nanos);
+    }
+
+    /** Decodes canonical local date and time components. */
+    public LocalDateTime localDateTimeValue() {
+        int[] position = {0}; long dayRaw = payloadUnsignedVarint(position);
+        long nanos = payloadUnsignedVarint(position);
+        if (position[0] != payload.length || nanos >= 86_400_000_000_000L) {
+            throw invalid("invalid LocalDateTime at field " + fieldId);
+        }
+        long day = (dayRaw >>> 1) ^ -(dayRaw & 1);
+        return LocalDateTime.of(LocalDate.ofEpochDay(day), LocalTime.ofNanoOfDay(nanos));
+    }
+
+    /** Decodes canonical duration seconds and nanoseconds. */
+    public Duration durationValue() {
+        int[] position = {0}; long secondsRaw = payloadUnsignedVarint(position);
+        long nanos = payloadUnsignedVarint(position);
+        if (position[0] != payload.length || nanos > 999_999_999L) {
+            throw invalid("invalid Duration at field " + fieldId);
+        }
+        return Duration.ofSeconds((secondsRaw >>> 1) ^ -(secondsRaw & 1), nanos);
+    }
+
+    /** Decodes a minimally represented bounded two's-complement integer. */
+    public BigInteger bigIntegerValue(int maximumBytes) {
+        if (payload.length == 0 || payload.length > maximumBytes) throw invalid("FIELD_LENGTH_EXCEEDED");
+        BigInteger value = new BigInteger(payload);
+        if (!Arrays.equals(value.toByteArray(), payload)) throw invalid("non-canonical BigInteger at field " + fieldId);
+        return value;
+    }
+
+    /** Decodes a canonical decimal scale and unscaled integer. */
+    public BigDecimal bigDecimalValue(int maximumBytes) {
+        if (payload.length == 0 || payload.length > maximumBytes) throw invalid("FIELD_LENGTH_EXCEEDED");
+        int[] position = {0}; long scaleRaw = payloadUnsignedVarint(position);
+        long scale = (scaleRaw >>> 1) ^ -(scaleRaw & 1);
+        if (scale < Integer.MIN_VALUE || scale > Integer.MAX_VALUE || position[0] == payload.length) {
+            throw invalid("invalid BigDecimal at field " + fieldId);
+        }
+        byte[] integer = Arrays.copyOfRange(payload, position[0], payload.length);
+        BigInteger unscaled = new BigInteger(integer);
+        if (!Arrays.equals(unscaled.toByteArray(), integer)) throw invalid("non-canonical BigDecimal at field " + fieldId);
+        return new BigDecimal(unscaled, (int) scale);
+    }
+
+    /** Returns a bounded defensive copy of a byte-array field. */
+    public byte[] bytesValue(int maximumBytes) {
+        if (payload.length > maximumBytes) throw invalid("FIELD_LENGTH_EXCEEDED");
+        return Arrays.copyOf(payload, payload.length);
+    }
+
+    /** Decodes a nested record after validating its schema identity, version, and bound. */
+    public <T> T nestedValue(ValueCodec<T> codec, int maximumBytes) {
+        if (codec == null || payload.length < 24 || payload.length > maximumBytes) {
+            throw invalid("invalid nested record at field " + fieldId);
+        }
+        ByteBuffer input = ByteBuffer.wrap(payload).order(ByteOrder.BIG_ENDIAN);
+        UUID schemaId = new UUID(input.getLong(), input.getLong());
+        int version = input.getInt(), length = input.getInt();
+        if (!schemaId.equals(codec.schemaId()) || version < 1 || length != input.remaining()) {
+            throw invalid("nested schema mismatch at field " + fieldId);
+        }
+        byte[] nested = new byte[length]; input.get(nested); return codec.decode(version, nested);
     }
 
     private long unsignedVarint() {

@@ -84,7 +84,7 @@ final class GeneratedRecordPersistenceTest {
         assertThat(codec.fingerprint())
                 .isEqualTo(MessageDigest.getInstance("SHA-256").digest(descriptor));
         assertThat(HexFormat.of().formatHex(codec.fingerprint())).isEqualTo(
-                "8c1b53d50d18dbbe22c67c998e3342cdbf220ac3577fb328e035d1f9d78b78a7");
+                "303e87981ebec6231c207e185ff753766457c2fe4426a6f0e0649a41a03ed562");
 
         byte[] corrupted = first.clone();
         corrupted[corrupted.length - 1] ^= 1;
@@ -164,6 +164,6 @@ final class GeneratedRecordPersistenceTest {
         var codec = GeneratedCodecs.forRecord(Todo.class);
         assertThat(codec.schemaId()).hasToString("7c4d8b15-e87d-48fc-a5d0-8324fae35852");
         assertThat(HexFormat.of().formatHex(codec.fingerprint())).isEqualTo(
-                "a6157cae3a2da7cd1635aa0ff8d58b6f46e0a900094ac7050ee6516922112905");
+                "14179cf6b3163111835c90b23a29c8321e3cd0c36a895fb8c31582029fd78ddd");
     }
 }

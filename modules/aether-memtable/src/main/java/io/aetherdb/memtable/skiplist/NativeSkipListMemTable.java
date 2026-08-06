@@ -122,6 +122,57 @@ public final class NativeSkipListMemTable implements AutoCloseable {
         return result;
     }
 
+    /**
+     * Materializes every internal record in strict user-key/descending-sequence order.
+     * This flush-only view preserves overwritten values and tombstones.
+     *
+     * @return defensive immutable internal entries
+     */
+    public List<InternalEntry> internalEntries() {
+        ensureReadable();
+        if (state == State.ACTIVE) throw new IllegalStateException("MemTable must be frozen before flush iteration");
+        List<InternalEntry> result = new ArrayList<>();
+        int node = next(NativeSkipListNodeFormat.HEAD_OFFSET, 0);
+        while (node != 0) {
+            NativeRecordView record = record(node);
+            boolean tombstone = record.isTombstone();
+            result.add(new InternalEntry(record.copyKey(), tombstone ? new byte[0] : record.copyValue(), record.sequence(), tombstone));
+            node = next(node, 0);
+        }
+        return List.copyOf(result);
+    }
+
+    /**
+     * Materializes each distinct user key without requiring the table to be frozen.
+     *
+     * @return keys in unsigned bytewise order
+     */
+    public List<byte[]> userKeys() {
+        ensureReadable(); List<byte[]> result = new ArrayList<>(); byte[] previous = null;
+        int node = next(NativeSkipListNodeFormat.HEAD_OFFSET, 0);
+        while (node != 0) {
+            NativeRecordView record = record(node); byte[] key = record.copyKey();
+            if (previous == null || compareBytes(previous, key) != 0) { result.add(key); previous = key; }
+            node = next(node, 0);
+        }
+        return List.copyOf(result);
+    }
+
+    /**
+     * Returns a conservative maximum allocation for one mutation with the supplied payload lengths.
+     *
+     * @param keyBytes user-key bytes
+     * @param valueBytes value bytes, zero for a tombstone
+     * @return worst-case aligned node and native-record bytes
+     */
+    public static int maximumInsertionBytes(int keyBytes, int valueBytes) {
+        int recordBytes = NativeRecordFormatV1.totalLength(keyBytes, valueBytes);
+        return Math.addExact(7, NativeSkipListNodeFormat.allocationBytes(SkipListHeightGenerator.MAX_HEIGHT, recordBytes));
+    }
+
+    /** Returns currently unallocated native bytes. */
+    public long nativeRemainingBytes() { return region.allocator().remainingBytes(); }
+
     private int lowerBound(byte[] key, long sequence, byte type) {
         int current = NativeSkipListNodeFormat.HEAD_OFFSET;
         for (int level = currentMaxHeight - 1; level >= 0; level--) {
@@ -195,6 +246,21 @@ public final class NativeSkipListMemTable implements AutoCloseable {
     public record Entry(byte[] key, byte[] value) {
         public Entry { key = key.clone(); value = value.clone(); }
         @Override public byte[] key() { return key.clone(); }
+        @Override public byte[] value() { return value.clone(); }
+    }
+
+    /** One flush-visible internal record, including its sequence and tombstone state. */
+    public record InternalEntry(byte[] key, byte[] value, long sequence, boolean tombstone) {
+        /** Takes defensive payload copies and validates durable fields. */
+        public InternalEntry {
+            if (key == null || value == null || sequence <= 0 || tombstone && value.length != 0) {
+                throw new IllegalArgumentException("invalid internal MemTable entry");
+            }
+            key = key.clone(); value = value.clone();
+        }
+        /** Returns a defensive user-key copy. */
+        @Override public byte[] key() { return key.clone(); }
+        /** Returns a defensive value copy. */
         @Override public byte[] value() { return value.clone(); }
     }
 

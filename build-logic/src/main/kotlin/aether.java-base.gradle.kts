@@ -16,6 +16,13 @@ tasks.withType<Test>().configureEach {
 
 tasks.withType<JavaExec>().configureEach { jvmArgs("--enable-preview") }
 
+tasks.withType<Javadoc>().configureEach {
+    (options as StandardJavadocDocletOptions).apply {
+        addBooleanOption("-enable-preview", true)
+        source("21")
+    }
+}
+
 tasks.withType<AbstractArchiveTask>().configureEach {
     isPreserveFileTimestamps = false
     isReproducibleFileOrder = true

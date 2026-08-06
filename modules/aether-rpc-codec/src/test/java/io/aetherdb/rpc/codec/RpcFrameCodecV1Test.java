@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
 import java.util.UUID;
+import java.nio.ByteBuffer;
 import org.junit.jupiter.api.Test;
 
 final class RpcFrameCodecV1Test {
@@ -55,5 +56,39 @@ final class RpcFrameCodecV1Test {
         byte[] encoded = hello.encode(); assertThat(encoded).hasSize(192); assertThat(RpcHelloV1.decode(encoded)).isEqualTo(hello);
         encoded[170] = 1;
         assertThatThrownBy(() -> RpcHelloV1.decode(encoded)).isInstanceOf(RpcProtocolException.class);
+    }
+
+    @Test void incrementalDecoderHandlesEverySingleByteSplitAndCoalescedFrames() {
+        RpcFrame first = RpcMessageFragmenter.fragment(
+                RpcFrameType.REQUEST, 1, 7, INVOCATION, 5000, new byte[] {1, 2, 3}, 1024).get(0);
+        RpcFrame second = RpcMessageFragmenter.fragment(
+                RpcFrameType.RESPONSE, 1, 0, INVOCATION, 0, new byte[] {4, 5}, 1024).get(0);
+        byte[] firstBytes = RpcFrameCodecV1.encode(first), secondBytes = RpcFrameCodecV1.encode(second);
+        byte[] wire = new byte[firstBytes.length + secondBytes.length];
+        System.arraycopy(firstBytes, 0, wire, 0, firstBytes.length);
+        System.arraycopy(secondBytes, 0, wire, firstBytes.length, secondBytes.length);
+        RpcFrameDecoder decoder = new RpcFrameDecoder(1024); java.util.ArrayList<RpcFrame> decoded = new java.util.ArrayList<>();
+
+        for (byte value : wire) decoded.addAll(decoder.feed(ByteBuffer.wrap(new byte[] {value})));
+
+        assertThat(decoded).hasSize(2);
+        assertThat(decoded.get(0).header()).isEqualTo(first.header());
+        assertThat(decoded.get(0).payload()).isEqualTo(first.payload());
+        assertThat(decoded.get(1).header()).isEqualTo(second.header());
+        assertThat(decoded.get(1).payload()).isEqualTo(second.payload());
+        assertThat(decoder.hasPartialFrame()).isFalse();
+        assertThat(new RpcFrameDecoder(1024).feed(ByteBuffer.wrap(wire))).hasSize(2);
+    }
+
+    @Test void incrementalDecoderRejectsDeclaredPayloadBeforeAllocatingIt() {
+        RpcFrame frame = RpcMessageFragmenter.fragment(
+                RpcFrameType.REQUEST, 1, 7, INVOCATION, 5000, new byte[2048], 2048).get(0);
+        byte[] encoded = RpcFrameCodecV1.encode(frame);
+        RpcFrameDecoder decoder = new RpcFrameDecoder(1024);
+
+        assertThatThrownBy(() -> decoder.feed(ByteBuffer.wrap(encoded, 0, 64)))
+                .isInstanceOf(RpcProtocolException.class)
+                .hasMessageContaining("negotiated payload limit");
+        assertThat(decoder.retainedBytes()).isEqualTo(64);
     }
 }

@@ -10,3 +10,7 @@ dependencies {
     implementation(project(":modules:aether-sstable"))
     implementation(project(":modules:aether-lsm"))
 }
+
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.add("-Xlint:-preview")
+}

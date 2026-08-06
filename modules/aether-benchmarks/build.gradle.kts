@@ -1,10 +1,9 @@
-plugins { id("aether.java-library") }
+plugins { id("aether.java-application") }
 
 dependencies {
     implementation(project(":modules:aether-api"))
-    implementation(project(":modules:aether-memory"))
-    implementation(project(":modules:aether-format"))
-    implementation(project(":modules:aether-memtable"))
-    implementation(project(":modules:aether-wal"))
-    implementation(project(":modules:aether-sstable"))
+    implementation(project(":modules:aether-engine"))
+    implementation("org.hdrhistogram:HdrHistogram:2.2.2")
 }
+
+application { mainClass = "io.aetherdb.benchmarks.CvBenchmark" }
