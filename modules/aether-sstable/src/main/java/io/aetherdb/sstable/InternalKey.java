@@ -39,11 +39,46 @@ public final class InternalKey implements Comparable<InternalKey> {
     }
 
     @Override public int compareTo(InternalKey other) {
-        int key = Arrays.compareUnsigned(userKey, other.userKey);
+        int key = compare(userKey, 0, userKey.length, other.userKey, 0, other.userKey.length);
         if (key != 0) return key;
         int sequenceOrder = Long.compare(other.sequence, sequence);
         return sequenceOrder != 0 ? sequenceOrder : Integer.compare(Byte.toUnsignedInt(type), Byte.toUnsignedInt(other.type));
     }
+
+    /** Compares two byte ranges using unsigned lexicographical ordering. */
+    public static int compare(byte[] left, int leftOffset, int leftLength, byte[] right, int rightOffset, int rightLength) {
+        if (left == null || right == null) throw new IllegalArgumentException("keys must not be null");
+        int limit = Math.min(leftLength, rightLength);
+        for (int index = 0; index < limit; index++) {
+            int leftByte = Byte.toUnsignedInt(left[leftOffset + index]);
+            int rightByte = Byte.toUnsignedInt(right[rightOffset + index]);
+            if (leftByte != rightByte) return leftByte < rightByte ? -1 : 1;
+        }
+        return Integer.compare(leftLength, rightLength);
+    }
+
+    /** Compares an encoded internal key's user-key portion against a raw user key without allocating. */
+    public static int compareUserKey(byte[] encodedInternalKey, byte[] userKey) {
+        if (encodedInternalKey == null || userKey == null) throw new IllegalArgumentException("keys must not be null");
+        int userLength = encodedInternalKey.length - 9;
+        return compare(encodedInternalKey, 0, userLength, userKey, 0, userKey.length);
+    }
+
+    /** Compares two encoded internal keys with the SSTable ordering semantics. */
+    public static int compareEncoded(byte[] left, byte[] right) {
+        if (left == null || right == null) throw new IllegalArgumentException("keys must not be null");
+        int userOrder = compare(left, 0, left.length - 9, right, 0, right.length - 9);
+        if (userOrder != 0) return userOrder;
+        long leftSequence = sequence(left, left.length - 9);
+        long rightSequence = sequence(right, right.length - 9);
+        int sequenceOrder = Long.compare(rightSequence, leftSequence);
+        return sequenceOrder != 0 ? sequenceOrder : Integer.compare(Byte.toUnsignedInt(left[left.length - 1]), Byte.toUnsignedInt(right[right.length - 1]));
+    }
+
+    private static long sequence(byte[] encoded, int userLength) {
+        return ByteBuffer.wrap(encoded, userLength, 8).order(ByteOrder.LITTLE_ENDIAN).getLong();
+    }
+
     /** Returns the logical key.
      * @return defensive user-key copy */
     public byte[] userKey() { return userKey.clone(); }
@@ -53,4 +88,12 @@ public final class InternalKey implements Comparable<InternalKey> {
     /** Returns the value kind.
      * @return durable type code */
     public byte type() { return type; }
+
+    /** Lightweight view over a byte array range, used by hot-path comparisons. */
+    public record ByteSlice(byte[] array, int offset, int length) {
+        public ByteSlice {
+            if (array == null) throw new IllegalArgumentException("byte slice array must not be null");
+            if (offset < 0 || length < 0 || offset + length > array.length) throw new IllegalArgumentException("invalid byte slice");
+        }
+    }
 }

@@ -11,6 +11,7 @@ import io.aetherdb.sstable.block.BlockKind;
 import io.aetherdb.sstable.filter.BloomFilterV1;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -36,6 +37,24 @@ class SSTableFormatV1Test {
         }
         assertThatThrownBy(() -> Varint32.decode(new byte[] {(byte) 0x80, 0}, 0, 2))
                 .isInstanceOf(SSTableCorruptionException.class);
+    }
+
+    @Test void rangeComparatorMatchesCanonicalComparatorAcrossEdgeCases() {
+        assertThat(InternalKey.compare(new byte[] {}, 0, 0, new byte[] {}, 0, 0)).isZero();
+        assertThat(InternalKey.compare(bytes("abc"), 0, 3, bytes("abc"), 0, 3)).isZero();
+        assertThat(InternalKey.compare(bytes("ab"), 0, 2, bytes("abc"), 0, 3)).isNegative();
+        assertThat(InternalKey.compare(bytes("abc"), 0, 3, bytes("ab"), 0, 2)).isPositive();
+        assertThat(InternalKey.compare(new byte[] {(byte) 0xFF}, 0, 1, new byte[] {(byte) 0x80}, 0, 1)).isPositive();
+        assertThat(InternalKey.compare(new byte[] {(byte) 0x80, 0x01}, 0, 2, new byte[] {(byte) 0x80}, 0, 1)).isPositive();
+
+        Random random = new Random(17);
+        for (int index = 0; index < 500; index++) {
+            byte[] left = randomBytes(random, 1 + random.nextInt(16));
+            byte[] right = randomBytes(random, 1 + random.nextInt(16));
+            int expected = Arrays.compareUnsigned(left, right);
+            assertThat(Integer.signum(InternalKey.compare(left, 0, left.length, right, 0, right.length)))
+                    .isEqualTo(Integer.signum(expected));
+        }
     }
 
     @Test void restartCompressionReconstructsExactEntries() {
@@ -149,5 +168,30 @@ class SSTableFormatV1Test {
                 .isInstanceOf(SSTableCorruptionException.class).hasMessageContaining("checksum");
     }
 
+    @Test void indexedLookupResolvesEntriesAcrossBlockBoundaries() throws Exception {
+        Path table = temporaryDirectory.resolve("SST-00000000000000000088.aesst");
+        UUID databaseId = UUID.fromString("c98f846d-939f-44f6-9d8a-51084c7cb0d1");
+        SSTableBuilder builder = new SSTableBuilder(table, 88, databaseId, 22);
+        for (int index = 0; index < 80; index++) {
+            byte[] key = ByteBuffer.allocate(4).putInt(index).array();
+            builder.add(new InternalKey(key, 100 - index, (byte) 1), bytes("value-" + index));
+        }
+        TableFileMetadata metadata = builder.finish();
+        try (SSTableReader reader = SSTableReader.open(table, metadata)) {
+            assertThat(reader.lookup(bytes("\u0000\u0000\u0000\u0000"), 100)).isInstanceOfSatisfying(SSTableLookup.Found.class,
+                    found -> assertThat(found.value()).isEqualTo(bytes("value-0")));
+            SSTableLookup lookup = reader.lookup(ByteBuffer.allocate(4).putInt(80).array(), 100);
+            assertThat(lookup).isInstanceOf(SSTableLookup.Absent.class);
+            assertThat(reader.lookup(bytes("\u0000\u0000\u0000\u003f"), 50)).isInstanceOfSatisfying(SSTableLookup.Found.class,
+                    found -> assertThat(found.value()).isEqualTo(bytes("value-63")));
+        }
+    }
+
     private static byte[] bytes(String value) { return value.getBytes(java.nio.charset.StandardCharsets.UTF_8); }
+
+    private static byte[] randomBytes(Random random, int length) {
+        byte[] bytes = new byte[length];
+        random.nextBytes(bytes);
+        return bytes;
+    }
 }

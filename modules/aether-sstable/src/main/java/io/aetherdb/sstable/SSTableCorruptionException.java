@@ -6,4 +6,6 @@ public final class SSTableCorruptionException extends RuntimeException {
     /** Creates an SSTable corruption failure.
      * @param message corruption description */
     public SSTableCorruptionException(String message) { super(message); }
+    /** Creates an SSTable corruption failure with a cause. */
+    public SSTableCorruptionException(String message, Throwable cause) { super(message, cause); }
 }
