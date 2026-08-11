@@ -33,7 +33,7 @@ public final class SSTableReader implements AutoCloseable {
     private final FileChannel channel;
     private final long fileSize;
     private final List<DataBlock> dataBlocks;
-    private final byte[] filter;
+    private final BloomFilterV1.Filter filter;
     private boolean closed;
 
     private SSTableReader(
@@ -43,7 +43,7 @@ public final class SSTableReader implements AutoCloseable {
             long fileSize,
             SSTableFooterV1 footer,
             List<DataBlock> dataBlocks,
-            byte[] filter) {
+            BloomFilterV1.Filter filter) {
         this.path = path;
         this.expected = expected;
         this.channel = channel;
@@ -79,20 +79,7 @@ public final class SSTableReader implements AutoCloseable {
                             SSTableFooterV1.FOOTER_BYTES);
             SSTableHeaderV1 header = SSTableHeaderV1.decodeRegion(headerRegion);
             SSTableFooterV1 footer = SSTableFooterV1.decode(footerBytes);
-            validateIdentity(path, expected, header, footer, fileSize);
-            footer.validateHandles();
-            byte[] filter = raw(channel, footer.filter(), BlockKind.FILTER, fileSize);
-            byte[] propertyRaw = raw(channel, footer.properties(), BlockKind.PROPERTIES, fileSize);
-            byte[] metaindexRaw = raw(channel, footer.metaindex(), BlockKind.METAINDEX, fileSize);
-            byte[] indexRaw = raw(channel, footer.index(), BlockKind.INDEX, fileSize);
-            validateMetaindex(metaindexRaw, footer);
-            validateProperties(propertyRaw, expected, header);
-            List<DataBlock> blocks =
-                    decodeIndexAndData(channel, fileSize, footer, header, indexRaw);
-            SSTableReader reader =
-                    new SSTableReader(path, expected, channel, fileSize, footer, blocks, filter);
-            reader.verify();
-            return reader;
+            return finishOpen(path, expected, channel, fileSize, header, footer, null);
         } catch (Throwable failure) {
             try {
                 channel.close();
@@ -134,14 +121,8 @@ public final class SSTableReader implements AutoCloseable {
                             SSTableFooterV1.FOOTER_BYTES);
             SSTableHeaderV1 header = SSTableHeaderV1.decodeRegion(headerRegion);
             SSTableFooterV1 footer = SSTableFooterV1.decode(footerBytes);
-            Map<String, byte[]> properties =
-                    bytewiseMap(
-                            RestartBlock.decode(
-                                    raw(
-                                            channel,
-                                            footer.properties(),
-                                            BlockKind.PROPERTIES,
-                                            fileSize)));
+            byte[] propertyRaw = raw(channel, footer.properties(), BlockKind.PROPERTIES, fileSize);
+            Map<String, byte[]> properties = bytewiseMap(RestartBlock.decode(propertyRaw));
             TableFileMetadata expected =
                     new TableFileMetadata(
                             path,
@@ -161,7 +142,7 @@ public final class SSTableReader implements AutoCloseable {
                             manifest.largestInternalKey(), expected.largestInternalKey())) {
                 throw corrupt("manifest key bounds disagree with table metadata");
             }
-            return open(path, expected);
+            return finishOpen(path, expected, channel, fileSize, header, footer, propertyRaw);
         } catch (Throwable failure) {
             try {
                 channel.close();
@@ -196,14 +177,8 @@ public final class SSTableReader implements AutoCloseable {
                             SSTableFooterV1.FOOTER_BYTES);
             SSTableHeaderV1 header = SSTableHeaderV1.decodeRegion(headerRegion);
             SSTableFooterV1 footer = SSTableFooterV1.decode(footerBytes);
-            Map<String, byte[]> properties =
-                    bytewiseMap(
-                            RestartBlock.decode(
-                                    raw(
-                                            channel,
-                                            footer.properties(),
-                                            BlockKind.PROPERTIES,
-                                            fileSize)));
+            byte[] propertyRaw = raw(channel, footer.properties(), BlockKind.PROPERTIES, fileSize);
+            Map<String, byte[]> properties = bytewiseMap(RestartBlock.decode(propertyRaw));
             TableFileMetadata expected =
                     new TableFileMetadata(
                             path,
@@ -218,7 +193,7 @@ public final class SSTableReader implements AutoCloseable {
                             header.largestSequence(),
                             propertyLong(properties, "aether.raw.key.bytes"),
                             propertyLong(properties, "aether.raw.value.bytes"));
-            return open(path, expected);
+            return finishOpen(path, expected, channel, fileSize, header, footer, propertyRaw);
         } catch (Throwable failure) {
             try {
                 channel.close();
@@ -227,6 +202,34 @@ public final class SSTableReader implements AutoCloseable {
             }
             throw failure;
         }
+    }
+
+    private static SSTableReader finishOpen(
+            Path path,
+            TableFileMetadata expected,
+            FileChannel channel,
+            long fileSize,
+            SSTableHeaderV1 header,
+            SSTableFooterV1 footer,
+            byte[] decodedProperties)
+            throws IOException {
+        validateIdentity(path, expected, header, footer, fileSize);
+        footer.validateHandles();
+        BloomFilterV1.Filter filter =
+                BloomFilterV1.decode(raw(channel, footer.filter(), BlockKind.FILTER, fileSize));
+        byte[] propertyRaw =
+                decodedProperties != null
+                        ? decodedProperties
+                        : raw(channel, footer.properties(), BlockKind.PROPERTIES, fileSize);
+        byte[] metaindexRaw = raw(channel, footer.metaindex(), BlockKind.METAINDEX, fileSize);
+        byte[] indexRaw = raw(channel, footer.index(), BlockKind.INDEX, fileSize);
+        validateMetaindex(metaindexRaw, footer);
+        validateProperties(propertyRaw, expected, header);
+        List<DataBlock> blocks = decodeIndexAndData(channel, fileSize, footer, header, indexRaw);
+        SSTableReader reader =
+                new SSTableReader(path, expected, channel, fileSize, footer, blocks, filter);
+        reader.verify();
+        return reader;
     }
 
     /**
@@ -241,7 +244,7 @@ public final class SSTableReader implements AutoCloseable {
         Objects.requireNonNull(userKey, "userKey");
         if (visibleSequence < 0)
             throw new IllegalArgumentException("visible sequence must be nonnegative");
-        if (!BloomFilterV1.mayContain(filter, userKey)) return new SSTableLookup.Absent();
+        if (!filter.mayContain(userKey)) return new SSTableLookup.Absent();
         int blockIndex = findCandidateBlock(userKey);
         if (blockIndex < 0) return new SSTableLookup.Absent();
         DataBlock block = dataBlocks.get(blockIndex);
@@ -299,7 +302,7 @@ public final class SSTableReader implements AutoCloseable {
                 valueBytes += entry.value().length;
                 smallest = Math.min(smallest, decoded.sequence());
                 largest = Math.max(largest, decoded.sequence());
-                if (!BloomFilterV1.mayContain(filter, decoded.userKey()))
+                if (!filter.mayContain(encoded, 0, encoded.length - 9))
                     throw corrupt("Bloom filter false negative");
             }
         }
@@ -365,8 +368,7 @@ public final class SSTableReader implements AutoCloseable {
     }
 
     private static long sequence(byte[] encoded) {
-        int userLength = encoded.length - 9;
-        return ByteBuffer.wrap(encoded, userLength, 8).order(ByteOrder.LITTLE_ENDIAN).getLong();
+        return InternalKey.sequence(encoded);
     }
 
     private static List<DataBlock> decodeIndexAndData(

@@ -319,7 +319,7 @@ public final class VersionSet implements AutoCloseable {
     public synchronized Version logAndApply(ManifestEdit delta) throws IOException {
         ensureOpen();
         Version candidate = current.apply(delta);
-        verifyInventory(root, databaseId, candidate.allFiles());
+        verifyInventory(root, databaseId, delta.additions());
         byte[] record = ManifestCodecV1.encodeRecord(delta);
         writeFully(writer, ByteBuffer.wrap(record));
         writer.force(true);
@@ -387,8 +387,8 @@ public final class VersionSet implements AutoCloseable {
                         "referenced SSTable is missing, unsafe, or has the wrong size: "
                                 + path.getFileName());
             }
-            try (SSTableReader ignored = SSTableReader.open(path, databaseId, file)) {
-                ignored.verify();
+            try (SSTableReader verified = SSTableReader.open(path, databaseId, file)) {
+                verified.metadata();
             }
         }
     }

@@ -1,7 +1,5 @@
 package io.aetherdb.sstable;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Arrays;
 
 /** SSTable internal-key v1 codec and semantic comparator. */
@@ -18,9 +16,13 @@ public final class InternalKey implements Comparable<InternalKey> {
      * @param type durable value or tombstone type code
      */
     public InternalKey(byte[] userKey, long sequence, byte type) {
+        this(userKey, sequence, type, false);
+    }
+
+    private InternalKey(byte[] userKey, long sequence, byte type, boolean ownsUserKey) {
         if (userKey == null || userKey.length > 65_536 || sequence <= 0 || type < 1 || type > 2)
             throw new IllegalArgumentException("invalid internal key");
-        this.userKey = userKey.clone();
+        this.userKey = ownsUserKey ? userKey : userKey.clone();
         this.sequence = sequence;
         this.type = type;
     }
@@ -31,8 +33,10 @@ public final class InternalKey implements Comparable<InternalKey> {
      * @return newly allocated internal-key bytes
      */
     public byte[] encode() {
-        ByteBuffer bytes = ByteBuffer.allocate(userKey.length + 9).order(ByteOrder.LITTLE_ENDIAN);
-        return bytes.put(userKey).putLong(sequence).put(type).array();
+        byte[] encoded = Arrays.copyOf(userKey, userKey.length + 9);
+        writeLongLittleEndian(encoded, userKey.length, sequence);
+        encoded[encoded.length - 1] = type;
+        return encoded;
     }
 
     /**
@@ -45,10 +49,12 @@ public final class InternalKey implements Comparable<InternalKey> {
         if (encoded == null || encoded.length < 9)
             throw new SSTableCorruptionException("internal key too short");
         int userLength = encoded.length - 9;
-        ByteBuffer trailer = ByteBuffer.wrap(encoded, userLength, 9).order(ByteOrder.LITTLE_ENDIAN);
         try {
             return new InternalKey(
-                    Arrays.copyOf(encoded, userLength), trailer.getLong(), trailer.get());
+                    Arrays.copyOf(encoded, userLength),
+                    readLongLittleEndian(encoded, userLength),
+                    encoded[encoded.length - 1],
+                    true);
         } catch (IllegalArgumentException failure) {
             throw new SSTableCorruptionException("invalid internal key");
         }
@@ -74,11 +80,19 @@ public final class InternalKey implements Comparable<InternalKey> {
             int rightLength) {
         if (left == null || right == null)
             throw new IllegalArgumentException("keys must not be null");
-        int limit = Math.min(leftLength, rightLength);
-        for (int index = 0; index < limit; index++) {
-            int leftByte = Byte.toUnsignedInt(left[leftOffset + index]);
-            int rightByte = Byte.toUnsignedInt(right[rightOffset + index]);
-            if (leftByte != rightByte) return leftByte < rightByte ? -1 : 1;
+        int sharedLength = Math.min(leftLength, rightLength);
+        int mismatch =
+                Arrays.mismatch(
+                        left,
+                        leftOffset,
+                        leftOffset + sharedLength,
+                        right,
+                        rightOffset,
+                        rightOffset + sharedLength);
+        if (mismatch >= 0) {
+            return Integer.compareUnsigned(
+                    Byte.toUnsignedInt(left[leftOffset + mismatch]),
+                    Byte.toUnsignedInt(right[rightOffset + mismatch]));
         }
         return Integer.compare(leftLength, rightLength);
     }
@@ -100,8 +114,8 @@ public final class InternalKey implements Comparable<InternalKey> {
             throw new IllegalArgumentException("keys must not be null");
         int userOrder = compare(left, 0, left.length - 9, right, 0, right.length - 9);
         if (userOrder != 0) return userOrder;
-        long leftSequence = sequence(left, left.length - 9);
-        long rightSequence = sequence(right, right.length - 9);
+        long leftSequence = readLongLittleEndian(left, left.length - 9);
+        long rightSequence = readLongLittleEndian(right, right.length - 9);
         int sequenceOrder = Long.compare(rightSequence, leftSequence);
         return sequenceOrder != 0
                 ? sequenceOrder
@@ -110,8 +124,33 @@ public final class InternalKey implements Comparable<InternalKey> {
                         Byte.toUnsignedInt(right[right.length - 1]));
     }
 
-    private static long sequence(byte[] encoded, int userLength) {
-        return ByteBuffer.wrap(encoded, userLength, 8).order(ByteOrder.LITTLE_ENDIAN).getLong();
+    /** Returns the sequence encoded in a validated internal-key byte array. */
+    public static long sequence(byte[] encoded) {
+        if (encoded == null || encoded.length < 9)
+            throw new IllegalArgumentException("internal key too short");
+        return readLongLittleEndian(encoded, encoded.length - 9);
+    }
+
+    private static long readLongLittleEndian(byte[] bytes, int offset) {
+        return Byte.toUnsignedLong(bytes[offset])
+                | Byte.toUnsignedLong(bytes[offset + 1]) << 8
+                | Byte.toUnsignedLong(bytes[offset + 2]) << 16
+                | Byte.toUnsignedLong(bytes[offset + 3]) << 24
+                | Byte.toUnsignedLong(bytes[offset + 4]) << 32
+                | Byte.toUnsignedLong(bytes[offset + 5]) << 40
+                | Byte.toUnsignedLong(bytes[offset + 6]) << 48
+                | Byte.toUnsignedLong(bytes[offset + 7]) << 56;
+    }
+
+    private static void writeLongLittleEndian(byte[] bytes, int offset, long value) {
+        bytes[offset] = (byte) value;
+        bytes[offset + 1] = (byte) (value >>> 8);
+        bytes[offset + 2] = (byte) (value >>> 16);
+        bytes[offset + 3] = (byte) (value >>> 24);
+        bytes[offset + 4] = (byte) (value >>> 32);
+        bytes[offset + 5] = (byte) (value >>> 40);
+        bytes[offset + 6] = (byte) (value >>> 48);
+        bytes[offset + 7] = (byte) (value >>> 56);
     }
 
     /**

@@ -17,7 +17,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -26,8 +25,7 @@ import java.util.UUID;
 
 /** Builds one immutable SSTable v1 from strictly ordered internal entries. */
 public final class SSTableBuilder {
-    private static final Comparator<byte[]> INTERNAL_ORDER =
-            (left, right) -> InternalKey.decode(left).compareTo(InternalKey.decode(right));
+    private static final Comparator<byte[]> INTERNAL_ORDER = InternalKey::compareEncoded;
     private static final int MAX_RAW_BLOCK_BYTES = 32 * 1024 * 1024;
     private final Path path;
     private final long fileNumber;
@@ -87,11 +85,7 @@ public final class SSTableBuilder {
         body.writeBytes(new byte[SSTableHeaderV1.HEADER_REGION_BYTES]);
         List<BlockDescription> dataBlocks = new ArrayList<>();
         for (List<Entry> partition : partitions) {
-            byte[] raw =
-                    RestartBlock.encode(
-                            toRestartEntries(partition),
-                            SSTableHeaderV1.RESTART_INTERVAL,
-                            INTERNAL_ORDER);
+            byte[] raw = encodeDataBlock(partition);
             dataBlocks.add(
                     writeBlock(body, raw, BlockKind.DATA, partition.get(partition.size() - 1).key));
         }
@@ -99,7 +93,7 @@ public final class SSTableBuilder {
         List<byte[]> userKeys = distinctUserKeys();
         BlockDescription filter =
                 writeBlock(body, BloomFilterV1.build(userKeys), BlockKind.FILTER, null);
-        Metrics metrics = metrics();
+        Metrics metrics = metrics(partitions.size());
         byte[] propertiesPlaceholder = properties(metrics, 0);
         int propertiesPhysicalLength = propertiesPlaceholder.length + BlockEnvelope.TRAILER_BYTES;
         long propertiesOffset = body.size();
@@ -153,8 +147,8 @@ public final class SSTableBuilder {
             channel.force(true);
         }
         TableFileMetadata metadata = metadata(metrics, dataBlocks.size(), table.length);
-        try (SSTableReader ignored = SSTableReader.open(path, metadata)) {
-            ignored.verify();
+        try (SSTableReader verified = SSTableReader.open(path, metadata)) {
+            verified.metadata();
         }
         return metadata;
     }
@@ -167,37 +161,46 @@ public final class SSTableBuilder {
     private List<List<Entry>> partitionDataBlocks() {
         List<List<Entry>> result = new ArrayList<>();
         List<Entry> current = new ArrayList<>();
+        int bodySize = 0;
+        int restartCount = 0;
+        byte[] previous = new byte[0];
         for (Entry entry : entries) {
-            List<Entry> candidate = new ArrayList<>(current);
-            candidate.add(entry);
-            int size =
-                    RestartBlock.encode(
-                                    toRestartEntries(candidate),
-                                    SSTableHeaderV1.RESTART_INTERVAL,
-                                    INTERNAL_ORDER)
-                            .length;
-            if (!current.isEmpty() && size > SSTableHeaderV1.TARGET_DATA_BLOCK_BYTES) {
+            int entryIndex = current.size();
+            boolean restart = entryIndex % SSTableHeaderV1.RESTART_INTERVAL == 0;
+            int contribution =
+                    RestartBlock.encodedEntrySize(previous, entry.key, entry.value.length, restart);
+            int candidateRestartCount = restartCount + (restart ? 1 : 0);
+            int candidateSize = bodySize + contribution + candidateRestartCount * 4 + 4;
+            if (!current.isEmpty() && candidateSize > SSTableHeaderV1.TARGET_DATA_BLOCK_BYTES) {
                 result.add(List.copyOf(current));
                 current.clear();
-                current.add(entry);
-            } else current.add(entry);
-            int raw =
-                    RestartBlock.encode(
-                                    toRestartEntries(current),
-                                    SSTableHeaderV1.RESTART_INTERVAL,
-                                    INTERNAL_ORDER)
-                            .length;
-            if (raw > MAX_RAW_BLOCK_BYTES)
+                bodySize = 0;
+                restartCount = 0;
+                previous = new byte[0];
+                restart = true;
+                contribution =
+                        RestartBlock.encodedEntrySize(
+                                previous, entry.key, entry.value.length, true);
+                candidateRestartCount = 1;
+                candidateSize = contribution + 8;
+            }
+            if (candidateSize > MAX_RAW_BLOCK_BYTES) {
                 throw new IllegalArgumentException("raw data block exceeds 32 MiB");
+            }
+            current.add(entry);
+            bodySize += contribution;
+            restartCount = candidateRestartCount;
+            previous = entry.key;
         }
         result.add(List.copyOf(current));
         return result;
     }
 
-    private static List<RestartBlock.Entry> toRestartEntries(List<Entry> source) {
-        return source.stream()
-                .map(entry -> new RestartBlock.Entry(entry.key, entry.value))
-                .toList();
+    private static byte[] encodeDataBlock(List<Entry> entries) {
+        RestartBlock.Encoder encoder =
+                new RestartBlock.Encoder(SSTableHeaderV1.RESTART_INTERVAL, INTERNAL_ORDER);
+        for (Entry entry : entries) encoder.add(entry.key, entry.value);
+        return encoder.finish();
     }
 
     private static BlockDescription writeBlock(
@@ -254,24 +257,31 @@ public final class SSTableBuilder {
     }
 
     private List<byte[]> distinctUserKeys() {
-        Map<Key, byte[]> unique = new LinkedHashMap<>();
+        List<byte[]> unique = new ArrayList<>();
+        byte[] previous = null;
         for (Entry entry : entries) {
-            byte[] user = InternalKey.decode(entry.key).userKey();
-            unique.putIfAbsent(new Key(user), user);
+            int userLength = entry.key.length - 9;
+            if (previous == null
+                    || InternalKey.compare(
+                                    previous, 0, previous.length - 9, entry.key, 0, userLength)
+                            != 0) {
+                unique.add(Arrays.copyOf(entry.key, userLength));
+                previous = entry.key;
+            }
         }
-        return List.copyOf(unique.values());
+        return unique;
     }
 
-    private Metrics metrics() {
+    private Metrics metrics(int dataBlockCount) {
         long smallest = Long.MAX_VALUE, largest = 0, keyBytes = 0, valueBytes = 0;
         for (Entry entry : entries) {
-            long sequence = InternalKey.decode(entry.key).sequence();
+            long sequence = InternalKey.sequence(entry.key);
             smallest = Math.min(smallest, sequence);
             largest = Math.max(largest, sequence);
             keyBytes = Math.addExact(keyBytes, entry.key.length);
             valueBytes = Math.addExact(valueBytes, entry.value.length);
         }
-        return new Metrics(smallest, largest, keyBytes, valueBytes, partitionDataBlocks().size());
+        return new Metrics(smallest, largest, keyBytes, valueBytes, dataBlockCount);
     }
 
     private TableFileMetadata metadata(Metrics metrics, int blocks, long size) {
@@ -322,20 +332,4 @@ public final class SSTableBuilder {
             long rawKeyBytes,
             long rawValueBytes,
             int dataBlockCount) {}
-
-    private record Key(byte[] bytes) {
-        private Key {
-            bytes = bytes.clone();
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            return other instanceof Key key && Arrays.equals(bytes, key.bytes);
-        }
-
-        @Override
-        public int hashCode() {
-            return Arrays.hashCode(bytes);
-        }
-    }
 }

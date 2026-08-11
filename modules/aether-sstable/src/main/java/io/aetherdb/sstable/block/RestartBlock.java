@@ -35,33 +35,74 @@ public final class RestartBlock {
      */
     public static byte[] encode(
             List<Entry> entries, int restartInterval, Comparator<byte[]> comparator) {
-        if (restartInterval <= 0)
-            throw new IllegalArgumentException("restart interval must be positive");
-        if (comparator == null) throw new IllegalArgumentException("comparator is required");
-        ByteArrayOutputStream body = new ByteArrayOutputStream();
-        List<Integer> restarts = new ArrayList<>();
-        byte[] previous = new byte[0];
-        for (int index = 0; index < entries.size(); index++) {
-            Entry entry = entries.get(index);
-            if (index > 0 && comparator.compare(previous, entry.key) >= 0)
-                throw new IllegalArgumentException("keys not strictly ordered");
-            boolean restart = index % restartInterval == 0;
-            int shared = restart ? 0 : shared(previous, entry.key);
-            if (restart) restarts.add(body.size());
-            body.writeBytes(Varint32.encode(shared));
-            body.writeBytes(Varint32.encode(entry.key.length - shared));
-            body.writeBytes(Varint32.encode(entry.value.length));
-            body.write(entry.key, shared, entry.key.length - shared);
-            body.writeBytes(entry.value);
-            previous = entry.key;
+        Encoder encoder = new Encoder(restartInterval, comparator);
+        for (Entry entry : entries) encoder.add(entry.key, entry.value);
+        return encoder.finish();
+    }
+
+    /** Returns the exact encoded body contribution for one entry. */
+    public static int encodedEntrySize(byte[] previous, Entry entry, boolean restart) {
+        return encodedEntrySize(previous, entry.key, entry.value.length, restart);
+    }
+
+    /** Returns the exact encoded body contribution for raw key/value bytes. */
+    public static int encodedEntrySize(
+            byte[] previous, byte[] key, int valueLength, boolean restart) {
+        int shared = restart ? 0 : shared(previous, key);
+        int suffix = key.length - shared;
+        return Math.addExact(
+                Math.addExact(Varint32.encodedLength(shared), Varint32.encodedLength(suffix)),
+                Math.addExact(
+                        Varint32.encodedLength(valueLength), Math.addExact(suffix, valueLength)));
+    }
+
+    /** Incremental restart-block encoder without per-entry adapter allocations. */
+    public static final class Encoder {
+        private final int restartInterval;
+        private final Comparator<byte[]> comparator;
+        private final ByteArrayOutputStream body = new ByteArrayOutputStream();
+        private final List<Integer> restarts = new ArrayList<>();
+        private byte[] previous = new byte[0];
+        private int entryCount;
+        private boolean finished;
+
+        /** Creates an encoder using the supplied restart interval and ordering. */
+        public Encoder(int restartInterval, Comparator<byte[]> comparator) {
+            if (restartInterval <= 0)
+                throw new IllegalArgumentException("restart interval must be positive");
+            this.restartInterval = restartInterval;
+            this.comparator = java.util.Objects.requireNonNull(comparator, "comparator");
         }
-        if (entries.isEmpty()) restarts.add(0);
-        ByteBuffer suffix =
-                ByteBuffer.allocate(restarts.size() * 4 + 4).order(ByteOrder.LITTLE_ENDIAN);
-        for (int offset : restarts) suffix.putInt(offset);
-        suffix.putInt(restarts.size());
-        body.writeBytes(suffix.array());
-        return body.toByteArray();
+
+        /** Adds one strictly ordered entry without copying its arrays. */
+        public void add(byte[] key, byte[] value) {
+            if (finished) throw new IllegalStateException("encoder is finished");
+            if (entryCount > 0 && comparator.compare(previous, key) >= 0)
+                throw new IllegalArgumentException("keys not strictly ordered");
+            boolean restart = entryCount % restartInterval == 0;
+            int shared = restart ? 0 : shared(previous, key);
+            if (restart) restarts.add(body.size());
+            Varint32.write(body, shared);
+            Varint32.write(body, key.length - shared);
+            Varint32.write(body, value.length);
+            body.write(key, shared, key.length - shared);
+            body.writeBytes(value);
+            previous = key;
+            entryCount++;
+        }
+
+        /** Finishes the restart suffix and returns the canonical block. */
+        public byte[] finish() {
+            if (finished) throw new IllegalStateException("encoder is finished");
+            finished = true;
+            if (entryCount == 0) restarts.add(0);
+            ByteBuffer suffix =
+                    ByteBuffer.allocate(restarts.size() * 4 + 4).order(ByteOrder.LITTLE_ENDIAN);
+            for (int offset : restarts) suffix.putInt(offset);
+            suffix.putInt(restarts.size());
+            body.writeBytes(suffix.array());
+            return body.toByteArray();
+        }
     }
 
     /**

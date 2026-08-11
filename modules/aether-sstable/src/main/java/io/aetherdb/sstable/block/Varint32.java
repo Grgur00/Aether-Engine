@@ -16,14 +16,32 @@ public final class Varint32 {
      */
     public static byte[] encode(int value) {
         if (value < 0) throw new IllegalArgumentException("varint must be nonnegative");
-        ByteArrayOutputStream output = new ByteArrayOutputStream(5);
+        byte[] encoded = new byte[encodedLength(value)];
+        int remaining = value;
+        int index = 0;
+        while ((remaining & ~0x7f) != 0) {
+            encoded[index++] = (byte) ((remaining & 0x7f) | 0x80);
+            remaining >>>= 7;
+        }
+        encoded[index] = (byte) remaining;
+        return encoded;
+    }
+
+    /** Returns the canonical encoded byte count for a non-negative value. */
+    public static int encodedLength(int value) {
+        if (value < 0) throw new IllegalArgumentException("varint must be nonnegative");
+        return Math.max(1, (32 - Integer.numberOfLeadingZeros(value) + 6) / 7);
+    }
+
+    /** Writes a canonical value directly to an existing byte stream. */
+    public static void write(ByteArrayOutputStream output, int value) {
+        if (value < 0) throw new IllegalArgumentException("varint must be nonnegative");
         int remaining = value;
         while ((remaining & ~0x7f) != 0) {
             output.write((remaining & 0x7f) | 0x80);
             remaining >>>= 7;
         }
         output.write(remaining);
-        return output.toByteArray();
     }
 
     /**
@@ -42,7 +60,7 @@ public final class Varint32 {
             if ((current & 0x80) == 0) {
                 if (value > Integer.MAX_VALUE) throw corrupt();
                 int decoded = (int) value;
-                if (encode(decoded).length != index + 1)
+                if (index > 0 && current == 0)
                     throw new SSTableCorruptionException("noncanonical varint");
                 return new Decoded(decoded, index + 1);
             }

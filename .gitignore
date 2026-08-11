@@ -7,6 +7,7 @@ build-logic/.build/
 *.iml
 .vscode/
 .DS_Store
+/Docs/
 **/data/
 hs_err_pid*
 *.hprof

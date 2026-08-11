@@ -7,6 +7,7 @@ import java.nio.ByteOrder;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /** Full-file Bloom filter v1 using 10 bits/key and seven probes. */
 public final class BloomFilterV1 {
@@ -44,17 +45,23 @@ public final class BloomFilterV1 {
     }
 
     /**
-     * Tests membership after validating the encoded filter header.
+     * Validates an encoded filter and creates a reusable zero-allocation membership view.
+     *
+     * <p>The returned filter retains the supplied array. Callers must not modify it afterward.
      *
      * @param encoded encoded filter bytes
-     * @param key candidate key
-     * @return {@code false} only when the key is definitely absent
+     * @return validated membership view
      */
-    public static boolean mayContain(byte[] encoded, byte[] key) {
-        if (encoded.length < 32) throw corrupt();
+    public static Filter decode(byte[] encoded) {
+        return new Filter(encoded, validate(encoded));
+    }
+
+    private static int validate(byte[] encoded) {
+        if (encoded == null || encoded.length < 32) throw corrupt();
         ByteBuffer header = ByteBuffer.wrap(encoded).order(ByteOrder.LITTLE_ENDIAN);
         if (header.getInt() != 1 || header.getInt() != 1) throw corrupt();
-        int keyCount = header.getInt(), bitCount = header.getInt();
+        int keyCount = header.getInt();
+        int bitCount = header.getInt();
         if (keyCount < 0
                 || bitCount < 64
                 || bitCount % 8 != 0
@@ -63,11 +70,65 @@ public final class BloomFilterV1 {
                 || header.get() != 0) throw corrupt();
         int byteLength = header.getInt();
         if (byteLength != bitCount / 8 || encoded.length != 24 + byteLength) throw corrupt();
-        byte[] bits = java.util.Arrays.copyOfRange(encoded, 24, encoded.length);
-        long hash = hash(key), delta = Long.rotateRight(hash, 17) | 1L;
+        return bitCount;
+    }
+
+    /**
+     * Tests membership after validating the encoded filter header.
+     *
+     * @param encoded encoded filter bytes
+     * @param key candidate key
+     * @return {@code false} only when the key is definitely absent
+     */
+    public static boolean mayContain(byte[] encoded, byte[] key) {
+        return mayContain(encoded, validate(encoded), key, 0, key.length);
+    }
+
+    /** Validated reusable view over an encoded Bloom filter. */
+    public static final class Filter {
+        private static final int BIT_DATA_OFFSET = 24;
+
+        private final byte[] encoded;
+        private final int bitCount;
+
+        private Filter(byte[] encoded, int bitCount) {
+            this.encoded = encoded;
+            this.bitCount = bitCount;
+        }
+
+        /**
+         * Tests membership without allocating or reparsing the filter header.
+         *
+         * @param key candidate key
+         * @return {@code false} only when the key is definitely absent
+         */
+        public boolean mayContain(byte[] key) {
+            return mayContain(key, 0, key.length);
+        }
+
+        /**
+         * Tests membership for a byte range without copying it.
+         *
+         * @param key bytes containing the candidate key
+         * @param offset first candidate-key byte
+         * @param length candidate-key length
+         * @return {@code false} only when the key is definitely absent
+         */
+        public boolean mayContain(byte[] key, int offset, int length) {
+            Objects.checkFromIndexSize(offset, length, key.length);
+            return BloomFilterV1.mayContain(encoded, bitCount, key, offset, length);
+        }
+    }
+
+    private static boolean mayContain(
+            byte[] encoded, int bitCount, byte[] key, int offset, int length) {
+        long hash = hash(key, offset, length);
+        long delta = Long.rotateRight(hash, 17) | 1L;
         for (int probe = 0; probe < PROBES; probe++) {
             int bit = (int) Long.remainderUnsigned(hash, bitCount);
-            if ((bits[bit >>> 3] & (1 << (bit & 7))) == 0) return false;
+            if ((encoded[Filter.BIT_DATA_OFFSET + (bit >>> 3)] & (1 << (bit & 7))) == 0) {
+                return false;
+            }
             hash += delta;
         }
         return true;
@@ -90,8 +151,14 @@ public final class BloomFilterV1 {
      * @return 64-bit format-stable hash
      */
     public static long hash(byte[] key) {
+        return hash(key, 0, key.length);
+    }
+
+    private static long hash(byte[] key, int offset, int length) {
         long hash = 0xCBF29CE484222325L ^ 0xA17E4E5D9B7C3F21L;
-        for (byte value : key) {
+        int limit = offset + length;
+        for (int index = offset; index < limit; index++) {
+            byte value = key[index];
             hash ^= Byte.toUnsignedLong(value);
             hash *= 0x100000001B3L;
         }

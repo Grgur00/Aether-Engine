@@ -42,6 +42,7 @@ class SSTableFormatV1Test {
                     0, 127, 128, 16_383, 16_384, (1 << 21) - 1, 1 << 21, Integer.MAX_VALUE
                 }) {
             byte[] encoded = Varint32.encode(value);
+            assertThat(Varint32.encodedLength(value)).isEqualTo(encoded.length);
             assertThat(Varint32.decode(encoded, 0, encoded.length).value()).isEqualTo(value);
         }
         assertThatThrownBy(() -> Varint32.decode(new byte[] {(byte) 0x80, 0}, 0, 2))
@@ -91,6 +92,17 @@ class SSTableFormatV1Test {
                         new RestartBlock.Entry(bytes("dog"), bytes("4")));
         assertThat(RestartBlock.decode(RestartBlock.encode(entries, 2)))
                 .containsExactlyElementsOf(entries);
+        int bodySize = 0;
+        int restartCount = 0;
+        byte[] previous = new byte[0];
+        for (int index = 0; index < entries.size(); index++) {
+            boolean restart = index % 2 == 0;
+            bodySize += RestartBlock.encodedEntrySize(previous, entries.get(index), restart);
+            if (restart) restartCount++;
+            previous = entries.get(index).key();
+        }
+        assertThat(bodySize + restartCount * 4 + 4)
+                .isEqualTo(RestartBlock.encode(entries, 2).length);
     }
 
     @Test
@@ -101,14 +113,37 @@ class SSTableFormatV1Test {
                         .mapToObj(i -> new byte[] {(byte) (i >>> 8), (byte) i})
                         .toList();
         byte[] filter = BloomFilterV1.build(keys);
-        for (byte[] key : keys) assertThat(BloomFilterV1.mayContain(filter, key)).isTrue();
+        BloomFilterV1.Filter decoded = BloomFilterV1.decode(filter);
+        for (byte[] key : keys) assertThat(decoded.mayContain(key)).isTrue();
+        byte[] present = keys.get(42);
+        byte[] wrappedKey = new byte[] {99, present[0], present[1], 99};
+        assertThat(decoded.mayContain(wrappedKey, 1, present.length)).isTrue();
         int positives = 0;
         for (int i = 0; i < 10_000; i++) {
             byte[] absent = new byte[8];
             random.nextBytes(absent);
-            if (BloomFilterV1.mayContain(filter, absent)) positives++;
+            if (decoded.mayContain(absent)) positives++;
         }
         assertThat(positives).isLessThan(300);
+    }
+
+    @Test
+    void bloomDecoderRejectsMalformedHeadersBeforeCreatingReusableView() {
+        byte[] valid = BloomFilterV1.build(List.of(bytes("key")));
+        assertThat(BloomFilterV1.decode(valid).mayContain(bytes("key"))).isTrue();
+
+        byte[] wrongVersion = valid.clone();
+        wrongVersion[0] = 2;
+        assertThatThrownBy(() -> BloomFilterV1.decode(wrongVersion))
+                .isInstanceOf(SSTableCorruptionException.class);
+
+        byte[] wrongLength = valid.clone();
+        ByteBuffer.wrap(wrongLength).order(ByteOrder.LITTLE_ENDIAN).putInt(20, 9);
+        assertThatThrownBy(() -> BloomFilterV1.decode(wrongLength))
+                .isInstanceOf(SSTableCorruptionException.class);
+
+        assertThatThrownBy(() -> BloomFilterV1.decode(new byte[31]))
+                .isInstanceOf(SSTableCorruptionException.class);
     }
 
     @Test
