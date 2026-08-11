@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://grgur00.github.io/Aether-Engine/sitemap.xml
