@@ -199,7 +199,6 @@ Open it by Java type:
 
 ```java
 var entries = database.defineCollection(
-        CollectionId.of("74ee12fd-6544-44fd-b858-2e51c4101066"),
         "ledger-entries",
         UUID.class,
         LedgerEntry.class);

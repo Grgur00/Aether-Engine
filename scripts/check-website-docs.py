@@ -96,6 +96,7 @@ def main() -> int:
 
     signature_checks = {
         "modules/aether-api/src/main/java/io/aetherdb/api/typed/TypedAetherDatabase.java": [
+            "defineCollection( String name, Class<K> keyType, Class<V> valueType)",
             "defineCollection( CollectionId id, String name, Class<K> keyType, Class<V> valueType)",
             "TypedWriteBatch batch()",
             "TypedAetherSnapshot snapshot()",

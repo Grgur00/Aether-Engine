@@ -122,7 +122,7 @@
 
         <article id="quickstart" class="docs-section" data-doc-title="Quickstart first database Todo open put get">
           <header><span class="docs-index">02</span><div><p>Getting started</p><h2>Your first persistent collection</h2></div></header>
-          <p>This example uses a generated record codec, a stable collection identity, and the persistent typed entry point.</p>
+          <p>This example uses a generated record codec, a stable name-derived collection identity, and the persistent typed entry point.</p>
 
           <h3>1. Define a record schema</h3>
           <div class="code-panel"><div class="code-toolbar"><span>Todo.java</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">package</span> example;
@@ -137,14 +137,12 @@
         <span class="tok-key">boolean</span> completed) {}</code></pre></div>
 
           <h3>2. Open the database and define the collection</h3>
-          <div class="code-panel"><div class="code-toolbar"><span>Main.java</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">import</span> io.aetherdb.api.typed.CollectionId;
-<span class="tok-key">import</span> io.aetherdb.api.typed.TypedWriteResult;
+          <div class="code-panel"><div class="code-toolbar"><span>Main.java</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">import</span> io.aetherdb.api.typed.TypedWriteResult;
 <span class="tok-key">import</span> io.aetherdb.embedded.typed.AetherEmbedded;
 <span class="tok-key">import</span> java.nio.file.Path;
 
 <span class="tok-key">try</span> (<span class="tok-key">var</span> db = AetherEmbedded.open(Path.of(<span class="tok-str">"./data/todos"</span>))) {
     <span class="tok-key">var</span> todos = db.defineCollection(
-            CollectionId.of(<span class="tok-str">"a53f36dd-f4eb-4aac-9fab-8e62e92185d6"</span>),
             <span class="tok-str">"todos"</span>,
             String.class,
             Todo.class);
@@ -160,7 +158,7 @@
     Todo stored = todos.get(<span class="tok-str">"ship"</span>).requireValue();
     System.out.println(stored.title());
 }</code></pre></div>
-          <div class="docs-notice note"><strong>Why is the collection UUID explicit?</strong><p>A record schema ID identifies the value format. A collection ID identifies a logical keyspace. Two collections can intentionally store the same record type, so the current API keeps those identities separate. Generate the UUID once and keep it stable in source.</p></div>
+          <div class="docs-notice note"><strong>The name is durable</strong><p>The friendly overload derives a deterministic collection ID from the exact, case-sensitive UTF-8 name. Reopening <code>"todos"</code> resolves the same keyspace without an application-managed UUID. Renaming it creates a new collection; use the explicit-ID overload when identity must survive a rename or match existing data.</p></div>
 
           <h3>3. Accept and commit the schema lock</h3>
           <div class="code-panel"><div class="code-toolbar"><span>Terminal</span><button class="copy-button" type="button">Copy</button></div><pre><code>./gradlew aetherSchemaInit
@@ -200,7 +198,7 @@ git add aether-schemas</code></pre></div>
           </div>
           <dl class="api-definitions">
             <div><dt><code>TypedAetherDatabase</code></dt><dd>Owns the underlying byte database, registers collection definitions, creates atomic batches, and creates snapshots.</dd></div>
-            <div><dt><code>CollectionDefinition&lt;K,V&gt;</code></dt><dd>The complete durable contract for a collection: identity, human name, key codec, value codec, and allowed capabilities.</dd></div>
+            <div><dt><code>CollectionDefinition&lt;K,V&gt;</code></dt><dd>The complete durable contract for a collection: identity, human name, key codec, value codec, and allowed capabilities. Most applications create it indirectly through the named convenience overload.</dd></div>
             <div><dt><code>TypedAetherCollection&lt;K,V&gt;</code></dt><dd>A type-safe handle for point reads, writes, deletes, and—when supported—ordered scans.</dd></div>
             <div><dt><code>KeyCodec</code> / <code>ValueCodec</code></dt><dd>Stable binary mappings. Keys also determine ordering; values carry a schema UUID and version.</dd></div>
           </dl>
@@ -209,10 +207,15 @@ git add aether-schemas</code></pre></div>
 
         <article id="collections" class="docs-section" data-doc-title="CollectionDefinition CollectionId capabilities defineCollection collection">
           <header><span class="docs-index">05</span><div><p>Typed API</p><h2>Collections and definitions</h2></div></header>
-          <p>There are two supported ways to open a collection.</p>
+          <p>Use the named overload for normal generated-record collections. Explicit identities and full definitions remain available when an application needs tighter control.</p>
           <h3>Generated record convenience</h3>
+          <div class="signature"><code>defineCollection(String name, Class&lt;K&gt; keyType, Class&lt;V&gt; valueType)</code></div>
+          <p>Derives a stable collection ID from the case-sensitive UTF-8 name, resolves a built-in ordered key codec, and loads the processor-generated record codec. It enables point reads, point writes, range scans, and snapshot reads. Supported key classes are currently <code>String</code>, <code>Long</code>/<code>long</code>, and <code>UUID</code>.</p>
+          <div class="code-panel"><div class="code-toolbar"><span>Recommended named collection</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">var</span> todos = db.defineCollection(
+        <span class="tok-str">"todos"</span>, String.class, Todo.class);</code></pre></div>
+          <h3>Explicit durable identity</h3>
           <div class="signature"><code>defineCollection(CollectionId id, String name, Class&lt;K&gt; keyType, Class&lt;V&gt; valueType)</code></div>
-          <p>Resolves a built-in ordered key codec and a processor-generated record codec. It enables point reads, point writes, range scans, and snapshot reads. Supported key classes are currently <code>String</code>, <code>Long</code>/<code>long</code>, and <code>UUID</code>.</p>
+          <p>Use this overload to retain an existing UUID, decouple identity from display name, or deliberately rename a collection without moving its data. Existing explicit-ID databases are not automatically adopted by the name-derived overload.</p>
           <h3>Explicit definition</h3>
           <div class="signature"><code>collection(CollectionDefinition&lt;K,V&gt; definition)</code></div>
           <p>Use this for scalar value codecs, custom codecs, or a restricted capability set.</p>
@@ -228,6 +231,8 @@ git add aether-schemas</code></pre></div>
 <span class="tok-key">var</span> notes = db.collection(NOTES);</code></pre></div>
           <h3>Registration checks</h3>
           <p>Opening a definition persists collection metadata. Reusing an ID with a different key codec, schema family, or incompatible fingerprint fails with <code>COLLECTION_SCHEMA_CONFLICT</code>. A newer compatible schema advances the minimum writer version; an older writer is then rejected.</p>
+          <h3>Name-derived identity contract</h3>
+          <p><code>CollectionId.fromName(name)</code> is frozen as the RFC 4122 version-three UUID of <code>"io.aetherdb.collection.v1\0" + name</code> encoded as UTF-8. Names must be non-blank and at most 128 UTF-8 bytes. The mapping is deterministic and case-sensitive.</p>
           <p>The capability set uses the <code>CollectionCapability</code> enum:</p>
           <div class="docs-table-wrap"><table><thead><tr><th>Capability</th><th>What it permits</th></tr></thead><tbody>
             <tr><td><code>POINT_READ</code></td><td>Read one complete logical key</td></tr>

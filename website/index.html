@@ -211,7 +211,6 @@ cd Aether-Engine
                   <div class="code-toolbar"><span>Main.java</span><button class="copy-button" type="button">Copy</button></div>
                   <pre><code><span class="tok-key">try</span> (<span class="tok-key">var</span> db = AetherEmbedded.open(Path.of(<span class="tok-str">"./data/app"</span>))) {
     <span class="tok-key">var</span> collection = db.defineCollection(
-            CollectionId.of(<span class="tok-str">"a53f36dd-f4eb-4aac-9fab-8e62e92185d6"</span>),
             <span class="tok-str">"todos"</span>, String.class, Todo.class);
 
     collection.put(<span class="tok-str">"ship"</span>,

@@ -13,7 +13,28 @@ public interface TypedAetherDatabase extends AutoCloseable {
     <K, V> TypedAetherCollection<K, V> collection(CollectionDefinition<K, V> definition);
 
     /**
-     * Defines or opens a collection by resolving registered codecs for its Java types.
+     * Defines or opens a named collection using a stable name-derived identity and registered
+     * codecs for its Java types.
+     *
+     * <p>The name is part of the durable identity. Renaming it creates a different logical
+     * collection. Use {@link #defineCollection(CollectionId, String, Class, Class)} when identity
+     * must remain stable across a rename or match an existing explicit ID.
+     *
+     * @param name durable, human-readable collection name
+     * @param keyType key class used for codec resolution
+     * @param valueType value class used for codec resolution
+     * @param <K> logical key type
+     * @param <V> logical value type
+     * @return collection view bound to this database
+     */
+    default <K, V> TypedAetherCollection<K, V> defineCollection(
+            String name, Class<K> keyType, Class<V> valueType) {
+        return defineCollection(CollectionId.fromName(name), name, keyType, valueType);
+    }
+
+    /**
+     * Defines or opens a collection with an explicit identity by resolving registered codecs for
+     * its Java types.
      *
      * @param id durable collection identity
      * @param name human-readable collection name

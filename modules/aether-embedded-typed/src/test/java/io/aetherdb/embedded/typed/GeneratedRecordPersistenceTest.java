@@ -181,4 +181,24 @@ final class GeneratedRecordPersistenceTest {
         assertThat(HexFormat.of().formatHex(codec.fingerprint()))
                 .isEqualTo("14179cf6b3163111835c90b23a29c8321e3cd0c36a895fb8c31582029fd78ddd");
     }
+
+    @Test
+    void namedCollectionNeedsNoApplicationManagedUuidAndSurvivesReopen() {
+        Path directory = temporaryDirectory.resolve("friendly-todo-db");
+        Todo todo = new Todo("1", "Buy milk", false);
+
+        try (var database = AetherEmbedded.open(directory)) {
+            var todos = database.defineCollection("todos", String.class, Todo.class);
+            assertThat(todos.definition().id()).isEqualTo(CollectionId.fromName("todos"));
+            todos.put(todo.id(), todo);
+        }
+
+        try (var database = AetherEmbedded.open(directory)) {
+            assertThat(
+                            database.defineCollection("todos", String.class, Todo.class)
+                                    .get(todo.id())
+                                    .value())
+                    .contains(todo);
+        }
+    }
 }
