@@ -13,10 +13,11 @@ import io.aetherdb.api.exceptions.AetherClosedException;
 import io.aetherdb.api.exceptions.SequenceExhaustedException;
 import io.aetherdb.api.exceptions.SnapshotException;
 import io.aetherdb.api.exceptions.SnapshotLimitExceededException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 class InMemoryAetherDatabaseTest {
     @Test
@@ -65,7 +66,12 @@ class InMemoryAetherDatabaseTest {
                 database.delete(new byte[] {(byte) 0x80});
                 assertThat(rows(database.scan(new byte[] {0x7f}, new byte[] {(byte) 0xff})))
                         .containsExactly("7f=low");
-                assertThat(rows(database.scan(new byte[] {0x7f}, new byte[] {(byte) 0xff}, snapshot)))
+                assertThat(
+                                rows(
+                                        database.scan(
+                                                new byte[] {0x7f},
+                                                new byte[] {(byte) 0xff},
+                                                snapshot)))
                         .containsExactly("7f=low", "80=high");
             }
             assertThat(rows(database.scan(new byte[] {1}, new byte[] {1}))).isEmpty();
@@ -77,10 +83,11 @@ class InMemoryAetherDatabaseTest {
     @Test
     void batchUsesContiguousSequencesAndFreezesAfterCommit() {
         InMemoryAetherDatabase database = new InMemoryAetherDatabase();
-        WriteBatch batch = new WriteBatch()
-                .put(bytes("a"), bytes("1"))
-                .delete(bytes("b"))
-                .put(bytes("a"), bytes("2"));
+        WriteBatch batch =
+                new WriteBatch()
+                        .put(bytes("a"), bytes("1"))
+                        .delete(bytes("b"))
+                        .put(bytes("a"), bytes("2"));
         database.write(batch);
         assertThat(database.lastVisibleSequence()).isEqualTo(3);
         assertThat(database.get(bytes("a")).value()).isEqualTo(bytes("2"));
@@ -100,10 +107,12 @@ class InMemoryAetherDatabaseTest {
         AetherDatabase first = Aether.openInMemory();
         AetherDatabase second = Aether.openInMemory();
         Snapshot snapshot = first.newSnapshot();
-        assertThatThrownBy(() -> second.get(bytes("k"), snapshot)).isInstanceOf(SnapshotException.class);
+        assertThatThrownBy(() -> second.get(bytes("k"), snapshot))
+                .isInstanceOf(SnapshotException.class);
         snapshot.close();
         snapshot.close();
-        assertThatThrownBy(() -> first.get(bytes("k"), snapshot)).isInstanceOf(SnapshotException.class);
+        assertThatThrownBy(() -> first.get(bytes("k"), snapshot))
+                .isInstanceOf(SnapshotException.class);
 
         AetherCursor cursor = first.scan(new byte[0], new byte[] {(byte) 0xff});
         first.close();
@@ -117,9 +126,12 @@ class InMemoryAetherDatabaseTest {
     @Test
     void rejectsNullsAndSequenceOverflowBeforeMutation() {
         try (AetherDatabase database = Aether.openInMemory()) {
-            assertThatThrownBy(() -> database.put(null, bytes("v"))).isInstanceOf(IllegalArgumentException.class);
-            assertThatThrownBy(() -> database.put(bytes("k"), null)).isInstanceOf(IllegalArgumentException.class);
-            assertThatThrownBy(() -> database.delete(null)).isInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(() -> database.put(null, bytes("v")))
+                    .isInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(() -> database.put(bytes("k"), null))
+                    .isInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(() -> database.delete(null))
+                    .isInstanceOf(IllegalArgumentException.class);
         }
         InMemoryAetherDatabase database = new InMemoryAetherDatabase(Long.MAX_VALUE);
         assertThatThrownBy(() -> database.put(bytes("k"), bytes("v")))
@@ -135,10 +147,14 @@ class InMemoryAetherDatabaseTest {
         Snapshot second = database.newSnapshot();
         assertThat(first.id()).isEqualTo(1);
         assertThat(second.id()).isEqualTo(2);
-        assertThatThrownBy(database::newSnapshot).isInstanceOf(SnapshotLimitExceededException.class);
+        assertThatThrownBy(database::newSnapshot)
+                .isInstanceOf(SnapshotLimitExceededException.class);
         first.close();
-        try (Snapshot third = database.newSnapshot()) { assertThat(third.id()).isEqualTo(3); }
-        second.close(); database.close();
+        try (Snapshot third = database.newSnapshot()) {
+            assertThat(third.id()).isEqualTo(3);
+        }
+        second.close();
+        database.close();
     }
 
     @Test
@@ -153,7 +169,8 @@ class InMemoryAetherDatabaseTest {
             assertThat(result.lastSequence()).isEqualTo(2);
             assertThat(result.durabilityBarrierPerformed()).isFalse();
             assertThat(batch.state()).isEqualTo(WriteBatch.State.SUCCEEDED);
-            assertThatThrownBy(() -> database.write(batch)).isInstanceOf(AetherClosedException.class);
+            assertThatThrownBy(() -> database.write(batch))
+                    .isInstanceOf(AetherClosedException.class);
 
             WriteBatch oversizedKey = new WriteBatch();
             assertThatThrownBy(() -> oversizedKey.delete(new byte[WriteBatch.MAX_KEY_BYTES + 1]))
@@ -177,8 +194,12 @@ class InMemoryAetherDatabaseTest {
             while (cursor.next()) {
                 byte[] key = cursor.key();
                 byte[] value = cursor.value();
-                if (key.length > 0) key[0] = key[0]; // Exercise a mutable copy without changing cursor state.
-                rows.add(java.util.HexFormat.of().formatHex(key) + "=" + new String(value, java.nio.charset.StandardCharsets.UTF_8));
+                if (key.length > 0)
+                    key[0] = key[0]; // Exercise a mutable copy without changing cursor state.
+                rows.add(
+                        java.util.HexFormat.of().formatHex(key)
+                                + "="
+                                + new String(value, java.nio.charset.StandardCharsets.UTF_8));
             }
             return rows;
         }

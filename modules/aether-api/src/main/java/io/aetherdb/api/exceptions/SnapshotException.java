@@ -4,8 +4,11 @@ package io.aetherdb.api.exceptions;
 public final class SnapshotException extends AetherException {
     private static final long serialVersionUID = 1L;
 
-    /** Creates an invalid-snapshot failure.
-     * @param message failure description */
+    /**
+     * Creates an invalid-snapshot failure.
+     *
+     * @param message failure description
+     */
     public SnapshotException(String message) {
         super(message);
     }

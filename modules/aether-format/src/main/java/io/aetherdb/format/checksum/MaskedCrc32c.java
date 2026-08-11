@@ -5,6 +5,7 @@ import java.util.zip.CRC32C;
 /** CRC32C plus Aether's LevelDB-compatible masking transform. */
 public final class MaskedCrc32c {
     private static final int MASK_DELTA = 0xA282EAD8;
+
     private MaskedCrc32c() {}
 
     /**
@@ -29,7 +30,9 @@ public final class MaskedCrc32c {
      * @param length number of bytes to include
      * @return masked checksum
      */
-    public static int masked(byte[] bytes, int offset, int length) { return mask(crc(bytes, offset, length)); }
+    public static int masked(byte[] bytes, int offset, int length) {
+        return mask(crc(bytes, offset, length));
+    }
 
     /**
      * Applies the LevelDB-compatible rotation and delta transform.
@@ -37,7 +40,9 @@ public final class MaskedCrc32c {
      * @param crc unmasked checksum
      * @return masked checksum
      */
-    public static int mask(int crc) { return Integer.rotateRight(crc, 15) + MASK_DELTA; }
+    public static int mask(int crc) {
+        return Integer.rotateRight(crc, 15) + MASK_DELTA;
+    }
 
     /**
      * Reverses {@link #mask(int)}.
@@ -45,5 +50,7 @@ public final class MaskedCrc32c {
      * @param stored masked checksum
      * @return original checksum
      */
-    public static int unmask(int stored) { return Integer.rotateLeft(stored - MASK_DELTA, 15); }
+    public static int unmask(int stored) {
+        return Integer.rotateLeft(stored - MASK_DELTA, 15);
+    }
 }

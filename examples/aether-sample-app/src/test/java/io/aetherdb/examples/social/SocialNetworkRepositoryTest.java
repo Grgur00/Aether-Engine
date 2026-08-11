@@ -6,8 +6,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import io.aetherdb.api.typed.TypedWriteResult;
 import io.aetherdb.codec.generated.GeneratedCodecs;
 import io.aetherdb.embedded.typed.AetherEmbedded;
-import java.time.Instant;
+
 import org.junit.jupiter.api.Test;
+
+import java.time.Instant;
 
 final class SocialNetworkRepositoryTest {
     @Test
@@ -18,13 +20,22 @@ final class SocialNetworkRepositoryTest {
             UserProfile grace = profile("usr-2", "grace", 0);
 
             assertThat(social.createProfiles(ada, grace))
-                    .isInstanceOfSatisfying(TypedWriteResult.Applied.class,
+                    .isInstanceOfSatisfying(
+                            TypedWriteResult.Applied.class,
                             result -> assertThat(result.operationCount()).isEqualTo(2));
             assertThat(social.findProfile(ada.id())).contains(ada);
 
-            UserProfile renamed = new UserProfile(
-                    ada.id(), ada.username(), "Ada King", ada.email(), ada.bio(),
-                    ada.location(), ada.followerCount(), true, ada.createdAt());
+            UserProfile renamed =
+                    new UserProfile(
+                            ada.id(),
+                            ada.username(),
+                            "Ada King",
+                            ada.email(),
+                            ada.bio(),
+                            ada.location(),
+                            ada.followerCount(),
+                            true,
+                            ada.createdAt());
             social.updateProfile(renamed);
             assertThat(social.findProfile(ada.id())).contains(renamed);
 
@@ -32,9 +43,11 @@ final class SocialNetworkRepositoryTest {
             social.createPost(post("post-2", ada.id(), "Second", "2025-01-01T11:00:00Z"));
             social.follow(grace.id(), ada.id());
 
-            assertThat(social.followersOf(ada.id())).extracting(UserProfile::id)
+            assertThat(social.followersOf(ada.id()))
+                    .extracting(UserProfile::id)
                     .containsExactly(grace.id());
-            assertThat(social.feedFor(grace.id())).extracting(SocialPost::id)
+            assertThat(social.feedFor(grace.id()))
+                    .extracting(SocialPost::id)
                     .containsExactly("post-2", "post-1");
             assertThat(social.findProfile(ada.id()).orElseThrow().followerCount()).isEqualTo(1);
 
@@ -62,8 +75,14 @@ final class SocialNetworkRepositoryTest {
 
             assertThatThrownBy(() -> social.createProfile(ada))
                     .hasMessageContaining("already exists");
-            assertThatThrownBy(() -> social.createPost(
-                    post("post-1", "missing", "No author", "2025-01-01T10:00:00Z")))
+            assertThatThrownBy(
+                            () ->
+                                    social.createPost(
+                                            post(
+                                                    "post-1",
+                                                    "missing",
+                                                    "No author",
+                                                    "2025-01-01T10:00:00Z")))
                     .hasMessageContaining("author profile does not exist");
             assertThatThrownBy(() -> social.follow(ada.id(), "missing"))
                     .hasMessageContaining("followed profile does not exist");
@@ -76,18 +95,22 @@ final class SocialNetworkRepositoryTest {
         SocialPost post = post("post-1", profile.id(), "Hello", "2025-01-01T10:00:00Z");
         var profileCodec = GeneratedCodecs.forRecord(UserProfile.class);
         var postCodec = GeneratedCodecs.forRecord(SocialPost.class);
-        assertThat(profileCodec.decode(1, profileCodec.encode(profile)))
-                .isEqualTo(profile);
-        assertThat(postCodec.decode(1, postCodec.encode(post)))
-                .isEqualTo(post);
+        assertThat(profileCodec.decode(1, profileCodec.encode(profile))).isEqualTo(profile);
+        assertThat(postCodec.decode(1, postCodec.encode(post))).isEqualTo(post);
         assertThatThrownBy(() -> postCodec.decode(2, new byte[0]))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     private static UserProfile profile(String id, String username, long followers) {
         return new UserProfile(
-                id, username, username.toUpperCase(), username + "@example.test",
-                "A useful bio", "Zagreb, HR", followers, false,
+                id,
+                username,
+                username.toUpperCase(),
+                username + "@example.test",
+                "A useful bio",
+                "Zagreb, HR",
+                followers,
+                false,
                 Instant.parse("2025-01-01T00:00:00Z"));
     }
 

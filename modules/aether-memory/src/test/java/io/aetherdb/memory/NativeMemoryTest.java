@@ -3,11 +3,12 @@ package io.aetherdb.memory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import org.junit.jupiter.api.Test;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
-import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("preview")
 class NativeMemoryTest {
@@ -24,7 +25,8 @@ class NativeMemoryTest {
         assertThat(region.allocator().allocatedPayloadBytes()).isEqualTo(11);
         assertThat(region.allocator().alignmentPaddingBytes()).isEqualTo(13);
         region.freeze();
-        assertThatThrownBy(() -> region.allocator().tryAllocate(1, 1)).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> region.allocator().tryAllocate(1, 1))
+                .isInstanceOf(IllegalStateException.class);
         region.close();
         region.close();
         assertThat(budget.reservedBytes()).isZero();
@@ -34,13 +36,19 @@ class NativeMemoryTest {
     @Test
     void concurrentReservationsNeverOverlap() {
         long capacity = RegionConfig.MIN_CAPACITY_BYTES;
-        NativeRegion region = new DefaultNativeRegionFactory(new NativeMemoryBudget(capacity)).create(capacity, "concurrent");
+        NativeRegion region =
+                new DefaultNativeRegionFactory(new NativeMemoryBudget(capacity))
+                        .create(capacity, "concurrent");
         Set<Integer> offsets = ConcurrentHashMap.newKeySet();
-        IntStream.range(0, 10_000).parallel().forEach(ignored -> {
-            NativeAllocator.Allocation allocation = region.allocator().tryAllocate(8, 8);
-            assertThat(allocation.allocated()).isTrue();
-            offsets.add(allocation.offset());
-        });
+        IntStream.range(0, 10_000)
+                .parallel()
+                .forEach(
+                        ignored -> {
+                            NativeAllocator.Allocation allocation =
+                                    region.allocator().tryAllocate(8, 8);
+                            assertThat(allocation.allocated()).isTrue();
+                            offsets.add(allocation.offset());
+                        });
         assertThat(offsets).hasSize(10_000);
         assertThat(new HashSet<>(offsets)).hasSize(10_000);
         region.freeze();
@@ -75,9 +83,15 @@ class NativeMemoryTest {
     @Test
     void checkedReaderRejectsCorruption() {
         long capacity = RegionConfig.MIN_CAPACITY_BYTES;
-        NativeRegion region = new DefaultNativeRegionFactory(new NativeMemoryBudget(capacity)).create(capacity, "corrupt");
-        NativeAllocator.Allocation allocation = new NativeRecordWriter(region).writeValue(new byte[] {1}, new byte[] {2}, 1);
-        NativeAccess.setByte(region.rootSegment(), allocation.offset() + NativeRecordFormatV1.FLAGS_OFFSET, (byte) 1);
+        NativeRegion region =
+                new DefaultNativeRegionFactory(new NativeMemoryBudget(capacity))
+                        .create(capacity, "corrupt");
+        NativeAllocator.Allocation allocation =
+                new NativeRecordWriter(region).writeValue(new byte[] {1}, new byte[] {2}, 1);
+        NativeAccess.setByte(
+                region.rootSegment(),
+                allocation.offset() + NativeRecordFormatV1.FLAGS_OFFSET,
+                (byte) 1);
         assertThatThrownBy(() -> new NativeRecordReader(region).openChecked(allocation.offset()))
                 .isInstanceOf(NativeRecordCorruptionException.class);
         region.freeze();

@@ -25,7 +25,10 @@ public interface TypedWriteBatch {
      */
     <K, V> TypedWriteBatch delete(TypedAetherCollection<K, V> collection, K key);
 
-    /** Returns the batch size.
-     * @return number of operations currently accumulated */
+    /**
+     * Returns the batch size.
+     *
+     * @return number of operations currently accumulated
+     */
     int operationCount();
 }

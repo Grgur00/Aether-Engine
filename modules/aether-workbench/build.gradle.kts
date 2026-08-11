@@ -8,10 +8,6 @@ dependencies {
     implementation(project(":modules:aether-replicated-log"))
 }
 
-application {
-    mainClass = "io.aetherdb.workbench.AetherWorkbench"
-}
+application { mainClass = "io.aetherdb.workbench.AetherWorkbench" }
 
-tasks.named<JavaExec>("run") {
-    workingDir = rootProject.projectDir
-}
+tasks.named<JavaExec>("run") { workingDir = rootProject.projectDir }

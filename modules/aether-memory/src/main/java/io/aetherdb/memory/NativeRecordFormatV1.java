@@ -17,6 +17,7 @@ public final class NativeRecordFormatV1 {
     public static final int MAX_KEY_BYTES = 65_536;
     public static final int MAX_VALUE_BYTES = 16_777_216;
     public static final int MAX_RECORD_BYTES = totalLength(MAX_KEY_BYTES, MAX_VALUE_BYTES);
+
     private NativeRecordFormatV1() {}
 
     public static int totalLength(int keyLength, int valueLength) {
@@ -30,7 +31,9 @@ public final class NativeRecordFormatV1 {
     }
 
     public static void validateLengths(int keyLength, int valueLength) {
-        if (keyLength < 0 || keyLength > MAX_KEY_BYTES) throw new IllegalArgumentException("invalid key length");
-        if (valueLength < 0 || valueLength > MAX_VALUE_BYTES) throw new IllegalArgumentException("invalid value length");
+        if (keyLength < 0 || keyLength > MAX_KEY_BYTES)
+            throw new IllegalArgumentException("invalid key length");
+        if (valueLength < 0 || valueLength > MAX_VALUE_BYTES)
+            throw new IllegalArgumentException("invalid value length");
     }
 }

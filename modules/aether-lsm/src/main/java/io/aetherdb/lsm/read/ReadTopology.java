@@ -4,6 +4,7 @@ import java.util.List;
 
 /**
  * Immutable source inventory used to construct a published read view.
+ *
  * @param activeMemTable current mutable MemTable, if present
  * @param immutableMemTables immutable MemTables ordered newest first
  * @param version current retained SSTable version, if present
@@ -17,6 +18,7 @@ public record ReadTopology(
     /** Copies the immutable-source list and validates visibility. */
     public ReadTopology {
         immutableMemTables = List.copyOf(immutableMemTables);
-        if (visibleSequence < 0) throw new IllegalArgumentException("visibleSequence must be non-negative");
+        if (visibleSequence < 0)
+            throw new IllegalArgumentException("visibleSequence must be non-negative");
     }
 }

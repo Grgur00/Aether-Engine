@@ -3,13 +3,14 @@ package io.aetherdb.examples.notes;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.aetherdb.embedded.typed.AetherEmbedded;
-import java.nio.file.Path;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.nio.file.Path;
+
 class NotesRepositoryTest {
-    @TempDir
-    Path temp;
+    @TempDir Path temp;
 
     @Test
     void notesAddedByTheUiRepositorySurviveApplicationStyleReopen() {

@@ -16,8 +16,10 @@ public final class StateSequencePlanner {
      * @throws ArithmeticException if the resulting sequence overflows
      */
     public static StateSequenceRange plan(long previousStateSequence, int operationCount) {
-        if (previousStateSequence < 0 || operationCount <= 0 || operationCount > 10_000) throw new IllegalArgumentException("invalid sequence planning input");
-        long first = Math.addExact(previousStateSequence, 1); long last = Math.addExact(previousStateSequence, operationCount);
+        if (previousStateSequence < 0 || operationCount <= 0 || operationCount > 10_000)
+            throw new IllegalArgumentException("invalid sequence planning input");
+        long first = Math.addExact(previousStateSequence, 1);
+        long last = Math.addExact(previousStateSequence, operationCount);
         return new StateSequenceRange(first, last);
     }
 
@@ -29,7 +31,9 @@ public final class StateSequencePlanner {
      * @param proposed proposed inclusive range
      * @throws IllegalArgumentException if the proposal is not contiguous
      */
-    public static void validate(long previousStateSequence, int operationCount, StateSequenceRange proposed) {
-        if (!plan(previousStateSequence, operationCount).equals(proposed)) throw new IllegalArgumentException("replicated state sequence is not contiguous");
+    public static void validate(
+            long previousStateSequence, int operationCount, StateSequenceRange proposed) {
+        if (!plan(previousStateSequence, operationCount).equals(proposed))
+            throw new IllegalArgumentException("replicated state sequence is not contiguous");
     }
 }

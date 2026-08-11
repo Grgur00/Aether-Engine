@@ -3,12 +3,15 @@ package io.aetherdb.rpc.api;
 import java.time.Duration;
 
 /** Immutable per-call deadline, retry, and bounded-admission policy. */
-public record RpcCallOptions(Duration timeout, boolean automaticRetry,
-                             RpcBackpressureMode backpressureMode) {
+public record RpcCallOptions(
+        Duration timeout, boolean automaticRetry, RpcBackpressureMode backpressureMode) {
     /** Validates a positive bounded relative timeout and required mode. */
     public RpcCallOptions {
-        if (timeout == null || timeout.isZero() || timeout.isNegative()
-                || timeout.compareTo(Duration.ofHours(1)) > 0 || backpressureMode == null) {
+        if (timeout == null
+                || timeout.isZero()
+                || timeout.isNegative()
+                || timeout.compareTo(Duration.ofHours(1)) > 0
+                || backpressureMode == null) {
             throw new IllegalArgumentException("invalid RPC call options");
         }
     }

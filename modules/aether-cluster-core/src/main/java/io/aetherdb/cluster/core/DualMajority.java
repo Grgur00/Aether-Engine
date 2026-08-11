@@ -48,12 +48,14 @@ public final class DualMajority {
      */
     public static long committedIndex(
             Set<UUID> oldVoters, Set<UUID> newVoters, Map<UUID, Long> durableIndexes) {
-        return Math.min(majorityIndex(oldVoters, durableIndexes), majorityIndex(newVoters, durableIndexes));
+        return Math.min(
+                majorityIndex(oldVoters, durableIndexes), majorityIndex(newVoters, durableIndexes));
     }
 
     private static long majorityIndex(Set<UUID> voters, Map<UUID, Long> indexes) {
         if (voters.isEmpty()) throw new IllegalArgumentException("voter set is empty");
-        long[] values = voters.stream().mapToLong(id -> indexes.getOrDefault(id, 0L)).sorted().toArray();
+        long[] values =
+                voters.stream().mapToLong(id -> indexes.getOrDefault(id, 0L)).sorted().toArray();
         return values[values.length - (values.length / 2 + 1)];
     }
 }

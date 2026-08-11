@@ -4,7 +4,10 @@ package io.aetherdb.memtable.skiplist;
 public final class SkipListHeightGenerator {
     public static final int MAX_HEIGHT = 20;
     private long state;
-    public SkipListHeightGenerator(long seed) { state = seed; }
+
+    public SkipListHeightGenerator(long seed) {
+        state = seed;
+    }
 
     public int nextHeight() {
         int height = 1;

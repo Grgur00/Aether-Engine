@@ -2,15 +2,24 @@ package io.aetherdb.api.typed;
 
 import java.util.UUID;
 
-/** Encodes versioned collection values while preserving their durable schema identity.
- * @param <V> logical value type */
+/**
+ * Encodes versioned collection values while preserving their durable schema identity.
+ *
+ * @param <V> logical value type
+ */
 public interface ValueCodec<V> {
-    /** Returns the schema identity.
-     * @return immutable UUID identifying the value schema */
+    /**
+     * Returns the schema identity.
+     *
+     * @return immutable UUID identifying the value schema
+     */
     UUID schemaId();
 
-    /** Returns the current schema version.
-     * @return version emitted by {@link #encode(Object)} */
+    /**
+     * Returns the current schema version.
+     *
+     * @return version emitted by {@link #encode(Object)}
+     */
     int currentSchemaVersion();
 
     /**
@@ -21,8 +30,11 @@ public interface ValueCodec<V> {
      */
     int maximumEncodedSize(V value);
 
-    /** Returns the schema fingerprint.
-     * @return defensive copy of the 32-byte fingerprint */
+    /**
+     * Returns the schema fingerprint.
+     *
+     * @return defensive copy of the 32-byte fingerprint
+     */
     byte[] fingerprint();
 
     /**

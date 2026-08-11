@@ -9,7 +9,8 @@ import java.util.TreeMap;
 
 /** TreeMap reference MVCC store retaining every inserted version. */
 public final class VersionedKeyValueStore {
-    private final NavigableMap<ByteKey, NavigableMap<Long, VersionedRecord>> entries = new TreeMap<>();
+    private final NavigableMap<ByteKey, NavigableMap<Long, VersionedRecord>> entries =
+            new TreeMap<>();
 
     public void insert(ByteKey key, VersionedRecord record) {
         NavigableMap<Long, VersionedRecord> versions =
@@ -32,7 +33,8 @@ public final class VersionedKeyValueStore {
         return null;
     }
 
-    public List<VisibleEntry> scan(ByteKey startInclusive, ByteKey endExclusive, long visibleSequence) {
+    public List<VisibleEntry> scan(
+            ByteKey startInclusive, ByteKey endExclusive, long visibleSequence) {
         List<VisibleEntry> results = new ArrayList<>();
         for (ByteKey key : entries.subMap(startInclusive, true, endExclusive, false).keySet()) {
             VersionedRecord record = resolve(key, visibleSequence);
@@ -64,7 +66,14 @@ public final class VersionedKeyValueStore {
             value = value.clone();
         }
 
-        @Override public byte[] key() { return key.clone(); }
-        @Override public byte[] value() { return value.clone(); }
+        @Override
+        public byte[] key() {
+            return key.clone();
+        }
+
+        @Override
+        public byte[] value() {
+            return value.clone();
+        }
     }
 }

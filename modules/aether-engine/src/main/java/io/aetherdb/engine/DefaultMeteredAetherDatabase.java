@@ -7,6 +7,7 @@ import io.aetherdb.api.WriteBatch;
 import io.aetherdb.api.WriteOptions;
 import io.aetherdb.api.WriteResult;
 import io.aetherdb.api.result.LookupResult;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -37,29 +38,85 @@ final class DefaultMeteredAetherDatabase implements MeteredAetherDatabase {
         collector = new AtomicReference<>(new Collector(nanoTime.getAsLong()));
     }
 
-    @Override public void put(byte[] key, byte[] value) { measure(DatabaseOperation.PUT, () -> delegate.put(key, value)); }
-    @Override public void delete(byte[] key) { measure(DatabaseOperation.DELETE, () -> delegate.delete(key)); }
-    @Override public LookupResult get(byte[] key) { return measure(DatabaseOperation.GET, () -> delegate.get(key)); }
-    @Override public LookupResult get(byte[] key, Snapshot snapshot) { return measure(DatabaseOperation.GET, () -> delegate.get(key, snapshot)); }
-    @Override public Snapshot newSnapshot() { return measure(DatabaseOperation.SNAPSHOT, delegate::newSnapshot); }
-    @Override public AetherCursor scan(byte[] start, byte[] end) { return measure(DatabaseOperation.SCAN, () -> delegate.scan(start, end)); }
-    @Override public AetherCursor scan(byte[] start, byte[] end, Snapshot snapshot) { return measure(DatabaseOperation.SCAN, () -> delegate.scan(start, end, snapshot)); }
-    @Override public AetherCursor scanAll() { return measure(DatabaseOperation.SCAN, () -> delegate.scanAll()); }
-    @Override public AetherCursor scanAll(Snapshot snapshot) { return measure(DatabaseOperation.SCAN, () -> delegate.scanAll(snapshot)); }
-    @Override public void write(WriteBatch batch) { measure(DatabaseOperation.WRITE, () -> delegate.write(batch)); }
-    @Override public WriteResult write(WriteBatch batch, WriteOptions options) { return measure(DatabaseOperation.WRITE, () -> delegate.write(batch, options)); }
-    @Override public boolean isClosed() { return delegate.isClosed(); }
-    @Override public void close() { delegate.close(); }
+    @Override
+    public void put(byte[] key, byte[] value) {
+        measure(DatabaseOperation.PUT, () -> delegate.put(key, value));
+    }
+
+    @Override
+    public void delete(byte[] key) {
+        measure(DatabaseOperation.DELETE, () -> delegate.delete(key));
+    }
+
+    @Override
+    public LookupResult get(byte[] key) {
+        return measure(DatabaseOperation.GET, () -> delegate.get(key));
+    }
+
+    @Override
+    public LookupResult get(byte[] key, Snapshot snapshot) {
+        return measure(DatabaseOperation.GET, () -> delegate.get(key, snapshot));
+    }
+
+    @Override
+    public Snapshot newSnapshot() {
+        return measure(DatabaseOperation.SNAPSHOT, delegate::newSnapshot);
+    }
+
+    @Override
+    public AetherCursor scan(byte[] start, byte[] end) {
+        return measure(DatabaseOperation.SCAN, () -> delegate.scan(start, end));
+    }
+
+    @Override
+    public AetherCursor scan(byte[] start, byte[] end, Snapshot snapshot) {
+        return measure(DatabaseOperation.SCAN, () -> delegate.scan(start, end, snapshot));
+    }
+
+    @Override
+    public AetherCursor scanAll() {
+        return measure(DatabaseOperation.SCAN, () -> delegate.scanAll());
+    }
+
+    @Override
+    public AetherCursor scanAll(Snapshot snapshot) {
+        return measure(DatabaseOperation.SCAN, () -> delegate.scanAll(snapshot));
+    }
+
+    @Override
+    public void write(WriteBatch batch) {
+        measure(DatabaseOperation.WRITE, () -> delegate.write(batch));
+    }
+
+    @Override
+    public WriteResult write(WriteBatch batch, WriteOptions options) {
+        return measure(DatabaseOperation.WRITE, () -> delegate.write(batch, options));
+    }
+
+    @Override
+    public boolean isClosed() {
+        return delegate.isClosed();
+    }
+
+    @Override
+    public void close() {
+        delegate.close();
+    }
 
     @Override
     public DatabaseMetrics metrics() {
         long now = nanoTime.getAsLong();
         Collector current = collector.get();
-        EnumMap<DatabaseOperation, OperationMetrics> snapshots = new EnumMap<>(DatabaseOperation.class);
+        EnumMap<DatabaseOperation, OperationMetrics> snapshots =
+                new EnumMap<>(DatabaseOperation.class);
         for (DatabaseOperation operation : DatabaseOperation.values()) {
-            snapshots.put(operation, current.operation(operation).snapshot(now - current.startedNanos));
+            snapshots.put(
+                    operation, current.operation(operation).snapshot(now - current.startedNanos));
         }
-        return new DatabaseMetrics(Instant.now(), Duration.ofNanos(Math.max(0, now - current.startedNanos)), snapshots);
+        return new DatabaseMetrics(
+                Instant.now(),
+                Duration.ofNanos(Math.max(0, now - current.startedNanos)),
+                snapshots);
     }
 
     @Override
@@ -68,7 +125,12 @@ final class DefaultMeteredAetherDatabase implements MeteredAetherDatabase {
     }
 
     private void measure(DatabaseOperation operation, Runnable action) {
-        measure(operation, () -> { action.run(); return null; });
+        measure(
+                operation,
+                () -> {
+                    action.run();
+                    return null;
+                });
     }
 
     private <T> T measure(DatabaseOperation operation, Supplier<T> action) {
@@ -87,14 +149,18 @@ final class DefaultMeteredAetherDatabase implements MeteredAetherDatabase {
 
     private static final class Collector {
         private final long startedNanos;
-        private final EnumMap<DatabaseOperation, OperationRecorder> operations = new EnumMap<>(DatabaseOperation.class);
+        private final EnumMap<DatabaseOperation, OperationRecorder> operations =
+                new EnumMap<>(DatabaseOperation.class);
 
         private Collector(long startedNanos) {
             this.startedNanos = startedNanos;
-            for (DatabaseOperation operation : DatabaseOperation.values()) operations.put(operation, new OperationRecorder());
+            for (DatabaseOperation operation : DatabaseOperation.values())
+                operations.put(operation, new OperationRecorder());
         }
 
-        private OperationRecorder operation(DatabaseOperation operation) { return operations.get(operation); }
+        private OperationRecorder operation(DatabaseOperation operation) {
+            return operations.get(operation);
+        }
     }
 
     private static final class OperationRecorder {

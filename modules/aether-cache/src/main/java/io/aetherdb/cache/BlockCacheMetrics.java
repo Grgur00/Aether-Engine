@@ -2,6 +2,7 @@ package io.aetherdb.cache;
 
 /**
  * Point-in-time cache counters and exact resident weight.
+ *
  * @param hits successful resident lookups
  * @param misses lookups requiring load or bypass
  * @param loads completed loader invocations
@@ -12,5 +13,11 @@ package io.aetherdb.cache;
  * @param pinnedEntries resident entries currently leased
  */
 public record BlockCacheMetrics(
-        long hits, long misses, long loads, long loadFailures, long evictions,
-        long admissionBypasses, long residentBytes, long pinnedEntries) {}
+        long hits,
+        long misses,
+        long loads,
+        long loadFailures,
+        long evictions,
+        long admissionBypasses,
+        long residentBytes,
+        long pinnedEntries) {}

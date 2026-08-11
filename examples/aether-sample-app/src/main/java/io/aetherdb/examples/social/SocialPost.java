@@ -2,6 +2,7 @@ package io.aetherdb.examples.social;
 
 import io.aetherdb.codec.annotation.AetherMaxLength;
 import io.aetherdb.codec.annotation.AetherRecord;
+
 import java.time.Instant;
 import java.util.Objects;
 

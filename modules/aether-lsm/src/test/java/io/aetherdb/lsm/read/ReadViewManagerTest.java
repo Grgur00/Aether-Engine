@@ -2,16 +2,19 @@ package io.aetherdb.lsm.read;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 final class ReadViewManagerTest {
-    @Test void pinnedOldViewKeepsComponentsAliveUntilFinalRelease() {
+    @Test
+    void pinnedOldViewKeepsComponentsAliveUntilFinalRelease() {
         Source old = new Source();
         Source replacement = new Source();
-        try (ReadViewManager manager = new ReadViewManager(new ReadTopology(old, List.of(), null, 1));
-             ReadViewHandle pin = manager.pinCurrent()) {
+        try (ReadViewManager manager =
+                        new ReadViewManager(new ReadTopology(old, List.of(), null, 1));
+                ReadViewHandle pin = manager.pinCurrent()) {
             manager.publish(new ReadTopology(replacement, List.of(), null, 2));
             assertTrue(pin.view().isRetired());
             assertEquals(0, old.releases.get());
@@ -20,7 +23,8 @@ final class ReadViewManagerTest {
         assertEquals(1, replacement.releases.get());
     }
 
-    @Test void snapshotRegistryTracksDuplicateSequencesExactly() {
+    @Test
+    void snapshotRegistryTracksDuplicateSequencesExactly() {
         SnapshotRegistry registry = new SnapshotRegistry();
         var first = registry.register(9);
         var second = registry.register(9);
@@ -33,7 +37,9 @@ final class ReadViewManagerTest {
             second.close();
             assertEquals(12, registry.oldestSequence());
         } finally {
-            first.close(); second.close(); third.close();
+            first.close();
+            second.close();
+            third.close();
         }
         assertEquals(0, registry.activeCount());
         assertEquals(-1, registry.oldestSequence());
@@ -42,7 +48,15 @@ final class ReadViewManagerTest {
     private static final class Source implements RetainedSource {
         final AtomicInteger retains = new AtomicInteger();
         final AtomicInteger releases = new AtomicInteger();
-        @Override public void retain() { retains.incrementAndGet(); }
-        @Override public void release() { releases.incrementAndGet(); }
+
+        @Override
+        public void retain() {
+            retains.incrementAndGet();
+        }
+
+        @Override
+        public void release() {
+            releases.incrementAndGet();
+        }
     }
 }

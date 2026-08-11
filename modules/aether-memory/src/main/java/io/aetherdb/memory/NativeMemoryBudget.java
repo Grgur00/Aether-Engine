@@ -12,7 +12,9 @@ public final class NativeMemoryBudget {
     private final AtomicLong regionCount = new AtomicLong();
     private final AtomicLong reservationFailures = new AtomicLong();
 
-    public NativeMemoryBudget() { this(DEFAULT_LIMIT_BYTES); }
+    public NativeMemoryBudget() {
+        this(DEFAULT_LIMIT_BYTES);
+    }
 
     public NativeMemoryBudget(long limitBytes) {
         if (limitBytes <= 0) throw new IllegalArgumentException("limit must be positive");
@@ -20,7 +22,8 @@ public final class NativeMemoryBudget {
     }
 
     public boolean tryReserve(long bytes) {
-        if (bytes <= 0 || bytes > limitBytes) throw new IllegalArgumentException("invalid reservation size");
+        if (bytes <= 0 || bytes > limitBytes)
+            throw new IllegalArgumentException("invalid reservation size");
         while (true) {
             long current = reservedBytes.get();
             if (current > limitBytes - bytes) {
@@ -46,10 +49,27 @@ public final class NativeMemoryBudget {
         regionCount.decrementAndGet();
     }
 
-    public long limitBytes() { return limitBytes; }
-    public long reservedBytes() { return reservedBytes.get(); }
-    public long availableBytes() { return limitBytes - reservedBytes(); }
-    public long peakReservedBytes() { return peakReservedBytes.get(); }
-    public long regionCount() { return regionCount.get(); }
-    public long reservationFailures() { return reservationFailures.get(); }
+    public long limitBytes() {
+        return limitBytes;
+    }
+
+    public long reservedBytes() {
+        return reservedBytes.get();
+    }
+
+    public long availableBytes() {
+        return limitBytes - reservedBytes();
+    }
+
+    public long peakReservedBytes() {
+        return peakReservedBytes.get();
+    }
+
+    public long regionCount() {
+        return regionCount.get();
+    }
+
+    public long reservationFailures() {
+        return reservationFailures.get();
+    }
 }

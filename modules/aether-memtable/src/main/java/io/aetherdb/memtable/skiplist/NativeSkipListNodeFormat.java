@@ -13,10 +13,12 @@ public final class NativeSkipListNodeFormat {
     public static final int VERSION_OFFSET = 9;
     public static final int FLAGS_OFFSET = 10;
     public static final int RESERVED_OFFSET = 12;
+
     private NativeSkipListNodeFormat() {}
 
     public static int prefixBytes(int height) {
-        if (height < 1 || height > SkipListHeightGenerator.MAX_HEIGHT) throw new IllegalArgumentException("invalid height");
+        if (height < 1 || height > SkipListHeightGenerator.MAX_HEIGHT)
+            throw new IllegalArgumentException("invalid height");
         return (HEADER_BYTES + 4 * height + 7) & -8;
     }
 
@@ -25,7 +27,8 @@ public final class NativeSkipListNodeFormat {
     }
 
     public static int linkOffset(int level) {
-        if (level < 0 || level >= SkipListHeightGenerator.MAX_HEIGHT) throw new IllegalArgumentException("invalid level");
+        if (level < 0 || level >= SkipListHeightGenerator.MAX_HEIGHT)
+            throw new IllegalArgumentException("invalid level");
         return HEADER_BYTES + 4 * level;
     }
 }

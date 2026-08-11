@@ -6,8 +6,7 @@ import io.aetherdb.codec.annotation.AetherRecord;
 /** A directed edge from one profile to another. */
 @AetherRecord(version = 1)
 public record FollowRelationship(
-        @AetherMaxLength(64) String followerId,
-        @AetherMaxLength(64) String followedId) {
+        @AetherMaxLength(64) String followerId, @AetherMaxLength(64) String followedId) {
     public FollowRelationship {
         requireIdentifier(followerId, "followerId");
         requireIdentifier(followedId, "followedId");

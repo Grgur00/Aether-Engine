@@ -3,6 +3,7 @@ package io.aetherdb.engine;
 import io.aetherdb.api.AetherCursor;
 import io.aetherdb.api.exceptions.AetherClosedException;
 import io.aetherdb.memtable.reference.VersionedKeyValueStore;
+
 import java.util.List;
 
 /** Cursor over a materialized list of entries visible to the reference engine. */
@@ -28,10 +29,25 @@ final class ListCursor implements AetherCursor {
         return true;
     }
 
-    @Override public byte[] key() { return current().key(); }
-    @Override public byte[] value() { return current().value(); }
-    @Override public boolean isClosed() { return closed; }
-    @Override public void close() { closed = true; }
+    @Override
+    public byte[] key() {
+        return current().key();
+    }
+
+    @Override
+    public byte[] value() {
+        return current().value();
+    }
+
+    @Override
+    public boolean isClosed() {
+        return closed;
+    }
+
+    @Override
+    public void close() {
+        closed = true;
+    }
 
     private VersionedKeyValueStore.VisibleEntry current() {
         ensureUsable();

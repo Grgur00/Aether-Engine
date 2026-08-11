@@ -6,6 +6,7 @@ import io.aetherdb.api.typed.TypedAetherDatabase;
 import io.aetherdb.api.typed.TypedKeyValue;
 import io.aetherdb.api.typed.TypedWriteBatch;
 import io.aetherdb.api.typed.TypedWriteResult;
+
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
@@ -29,12 +30,18 @@ public final class SocialNetworkRepository {
 
     public SocialNetworkRepository(TypedAetherDatabase database) {
         this.database = Objects.requireNonNull(database, "database");
-        profiles = database.defineCollection(
-                PROFILE_COLLECTION, "social-profiles", String.class, UserProfile.class);
-        posts = database.defineCollection(
-                POST_COLLECTION, "social-posts", String.class, SocialPost.class);
-        follows = database.defineCollection(
-                FOLLOW_COLLECTION, "social-follows", String.class, FollowRelationship.class);
+        profiles =
+                database.defineCollection(
+                        PROFILE_COLLECTION, "social-profiles", String.class, UserProfile.class);
+        posts =
+                database.defineCollection(
+                        POST_COLLECTION, "social-posts", String.class, SocialPost.class);
+        follows =
+                database.defineCollection(
+                        FOLLOW_COLLECTION,
+                        "social-follows",
+                        String.class,
+                        FollowRelationship.class);
     }
 
     public TypedWriteResult createProfile(UserProfile profile) {
@@ -53,7 +60,9 @@ public final class SocialNetworkRepository {
         return database.write(batch);
     }
 
-    public Optional<UserProfile> findProfile(String id) { return profiles.get(id).value(); }
+    public Optional<UserProfile> findProfile(String id) {
+        return profiles.get(id).value();
+    }
 
     public List<UserProfile> findProfiles() {
         return profiles.scanAll().stream().map(TypedKeyValue::value).toList();
@@ -66,9 +75,10 @@ public final class SocialNetworkRepository {
 
     public TypedWriteResult deleteProfile(String id) {
         requirePresent(findProfile(id), "profile", id);
-        if (!postsByAuthor(id).isEmpty() || relationships().stream()
-                .anyMatch(relationship -> relationship.includes(id))) {
-            throw new IllegalStateException("delete related posts and follows before profile " + id);
+        if (!postsByAuthor(id).isEmpty()
+                || relationships().stream().anyMatch(relationship -> relationship.includes(id))) {
+            throw new IllegalStateException(
+                    "delete related posts and follows before profile " + id);
         }
         return profiles.delete(id);
     }
@@ -79,7 +89,9 @@ public final class SocialNetworkRepository {
         return posts.put(post.id(), post);
     }
 
-    public Optional<SocialPost> findPost(String id) { return posts.get(id).value(); }
+    public Optional<SocialPost> findPost(String id) {
+        return posts.get(id).value();
+    }
 
     public List<SocialPost> postsByAuthor(String authorId) {
         return posts.scanAll().stream()
@@ -91,8 +103,10 @@ public final class SocialNetworkRepository {
 
     public TypedWriteResult updatePost(String id, String content, Instant updatedAt) {
         SocialPost current = requirePresent(findPost(id), "post", id);
-        return posts.put(id, new SocialPost(
-                current.id(), current.authorId(), content, current.createdAt(), updatedAt));
+        return posts.put(
+                id,
+                new SocialPost(
+                        current.id(), current.authorId(), content, current.createdAt(), updatedAt));
     }
 
     public TypedWriteResult deletePost(String id) {
@@ -103,24 +117,34 @@ public final class SocialNetworkRepository {
     public TypedWriteResult follow(String followerId, String followedId) {
         FollowRelationship relationship = new FollowRelationship(followerId, followedId);
         requirePresent(findProfile(followerId), "follower profile", followerId);
-        UserProfile followed = requirePresent(findProfile(followedId), "followed profile", followedId);
+        UserProfile followed =
+                requirePresent(findProfile(followedId), "followed profile", followedId);
         String key = relationshipKey(followerId, followedId);
         requireAbsent(follows.get(key).value(), "follow relationship", key);
 
-        TypedWriteBatch batch = database.batch()
-                .put(follows, key, relationship)
-                .put(profiles, followedId, withFollowerCount(followed, followed.followerCount() + 1));
+        TypedWriteBatch batch =
+                database.batch()
+                        .put(follows, key, relationship)
+                        .put(
+                                profiles,
+                                followedId,
+                                withFollowerCount(followed, followed.followerCount() + 1));
         return database.write(batch);
     }
 
     public TypedWriteResult unfollow(String followerId, String followedId) {
         String key = relationshipKey(followerId, followedId);
         requirePresent(follows.get(key).value(), "follow relationship", key);
-        UserProfile followed = requirePresent(findProfile(followedId), "followed profile", followedId);
-        TypedWriteBatch batch = database.batch()
-                .delete(follows, key)
-                .put(profiles, followedId,
-                        withFollowerCount(followed, Math.max(0, followed.followerCount() - 1)));
+        UserProfile followed =
+                requirePresent(findProfile(followedId), "followed profile", followedId);
+        TypedWriteBatch batch =
+                database.batch()
+                        .delete(follows, key)
+                        .put(
+                                profiles,
+                                followedId,
+                                withFollowerCount(
+                                        followed, Math.max(0, followed.followerCount() - 1)));
         return database.write(batch);
     }
 
@@ -133,10 +157,11 @@ public final class SocialNetworkRepository {
 
     /** Relational-style join: followed profiles -> their posts. */
     public List<SocialPost> feedFor(String profileId) {
-        Set<String> followedIds = relationships().stream()
-                .filter(relationship -> relationship.followerId().equals(profileId))
-                .map(FollowRelationship::followedId)
-                .collect(java.util.stream.Collectors.toUnmodifiableSet());
+        Set<String> followedIds =
+                relationships().stream()
+                        .filter(relationship -> relationship.followerId().equals(profileId))
+                        .map(FollowRelationship::followedId)
+                        .collect(java.util.stream.Collectors.toUnmodifiableSet());
         return posts.scanAll().stream()
                 .map(TypedKeyValue::value)
                 .filter(post -> followedIds.contains(post.authorId()))
@@ -145,15 +170,19 @@ public final class SocialNetworkRepository {
     }
 
     private List<FollowRelationship> relationships() {
-        return follows.scanAll().stream()
-                .map(TypedKeyValue::value)
-                .toList();
+        return follows.scanAll().stream().map(TypedKeyValue::value).toList();
     }
 
     private static UserProfile withFollowerCount(UserProfile profile, long followerCount) {
         return new UserProfile(
-                profile.id(), profile.username(), profile.displayName(), profile.email(),
-                profile.bio(), profile.location(), followerCount, profile.verified(),
+                profile.id(),
+                profile.username(),
+                profile.displayName(),
+                profile.email(),
+                profile.bio(),
+                profile.location(),
+                followerCount,
+                profile.verified(),
                 profile.createdAt());
     }
 

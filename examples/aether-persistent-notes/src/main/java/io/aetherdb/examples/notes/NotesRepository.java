@@ -8,6 +8,7 @@ import io.aetherdb.api.typed.TypedAetherDatabase;
 import io.aetherdb.api.typed.TypedWriteResult;
 import io.aetherdb.codec.BuiltInKeyCodecs;
 import io.aetherdb.codec.BuiltInValueCodecs;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -15,15 +16,17 @@ import java.util.UUID;
 
 /** Typed collection used by both the Swing UI and its persistence test. */
 public final class NotesRepository {
-    static final CollectionDefinition<UUID, String> NOTES = new CollectionDefinition<>(
-            CollectionId.of("7629a9f3-81a7-4346-b68f-cc273e154560"),
-            "persistent-notes",
-            BuiltInKeyCodecs.uuid(),
-            BuiltInValueCodecs.utf8String(UUID.fromString("fdd89bea-06ec-4231-bff3-b26047a3b132")),
-            Set.of(
-                    CollectionCapability.POINT_READ,
-                    CollectionCapability.POINT_WRITE,
-                    CollectionCapability.RANGE_SCAN));
+    static final CollectionDefinition<UUID, String> NOTES =
+            new CollectionDefinition<>(
+                    CollectionId.of("7629a9f3-81a7-4346-b68f-cc273e154560"),
+                    "persistent-notes",
+                    BuiltInKeyCodecs.uuid(),
+                    BuiltInValueCodecs.utf8String(
+                            UUID.fromString("fdd89bea-06ec-4231-bff3-b26047a3b132")),
+                    Set.of(
+                            CollectionCapability.POINT_READ,
+                            CollectionCapability.POINT_WRITE,
+                            CollectionCapability.RANGE_SCAN));
 
     private final TypedAetherCollection<UUID, String> notes;
 
@@ -41,9 +44,7 @@ public final class NotesRepository {
     }
 
     public List<Note> findAll() {
-        return notes.scanAll().stream()
-                .map(entry -> new Note(entry.key(), entry.value()))
-                .toList();
+        return notes.scanAll().stream().map(entry -> new Note(entry.key(), entry.value())).toList();
     }
 
     public void addWelcomeNotesIfEmpty() {

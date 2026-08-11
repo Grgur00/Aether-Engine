@@ -9,6 +9,4 @@ dependencies {
 
 application { mainClass = "io.aetherdb.examples.social.SocialNetworkApplication" }
 
-tasks.named<JavaExec>("run") {
-    workingDir = rootProject.projectDir
-}
+tasks.named<JavaExec>("run") { workingDir = rootProject.projectDir }

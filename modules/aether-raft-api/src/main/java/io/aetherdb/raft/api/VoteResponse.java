@@ -16,8 +16,20 @@ import java.util.UUID;
  * @param lastLogTerm receiver's last log term
  * @param configurationVersion receiver's membership configuration version
  */
-public record VoteResponse(VoteKind kind, boolean granted, VoteReason reason, long term, UUID responderId,
-        UUID sessionId, long nonce, long lastLogIndex, long lastLogTerm, long configurationVersion) {
+public record VoteResponse(
+        VoteKind kind,
+        boolean granted,
+        VoteReason reason,
+        long term,
+        UUID responderId,
+        UUID sessionId,
+        long nonce,
+        long lastLogIndex,
+        long lastLogTerm,
+        long configurationVersion) {
     /** Ensures the boolean grant flag agrees with the structured reason. */
-    public VoteResponse { if (granted != (reason == VoteReason.GRANTED)) throw new IllegalArgumentException("grant/reason mismatch"); }
+    public VoteResponse {
+        if (granted != (reason == VoteReason.GRANTED))
+            throw new IllegalArgumentException("grant/reason mismatch");
+    }
 }

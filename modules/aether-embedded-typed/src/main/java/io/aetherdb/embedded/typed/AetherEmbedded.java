@@ -3,6 +3,7 @@ package io.aetherdb.embedded.typed;
 import io.aetherdb.api.AetherDatabase;
 import io.aetherdb.api.typed.TypedAetherDatabase;
 import io.aetherdb.engine.Aether;
+
 import java.nio.file.Path;
 
 /** Supported entry point for embedded, type-safe Aether databases. */

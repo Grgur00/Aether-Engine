@@ -2,8 +2,11 @@ package io.aetherdb.api.typed;
 
 import java.util.UUID;
 
-/** Stable, non-zero identifier stored with every collection entry.
- * @param value non-zero UUID */
+/**
+ * Stable, non-zero identifier stored with every collection entry.
+ *
+ * @param value non-zero UUID
+ */
 public record CollectionId(UUID value) {
     /**
      * Creates a collection identifier.

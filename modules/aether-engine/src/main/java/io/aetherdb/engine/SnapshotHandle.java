@@ -18,7 +18,9 @@ final class SnapshotHandle implements Snapshot {
         this.release = release;
     }
 
-    Object identity() { return identity; }
+    Object identity() {
+        return identity;
+    }
 
     void ensureOpen() {
         if (closed) {
@@ -26,10 +28,31 @@ final class SnapshotHandle implements Snapshot {
         }
     }
 
-    @Override public long id() { return id; }
-    @Override public long sequence() { ensureOpen(); return sequence; }
-    @Override public boolean isClosed() { return closed; }
-    @Override public void close() { if (!closed) { closed = true; release.run(); } }
+    @Override
+    public long id() {
+        return id;
+    }
 
-    void invalidate() { closed = true; }
+    @Override
+    public long sequence() {
+        ensureOpen();
+        return sequence;
+    }
+
+    @Override
+    public boolean isClosed() {
+        return closed;
+    }
+
+    @Override
+    public void close() {
+        if (!closed) {
+            closed = true;
+            release.run();
+        }
+    }
+
+    void invalidate() {
+        closed = true;
+    }
 }

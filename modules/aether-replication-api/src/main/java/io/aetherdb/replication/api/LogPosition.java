@@ -9,6 +9,7 @@ package io.aetherdb.replication.api;
 public record LogPosition(long index, long term) {
     /** Validates that index and term are non-negative and use the empty marker together. */
     public LogPosition {
-        if (index < 0 || term < 0 || index == 0 != (term == 0)) throw new IllegalArgumentException("invalid log position");
+        if (index < 0 || term < 0 || index == 0 != (term == 0))
+            throw new IllegalArgumentException("invalid log position");
     }
 }

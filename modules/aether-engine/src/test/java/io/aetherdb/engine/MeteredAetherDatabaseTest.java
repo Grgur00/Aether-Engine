@@ -4,18 +4,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.aetherdb.api.AetherDatabase;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.atomic.AtomicLong;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicLong;
 
 class MeteredAetherDatabaseTest {
     @Test
     void reportsCountsErrorsLatencyPercentilesAndThroughput() {
         AtomicLong clock = new AtomicLong();
-        MeteredAetherDatabase database = new DefaultMeteredAetherDatabase(
-                Aether.openInMemory(), () -> clock.getAndAdd(100));
+        MeteredAetherDatabase database =
+                new DefaultMeteredAetherDatabase(Aether.openInMemory(), () -> clock.getAndAdd(100));
 
         database.put(bytes("key"), bytes("value"));
         assertThat(database.get(bytes("key")).isFound()).isTrue();

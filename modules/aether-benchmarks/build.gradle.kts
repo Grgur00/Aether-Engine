@@ -10,10 +10,7 @@ application { mainClass = "io.aetherdb.benchmarks.CvBenchmark" }
 
 tasks.named<JavaExec>("run") {
     if (System.getenv("AETHER_JFR") == "true") {
-        val recording = layout.buildDirectory
-            .file("jfr/aether-benchmark.jfr")
-            .get()
-            .asFile
+        val recording = layout.buildDirectory.file("jfr/aether-benchmark.jfr").get().asFile
 
         recording.parentFile.mkdirs()
 

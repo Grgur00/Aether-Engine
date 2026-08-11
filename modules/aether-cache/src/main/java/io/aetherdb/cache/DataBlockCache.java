@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -15,12 +14,16 @@ import java.util.concurrent.atomic.LongAdder;
 public final class DataBlockCache implements AutoCloseable {
     /** Default total cache capacity. */
     public static final long DEFAULT_CAPACITY = 128L * 1024 * 1024;
+
     /** Minimum supported total capacity. */
     public static final long MIN_CAPACITY = 16L * 1024 * 1024;
+
     /** Maximum supported total capacity. */
     public static final long MAX_CAPACITY = 4L * 1024 * 1024 * 1024;
+
     /** Default power-of-two shard count. */
     public static final int DEFAULT_SHARDS = 16;
+
     private static final long ENTRY_OVERHEAD = 96;
 
     private final Shard[] shards;
@@ -33,11 +36,16 @@ public final class DataBlockCache implements AutoCloseable {
     private volatile boolean closed;
 
     /** Creates a cache with default capacity and shard count. */
-    public DataBlockCache() { this(DEFAULT_CAPACITY, DEFAULT_SHARDS); }
+    public DataBlockCache() {
+        this(DEFAULT_CAPACITY, DEFAULT_SHARDS);
+    }
 
-    /** Creates a cache with explicit capacity and concurrency sharding.
+    /**
+     * Creates a cache with explicit capacity and concurrency sharding.
+     *
      * @param capacity total charged byte capacity
-     * @param shardCount positive power-of-two shard count */
+     * @param shardCount positive power-of-two shard count
+     */
     public DataBlockCache(long capacity, int shardCount) {
         if (capacity < MIN_CAPACITY || capacity > MAX_CAPACITY)
             throw new IllegalArgumentException("capacity must be between 16 MiB and 4 GiB");
@@ -49,11 +57,14 @@ public final class DataBlockCache implements AutoCloseable {
         for (int i = 0; i < shardCount; i++) shards[i] = new Shard(base + (i < remainder ? 1 : 0));
     }
 
-    /** Acquires a resident block or coalesces a verified load.
+    /**
+     * Acquires a resident block or coalesces a verified load.
+     *
      * @param key immutable block identity
      * @param loader loader invoked on a miss
      * @param fillCache whether a loaded block should be admitted
-     * @return lease that must be closed */
+     * @return lease that must be closed
+     */
     public BlockLease acquireOrLoad(BlockCacheKey key, BlockLoader loader, boolean fillCache) {
         Objects.requireNonNull(key, "key");
         Objects.requireNonNull(loader, "loader");
@@ -97,20 +108,30 @@ public final class DataBlockCache implements AutoCloseable {
         }
 
         byte[] loaded;
-        try { loaded = future.join(); }
-        catch (CompletionException failure) {
-            if (owner) synchronized (shard) { shard.inflight.remove(key); }
+        try {
+            loaded = future.join();
+        } catch (CompletionException failure) {
+            if (owner)
+                synchronized (shard) {
+                    shard.inflight.remove(key);
+                }
             Throwable cause = failure.getCause();
             if (cause instanceof RuntimeException runtime) throw runtime;
             if (cause instanceof Error error) throw error;
             throw new IllegalStateException("block load failed", cause);
         }
         if (!fillCache) {
-            if (owner) synchronized (shard) { shard.inflight.remove(key); }
+            if (owner)
+                synchronized (shard) {
+                    shard.inflight.remove(key);
+                }
             return new BlockLease(loaded, () -> {});
         }
         Entry admitted = shard.admitAndAcquire(key, loaded);
-        if (owner) synchronized (shard) { shard.inflight.remove(key); }
+        if (owner)
+            synchronized (shard) {
+                shard.inflight.remove(key);
+            }
         if (admitted == null) {
             admissionBypasses.increment();
             return new BlockLease(loaded, () -> {});
@@ -118,26 +139,43 @@ public final class DataBlockCache implements AutoCloseable {
         return lease(shard, admitted);
     }
 
-    /** Invalidates all resident blocks belonging to an SSTable file.
-     * @param fileNumber positive SSTable file number */
+    /**
+     * Invalidates all resident blocks belonging to an SSTable file.
+     *
+     * @param fileNumber positive SSTable file number
+     */
     public void invalidateFile(long fileNumber) {
         if (fileNumber <= 0) throw new IllegalArgumentException("fileNumber must be positive");
         for (Shard shard : shards) shard.invalidateFile(fileNumber);
     }
 
-    /** Captures cumulative counters and current residency.
-     * @return point-in-time cache metrics */
+    /**
+     * Captures cumulative counters and current residency.
+     *
+     * @return point-in-time cache metrics
+     */
     public BlockCacheMetrics metrics() {
         long resident = 0, pinned = 0;
         for (Shard shard : shards) {
-            synchronized (shard) { resident += shard.weight; pinned += shard.pinnedCount(); }
+            synchronized (shard) {
+                resident += shard.weight;
+                pinned += shard.pinnedCount();
+            }
         }
-        return new BlockCacheMetrics(hits.sum(), misses.sum(), loads.sum(), loadFailures.sum(),
-                evictions.sum(), admissionBypasses.sum(), resident, pinned);
+        return new BlockCacheMetrics(
+                hits.sum(),
+                misses.sum(),
+                loads.sum(),
+                loadFailures.sum(),
+                evictions.sum(),
+                admissionBypasses.sum(),
+                resident,
+                pinned);
     }
 
     /** Clears residency, fails in-flight loads, and rejects new acquisitions. */
-    @Override public void close() {
+    @Override
+    public void close() {
         closed = true;
         for (Shard shard : shards) shard.clear();
     }
@@ -145,19 +183,25 @@ public final class DataBlockCache implements AutoCloseable {
     private BlockLease lease(Shard shard, Entry entry) {
         return new BlockLease(entry.bytes, () -> shard.release(entry));
     }
+
     private Shard shard(BlockCacheKey key) {
         int hash = key.hashCode();
         hash ^= hash >>> 16;
         return shards[hash & (shards.length - 1)];
     }
-    private void ensureOpen() { if (closed) throw new IllegalStateException("block cache is closed"); }
+
+    private void ensureOpen() {
+        if (closed) throw new IllegalStateException("block cache is closed");
+    }
 
     private final class Shard {
         private final long capacity;
         private final long probationLimit;
         private final long admissionMaximum;
-        private final LinkedHashMap<BlockCacheKey, Entry> probation = new LinkedHashMap<>(16, .75f, true);
-        private final LinkedHashMap<BlockCacheKey, Entry> protectedEntries = new LinkedHashMap<>(16, .75f, true);
+        private final LinkedHashMap<BlockCacheKey, Entry> probation =
+                new LinkedHashMap<>(16, .75f, true);
+        private final LinkedHashMap<BlockCacheKey, Entry> protectedEntries =
+                new LinkedHashMap<>(16, .75f, true);
         private final Map<BlockCacheKey, CompletableFuture<byte[]>> inflight = new HashMap<>();
         private long weight;
         private long probationWeight;
@@ -168,10 +212,16 @@ public final class DataBlockCache implements AutoCloseable {
             admissionMaximum = capacity / 4;
         }
 
-        synchronized Entry acquire(BlockCacheKey key) { return acquireLocked(key); }
+        synchronized Entry acquire(BlockCacheKey key) {
+            return acquireLocked(key);
+        }
+
         Entry acquireLocked(BlockCacheKey key) {
             Entry entry = protectedEntries.get(key);
-            if (entry != null) { entry.pins++; return entry; }
+            if (entry != null) {
+                entry.pins++;
+                return entry;
+            }
             entry = probation.remove(key);
             if (entry != null) {
                 probationWeight -= entry.weight;
@@ -213,7 +263,8 @@ public final class DataBlockCache implements AutoCloseable {
             invalidate(protectedEntries, fileNumber, false);
         }
 
-        private void invalidate(Map<BlockCacheKey, Entry> entries, long fileNumber, boolean isProbation) {
+        private void invalidate(
+                Map<BlockCacheKey, Entry> entries, long fileNumber, boolean isProbation) {
             Iterator<Entry> iterator = entries.values().iterator();
             while (iterator.hasNext()) {
                 Entry entry = iterator.next();
@@ -231,7 +282,8 @@ public final class DataBlockCache implements AutoCloseable {
             long protectedWeight = weight - probationWeight;
             Iterator<Entry> iterator = protectedEntries.values().iterator();
             while (protectedWeight > protectedLimit && iterator.hasNext()) {
-                Entry demoted = iterator.next(); iterator.remove();
+                Entry demoted = iterator.next();
+                iterator.remove();
                 probation.put(demoted.key, demoted);
                 probationWeight += demoted.weight;
                 protectedWeight -= demoted.weight;
@@ -244,12 +296,15 @@ public final class DataBlockCache implements AutoCloseable {
         }
 
         private boolean evictOne(LinkedHashMap<BlockCacheKey, Entry> entries, boolean isProbation) {
-            for (Iterator<Entry> iterator = entries.values().iterator(); iterator.hasNext();) {
+            for (Iterator<Entry> iterator = entries.values().iterator(); iterator.hasNext(); ) {
                 Entry candidate = iterator.next();
                 if (candidate.pins == 0) {
-                    iterator.remove(); candidate.resident = false; weight -= candidate.weight;
+                    iterator.remove();
+                    candidate.resident = false;
+                    weight -= candidate.weight;
                     if (isProbation) probationWeight -= candidate.weight;
-                    evictions.increment(); return true;
+                    evictions.increment();
+                    return true;
                 }
             }
             return false;
@@ -258,11 +313,15 @@ public final class DataBlockCache implements AutoCloseable {
         synchronized void clear() {
             for (Entry entry : probation.values()) entry.resident = false;
             for (Entry entry : protectedEntries.values()) entry.resident = false;
-            probation.clear(); protectedEntries.clear(); weight = 0; probationWeight = 0;
+            probation.clear();
+            protectedEntries.clear();
+            weight = 0;
+            probationWeight = 0;
             for (CompletableFuture<byte[]> future : new ArrayList<>(inflight.values()))
                 future.completeExceptionally(new IllegalStateException("block cache is closed"));
             inflight.clear();
         }
+
         long pinnedCount() {
             return probation.values().stream().filter(e -> e.pins > 0).count()
                     + protectedEntries.values().stream().filter(e -> e.pins > 0).count();
@@ -270,8 +329,16 @@ public final class DataBlockCache implements AutoCloseable {
     }
 
     private static final class Entry {
-        final BlockCacheKey key; final byte[] bytes; final long weight;
-        int pins; boolean resident = true;
-        Entry(BlockCacheKey key, byte[] bytes, long weight) { this.key = key; this.bytes = bytes; this.weight = weight; }
+        final BlockCacheKey key;
+        final byte[] bytes;
+        final long weight;
+        int pins;
+        boolean resident = true;
+
+        Entry(BlockCacheKey key, byte[] bytes, long weight) {
+            this.key = key;
+            this.bytes = bytes;
+            this.weight = weight;
+        }
     }
 }

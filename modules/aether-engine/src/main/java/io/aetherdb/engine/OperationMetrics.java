@@ -3,9 +3,9 @@ package io.aetherdb.engine;
 /**
  * Immutable measurements for one database operation.
  *
- * <p>Counts, errors, averages, and throughput cover the complete interval since
- * metrics creation or reset. Percentiles are calculated from the most recent
- * bounded sample, which prevents telemetry memory usage from growing with uptime.
+ * <p>Counts, errors, averages, and throughput cover the complete interval since metrics creation or
+ * reset. Percentiles are calculated from the most recent bounded sample, which prevents telemetry
+ * memory usage from growing with uptime.
  *
  * @param count completed invocations
  * @param errors invocations that completed by throwing

@@ -9,6 +9,7 @@ import io.aetherdb.memory.NativeRecordReader;
 import io.aetherdb.memory.NativeRecordView;
 import io.aetherdb.memory.NativeRecordWriter;
 import io.aetherdb.memory.NativeRegion;
+
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +19,19 @@ import java.util.concurrent.locks.ReentrantLock;
 /** Off-heap skip-list with serialized writers and acquire/release reader publication. */
 @SuppressWarnings("preview")
 public final class NativeSkipListMemTable implements AutoCloseable {
-    public enum State { ACTIVE, FROZEN, RETIRED, CLOSED }
-    public enum InsertResult { INSERTED, FULL, DUPLICATE, FROZEN }
+    public enum State {
+        ACTIVE,
+        FROZEN,
+        RETIRED,
+        CLOSED
+    }
+
+    public enum InsertResult {
+        INSERTED,
+        FULL,
+        DUPLICATE,
+        FROZEN
+    }
 
     private final NativeRegion region;
     private final NativeRecordReader records;
@@ -31,13 +43,16 @@ public final class NativeSkipListMemTable implements AutoCloseable {
     private volatile int currentMaxHeight = 1;
     private long entryCount;
 
-    public NativeSkipListMemTable(NativeMemoryBudget budget, long capacityBytes, String id, long seed) {
+    public NativeSkipListMemTable(
+            NativeMemoryBudget budget, long capacityBytes, String id, long seed) {
         region = new DefaultNativeRegionFactory(budget).create(capacityBytes, id);
         records = new NativeRecordReader(region);
         writer = new NativeRecordWriter(region);
         heights = new SkipListHeightGenerator(seed);
-        NativeAllocator.Allocation head = region.allocator().tryAllocate(NativeSkipListNodeFormat.HEAD_BYTES, 8);
-        if (!head.allocated() || head.offset() != NativeSkipListNodeFormat.HEAD_OFFSET) throw new IllegalStateException("head offset invariant");
+        NativeAllocator.Allocation head =
+                region.allocator().tryAllocate(NativeSkipListNodeFormat.HEAD_BYTES, 8);
+        if (!head.allocated() || head.offset() != NativeSkipListNodeFormat.HEAD_OFFSET)
+            throw new IllegalStateException("head offset invariant");
         MemorySegment root = region.rootSegment();
         NativeAccess.setInt(root, 64, NativeSkipListNodeFormat.HEAD_BYTES);
         NativeAccess.setInt(root, 68, 0);
@@ -63,11 +78,13 @@ public final class NativeSkipListMemTable implements AutoCloseable {
             if (state != State.ACTIVE) return InsertResult.FROZEN;
             int[] predecessors = new int[SkipListHeightGenerator.MAX_HEIGHT];
             int candidate = findPredecessors(key, sequence, type, predecessors);
-            if (candidate != 0 && compareNode(candidate, key, sequence, type) == 0) return InsertResult.DUPLICATE;
+            if (candidate != 0 && compareNode(candidate, key, sequence, type) == 0)
+                return InsertResult.DUPLICATE;
             int height = heights.nextHeight();
             int recordBytes = NativeRecordFormatV1.totalLength(key.length, value.length);
             int allocationBytes = NativeSkipListNodeFormat.allocationBytes(height, recordBytes);
-            NativeAllocator.Allocation allocation = region.allocator().tryAllocate(allocationBytes, 8);
+            NativeAllocator.Allocation allocation =
+                    region.allocator().tryAllocate(allocationBytes, 8);
             if (!allocation.allocated()) return InsertResult.FULL;
             int node = allocation.offset();
             int record = node + NativeSkipListNodeFormat.prefixBytes(height);
@@ -77,33 +94,44 @@ public final class NativeSkipListMemTable implements AutoCloseable {
             NativeAccess.setInt(root, node + 4L, record);
             NativeAccess.setByte(root, node + 8L, (byte) height);
             NativeAccess.setByte(root, node + 9L, NativeSkipListNodeFormat.VERSION);
-            if (type == NativeRecordFormatV1.VALUE) writer.writeValueAt(record, key, value, sequence);
+            if (type == NativeRecordFormatV1.VALUE)
+                writer.writeValueAt(record, key, value, sequence);
             else writer.writeTombstoneAt(record, key, sequence);
             for (int level = 0; level < height; level++) {
                 int next = next(predecessors[level], level);
                 NativeAccess.setInt(root, node + NativeSkipListNodeFormat.linkOffset(level), next);
             }
             setNextRelease(predecessors[0], 0, node);
-            for (int level = 1; level < height; level++) setNextRelease(predecessors[level], level, node);
+            for (int level = 1; level < height; level++)
+                setNextRelease(predecessors[level], level, node);
             currentMaxHeight = Math.max(currentMaxHeight, height);
             entryCount++;
             return InsertResult.INSERTED;
-        } finally { writerLock.unlock(); }
+        } finally {
+            writerLock.unlock();
+        }
     }
 
     public MemTableLookupResult get(byte[] key, long visibleSequence) {
         ensureReadable();
-        if (key == null || visibleSequence < 0) throw new IllegalArgumentException("invalid lookup");
+        if (key == null || visibleSequence < 0)
+            throw new IllegalArgumentException("invalid lookup");
         int node = lowerBound(key, visibleSequence, (byte) 0);
         if (node == 0) return MemTableLookupResult.notFound();
         NativeRecordView record = record(node);
-        if (record.compareKey(key) != 0 || record.sequence() > visibleSequence) return MemTableLookupResult.notFound();
-        return record.isTombstone() ? MemTableLookupResult.tombstone() : MemTableLookupResult.value(record.copyValue());
+        if (record.compareKey(key) != 0 || record.sequence() > visibleSequence)
+            return MemTableLookupResult.notFound();
+        return record.isTombstone()
+                ? MemTableLookupResult.tombstone()
+                : MemTableLookupResult.value(record.copyValue());
     }
 
     public List<Entry> scan(byte[] startInclusive, byte[] endExclusive, long visibleSequence) {
         ensureReadable();
-        if (startInclusive == null || endExclusive == null || compareBytes(startInclusive, endExclusive) > 0) throw new IllegalArgumentException("invalid bounds");
+        if (startInclusive == null
+                || endExclusive == null
+                || compareBytes(startInclusive, endExclusive) > 0)
+            throw new IllegalArgumentException("invalid bounds");
         List<Entry> result = new ArrayList<>();
         int node = lowerBound(startInclusive, Long.MAX_VALUE, (byte) 0);
         while (node != 0) {
@@ -117,26 +145,33 @@ public final class NativeSkipListMemTable implements AutoCloseable {
                 if (visible == null && current.sequence() <= visibleSequence) visible = current;
                 node = next(node, 0);
             }
-            if (visible != null && !visible.isTombstone()) result.add(new Entry(key, visible.copyValue()));
+            if (visible != null && !visible.isTombstone())
+                result.add(new Entry(key, visible.copyValue()));
         }
         return result;
     }
 
     /**
-     * Materializes every internal record in strict user-key/descending-sequence order.
-     * This flush-only view preserves overwritten values and tombstones.
+     * Materializes every internal record in strict user-key/descending-sequence order. This
+     * flush-only view preserves overwritten values and tombstones.
      *
      * @return defensive immutable internal entries
      */
     public List<InternalEntry> internalEntries() {
         ensureReadable();
-        if (state == State.ACTIVE) throw new IllegalStateException("MemTable must be frozen before flush iteration");
+        if (state == State.ACTIVE)
+            throw new IllegalStateException("MemTable must be frozen before flush iteration");
         List<InternalEntry> result = new ArrayList<>();
         int node = next(NativeSkipListNodeFormat.HEAD_OFFSET, 0);
         while (node != 0) {
             NativeRecordView record = record(node);
             boolean tombstone = record.isTombstone();
-            result.add(new InternalEntry(record.copyKey(), tombstone ? new byte[0] : record.copyValue(), record.sequence(), tombstone));
+            result.add(
+                    new InternalEntry(
+                            record.copyKey(),
+                            tombstone ? new byte[0] : record.copyValue(),
+                            record.sequence(),
+                            tombstone));
             node = next(node, 0);
         }
         return List.copyOf(result);
@@ -148,11 +183,17 @@ public final class NativeSkipListMemTable implements AutoCloseable {
      * @return keys in unsigned bytewise order
      */
     public List<byte[]> userKeys() {
-        ensureReadable(); List<byte[]> result = new ArrayList<>(); byte[] previous = null;
+        ensureReadable();
+        List<byte[]> result = new ArrayList<>();
+        byte[] previous = null;
         int node = next(NativeSkipListNodeFormat.HEAD_OFFSET, 0);
         while (node != 0) {
-            NativeRecordView record = record(node); byte[] key = record.copyKey();
-            if (previous == null || compareBytes(previous, key) != 0) { result.add(key); previous = key; }
+            NativeRecordView record = record(node);
+            byte[] key = record.copyKey();
+            if (previous == null || compareBytes(previous, key) != 0) {
+                result.add(key);
+                previous = key;
+            }
             node = next(node, 0);
         }
         return List.copyOf(result);
@@ -167,11 +208,16 @@ public final class NativeSkipListMemTable implements AutoCloseable {
      */
     public static int maximumInsertionBytes(int keyBytes, int valueBytes) {
         int recordBytes = NativeRecordFormatV1.totalLength(keyBytes, valueBytes);
-        return Math.addExact(7, NativeSkipListNodeFormat.allocationBytes(SkipListHeightGenerator.MAX_HEIGHT, recordBytes));
+        return Math.addExact(
+                7,
+                NativeSkipListNodeFormat.allocationBytes(
+                        SkipListHeightGenerator.MAX_HEIGHT, recordBytes));
     }
 
     /** Returns currently unallocated native bytes. */
-    public long nativeRemainingBytes() { return region.allocator().remainingBytes(); }
+    public long nativeRemainingBytes() {
+        return region.allocator().remainingBytes();
+    }
 
     private int lowerBound(byte[] key, long sequence, byte type) {
         int current = NativeSkipListNodeFormat.HEAD_OFFSET;
@@ -189,7 +235,10 @@ public final class NativeSkipListMemTable implements AutoCloseable {
         int current = NativeSkipListNodeFormat.HEAD_OFFSET;
         for (int level = SkipListHeightGenerator.MAX_HEIGHT - 1; level >= 0; level--) {
             int next = next(current, level);
-            while (next != 0 && compareNode(next, key, sequence, type) < 0) { current = next; next = next(current, level); }
+            while (next != 0 && compareNode(next, key, sequence, type) < 0) {
+                current = next;
+                next = next(current, level);
+            }
             predecessors[level] = current;
         }
         return next(predecessors[0], 0);
@@ -204,19 +253,36 @@ public final class NativeSkipListMemTable implements AutoCloseable {
         return Integer.compare(Byte.toUnsignedInt(record.recordType()), Byte.toUnsignedInt(type));
     }
 
-    private NativeRecordView record(int node) { return records.openChecked(NativeAccess.getInt(region.rootSegment(), node + 4L)); }
-    private int next(int node, int level) { return NativeAccess.getIntAcquire(region.rootSegment(), node + NativeSkipListNodeFormat.linkOffset(level)); }
-    private void setNextRelease(int node, int level, int target) { NativeAccess.setIntRelease(region.rootSegment(), node + NativeSkipListNodeFormat.linkOffset(level), target); }
+    private NativeRecordView record(int node) {
+        return records.openChecked(NativeAccess.getInt(region.rootSegment(), node + 4L));
+    }
+
+    private int next(int node, int level) {
+        return NativeAccess.getIntAcquire(
+                region.rootSegment(), node + NativeSkipListNodeFormat.linkOffset(level));
+    }
+
+    private void setNextRelease(int node, int level, int target) {
+        NativeAccess.setIntRelease(
+                region.rootSegment(), node + NativeSkipListNodeFormat.linkOffset(level), target);
+    }
 
     public void freeze() {
         writerLock.lock();
-        try { if (state == State.ACTIVE) { state = State.FROZEN; region.freeze(); } }
-        finally { writerLock.unlock(); }
+        try {
+            if (state == State.ACTIVE) {
+                state = State.FROZEN;
+                region.freeze();
+            }
+        } finally {
+            writerLock.unlock();
+        }
     }
 
     public Lease retain() {
         while (true) {
-            if (state == State.RETIRED || state == State.CLOSED) throw new IllegalStateException("MemTable retired");
+            if (state == State.RETIRED || state == State.CLOSED)
+                throw new IllegalStateException("MemTable retired");
             int current = references.get();
             if (references.compareAndSet(current, current + 1)) return new Lease(this);
         }
@@ -231,22 +297,56 @@ public final class NativeSkipListMemTable implements AutoCloseable {
     private void release() {
         int remaining = references.decrementAndGet();
         if (remaining < 0) throw new IllegalStateException("negative reference count");
-        if (remaining == 0 && state == State.RETIRED) { region.close(); state = State.CLOSED; }
+        if (remaining == 0 && state == State.RETIRED) {
+            region.close();
+            state = State.CLOSED;
+        }
     }
 
-    @Override public void close() { if (state != State.RETIRED && state != State.CLOSED) retire(); }
-    public State state() { return state; }
-    public long entryCount() { return entryCount; }
-    public long nativeUsedBytes() { return region.allocator().usedBytes(); }
-    public int headOffset() { return NativeSkipListNodeFormat.HEAD_OFFSET; }
-    private void ensureReadable() { if (state == State.CLOSED) throw new IllegalStateException("MemTable is closed"); }
+    @Override
+    public void close() {
+        if (state != State.RETIRED && state != State.CLOSED) retire();
+    }
 
-    private static int compareBytes(byte[] left, byte[] right) { return java.util.Arrays.compareUnsigned(left, right); }
+    public State state() {
+        return state;
+    }
+
+    public long entryCount() {
+        return entryCount;
+    }
+
+    public long nativeUsedBytes() {
+        return region.allocator().usedBytes();
+    }
+
+    public int headOffset() {
+        return NativeSkipListNodeFormat.HEAD_OFFSET;
+    }
+
+    private void ensureReadable() {
+        if (state == State.CLOSED) throw new IllegalStateException("MemTable is closed");
+    }
+
+    private static int compareBytes(byte[] left, byte[] right) {
+        return java.util.Arrays.compareUnsigned(left, right);
+    }
 
     public record Entry(byte[] key, byte[] value) {
-        public Entry { key = key.clone(); value = value.clone(); }
-        @Override public byte[] key() { return key.clone(); }
-        @Override public byte[] value() { return value.clone(); }
+        public Entry {
+            key = key.clone();
+            value = value.clone();
+        }
+
+        @Override
+        public byte[] key() {
+            return key.clone();
+        }
+
+        @Override
+        public byte[] value() {
+            return value.clone();
+        }
     }
 
     /** One flush-visible internal record, including its sequence and tombstone state. */
@@ -256,18 +356,42 @@ public final class NativeSkipListMemTable implements AutoCloseable {
             if (key == null || value == null || sequence <= 0 || tombstone && value.length != 0) {
                 throw new IllegalArgumentException("invalid internal MemTable entry");
             }
-            key = key.clone(); value = value.clone();
+            key = key.clone();
+            value = value.clone();
         }
+
         /** Returns a defensive user-key copy. */
-        @Override public byte[] key() { return key.clone(); }
+        @Override
+        public byte[] key() {
+            return key.clone();
+        }
+
         /** Returns a defensive value copy. */
-        @Override public byte[] value() { return value.clone(); }
+        @Override
+        public byte[] value() {
+            return value.clone();
+        }
     }
 
     public static final class Lease implements AutoCloseable {
         private NativeSkipListMemTable owner;
-        private Lease(NativeSkipListMemTable owner) { this.owner = owner; }
-        public NativeSkipListMemTable table() { if (owner == null) throw new IllegalStateException("lease closed"); return owner; }
-        @Override public void close() { if (owner != null) { NativeSkipListMemTable value = owner; owner = null; value.release(); } }
+
+        private Lease(NativeSkipListMemTable owner) {
+            this.owner = owner;
+        }
+
+        public NativeSkipListMemTable table() {
+            if (owner == null) throw new IllegalStateException("lease closed");
+            return owner;
+        }
+
+        @Override
+        public void close() {
+            if (owner != null) {
+                NativeSkipListMemTable value = owner;
+                owner = null;
+                value.release();
+            }
+        }
     }
 }

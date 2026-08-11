@@ -2,11 +2,12 @@ package io.aetherdb.workbench;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import io.aetherdb.api.AetherDatabase;
 import io.aetherdb.api.AetherCursor;
+import io.aetherdb.api.AetherDatabase;
 import io.aetherdb.api.WriteBatch;
 import io.aetherdb.codec.CollectionMetadata;
 import io.aetherdb.codec.TypedKeyEnvelope;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CodingErrorAction;
@@ -26,45 +27,67 @@ public final class DatabaseWorkspace implements AutoCloseable {
     private final Map<String, byte[]> knownKeys = new TreeMap<>();
     private final Map<UUID, CollectionMetadata> collections = new TreeMap<>();
 
-    /** Creates an owning workspace.
-     * @param database database closed with this workspace */
-    public DatabaseWorkspace(AetherDatabase database) { this(database, true); }
-    /** Creates a workspace with explicit database ownership.
-     * @param database backing database
-     * @param closeDatabase whether close should close the database */
-    public DatabaseWorkspace(AetherDatabase database, boolean closeDatabase) {
-        this.database = Objects.requireNonNull(database, "database"); this.closeDatabase = closeDatabase;
+    /**
+     * Creates an owning workspace.
+     *
+     * @param database database closed with this workspace
+     */
+    public DatabaseWorkspace(AetherDatabase database) {
+        this(database, true);
     }
 
-    /** Inserts or replaces a plain UTF-8 entry.
+    /**
+     * Creates a workspace with explicit database ownership.
+     *
+     * @param database backing database
+     * @param closeDatabase whether close should close the database
+     */
+    public DatabaseWorkspace(AetherDatabase database, boolean closeDatabase) {
+        this.database = Objects.requireNonNull(database, "database");
+        this.closeDatabase = closeDatabase;
+    }
+
+    /**
+     * Inserts or replaces a plain UTF-8 entry.
+     *
      * @param key text key
-     * @param value text value */
+     * @param value text value
+     */
     public void put(String key, String value) {
-        validate(key, "key"); validate(value, "value");
+        validate(key, "key");
+        validate(value, "value");
         database.put(key.getBytes(UTF_8), value.getBytes(UTF_8));
         knownKeys.put(key, key.getBytes(UTF_8));
     }
 
-    /** Adds an entry to the typed collection inferred from a template row.
+    /**
+     * Adds an entry to the typed collection inferred from a template row.
+     *
      * @param templateKey displayed key of an existing collection entry
      * @param userKey new logical key text
      * @param value universal typed-field text
-     * @return displayed physical key */
+     * @return displayed physical key
+     */
     public String addTypedEntry(String templateKey, String userKey, String value) {
-        validate(templateKey, "templateKey"); validate(userKey, "userKey"); validate(value, "value");
+        validate(templateKey, "templateKey");
+        validate(userKey, "userKey");
+        validate(value, "value");
         byte[] template = knownKeys.get(templateKey);
         if (template == null || !isTypedKey(template)) {
-            throw new IllegalArgumentException("select an existing typed entry from the target collection");
+            throw new IllegalArgumentException(
+                    "select an existing typed entry from the target collection");
         }
         byte[] templateValue = database.get(template).value();
         if (!UniversalTypedValue.isTyped(templateValue)) {
-            throw new IllegalArgumentException("selected entry has no editable AETV value envelope");
+            throw new IllegalArgumentException(
+                    "selected entry has no editable AETV value envelope");
         }
         byte[] encodedUserKey = encodeUserKeyLike(template, userKey);
-        byte[] physicalKey = ByteBuffer.allocate(TypedKeyEnvelope.PREFIX_BYTES + encodedUserKey.length)
-                .put(template, 0, TypedKeyEnvelope.PREFIX_BYTES)
-                .put(encodedUserKey)
-                .array();
+        byte[] physicalKey =
+                ByteBuffer.allocate(TypedKeyEnvelope.PREFIX_BYTES + encodedUserKey.length)
+                        .put(template, 0, TypedKeyEnvelope.PREFIX_BYTES)
+                        .put(encodedUserKey)
+                        .array();
         String displayedKey = displayKey(physicalKey);
         if (knownKeys.containsKey(displayedKey)) {
             throw new IllegalArgumentException("an entry with that key already exists");
@@ -74,12 +97,17 @@ public final class DatabaseWorkspace implements AutoCloseable {
         return displayedKey;
     }
 
-    /** Edits an existing plain or schema-aware typed entry.
+    /**
+     * Edits an existing plain or schema-aware typed entry.
+     *
      * @param originalKey currently displayed key
      * @param newKey replacement key for plain entries
-     * @param value replacement display value */
+     * @param value replacement display value
+     */
     public void edit(String originalKey, String newKey, String value) {
-        validate(originalKey, "originalKey"); validate(newKey, "newKey"); validate(value, "value");
+        validate(originalKey, "originalKey");
+        validate(newKey, "newKey");
+        validate(value, "value");
         byte[] physicalKey = knownKeys.get(originalKey);
         if (physicalKey == null) throw new IllegalArgumentException("original key does not exist");
         if (isTypedKey(physicalKey)) {
@@ -101,12 +129,16 @@ public final class DatabaseWorkspace implements AutoCloseable {
             batch.put(newKey.getBytes(UTF_8), value.getBytes(UTF_8));
             database.write(batch);
         }
-        knownKeys.remove(originalKey); knownKeys.put(newKey, newKey.getBytes(UTF_8));
+        knownKeys.remove(originalKey);
+        knownKeys.put(newKey, newKey.getBytes(UTF_8));
     }
 
-    /** Deletes an entry by its displayed key.
+    /**
+     * Deletes an entry by its displayed key.
+     *
      * @param key displayed key
-     * @return whether an entry was known and deleted */
+     * @return whether an entry was known and deleted
+     */
     public boolean delete(String key) {
         validate(key, "key");
         byte[] physicalKey = knownKeys.remove(key);
@@ -115,8 +147,11 @@ public final class DatabaseWorkspace implements AutoCloseable {
         return true;
     }
 
-    /** Reloads all application rows and collection descriptors.
-     * @return immutable display rows */
+    /**
+     * Reloads all application rows and collection descriptors.
+     *
+     * @return immutable display rows
+     */
     public List<Row> rows() {
         List<Row> rows = new ArrayList<>();
         List<PhysicalRow> data = new ArrayList<>();
@@ -126,7 +161,8 @@ public final class DatabaseWorkspace implements AutoCloseable {
             while (cursor.next()) {
                 byte[] physicalKey = cursor.key();
                 byte[] valueBytes = cursor.value();
-                Optional<CollectionMetadata> metadata = CollectionMetadata.decode(physicalKey, valueBytes);
+                Optional<CollectionMetadata> metadata =
+                        CollectionMetadata.decode(physicalKey, valueBytes);
                 if (metadata.isPresent()) {
                     collections.put(metadata.orElseThrow().id().value(), metadata.orElseThrow());
                     continue;
@@ -139,36 +175,64 @@ public final class DatabaseWorkspace implements AutoCloseable {
             knownKeys.put(key, physical.key());
             CollectionMetadata metadata = metadataForKey(physical.key());
             byte[] descriptor = metadata == null ? new byte[0] : metadata.schemaDescriptor();
-            rows.add(new Row(key, displayValue(physical.value(), descriptor), physical.value().length));
+            rows.add(
+                    new Row(
+                            key,
+                            displayValue(physical.value(), descriptor),
+                            physical.value().length));
         }
         return List.copyOf(rows);
     }
 
-    /** Tests whether a displayed key is loaded.
+    /**
+     * Tests whether a displayed key is loaded.
+     *
      * @param key displayed key
-     * @return whether present */
-    public boolean contains(String key) { return knownKeys.containsKey(key); }
-    /** Returns the loaded application row count.
-     * @return row count */
-    public int size() { return knownKeys.size(); }
-    /** Tests whether the selected value can be edited safely.
+     * @return whether present
+     */
+    public boolean contains(String key) {
+        return knownKeys.containsKey(key);
+    }
+
+    /**
+     * Returns the loaded application row count.
+     *
+     * @return row count
+     */
+    public int size() {
+        return knownKeys.size();
+    }
+
+    /**
+     * Tests whether the selected value can be edited safely.
+     *
      * @param key displayed key
-     * @return whether editing is supported */
+     * @return whether editing is supported
+     */
     public boolean canEdit(String key) {
         byte[] physicalKey = knownKeys.get(key);
         if (physicalKey == null) return false;
         return !isTypedKey(physicalKey)
                 || UniversalTypedValue.isTyped(database.get(physicalKey).value());
     }
-    /** Tests whether the physical key itself can be renamed.
+
+    /**
+     * Tests whether the physical key itself can be renamed.
+     *
      * @param key displayed key
-     * @return {@code true} only for plain entries */
+     * @return {@code true} only for plain entries
+     */
     public boolean keyEditable(String key) {
         byte[] physicalKey = knownKeys.get(key);
         return physicalKey != null && !isTypedKey(physicalKey);
     }
+
     /** Clears workspace state and closes the database when owned. */
-    @Override public void close() { if (closeDatabase) database.close(); knownKeys.clear(); }
+    @Override
+    public void close() {
+        if (closeDatabase) database.close();
+        knownKeys.clear();
+    }
 
     private static void validate(String value, String name) {
         if (value == null) throw new IllegalArgumentException(name + " must not be null");
@@ -194,8 +258,9 @@ public final class DatabaseWorkspace implements AutoCloseable {
         int existingLength = template.length - TypedKeyEnvelope.PREFIX_BYTES;
         if (existingLength == 16) {
             UUID uuid;
-            try { uuid = UUID.fromString(userKey); }
-            catch (IllegalArgumentException failure) {
+            try {
+                uuid = UUID.fromString(userKey);
+            } catch (IllegalArgumentException failure) {
                 throw new IllegalArgumentException("this collection requires UUID keys", failure);
             }
             return ByteBuffer.allocate(16)
@@ -218,8 +283,7 @@ public final class DatabaseWorkspace implements AutoCloseable {
         if (UniversalTypedValue.isTyped(value)) {
             try {
                 return UniversalTypedValue.display(value, descriptor);
-            }
-            catch (IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException ignored) {
                 // Display malformed data generically rather than preventing database inspection.
             }
         }
@@ -234,35 +298,44 @@ public final class DatabaseWorkspace implements AutoCloseable {
             return new java.util.UUID(buffer.getLong(), buffer.getLong()).toString();
         }
         try {
-            String text = UTF_8.newDecoder()
-                    .onMalformedInput(CodingErrorAction.REPORT)
-                    .onUnmappableCharacter(CodingErrorAction.REPORT)
-                    .decode(ByteBuffer.wrap(bytes))
-                    .toString();
+            String text =
+                    UTF_8.newDecoder()
+                            .onMalformedInput(CodingErrorAction.REPORT)
+                            .onUnmappableCharacter(CodingErrorAction.REPORT)
+                            .decode(ByteBuffer.wrap(bytes))
+                            .toString();
             if (text.codePoints().allMatch(codePoint -> !Character.isISOControl(codePoint))) {
                 return text;
             }
-        }
-        catch (CharacterCodingException ignored) {
+        } catch (CharacterCodingException ignored) {
             // Fall through to a stable hexadecimal representation.
         }
         return java.util.HexFormat.of().formatHex(bytes);
     }
 
-    /** Display-ready application row.
+    /**
+     * Display-ready application row.
+     *
      * @param key rendered key
      * @param value rendered value
-     * @param valueBytes physical value length */
+     * @param valueBytes physical value length
+     */
     public record Row(String key, String value, int valueBytes) {
-        /** Parent path used by the workbench to group slash-delimited application keys.
-         * @return group label */
+        /**
+         * Parent path used by the workbench to group slash-delimited application keys.
+         *
+         * @return group label
+         */
         public String group() {
             int separator = key.lastIndexOf('/');
             return separator < 0 ? "(root)" : key.substring(0, separator);
         }
 
-        /** Final path component shown as the editable field name.
-         * @return field label */
+        /**
+         * Final path component shown as the editable field name.
+         *
+         * @return field label
+         */
         public String field() {
             int separator = key.lastIndexOf('/');
             return separator < 0 ? key : key.substring(separator + 1);

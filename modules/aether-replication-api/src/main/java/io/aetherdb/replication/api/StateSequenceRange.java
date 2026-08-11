@@ -8,7 +8,10 @@ package io.aetherdb.replication.api;
  */
 public record StateSequenceRange(long first, long last) {
     /** Validates that the range is positive, ordered, and non-empty. */
-    public StateSequenceRange { if (first <= 0 || last < first) throw new IllegalArgumentException("invalid state sequence range"); }
+    public StateSequenceRange {
+        if (first <= 0 || last < first)
+            throw new IllegalArgumentException("invalid state sequence range");
+    }
 
     /**
      * Returns the number of mutations represented by this range.
@@ -16,5 +19,7 @@ public record StateSequenceRange(long first, long last) {
      * @return inclusive range size
      * @throws ArithmeticException if the size cannot be represented as an {@code int}
      */
-    public int operationCount() { return Math.toIntExact(last - first + 1); }
+    public int operationCount() {
+        return Math.toIntExact(last - first + 1);
+    }
 }

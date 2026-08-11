@@ -1,22 +1,37 @@
 package io.aetherdb.api.typed;
 
-/** Converts logical collection keys to and from their stable binary representation.
- * @param <K> logical key type */
+/**
+ * Converts logical collection keys to and from their stable binary representation.
+ *
+ * @param <K> logical key type
+ */
 public interface KeyCodec<K> {
-    /** Returns the codec identity.
-     * @return the stable identifier for this codec family */
+    /**
+     * Returns the codec identity.
+     *
+     * @return the stable identifier for this codec family
+     */
     String codecId();
 
-    /** Returns the encoding version.
-     * @return the positive version emitted by this codec */
+    /**
+     * Returns the encoding version.
+     *
+     * @return the positive version emitted by this codec
+     */
     int encodingVersion();
 
-    /** Returns the key-size bound.
-     * @return the largest encoded key size, in bytes */
+    /**
+     * Returns the key-size bound.
+     *
+     * @return the largest encoded key size, in bytes
+     */
     int maximumEncodedSize();
 
-    /** Returns the codec fingerprint.
-     * @return a defensive copy of the 32-byte fingerprint */
+    /**
+     * Returns the codec fingerprint.
+     *
+     * @return a defensive copy of the 32-byte fingerprint
+     */
     byte[] fingerprint();
 
     /**

@@ -11,6 +11,4 @@ dependencies {
     implementation(project(":modules:aether-lsm"))
 }
 
-tasks.withType<JavaCompile>().configureEach {
-    options.compilerArgs.add("-Xlint:-preview")
-}
+tasks.withType<JavaCompile>().configureEach { options.compilerArgs.add("-Xlint:-preview") }

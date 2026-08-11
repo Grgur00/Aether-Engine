@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.aetherdb.api.exceptions.SequenceExhaustedException;
+
 import org.junit.jupiter.api.Test;
 
 class SequenceSourceTest {

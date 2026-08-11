@@ -11,7 +11,11 @@ import java.nio.file.StandardOpenOption;
 public final class DatabaseLock implements AutoCloseable {
     private final FileChannel channel;
     private final FileLock lock;
-    private DatabaseLock(FileChannel channel, FileLock lock) { this.channel = channel; this.lock = lock; }
+
+    private DatabaseLock(FileChannel channel, FileLock lock) {
+        this.channel = channel;
+        this.lock = lock;
+    }
 
     /**
      * Acquires the database's non-blocking, process-exclusive lock lease.
@@ -23,11 +27,19 @@ public final class DatabaseLock implements AutoCloseable {
     public static DatabaseLock acquire(Path databaseRoot) throws IOException {
         Path root = PathSecurityValidator.validateRoot(databaseRoot, true);
         Path lockPath = root.resolve("LOCK");
-        FileChannel channel = FileChannel.open(lockPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+        FileChannel channel =
+                FileChannel.open(lockPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
         try {
             FileLock lock;
-            try { lock = channel.tryLock(); } catch (OverlappingFileLockException unavailable) { lock = null; }
-            if (lock == null) { channel.close(); throw new IOException("database lock is already held"); }
+            try {
+                lock = channel.tryLock();
+            } catch (OverlappingFileLockException unavailable) {
+                lock = null;
+            }
+            if (lock == null) {
+                channel.close();
+                throw new IOException("database lock is already held");
+            }
             return new DatabaseLock(channel, lock);
         } catch (IOException | RuntimeException failure) {
             if (channel.isOpen()) channel.close();
@@ -36,5 +48,12 @@ public final class DatabaseLock implements AutoCloseable {
     }
 
     /** Releases the operating-system lock and closes its channel. */
-    @Override public void close() throws IOException { try { lock.release(); } finally { channel.close(); } }
+    @Override
+    public void close() throws IOException {
+        try {
+            lock.release();
+        } finally {
+            channel.close();
+        }
+    }
 }

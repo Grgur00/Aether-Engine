@@ -28,8 +28,8 @@ public record DatabaseMetrics(
     }
 
     /**
-     * Returns metrics for an operation, including an all-zero value when the
-     * operation has not yet been invoked.
+     * Returns metrics for an operation, including an all-zero value when the operation has not yet
+     * been invoked.
      *
      * @param operation operation to inspect
      * @return operation measurements

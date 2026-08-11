@@ -6,7 +6,9 @@ import io.aetherdb.api.exceptions.SequenceExhaustedException;
 public final class SequenceSource {
     private long lastAssigned;
 
-    public SequenceSource() { this(0); }
+    public SequenceSource() {
+        this(0);
+    }
 
     public SequenceSource(long lastAssigned) {
         if (lastAssigned < 0) {
@@ -15,7 +17,9 @@ public final class SequenceSource {
         this.lastAssigned = lastAssigned;
     }
 
-    public long reserveOne() { return reserve(1).first(); }
+    public long reserveOne() {
+        return reserve(1).first();
+    }
 
     public SequenceRange reserve(int count) {
         if (count <= 0) {
@@ -29,7 +33,9 @@ public final class SequenceSource {
         return new SequenceRange(first, lastAssigned);
     }
 
-    public long lastAssigned() { return lastAssigned; }
+    public long lastAssigned() {
+        return lastAssigned;
+    }
 
     public record SequenceRange(long first, long last) {}
 }

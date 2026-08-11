@@ -14,6 +14,7 @@ import io.aetherdb.memtable.reference.ByteKey;
 import io.aetherdb.memtable.reference.SequenceSource;
 import io.aetherdb.memtable.reference.VersionedKeyValueStore;
 import io.aetherdb.memtable.reference.VersionedRecord;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,7 +28,8 @@ public final class InMemoryAetherDatabase implements AetherDatabase {
     private final VersionedKeyValueStore store = new VersionedKeyValueStore();
     private final SequenceSource sequences;
     private final int maximumSnapshots;
-    private final Set<SnapshotHandle> snapshots = Collections.newSetFromMap(new IdentityHashMap<>());
+    private final Set<SnapshotHandle> snapshots =
+            Collections.newSetFromMap(new IdentityHashMap<>());
     private long lastVisibleSequence;
     private long nextSnapshotId = 1;
     private boolean closed;
@@ -38,7 +40,8 @@ public final class InMemoryAetherDatabase implements AetherDatabase {
     }
 
     /**
-     * Creates a database starting at a specified visible sequence, primarily for overflow verification.
+     * Creates a database starting at a specified visible sequence, primarily for overflow
+     * verification.
      *
      * @param initialSequence initial visible sequence
      */
@@ -94,11 +97,14 @@ public final class InMemoryAetherDatabase implements AetherDatabase {
     @Override
     public Snapshot newSnapshot() {
         ensureOpen();
-        if (snapshots.size() >= maximumSnapshots) throw new SnapshotLimitExceededException("active snapshot limit exceeded");
+        if (snapshots.size() >= maximumSnapshots)
+            throw new SnapshotLimitExceededException("active snapshot limit exceeded");
         if (nextSnapshotId <= 0) throw new SnapshotException("snapshot ID exhausted");
         long id = nextSnapshotId++;
         SnapshotHandle[] holder = new SnapshotHandle[1];
-        SnapshotHandle handle = new SnapshotHandle(identity, id, lastVisibleSequence, () -> snapshots.remove(holder[0]));
+        SnapshotHandle handle =
+                new SnapshotHandle(
+                        identity, id, lastVisibleSequence, () -> snapshots.remove(holder[0]));
         holder[0] = handle;
         snapshots.add(handle);
         return handle;
@@ -116,12 +122,16 @@ public final class InMemoryAetherDatabase implements AetherDatabase {
         return scanAt(startInclusive, endExclusive, validateSnapshot(snapshot).sequence());
     }
 
-    @Override public AetherCursor scanAll() {
-        ensureOpen(); return new ListCursor(this, store.scanAll(lastVisibleSequence));
+    @Override
+    public AetherCursor scanAll() {
+        ensureOpen();
+        return new ListCursor(this, store.scanAll(lastVisibleSequence));
     }
 
-    @Override public AetherCursor scanAll(Snapshot snapshot) {
-        ensureOpen(); return new ListCursor(this, store.scanAll(validateSnapshot(snapshot).sequence()));
+    @Override
+    public AetherCursor scanAll(Snapshot snapshot) {
+        ensureOpen();
+        return new ListCursor(this, store.scanAll(validateSnapshot(snapshot).sequence()));
     }
 
     private AetherCursor scanAt(byte[] startInclusive, byte[] endExclusive, long sequence) {
@@ -130,9 +140,8 @@ public final class InMemoryAetherDatabase implements AetherDatabase {
         if (start.compareTo(end) > 0) {
             throw new IllegalArgumentException("scan start must not be greater than end");
         }
-        List<VersionedKeyValueStore.VisibleEntry> entries = start.equals(end)
-                ? List.of()
-                : store.scan(start, end, sequence);
+        List<VersionedKeyValueStore.VisibleEntry> entries =
+                start.equals(end) ? List.of() : store.scan(start, end, sequence);
         return new ListCursor(this, entries);
     }
 
@@ -172,20 +181,26 @@ public final class InMemoryAetherDatabase implements AetherDatabase {
         }
 
         SequenceSource.SequenceRange range;
-        try { range = sequences.reserve(prepared.size()); }
-        catch (RuntimeException | Error failure) { batch.markFailed(); throw failure; }
+        try {
+            range = sequences.reserve(prepared.size());
+        } catch (RuntimeException | Error failure) {
+            batch.markFailed();
+            throw failure;
+        }
         batch.markSubmitted();
         long sequence = range.first();
         for (PreparedMutation mutation : prepared) {
-            VersionedRecord record = mutation.tombstone
-                    ? VersionedRecord.tombstone(sequence)
-                    : VersionedRecord.value(sequence, mutation.value);
+            VersionedRecord record =
+                    mutation.tombstone
+                            ? VersionedRecord.tombstone(sequence)
+                            : VersionedRecord.value(sequence, mutation.value);
             store.insert(mutation.key, record);
             sequence++;
         }
         lastVisibleSequence = range.last();
         batch.markCommitted();
-        return new WriteResult(prepared.size(), range.first(), range.last(), options.durabilityMode(), false);
+        return new WriteResult(
+                prepared.size(), range.first(), range.last(), options.durabilityMode(), false);
     }
 
     /**
@@ -212,7 +227,8 @@ public final class InMemoryAetherDatabase implements AetherDatabase {
     /** Recovery hook for a visible checkpoint image; does not allocate a new sequence. */
     void restoreVisible(byte[] key, byte[] value, long sequence) {
         ensureOpen();
-        if (sequence < 0 || sequence > lastVisibleSequence) throw new IllegalArgumentException("invalid recovery sequence");
+        if (sequence < 0 || sequence > lastVisibleSequence)
+            throw new IllegalArgumentException("invalid recovery sequence");
         store.insert(key(key), VersionedRecord.value(sequence, value(value)));
     }
 

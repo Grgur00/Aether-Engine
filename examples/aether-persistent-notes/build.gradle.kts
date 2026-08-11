@@ -8,6 +8,4 @@ dependencies {
 
 application { mainClass = "io.aetherdb.examples.notes.PersistentNotesApplication" }
 
-tasks.named<JavaExec>("run") {
-    workingDir = rootProject.projectDir
-}
+tasks.named<JavaExec>("run") { workingDir = rootProject.projectDir }

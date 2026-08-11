@@ -8,10 +8,12 @@ public final class RegionConfig {
     public static final int CAPACITY_GRANULARITY_BYTES = 4096;
     public static final int FIRST_ALLOCATABLE_OFFSET = 64;
     public static final int DEFAULT_ALIGNMENT = 8;
+
     private RegionConfig() {}
 
     public static void validateCapacity(long capacity) {
-        if (capacity < MIN_CAPACITY_BYTES || capacity > MAX_CAPACITY_BYTES
+        if (capacity < MIN_CAPACITY_BYTES
+                || capacity > MAX_CAPACITY_BYTES
                 || capacity % CAPACITY_GRANULARITY_BYTES != 0) {
             throw new IllegalArgumentException("capacity must be 1 MiB..1 GiB and 4 KiB aligned");
         }

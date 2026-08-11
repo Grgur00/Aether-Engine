@@ -14,10 +14,14 @@ public record SSTableEntry(InternalKey key, byte[] value) {
         }
         value = value.clone();
     }
+
     /**
      * Returns the raw value.
      *
      * @return defensive value copy
      */
-    @Override public byte[] value() { return value.clone(); }
+    @Override
+    public byte[] value() {
+        return value.clone();
+    }
 }

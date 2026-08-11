@@ -17,7 +17,12 @@ final class FfmNativeRegion implements NativeRegion {
     private final AtomicBoolean budgetReleased = new AtomicBoolean();
     private final MonotonicNativeAllocator allocator;
 
-    FfmNativeRegion(String ownerId, long capacity, Arena arena, MemorySegment root, NativeMemoryBudget budget) {
+    FfmNativeRegion(
+            String ownerId,
+            long capacity,
+            Arena arena,
+            MemorySegment root,
+            NativeMemoryBudget budget) {
         this.ownerId = ownerId;
         this.capacity = capacity;
         this.arena = arena;
@@ -26,10 +31,27 @@ final class FfmNativeRegion implements NativeRegion {
         allocator = new MonotonicNativeAllocator(this);
     }
 
-    @Override public long capacityBytes() { return capacity; }
-    @Override public State state() { return state.get(); }
-    @Override public NativeAllocator allocator() { ensureAlive(); return allocator; }
-    @Override public MemorySegment rootSegment() { ensureAlive(); return root; }
+    @Override
+    public long capacityBytes() {
+        return capacity;
+    }
+
+    @Override
+    public State state() {
+        return state.get();
+    }
+
+    @Override
+    public NativeAllocator allocator() {
+        ensureAlive();
+        return allocator;
+    }
+
+    @Override
+    public MemorySegment rootSegment() {
+        ensureAlive();
+        return root;
+    }
 
     @Override
     public void freeze() {
@@ -42,10 +64,12 @@ final class FfmNativeRegion implements NativeRegion {
     public void close() {
         State current = state.get();
         if (current == State.CLOSED) return;
-        if (current != State.FROZEN) throw new IllegalStateException("region must be frozen before close: " + ownerId);
+        if (current != State.FROZEN)
+            throw new IllegalStateException("region must be frozen before close: " + ownerId);
         if (state.compareAndSet(State.FROZEN, State.CLOSED)) {
-            try { arena.close(); }
-            finally {
+            try {
+                arena.close();
+            } finally {
                 if (budgetReleased.compareAndSet(false, true)) budget.release(capacity);
             }
         }

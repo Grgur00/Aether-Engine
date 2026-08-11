@@ -12,8 +12,11 @@ public interface TypedAetherSnapshot extends AutoCloseable {
      */
     <K, V> TypedAetherCollection<K, V> collection(CollectionDefinition<K, V> definition);
 
-    /** Reports whether the snapshot is closed.
-     * @return {@code true} after this snapshot has released its resources */
+    /**
+     * Reports whether the snapshot is closed.
+     *
+     * @return {@code true} after this snapshot has released its resources
+     */
     boolean isClosed();
 
     /** Releases resources pinned by this snapshot. */

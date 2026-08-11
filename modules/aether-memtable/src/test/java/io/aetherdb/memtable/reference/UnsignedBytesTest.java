@@ -2,8 +2,9 @@ package io.aetherdb.memtable.reference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Random;
 import org.junit.jupiter.api.Test;
+
+import java.util.Random;
 
 class UnsignedBytesTest {
     @Test
@@ -12,7 +13,8 @@ class UnsignedBytesTest {
         assertThat(UnsignedBytes.compare(new byte[] {0}, new byte[] {0, 0})).isNegative();
         assertThat(UnsignedBytes.compare(new byte[] {0, (byte) 0xff}, new byte[] {1})).isNegative();
         assertThat(UnsignedBytes.compare(new byte[] {0x7f}, new byte[] {(byte) 0x80})).isNegative();
-        assertThat(UnsignedBytes.compare(new byte[] {(byte) 0x80}, new byte[] {(byte) 0xff})).isNegative();
+        assertThat(UnsignedBytes.compare(new byte[] {(byte) 0x80}, new byte[] {(byte) 0xff}))
+                .isNegative();
     }
 
     @Test
@@ -25,7 +27,8 @@ class UnsignedBytesTest {
             int forward = Integer.signum(UnsignedBytes.compare(left, middle));
             int backward = Integer.signum(UnsignedBytes.compare(middle, left));
             assertThat(forward).isEqualTo(-backward);
-            if (UnsignedBytes.compare(left, middle) <= 0 && UnsignedBytes.compare(middle, right) <= 0) {
+            if (UnsignedBytes.compare(left, middle) <= 0
+                    && UnsignedBytes.compare(middle, right) <= 0) {
                 assertThat(UnsignedBytes.compare(left, right)).isLessThanOrEqualTo(0);
             }
         }

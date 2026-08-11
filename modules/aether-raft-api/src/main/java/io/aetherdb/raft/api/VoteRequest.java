@@ -16,11 +16,31 @@ import java.util.UUID;
  * @param nonce non-zero request nonce
  * @param configurationVersion candidate's membership configuration version
  */
-public record VoteRequest(VoteKind kind, long term, UUID candidateId, UUID sessionId, long lastLogIndex,
-        long lastLogTerm, long lastStateSequence, byte[] lastEntryHash, long nonce, long configurationVersion) {
+public record VoteRequest(
+        VoteKind kind,
+        long term,
+        UUID candidateId,
+        UUID sessionId,
+        long lastLogIndex,
+        long lastLogTerm,
+        long lastStateSequence,
+        byte[] lastEntryHash,
+        long nonce,
+        long configurationVersion) {
     /** Validates protocol bounds and defensively copies the entry hash. */
-    public VoteRequest { lastEntryHash = lastEntryHash.clone(); if (term <= 0 || nonce == 0 || lastEntryHash.length != 32) throw new IllegalArgumentException("invalid vote request"); }
-    /** Returns the log-integrity anchor.
-     * @return defensive copy of the last-entry hash */
-    @Override public byte[] lastEntryHash() { return lastEntryHash.clone(); }
+    public VoteRequest {
+        lastEntryHash = lastEntryHash.clone();
+        if (term <= 0 || nonce == 0 || lastEntryHash.length != 32)
+            throw new IllegalArgumentException("invalid vote request");
+    }
+
+    /**
+     * Returns the log-integrity anchor.
+     *
+     * @return defensive copy of the last-entry hash
+     */
+    @Override
+    public byte[] lastEntryHash() {
+        return lastEntryHash.clone();
+    }
 }

@@ -26,8 +26,11 @@ public interface TypedAetherDatabase extends AutoCloseable {
     <K, V> TypedAetherCollection<K, V> defineCollection(
             CollectionId id, String name, Class<K> keyType, Class<V> valueType);
 
-    /** Creates a write batch.
-     * @return a new empty atomic write batch */
+    /**
+     * Creates a write batch.
+     *
+     * @return a new empty atomic write batch
+     */
     TypedWriteBatch batch();
 
     /**
@@ -38,12 +41,18 @@ public interface TypedAetherDatabase extends AutoCloseable {
      */
     TypedWriteResult write(TypedWriteBatch batch);
 
-    /** Captures a read snapshot.
-     * @return a stable snapshot that the caller must close */
+    /**
+     * Captures a read snapshot.
+     *
+     * @return a stable snapshot that the caller must close
+     */
     TypedAetherSnapshot snapshot();
 
-    /** Reports whether the database is closed.
-     * @return {@code true} after this database has been closed */
+    /**
+     * Reports whether the database is closed.
+     *
+     * @return {@code true} after this database has been closed
+     */
     boolean isClosed();
 
     /** Releases database resources and rejects subsequent operations. */

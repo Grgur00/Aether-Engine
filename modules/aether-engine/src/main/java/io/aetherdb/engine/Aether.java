@@ -1,6 +1,7 @@
 package io.aetherdb.engine;
 
 import io.aetherdb.api.AetherDatabase;
+
 import java.nio.file.Path;
 
 /** Supported composition root for byte-oriented Aether database implementations. */
@@ -46,8 +47,8 @@ public final class Aether {
     }
 
     /**
-     * Adds operation metrics to an existing database and transfers close ownership
-     * to the returned decorator.
+     * Adds operation metrics to an existing database and transfers close ownership to the returned
+     * decorator.
      *
      * @param database database to instrument
      * @return owning metered decorator

@@ -2,12 +2,18 @@ package io.aetherdb.api.typed;
 
 import java.util.List;
 
-/** Type-safe view of one logical collection in an Aether database.
+/**
+ * Type-safe view of one logical collection in an Aether database.
+ *
  * @param <K> logical key type
- * @param <V> logical value type */
+ * @param <V> logical value type
+ */
 public interface TypedAetherCollection<K, V> {
-    /** Returns the collection definition.
-     * @return immutable definition governing keys, values, and capabilities */
+    /**
+     * Returns the collection definition.
+     *
+     * @return immutable definition governing keys, values, and capabilities
+     */
     CollectionDefinition<K, V> definition();
 
     /**

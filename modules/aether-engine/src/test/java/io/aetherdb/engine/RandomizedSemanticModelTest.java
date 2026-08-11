@@ -6,15 +6,16 @@ import io.aetherdb.api.AetherCursor;
 import io.aetherdb.api.AetherDatabase;
 import io.aetherdb.api.Snapshot;
 import io.aetherdb.api.WriteBatch;
+
+import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
-import org.junit.jupiter.api.Test;
 
 class RandomizedSemanticModelTest {
     private static final int SEEDS = 1_000;
@@ -45,7 +46,12 @@ class RandomizedSemanticModelTest {
                         database.delete(key);
                         model.delete(key);
                     }
-                    case 2 -> assertLookup(seed, operation, database.get(key), model.get(key, model.sequence));
+                    case 2 ->
+                            assertLookup(
+                                    seed,
+                                    operation,
+                                    database.get(key),
+                                    model.get(key, model.sequence));
                     case 3 -> {
                         Snapshot snapshot = database.newSnapshot();
                         snapshots.put(snapshot, model.sequence);
@@ -53,8 +59,16 @@ class RandomizedSemanticModelTest {
                     case 4 -> {
                         if (!snapshots.isEmpty()) {
                             int selected = random.nextInt(snapshots.size());
-                            Map.Entry<Snapshot, Long> snapshot = snapshots.entrySet().stream().skip(selected).findFirst().orElseThrow();
-                            assertLookup(seed, operation, database.get(key, snapshot.getKey()), model.get(key, snapshot.getValue()));
+                            Map.Entry<Snapshot, Long> snapshot =
+                                    snapshots.entrySet().stream()
+                                            .skip(selected)
+                                            .findFirst()
+                                            .orElseThrow();
+                            assertLookup(
+                                    seed,
+                                    operation,
+                                    database.get(key, snapshot.getKey()),
+                                    model.get(key, snapshot.getValue()));
                         }
                     }
                     case 5 -> {
@@ -76,9 +90,10 @@ class RandomizedSemanticModelTest {
                             model.apply(mutations);
                         }
                     }
-                    case 6 -> assertThat(scan(database.scan(new byte[0], SCAN_END)))
-                            .as("seed %s operation %s", seed, operation)
-                            .containsExactlyEntriesOf(model.scan(model.sequence));
+                    case 6 ->
+                            assertThat(scan(database.scan(new byte[0], SCAN_END)))
+                                    .as("seed %s operation %s", seed, operation)
+                                    .containsExactlyEntriesOf(model.scan(model.sequence));
                     default -> throw new AssertionError("unreachable operation");
                 }
             }
@@ -88,10 +103,15 @@ class RandomizedSemanticModelTest {
         }
     }
 
-    private static void assertLookup(long seed, int operation, io.aetherdb.api.result.LookupResult actual, byte[] expected) {
-        assertThat(actual.isFound()).as("seed %s operation %s", seed, operation).isEqualTo(expected != null);
+    private static void assertLookup(
+            long seed, int operation, io.aetherdb.api.result.LookupResult actual, byte[] expected) {
+        assertThat(actual.isFound())
+                .as("seed %s operation %s", seed, operation)
+                .isEqualTo(expected != null);
         if (expected != null) {
-            assertThat(actual.value()).as("seed %s operation %s", seed, operation).isEqualTo(expected);
+            assertThat(actual.value())
+                    .as("seed %s operation %s", seed, operation)
+                    .isEqualTo(expected);
         }
     }
 
@@ -121,8 +141,13 @@ class RandomizedSemanticModelTest {
         private final List<ModelMutation> history = new ArrayList<>();
         private long sequence;
 
-        void put(byte[] key, byte[] value) { apply(List.of(new ModelMutation(key, value))); }
-        void delete(byte[] key) { apply(List.of(new ModelMutation(key, null))); }
+        void put(byte[] key, byte[] value) {
+            apply(List.of(new ModelMutation(key, value)));
+        }
+
+        void delete(byte[] key) {
+            apply(List.of(new ModelMutation(key, null)));
+        }
 
         void apply(List<ModelMutation> mutations) {
             for (ModelMutation mutation : mutations) {
@@ -173,10 +198,28 @@ class RandomizedSemanticModelTest {
     }
 
     private record Key(byte[] bytes) implements Comparable<Key> {
-        Key { bytes = bytes.clone(); }
-        @Override public byte[] bytes() { return bytes.clone(); }
-        @Override public int compareTo(Key other) { return Arrays.compareUnsigned(bytes, other.bytes); }
-        @Override public boolean equals(Object other) { return other instanceof Key key && Arrays.equals(bytes, key.bytes); }
-        @Override public int hashCode() { return Arrays.hashCode(bytes); }
+        Key {
+            bytes = bytes.clone();
+        }
+
+        @Override
+        public byte[] bytes() {
+            return bytes.clone();
+        }
+
+        @Override
+        public int compareTo(Key other) {
+            return Arrays.compareUnsigned(bytes, other.bytes);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Key key && Arrays.equals(bytes, key.bytes);
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(bytes);
+        }
     }
 }

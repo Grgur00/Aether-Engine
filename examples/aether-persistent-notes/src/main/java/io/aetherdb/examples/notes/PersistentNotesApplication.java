@@ -2,11 +2,13 @@ package io.aetherdb.examples.notes;
 
 import io.aetherdb.api.typed.TypedAetherDatabase;
 import io.aetherdb.embedded.typed.AetherEmbedded;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.nio.file.Path;
+
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -38,21 +40,22 @@ public final class PersistentNotesApplication {
     }
 
     public static void main(String[] arguments) {
-        Path directory = arguments.length == 0
-                ? Path.of("examples", "aether-persistent-notes", "data", "aether-notes")
-                : Path.of(arguments[0]);
-        SwingUtilities.invokeLater(() -> {
-            try {
-                new PersistentNotesApplication(directory).frame.setVisible(true);
-            }
-            catch (RuntimeException failure) {
-                JOptionPane.showMessageDialog(
-                        null,
-                        failure.getMessage(),
-                        "Cannot open Aether database",
-                        JOptionPane.ERROR_MESSAGE);
-            }
-        });
+        Path directory =
+                arguments.length == 0
+                        ? Path.of("examples", "aether-persistent-notes", "data", "aether-notes")
+                        : Path.of(arguments[0]);
+        SwingUtilities.invokeLater(
+                () -> {
+                    try {
+                        new PersistentNotesApplication(directory).frame.setVisible(true);
+                    } catch (RuntimeException failure) {
+                        JOptionPane.showMessageDialog(
+                                null,
+                                failure.getMessage(),
+                                "Cannot open Aether database",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                });
     }
 
     private void buildWindow(Path directory) {
@@ -77,12 +80,13 @@ public final class PersistentNotesApplication {
         frame.add(location, BorderLayout.NORTH);
         frame.add(new JScrollPane(list), BorderLayout.CENTER);
         frame.add(editor, BorderLayout.SOUTH);
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent event) {
-                close();
-            }
-        });
+        frame.addWindowListener(
+                new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent event) {
+                        close();
+                    }
+                });
         frame.pack();
         input.requestFocusInWindow();
     }
@@ -93,25 +97,19 @@ public final class PersistentNotesApplication {
             model.addElement(note);
             input.setText("");
             input.requestFocusInWindow();
-        }
-        catch (RuntimeException failure) {
+        } catch (RuntimeException failure) {
             JOptionPane.showMessageDialog(
-                    frame,
-                    failure.getMessage(),
-                    "Could not save note",
-                    JOptionPane.ERROR_MESSAGE);
+                    frame, failure.getMessage(), "Could not save note", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void close() {
         try {
             database.close();
-        }
-        catch (RuntimeException failure) {
+        } catch (RuntimeException failure) {
             JOptionPane.showMessageDialog(
                     frame, failure.getMessage(), "Close failed", JOptionPane.ERROR_MESSAGE);
-        }
-        finally {
+        } finally {
             frame.dispose();
         }
     }

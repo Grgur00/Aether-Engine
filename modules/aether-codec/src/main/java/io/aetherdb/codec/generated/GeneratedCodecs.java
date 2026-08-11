@@ -1,6 +1,7 @@
 package io.aetherdb.codec.generated;
 
 import io.aetherdb.api.typed.ValueCodec;
+
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -17,16 +18,20 @@ public final class GeneratedCodecs {
 
     private GeneratedCodecs() {}
 
-    /** Resolves the generated codec for an annotated record.
+    /**
+     * Resolves the generated codec for an annotated record.
+     *
      * @param recordType annotated record class
      * @param <T> record type
-     * @return generated codec */
+     * @return generated codec
+     */
     public static <T> ValueCodec<T> forRecord(Class<T> recordType) {
         if (recordType == null) throw new IllegalArgumentException("recordType must not be null");
         ValueCodec<?> codec = REGISTRY.codecs().get(recordType);
         if (codec == null) {
             throw new IllegalArgumentException(
-                    "CODEC_NOT_AVAILABLE for " + recordType.getName()
+                    "CODEC_NOT_AVAILABLE for "
+                            + recordType.getName()
                             + "; annotate the record and enable aether-codec-processor");
         }
         @SuppressWarnings("unchecked")
@@ -34,13 +39,18 @@ public final class GeneratedCodecs {
         return typed;
     }
 
-    /** Returns the authoritative generated descriptor bytes for a schema version, if installed.
+    /**
+     * Returns the authoritative generated descriptor bytes for a schema version, if installed.
+     *
      * @param schemaId schema identity
      * @param version schema version
-     * @return defensive descriptor copy, or empty when unavailable */
+     * @return defensive descriptor copy, or empty when unavailable
+     */
     public static Optional<byte[]> descriptor(UUID schemaId, int version) {
         byte[] descriptor = REGISTRY.descriptors().get(new SchemaVersion(schemaId, version));
-        return descriptor == null ? Optional.empty() : Optional.of(Arrays.copyOf(descriptor, descriptor.length));
+        return descriptor == null
+                ? Optional.empty()
+                : Optional.of(Arrays.copyOf(descriptor, descriptor.length));
     }
 
     private static Registry load() {
@@ -57,15 +67,16 @@ public final class GeneratedCodecs {
                 throw new IllegalStateException(
                         "conflicting generated codecs for " + provider.recordType().getName());
             }
-            SchemaVersion schemaVersion = new SchemaVersion(
-                    provider.codec().schemaId(), provider.codec().currentSchemaVersion());
-            Class<?> previousType = schemas.putIfAbsent(
-                    schemaVersion,
-                    provider.recordType());
+            SchemaVersion schemaVersion =
+                    new SchemaVersion(
+                            provider.codec().schemaId(), provider.codec().currentSchemaVersion());
+            Class<?> previousType = schemas.putIfAbsent(schemaVersion, provider.recordType());
             if (previousType != null && previousType != provider.recordType()) {
                 throw new IllegalStateException(
-                        "SCHEMA_DESCRIPTOR_CONFLICT between " + previousType.getName()
-                                + " and " + provider.recordType().getName());
+                        "SCHEMA_DESCRIPTOR_CONFLICT between "
+                                + previousType.getName()
+                                + " and "
+                                + provider.recordType().getName());
             }
             descriptors.putIfAbsent(schemaVersion, descriptor);
         }
@@ -74,8 +85,12 @@ public final class GeneratedCodecs {
 
     private static byte[] validateDescriptor(GeneratedCodecProvider provider) {
         ValueCodec<?> codec = provider.codec();
-        String resource = "META-INF/aether/schemas/" + codec.schemaId() + "/"
-                + codec.currentSchemaVersion() + ".aesch";
+        String resource =
+                "META-INF/aether/schemas/"
+                        + codec.schemaId()
+                        + "/"
+                        + codec.currentSchemaVersion()
+                        + ".aesch";
         try (var input = provider.recordType().getClassLoader().getResourceAsStream(resource)) {
             if (input == null) {
                 throw new IllegalStateException("missing generated schema descriptor: " + resource);
@@ -87,16 +102,14 @@ public final class GeneratedCodecs {
                         "SCHEMA_FINGERPRINT_MISMATCH for " + provider.recordType().getName());
             }
             return descriptor;
-        }
-        catch (IOException | NoSuchAlgorithmException failure) {
+        } catch (IOException | NoSuchAlgorithmException failure) {
             throw new IllegalStateException(
                     "cannot validate descriptor for " + provider.recordType().getName(), failure);
         }
     }
 
     private record Registry(
-            Map<Class<?>, ValueCodec<?>> codecs,
-            Map<SchemaVersion, byte[]> descriptors) {}
+            Map<Class<?>, ValueCodec<?>> codecs, Map<SchemaVersion, byte[]> descriptors) {}
 
     private record SchemaVersion(UUID schemaId, int version) {}
 }

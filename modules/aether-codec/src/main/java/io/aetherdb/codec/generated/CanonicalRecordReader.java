@@ -1,20 +1,21 @@
 package io.aetherdb.codec.generated;
 
+import io.aetherdb.api.typed.ValueCodec;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.UUID;
-import io.aetherdb.api.typed.ValueCodec;
 
 /** Strict canonical payload reader used by generated codecs. */
 public final class CanonicalRecordReader {
@@ -27,16 +28,23 @@ public final class CanonicalRecordReader {
     private int wireType;
     private byte[] payload;
 
-    /** Creates a strict reader after validating header, length, order marker, and checksum.
+    /**
+     * Creates a strict reader after validating header, length, order marker, and checksum.
+     *
      * @param bytes complete AER1 payload
-     * @param maximumBytes configured record-size bound */
+     * @param maximumBytes configured record-size bound
+     */
     public CanonicalRecordReader(byte[] bytes, int maximumBytes) {
-        if (bytes == null || bytes.length < CanonicalRecordWriter.HEADER_BYTES
+        if (bytes == null
+                || bytes.length < CanonicalRecordWriter.HEADER_BYTES
                 || bytes.length > maximumBytes) throw invalid("RECORD_LENGTH_EXCEEDED");
         this.bytes = Arrays.copyOf(bytes, bytes.length);
         ByteBuffer header = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
-        if (header.get() != 'A' || header.get() != 'E' || header.get() != 'R'
-                || header.get() != '1' || header.getShort() != 1
+        if (header.get() != 'A'
+                || header.get() != 'E'
+                || header.get() != 'R'
+                || header.get() != '1'
+                || header.getShort() != 1
                 || header.getShort() != CanonicalRecordWriter.HEADER_BYTES) {
             throw invalid("invalid AER1 header");
         }
@@ -50,8 +58,11 @@ public final class CanonicalRecordReader {
         }
     }
 
-    /** Advances to the next canonical field.
-     * @return {@code true} when positioned on a field */
+    /**
+     * Advances to the next canonical field.
+     *
+     * @return {@code true} when positioned on a field
+     */
     public boolean next() {
         if (fieldsRead == fieldCount) {
             if (offset != bytes.length) throw invalid("trailing record bytes");
@@ -76,26 +87,47 @@ public final class CanonicalRecordReader {
         return true;
     }
 
-    /** Returns the current stable field ID.
-     * @return positive field ID */
-    public int fieldId() { return fieldId; }
+    /**
+     * Returns the current stable field ID.
+     *
+     * @return positive field ID
+     */
+    public int fieldId() {
+        return fieldId;
+    }
 
-    /** Returns the current field's stable AER1 wire-type identifier.
-     * @return wire-type code */
-    public int wireType() { return wireType; }
+    /**
+     * Returns the current field's stable AER1 wire-type identifier.
+     *
+     * @return wire-type code
+     */
+    public int wireType() {
+        return wireType;
+    }
 
-    /** Returns a defensive copy of the current field's canonical payload.
-     * @return payload copy */
-    public byte[] rawPayload() { return Arrays.copyOf(payload, payload.length); }
+    /**
+     * Returns a defensive copy of the current field's canonical payload.
+     *
+     * @return payload copy
+     */
+    public byte[] rawPayload() {
+        return Arrays.copyOf(payload, payload.length);
+    }
 
-    /** Verifies the current field's wire type.
-     * @param expected expected wire-type code */
+    /**
+     * Verifies the current field's wire type.
+     *
+     * @param expected expected wire-type code
+     */
     public void requireWireType(int expected) {
         if (wireType != expected) throw invalid("FIELD_WIRE_TYPE_MISMATCH at field " + fieldId);
     }
 
-    /** Decodes the current payload as a canonical boolean.
-     * @return decoded boolean */
+    /**
+     * Decodes the current payload as a canonical boolean.
+     *
+     * @return decoded boolean
+     */
     public boolean boolValue() {
         if (payload.length != 1 || (payload[0] != 0 && payload[0] != 1)) {
             throw invalid("invalid boolean at field " + fieldId);
@@ -103,8 +135,11 @@ public final class CanonicalRecordReader {
         return payload[0] == 1;
     }
 
-    /** Decodes the current payload as a zigzag signed integer.
-     * @return decoded long */
+    /**
+     * Decodes the current payload as a zigzag signed integer.
+     *
+     * @return decoded long
+     */
     public long signedLongValue() {
         long raw = payloadUnsignedVarint();
         return (raw >>> 1) ^ -(raw & 1);
@@ -119,22 +154,27 @@ public final class CanonicalRecordReader {
     /** Decodes a zigzag short with range validation. */
     public short signedShortValue() {
         long value = signedLongValue();
-        if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) throw invalid("short overflow at field " + fieldId);
+        if (value < Short.MIN_VALUE || value > Short.MAX_VALUE)
+            throw invalid("short overflow at field " + fieldId);
         return (short) value;
     }
 
-    /** Decodes the current payload as a canonical IEEE-754 value.
-     * @return decoded double */
+    /**
+     * Decodes the current payload as a canonical IEEE-754 value.
+     *
+     * @return decoded double
+     */
     public double fixed64Value() {
         if (payload.length != 8) throw invalid("invalid fixed64 at field " + fieldId);
-        return Double.longBitsToDouble(ByteBuffer.wrap(payload)
-                .order(ByteOrder.LITTLE_ENDIAN).getLong());
+        return Double.longBitsToDouble(
+                ByteBuffer.wrap(payload).order(ByteOrder.LITTLE_ENDIAN).getLong());
     }
 
     /** Decodes a canonical IEEE-754 single-precision payload. */
     public float fixed32Value() {
         if (payload.length != 4) throw invalid("invalid fixed32 at field " + fieldId);
-        return Float.intBitsToFloat(ByteBuffer.wrap(payload).order(ByteOrder.LITTLE_ENDIAN).getInt());
+        return Float.intBitsToFloat(
+                ByteBuffer.wrap(payload).order(ByteOrder.LITTLE_ENDIAN).getInt());
     }
 
     /** Decodes an unsigned Unicode code unit. */
@@ -144,32 +184,42 @@ public final class CanonicalRecordReader {
         return (char) value;
     }
 
-    /** Decodes the current payload as strict UTF-8.
+    /**
+     * Decodes the current payload as strict UTF-8.
+     *
      * @param maximumBytes field-specific byte bound
-     * @return decoded string */
+     * @return decoded string
+     */
     public String stringValue(int maximumBytes) {
         if (payload.length > maximumBytes) throw invalid("FIELD_LENGTH_EXCEEDED");
         try {
-            return StandardCharsets.UTF_8.newDecoder()
+            return StandardCharsets.UTF_8
+                    .newDecoder()
                     .onMalformedInput(CodingErrorAction.REPORT)
                     .onUnmappableCharacter(CodingErrorAction.REPORT)
-                    .decode(ByteBuffer.wrap(payload)).toString();
-        }
-        catch (CharacterCodingException failure) {
+                    .decode(ByteBuffer.wrap(payload))
+                    .toString();
+        } catch (CharacterCodingException failure) {
             throw invalid("UTF8_INVALID");
         }
     }
 
-    /** Decodes the current payload as a UUID.
-     * @return decoded UUID */
+    /**
+     * Decodes the current payload as a UUID.
+     *
+     * @return decoded UUID
+     */
     public UUID uuidValue() {
         if (payload.length != 16) throw invalid("invalid UUID at field " + fieldId);
         ByteBuffer input = ByteBuffer.wrap(payload).order(ByteOrder.BIG_ENDIAN);
         return new UUID(input.getLong(), input.getLong());
     }
 
-    /** Decodes the current payload as an instant.
-     * @return decoded instant */
+    /**
+     * Decodes the current payload as an instant.
+     *
+     * @return decoded instant
+     */
     public Instant instantValue() {
         int[] position = {0};
         long secondsRaw = payloadUnsignedVarint(position);
@@ -182,7 +232,9 @@ public final class CanonicalRecordReader {
     }
 
     /** Decodes a canonical local date. */
-    public LocalDate localDateValue() { return LocalDate.ofEpochDay(signedLongValue()); }
+    public LocalDate localDateValue() {
+        return LocalDate.ofEpochDay(signedLongValue());
+    }
 
     /** Decodes a canonical local time. */
     public LocalTime localTimeValue() {
@@ -193,7 +245,8 @@ public final class CanonicalRecordReader {
 
     /** Decodes canonical local date and time components. */
     public LocalDateTime localDateTimeValue() {
-        int[] position = {0}; long dayRaw = payloadUnsignedVarint(position);
+        int[] position = {0};
+        long dayRaw = payloadUnsignedVarint(position);
         long nanos = payloadUnsignedVarint(position);
         if (position[0] != payload.length || nanos >= 86_400_000_000_000L) {
             throw invalid("invalid LocalDateTime at field " + fieldId);
@@ -204,7 +257,8 @@ public final class CanonicalRecordReader {
 
     /** Decodes canonical duration seconds and nanoseconds. */
     public Duration durationValue() {
-        int[] position = {0}; long secondsRaw = payloadUnsignedVarint(position);
+        int[] position = {0};
+        long secondsRaw = payloadUnsignedVarint(position);
         long nanos = payloadUnsignedVarint(position);
         if (position[0] != payload.length || nanos > 999_999_999L) {
             throw invalid("invalid Duration at field " + fieldId);
@@ -214,23 +268,30 @@ public final class CanonicalRecordReader {
 
     /** Decodes a minimally represented bounded two's-complement integer. */
     public BigInteger bigIntegerValue(int maximumBytes) {
-        if (payload.length == 0 || payload.length > maximumBytes) throw invalid("FIELD_LENGTH_EXCEEDED");
+        if (payload.length == 0 || payload.length > maximumBytes)
+            throw invalid("FIELD_LENGTH_EXCEEDED");
         BigInteger value = new BigInteger(payload);
-        if (!Arrays.equals(value.toByteArray(), payload)) throw invalid("non-canonical BigInteger at field " + fieldId);
+        if (!Arrays.equals(value.toByteArray(), payload))
+            throw invalid("non-canonical BigInteger at field " + fieldId);
         return value;
     }
 
     /** Decodes a canonical decimal scale and unscaled integer. */
     public BigDecimal bigDecimalValue(int maximumBytes) {
-        if (payload.length == 0 || payload.length > maximumBytes) throw invalid("FIELD_LENGTH_EXCEEDED");
-        int[] position = {0}; long scaleRaw = payloadUnsignedVarint(position);
+        if (payload.length == 0 || payload.length > maximumBytes)
+            throw invalid("FIELD_LENGTH_EXCEEDED");
+        int[] position = {0};
+        long scaleRaw = payloadUnsignedVarint(position);
         long scale = (scaleRaw >>> 1) ^ -(scaleRaw & 1);
-        if (scale < Integer.MIN_VALUE || scale > Integer.MAX_VALUE || position[0] == payload.length) {
+        if (scale < Integer.MIN_VALUE
+                || scale > Integer.MAX_VALUE
+                || position[0] == payload.length) {
             throw invalid("invalid BigDecimal at field " + fieldId);
         }
         byte[] integer = Arrays.copyOfRange(payload, position[0], payload.length);
         BigInteger unscaled = new BigInteger(integer);
-        if (!Arrays.equals(unscaled.toByteArray(), integer)) throw invalid("non-canonical BigDecimal at field " + fieldId);
+        if (!Arrays.equals(unscaled.toByteArray(), integer))
+            throw invalid("non-canonical BigDecimal at field " + fieldId);
         return new BigDecimal(unscaled, (int) scale);
     }
 
@@ -251,7 +312,9 @@ public final class CanonicalRecordReader {
         if (!schemaId.equals(codec.schemaId()) || version < 1 || length != input.remaining()) {
             throw invalid("nested schema mismatch at field " + fieldId);
         }
-        byte[] nested = new byte[length]; input.get(nested); return codec.decode(version, nested);
+        byte[] nested = new byte[length];
+        input.get(nested);
+        return codec.decode(version, nested);
     }
 
     private long unsignedVarint() {

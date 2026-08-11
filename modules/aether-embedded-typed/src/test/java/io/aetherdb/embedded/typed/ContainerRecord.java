@@ -4,6 +4,7 @@ import io.aetherdb.codec.annotation.AetherField;
 import io.aetherdb.codec.annotation.AetherMaxEntries;
 import io.aetherdb.codec.annotation.AetherMaxLength;
 import io.aetherdb.codec.annotation.AetherRecord;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,5 +16,7 @@ public record ContainerRecord(
         @AetherField(id = 16) @AetherMaxLength(512) Optional<String> alias,
         @AetherField(id = 17) @AetherMaxEntries(10) @AetherMaxLength(4096) List<Long> scores,
         @AetherField(id = 18) @AetherMaxEntries(10) @AetherMaxLength(4096) Set<String> tags,
-        @AetherField(id = 19) @AetherMaxEntries(10) @AetherMaxLength(4096) Map<String, Integer> counters,
-        @AetherField(id = 20) @AetherMaxEntries(10) @AetherMaxLength(4096) List<List<String>> matrix) {}
+        @AetherField(id = 19) @AetherMaxEntries(10) @AetherMaxLength(4096)
+                Map<String, Integer> counters,
+        @AetherField(id = 20) @AetherMaxEntries(10) @AetherMaxLength(4096)
+                List<List<String>> matrix) {}

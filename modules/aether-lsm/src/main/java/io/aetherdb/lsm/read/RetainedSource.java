@@ -4,6 +4,7 @@ package io.aetherdb.lsm.read;
 public interface RetainedSource {
     /** Acquires one lifetime reference. */
     void retain();
+
     /** Releases one lifetime reference. */
     void release();
 }

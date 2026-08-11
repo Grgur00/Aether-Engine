@@ -4,7 +4,10 @@ import java.util.Arrays;
 
 /** One immutable VALUE or TOMBSTONE mutation. */
 public final class VersionedRecord {
-    public enum Type { VALUE, TOMBSTONE }
+    public enum Type {
+        VALUE,
+        TOMBSTONE
+    }
 
     private final long sequence;
     private final Type type;
@@ -30,9 +33,13 @@ public final class VersionedRecord {
         return new VersionedRecord(sequence, Type.TOMBSTONE, null);
     }
 
-    public long sequence() { return sequence; }
+    public long sequence() {
+        return sequence;
+    }
 
-    public Type type() { return type; }
+    public Type type() {
+        return type;
+    }
 
     public byte[] copyValue() {
         if (type != Type.VALUE) {

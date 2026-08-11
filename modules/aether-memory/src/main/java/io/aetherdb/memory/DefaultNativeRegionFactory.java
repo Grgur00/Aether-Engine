@@ -8,13 +8,17 @@ import java.lang.foreign.MemorySegment;
 public final class DefaultNativeRegionFactory implements NativeRegionFactory {
     private final NativeMemoryBudget budget;
 
-    public DefaultNativeRegionFactory(NativeMemoryBudget budget) { this.budget = budget; }
+    public DefaultNativeRegionFactory(NativeMemoryBudget budget) {
+        this.budget = budget;
+    }
 
     @Override
     public NativeRegion create(long capacityBytes, String ownerId) {
         RegionConfig.validateCapacity(capacityBytes);
-        if (ownerId == null || ownerId.isBlank()) throw new IllegalArgumentException("ownerId is required");
-        if (!budget.tryReserve(capacityBytes)) throw new NativeAllocationException("native budget exhausted");
+        if (ownerId == null || ownerId.isBlank())
+            throw new IllegalArgumentException("ownerId is required");
+        if (!budget.tryReserve(capacityBytes))
+            throw new NativeAllocationException("native budget exhausted");
         Arena arena = null;
         try {
             arena = Arena.ofShared();
@@ -23,7 +27,11 @@ public final class DefaultNativeRegionFactory implements NativeRegionFactory {
             return new FfmNativeRegion(ownerId, capacityBytes, arena, root, budget);
         } catch (RuntimeException | OutOfMemoryError failure) {
             if (arena != null) {
-                try { arena.close(); } catch (RuntimeException closeFailure) { failure.addSuppressed(closeFailure); }
+                try {
+                    arena.close();
+                } catch (RuntimeException closeFailure) {
+                    failure.addSuppressed(closeFailure);
+                }
             }
             budget.release(capacityBytes);
             if (failure instanceof Error error) throw error;

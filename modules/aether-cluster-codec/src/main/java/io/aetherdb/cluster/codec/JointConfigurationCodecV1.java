@@ -1,14 +1,153 @@
 package io.aetherdb.cluster.codec;
-import io.aetherdb.cluster.api.*;import io.aetherdb.format.checksum.MaskedCrc32c;import java.nio.*;import java.nio.charset.StandardCharsets;import java.security.*;import java.util.*;
+
+import io.aetherdb.cluster.api.*;
+import io.aetherdb.format.checksum.MaskedCrc32c;
+
+import java.nio.*;
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.util.*;
+
 /** Canonical v1 codec for joint-consensus cluster configurations. */
-public final class JointConfigurationCodecV1{
- /** Fixed joint-configuration header length. */ public static final int HEADER_BYTES=256;private JointConfigurationCodecV1(){}
- /** Encodes and hashes a joint configuration.
-  * @param v configuration to encode
-  * @return canonical bytes */
- public static byte[] encode(JointConfigurationV1 v){byte[] old=encodeStable(v.oldConfiguration()),target=StableConfigurationCodecV2.encode(v.targetConfiguration());byte[]out=new byte[HEADER_BYTES+old.length+target.length];ByteBuffer b=le(out);b.put("AECJ".getBytes(StandardCharsets.US_ASCII)).putShort((short)1).putShort((short)HEADER_BYTES).put((byte)2).put((byte)1).putShort((short)0).putInt(out.length);put(b,v.clusterId());b.putLong(v.stateVersion());put(b,v.transitionId());b.putLong(v.oldConfiguration().stateVersion()).putLong(v.targetConfiguration().stateVersion()).putInt(old.length).putInt(target.length).put(v.oldConfiguration().hash()).put(v.targetConfiguration().hash()).putInt(v.oldConfiguration().voters().size()).putInt(v.targetConfiguration().voters().size());Set<UUID>x=new HashSet<>(v.oldConfiguration().voters());x.retainAll(v.targetConfiguration().voters());b.putInt(x.size()).putInt(v.targetConfiguration().changedMemberCount());put(b,v.proposerNodeId());b.putLong(v.creationEpochMillis());System.arraycopy(old,0,out,HEADER_BYTES,old.length);System.arraycopy(target,0,out,HEADER_BYTES+old.length,target.length);byte[]hash=StableConfigurationCodecV2.hash(out,184,216,252,256);if(!StableConfigurationCodecV2.allZero(v.hash())&&!MessageDigest.isEqual(v.hash(),hash))throw new IllegalArgumentException("joint hash mismatch");b.position(184).put(hash);b.putInt(252,MaskedCrc32c.masked(out,0,252));return out;}
- /** Decodes and validates a joint configuration.
-  * @param in canonical bytes
-  * @return decoded configuration */
- public static JointConfigurationV1 decode(byte[]in){if(in==null||in.length<HEADER_BYTES)throw invalid();ByteBuffer b=le(in);byte[]m=new byte[4];b.get(m);if(!Arrays.equals(m,"AECJ".getBytes(StandardCharsets.US_ASCII))||b.getShort()!=1||b.getShort()!=HEADER_BYTES||b.get()!=2||b.get()!=1||b.getShort()!=0||b.getInt()!=in.length)throw invalid();UUID cluster=get(b);long jointVersion=b.getLong();UUID transition=get(b);long oldVersion=b.getLong(),targetVersion=b.getLong();int oldLen=b.getInt(),targetLen=b.getInt();byte[]oldHash=bytes(b,32),targetHash=bytes(b,32);int oldCount=b.getInt(),newCount=b.getInt(),intersection=b.getInt(),changed=b.getInt();UUID proposer=get(b);long created=b.getLong();byte[]stored=bytes(b,32);StableConfigurationCodecV2.zero(in,216,252);if(le(in).getInt(252)!=MaskedCrc32c.masked(in,0,252)||HEADER_BYTES+oldLen+targetLen!=in.length||jointVersion!=oldVersion+1||targetVersion!=oldVersion+2||changed<1||changed>16||!MessageDigest.isEqual(stored,StableConfigurationCodecV2.hash(in,184,216,252,256)))throw invalid();byte[]ob=Arrays.copyOfRange(in,HEADER_BYTES,HEADER_BYTES+oldLen),tb=Arrays.copyOfRange(in,HEADER_BYTES+oldLen,in.length);StableConfiguration old=decodeStable(ob);StableConfigurationV2 target=StableConfigurationCodecV2.decode(tb);Set<UUID>x=new HashSet<>(old.voters());x.retainAll(target.voters());if(!cluster.equals(old.clusterId())||!cluster.equals(target.clusterId())||old.stateVersion()!=oldVersion||target.stateVersion()!=targetVersion||old.voters().size()!=oldCount||target.voters().size()!=newCount||x.size()!=intersection||!MessageDigest.isEqual(old.hash(),oldHash)||!MessageDigest.isEqual(target.hash(),targetHash))throw invalid();return new JointConfigurationV1(transition,old,target,proposer,created,stored);}
- private static byte[]encodeStable(StableConfiguration s){if(s instanceof StableConfigurationV2 v)return StableConfigurationCodecV2.encode(v);return StableConfigurationCodecV1.encode(s);}private static StableConfiguration decodeStable(byte[]b){return b.length>5&&b[4]==2?StableConfigurationCodecV2.decode(b):StableConfigurationCodecV1.decode(b);}private static ByteBuffer le(byte[]b){return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN);}private static void put(ByteBuffer b,UUID u){b.putLong(u.getMostSignificantBits()).putLong(u.getLeastSignificantBits());}private static UUID get(ByteBuffer b){return new UUID(b.getLong(),b.getLong());}private static byte[]bytes(ByteBuffer b,int n){byte[]v=new byte[n];b.get(v);return v;}private static IllegalArgumentException invalid(){return new IllegalArgumentException("invalid joint configuration v1");}}
+public final class JointConfigurationCodecV1 {
+    /** Fixed joint-configuration header length. */
+    public static final int HEADER_BYTES = 256;
+
+    private JointConfigurationCodecV1() {}
+
+    /**
+     * Encodes and hashes a joint configuration.
+     *
+     * @param v configuration to encode
+     * @return canonical bytes
+     */
+    public static byte[] encode(JointConfigurationV1 v) {
+        byte[] old = encodeStable(v.oldConfiguration()),
+                target = StableConfigurationCodecV2.encode(v.targetConfiguration());
+        byte[] out = new byte[HEADER_BYTES + old.length + target.length];
+        ByteBuffer b = le(out);
+        b.put("AECJ".getBytes(StandardCharsets.US_ASCII))
+                .putShort((short) 1)
+                .putShort((short) HEADER_BYTES)
+                .put((byte) 2)
+                .put((byte) 1)
+                .putShort((short) 0)
+                .putInt(out.length);
+        put(b, v.clusterId());
+        b.putLong(v.stateVersion());
+        put(b, v.transitionId());
+        b.putLong(v.oldConfiguration().stateVersion())
+                .putLong(v.targetConfiguration().stateVersion())
+                .putInt(old.length)
+                .putInt(target.length)
+                .put(v.oldConfiguration().hash())
+                .put(v.targetConfiguration().hash())
+                .putInt(v.oldConfiguration().voters().size())
+                .putInt(v.targetConfiguration().voters().size());
+        Set<UUID> x = new HashSet<>(v.oldConfiguration().voters());
+        x.retainAll(v.targetConfiguration().voters());
+        b.putInt(x.size()).putInt(v.targetConfiguration().changedMemberCount());
+        put(b, v.proposerNodeId());
+        b.putLong(v.creationEpochMillis());
+        System.arraycopy(old, 0, out, HEADER_BYTES, old.length);
+        System.arraycopy(target, 0, out, HEADER_BYTES + old.length, target.length);
+        byte[] hash = StableConfigurationCodecV2.hash(out, 184, 216, 252, 256);
+        if (!StableConfigurationCodecV2.allZero(v.hash()) && !MessageDigest.isEqual(v.hash(), hash))
+            throw new IllegalArgumentException("joint hash mismatch");
+        b.position(184).put(hash);
+        b.putInt(252, MaskedCrc32c.masked(out, 0, 252));
+        return out;
+    }
+
+    /**
+     * Decodes and validates a joint configuration.
+     *
+     * @param in canonical bytes
+     * @return decoded configuration
+     */
+    public static JointConfigurationV1 decode(byte[] in) {
+        if (in == null || in.length < HEADER_BYTES) throw invalid();
+        ByteBuffer b = le(in);
+        byte[] m = new byte[4];
+        b.get(m);
+        if (!Arrays.equals(m, "AECJ".getBytes(StandardCharsets.US_ASCII))
+                || b.getShort() != 1
+                || b.getShort() != HEADER_BYTES
+                || b.get() != 2
+                || b.get() != 1
+                || b.getShort() != 0
+                || b.getInt() != in.length) throw invalid();
+        UUID cluster = get(b);
+        long jointVersion = b.getLong();
+        UUID transition = get(b);
+        long oldVersion = b.getLong(), targetVersion = b.getLong();
+        int oldLen = b.getInt(), targetLen = b.getInt();
+        byte[] oldHash = bytes(b, 32), targetHash = bytes(b, 32);
+        int oldCount = b.getInt(),
+                newCount = b.getInt(),
+                intersection = b.getInt(),
+                changed = b.getInt();
+        UUID proposer = get(b);
+        long created = b.getLong();
+        byte[] stored = bytes(b, 32);
+        StableConfigurationCodecV2.zero(in, 216, 252);
+        if (le(in).getInt(252) != MaskedCrc32c.masked(in, 0, 252)
+                || HEADER_BYTES + oldLen + targetLen != in.length
+                || jointVersion != oldVersion + 1
+                || targetVersion != oldVersion + 2
+                || changed < 1
+                || changed > 16
+                || !MessageDigest.isEqual(
+                        stored, StableConfigurationCodecV2.hash(in, 184, 216, 252, 256)))
+            throw invalid();
+        byte[] ob = Arrays.copyOfRange(in, HEADER_BYTES, HEADER_BYTES + oldLen),
+                tb = Arrays.copyOfRange(in, HEADER_BYTES + oldLen, in.length);
+        StableConfiguration old = decodeStable(ob);
+        StableConfigurationV2 target = StableConfigurationCodecV2.decode(tb);
+        Set<UUID> x = new HashSet<>(old.voters());
+        x.retainAll(target.voters());
+        if (!cluster.equals(old.clusterId())
+                || !cluster.equals(target.clusterId())
+                || old.stateVersion() != oldVersion
+                || target.stateVersion() != targetVersion
+                || old.voters().size() != oldCount
+                || target.voters().size() != newCount
+                || x.size() != intersection
+                || !MessageDigest.isEqual(old.hash(), oldHash)
+                || !MessageDigest.isEqual(target.hash(), targetHash)) throw invalid();
+        return new JointConfigurationV1(transition, old, target, proposer, created, stored);
+    }
+
+    private static byte[] encodeStable(StableConfiguration s) {
+        if (s instanceof StableConfigurationV2 v) return StableConfigurationCodecV2.encode(v);
+        return StableConfigurationCodecV1.encode(s);
+    }
+
+    private static StableConfiguration decodeStable(byte[] b) {
+        return b.length > 5 && b[4] == 2
+                ? StableConfigurationCodecV2.decode(b)
+                : StableConfigurationCodecV1.decode(b);
+    }
+
+    private static ByteBuffer le(byte[] b) {
+        return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN);
+    }
+
+    private static void put(ByteBuffer b, UUID u) {
+        b.putLong(u.getMostSignificantBits()).putLong(u.getLeastSignificantBits());
+    }
+
+    private static UUID get(ByteBuffer b) {
+        return new UUID(b.getLong(), b.getLong());
+    }
+
+    private static byte[] bytes(ByteBuffer b, int n) {
+        byte[] v = new byte[n];
+        b.get(v);
+        return v;
+    }
+
+    private static IllegalArgumentException invalid() {
+        return new IllegalArgumentException("invalid joint configuration v1");
+    }
+}

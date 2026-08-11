@@ -6,9 +6,13 @@ import java.util.UUID;
 public record Note(UUID id, String text) {
     public Note {
         if (id == null) throw new IllegalArgumentException("note ID is required");
-        if (text == null || text.isBlank()) throw new IllegalArgumentException("note text must not be blank");
+        if (text == null || text.isBlank())
+            throw new IllegalArgumentException("note text must not be blank");
         text = text.strip();
     }
 
-    @Override public String toString() { return text; }
+    @Override
+    public String toString() {
+        return text;
+    }
 }

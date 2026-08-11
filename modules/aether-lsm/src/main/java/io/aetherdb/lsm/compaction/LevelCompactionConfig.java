@@ -1,13 +1,18 @@
 package io.aetherdb.lsm.compaction;
 
-/** Validated leveled-compaction and output-size policy.
+/**
+ * Validated leveled-compaction and output-size policy.
+ *
  * @param level1TargetBytes target bytes for level one
- * @param levelSizeMultiplier growth factor between levels */
+ * @param levelSizeMultiplier growth factor between levels
+ */
 public record LevelCompactionConfig(long level1TargetBytes, int levelSizeMultiplier) {
     /** Number of levels including L0. */
     public static final int LEVEL_COUNT = 7;
+
     /** Binary mebibyte. */
     public static final long MIB = 1024L * 1024;
+
     /** Binary gibibyte. */
     public static final long GIB = 1024L * MIB;
 
@@ -19,13 +24,21 @@ public record LevelCompactionConfig(long level1TargetBytes, int levelSizeMultipl
             throw new IllegalArgumentException("level multiplier must be between 2 and 20");
     }
 
-    /** Returns the default leveled policy.
-     * @return default configuration */
-    public static LevelCompactionConfig defaults() { return new LevelCompactionConfig(512 * MIB, 10); }
+    /**
+     * Returns the default leveled policy.
+     *
+     * @return default configuration
+     */
+    public static LevelCompactionConfig defaults() {
+        return new LevelCompactionConfig(512 * MIB, 10);
+    }
 
-    /** Computes a target level size with saturation.
+    /**
+     * Computes a target level size with saturation.
+     *
      * @param level level from one through six
-     * @return target bytes */
+     * @return target bytes
+     */
     public long targetBytes(int level) {
         requireLevel(level, 1, 6);
         long target = level1TargetBytes;
@@ -36,9 +49,12 @@ public record LevelCompactionConfig(long level1TargetBytes, int levelSizeMultipl
         return target;
     }
 
-    /** Returns the target output SSTable size for a level.
+    /**
+     * Returns the target output SSTable size for a level.
+     *
      * @param level output level from one through six
-     * @return target file bytes */
+     * @return target file bytes
+     */
     public long targetOutputFileBytes(int level) {
         requireLevel(level, 1, 6);
         return switch (level) {
@@ -51,6 +67,7 @@ public record LevelCompactionConfig(long level1TargetBytes, int levelSizeMultipl
     }
 
     private static void requireLevel(int level, int minimum, int maximum) {
-        if (level < minimum || level > maximum) throw new IllegalArgumentException("invalid level: " + level);
+        if (level < minimum || level > maximum)
+            throw new IllegalArgumentException("invalid level: " + level);
     }
 }
