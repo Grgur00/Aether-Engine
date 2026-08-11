@@ -126,7 +126,8 @@ def main() -> int:
 
     properties = (ROOT / "gradle.properties").read_text(encoding="utf-8")
     match = re.search(r"^aetherVersion=(.+)$", properties, re.MULTILINE)
-    if not match or match.group(1) not in docs_text:
+    documented_version = match.group(1).removesuffix("-SNAPSHOT") if match else None
+    if not documented_version or documented_version not in docs_text:
         errors.append("developer docs version does not match gradle.properties")
 
     if errors:

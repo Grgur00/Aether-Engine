@@ -4,7 +4,8 @@ Aether Engine is a modular Java storage-engine project built around LSM-tree, re
 
 The current release includes a deterministic in-memory engine and a first local persistent embedded path. The persistent path provides WAL-backed close/reopen durability and atomic checkpoint recovery, but remains pre-production.
 
-> **Status:** pre-release (`0.1.0-SNAPSHOT`). Do not use it for durable production data yet.
+> **Status:** `0.1.0` is available from Maven Central. Aether remains pre-1.0;
+> do not use it for irreplaceable production data yet.
 
 **[Developer documentation](https://grgur00.github.io/Aether-Engine/docs/)** — setup,
 typed collections, schema evolution, the byte API, durability, metrics, limits, and operational
@@ -167,7 +168,7 @@ try (var database = AetherEmbedded.open(directory)) {
 
 `openInMemory()` discards data on close. `open(path)` creates or reopens a local database, holds an operating-system-backed exclusive writer lock, and rejects a second concurrent writer. The default `GROUP_SYNC` mode forces the WAL before publishing a successful write.
 
-After the first Maven Central release, add Central to plugin resolution:
+Add Maven Central to plugin resolution:
 
 ```kotlin
 // settings.gradle.kts
@@ -192,7 +193,6 @@ plugins {
 It configures Java 21 preview support, the typed embedded runtime, generated
 codec processor, and schema lifecycle tasks. A BOM is also available at
 `io.github.grgur00:aether-bom:0.1.0` for advanced manual module selection.
-Until `0.1.0` is released, use the sample applications in this source checkout.
 Maintainer instructions are in [RELEASING.md](RELEASING.md).
 
 ### Generated record codecs

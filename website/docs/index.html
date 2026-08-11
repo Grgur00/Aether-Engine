@@ -21,7 +21,7 @@
           <svg class="brand-mark" viewBox="0 0 38 38" aria-hidden="true"><path d="M4 29 16.7 5h4.6L34 29h-6.7l-2.2-4.6H12.9L10.7 29H4Zm11.5-10h7L19 11.6 15.5 19Z"/></svg>
           <span>Aether Engine</span>
         </a>
-        <span class="docs-label">Developer docs <b>0.1.0-SNAPSHOT</b></span>
+        <span class="docs-label">Developer docs <b>0.1.0</b></span>
         <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse API</button>
         <nav class="docs-top-nav" aria-label="Documentation links">
           <a href="#quickstart">Quickstart</a>
@@ -101,7 +101,7 @@
           </p>
           <div class="docs-notice warning">
             <strong>Pre-release contract</strong>
-            <p>Aether is currently <code>0.1.0-SNAPSHOT</code>. Use it for evaluation and development, not durable production data. APIs and persistent formats may change before 1.0.</p>
+            <p>Aether <code>0.1.0</code> is available from Maven Central. It remains a pre-1.0 release for evaluation and development; APIs and persistent formats may change before 1.0.</p>
           </div>
           <div class="docs-paths">
             <a href="#quickstart"><span>Recommended</span><strong>Typed embedded API</strong><p>Java records, collections, generated codecs, atomic batches, snapshots, and ordered scans.</p><b>Start here →</b></a>
@@ -115,7 +115,7 @@
           <div class="docs-table-wrap"><table><thead><tr><th>Requirement</th><th>Current contract</th></tr></thead><tbody>
             <tr><td>Java</td><td>JDK 21+ with preview features enabled by the project build</td></tr>
             <tr><td>Build</td><td>Gradle wrapper checked into the repository</td></tr>
-            <tr><td>Distribution</td><td>Source integration today; Maven Central release pipeline prepared under <code>io.github.grgur00</code></td></tr>
+            <tr><td>Distribution</td><td>Maven Central under <code>io.github.grgur00</code>; current release <code>0.1.0</code></td></tr>
             <tr><td>Persistent ownership</td><td>One process-exclusive writer per database directory</td></tr>
           </tbody></table></div>
         </article>
@@ -169,7 +169,7 @@ git add aether-schemas</code></pre></div>
 
         <article id="project-setup" class="docs-section" data-doc-title="Project setup Gradle dependencies modules annotation processor">
           <header><span class="docs-index">03</span><div><p>Getting started</p><h2>Project setup</h2></div></header>
-          <p>The prepared Maven Central release includes a Gradle plugin that aligns the runtime and processor, enables Java 21 preview support, and installs the schema lifecycle tasks. Until <code>0.1.0</code> appears on Central, use the source-checkout setup below.</p>
+          <p>Aether <code>0.1.0</code> is published on Maven Central. Its Gradle plugin aligns the runtime and processor, enables Java 21 preview support, and installs the schema lifecycle tasks.</p>
           <h3>Maven Central coordinates</h3>
           <div class="code-panel"><div class="code-toolbar"><span>settings.gradle.kts</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">pluginManagement</span> {
     repositories {
@@ -182,7 +182,7 @@ git add aether-schemas</code></pre></div>
     id(<span class="tok-str">"io.github.grgur00.aether"</span>) version <span class="tok-str">"0.1.0"</span>
 }</code></pre></div>
           <p>The plugin adds <code>aether-embedded-typed</code>, <code>aether-codec</code>, and the matching annotation processor automatically. Advanced consumers can instead import <code>io.github.grgur00:aether-bom:0.1.0</code> and select modules manually.</p>
-          <h3>Source-checkout setup</h3>
+          <h3>Alternative: source-checkout setup</h3>
           <h3>settings.gradle.kts</h3>
           <div class="code-panel"><div class="code-toolbar"><span>settings.gradle.kts</span><button class="copy-button" type="button">Copy</button></div><pre><code>include(<span class="tok-str">
     ":your-app",
@@ -243,7 +243,7 @@ git add aether-schemas</code></pre></div>
             <tr><td><code>RANGE_SCAN</code></td><td>Scan in codec-defined order; requires <code>OrderedKeyCodec</code></td></tr>
             <tr><td><code>SNAPSHOT_READ</code></td><td>Read the collection through a stable snapshot</td></tr>
           </tbody></table></div>
-          <div class="docs-notice note"><strong>Current enforcement</strong><p>The embedded adapter actively checks <code>RANGE_SCAN</code>. In <code>0.1.0-SNAPSHOT</code>, the point-read, point-write, and snapshot flags are descriptive metadata and are not access-control boundaries. Do not use capabilities as a security mechanism.</p></div>
+          <div class="docs-notice note"><strong>Current enforcement</strong><p>The embedded adapter actively checks <code>RANGE_SCAN</code>. In <code>0.1.0</code>, the point-read, point-write, and snapshot flags are descriptive metadata and are not access-control boundaries. Do not use capabilities as a security mechanism.</p></div>
         </article>
 
         <article id="point-operations" class="docs-section" data-doc-title="get put delete ReadResult requireValue found not found">
@@ -468,7 +468,7 @@ TypedWriteResult result = db.write(batch);
             <tr><td><code>SYNC</code></td><td>Requests a dedicated durability barrier</td><td>Strongest API request; intended for an isolated barrier</td></tr>
           </tbody></table></div>
           <p>The persistent engine writes WAL records before publishing visibility. The crash benchmark uses acknowledged durable marker writes followed by <code>Runtime.halt</code>, then reopens and validates every prior marker.</p>
-          <div class="docs-notice note"><strong>Current group-commit behavior</strong><p>The <code>DurabilityMode</code> contract distinguishes <code>SYNC</code> from <code>GROUP_SYNC</code>. The current persistent implementation performs one WAL force for a commit group whenever any request requires synchronization, so <code>SYNC</code> is presently coalesced rather than given a separate force. Treat that distinction as unfinished in this snapshot.</p></div>
+          <div class="docs-notice note"><strong>Current group-commit behavior</strong><p>The <code>DurabilityMode</code> contract distinguishes <code>SYNC</code> from <code>GROUP_SYNC</code>. The current persistent implementation performs one WAL force for a commit group whenever any request requires synchronization, so <code>SYNC</code> is presently coalesced rather than given a separate force. Treat that distinction as unfinished in this release.</p></div>
         </article>
 
         <article id="lifecycle" class="docs-section" data-doc-title="lifecycle open close lock one writer persistent in memory thread safety">
@@ -539,7 +539,7 @@ TypedWriteResult result = db.write(batch);
 
         <article id="production-status" class="docs-section" data-doc-title="production status limitations roadmap pre release">
           <header><span class="docs-index">27</span><div><p>Operations</p><h2>Production-readiness status</h2></div></header>
-          <div class="readiness-grid"><div class="ready"><h3>Implemented</h3><ul><li>Typed collections and generated codecs</li><li>Persistent WAL-backed embedded path</li><li>Atomic batches and MVCC snapshots</li><li>SSTables, manifests, filters, and compaction foundations</li><li>Crash recovery verification</li><li>Metrics, Workbench, and benchmark tooling</li></ul></div><div><h3>Not complete</h3><ul><li>Stable 1.0 API and format guarantees</li><li>Fully integrated background MemTable flush</li><li>Complete obsolete-checkpoint reclamation</li><li>Complete TCP/TLS cluster clients and servers</li><li>Full dynamic membership orchestration</li><li>Published Maven Central artifacts</li></ul></div></div>
+          <div class="readiness-grid"><div class="ready"><h3>Implemented</h3><ul><li>Typed collections and generated codecs</li><li>Persistent WAL-backed embedded path</li><li>Atomic batches and MVCC snapshots</li><li>SSTables, manifests, filters, and compaction foundations</li><li>Crash recovery verification</li><li>Metrics, Workbench, and benchmark tooling</li><li>Maven Central artifacts and Gradle plugin</li></ul></div><div><h3>Not complete</h3><ul><li>Stable 1.0 API and format guarantees</li><li>Fully integrated background MemTable flush</li><li>Complete obsolete-checkpoint reclamation</li><li>Complete TCP/TLS cluster clients and servers</li><li>Full dynamic membership orchestration</li></ul></div></div>
           <div class="docs-notice warning"><strong>Decision rule</strong><p>If losing or migrating the data would be unacceptable, do not deploy the current release as the system of record. Track the roadmap and format guarantees before production adoption.</p></div>
         </article>
 

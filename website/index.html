@@ -43,7 +43,7 @@
     <main id="main">
       <section id="top" class="hero section-shell">
         <div class="hero-copy">
-          <div class="eyebrow"><span class="status-dot"></span> Java 21+ · 0.1.0 snapshot</div>
+          <div class="eyebrow"><span class="status-dot"></span> Java 21+ · 0.1.0 on Maven Central</div>
           <h1>Storage you can<br>reason about.</h1>
           <p class="hero-lede">
             Aether is a type-safe embedded database for Java applications that need explicit
@@ -151,15 +151,15 @@
               <h2>From checkout to<br>first durable write.</h2>
             </div>
             <p>
-              Aether artifacts are not published to Maven Central yet. During the pre-release,
-              build applications as modules in a source checkout to keep versions aligned.
+              Aether 0.1.0 is available from Maven Central. Apply one Gradle plugin to configure
+              the runtime, generated codecs, Java 21 preview support, and schema tasks.
             </p>
           </div>
 
           <div class="steps-layout">
             <aside class="steps-nav" aria-label="Quickstart steps">
-              <a href="#step-source"><b>01</b><span>Get the source</span></a>
-              <a href="#step-module"><b>02</b><span>Add your module</span></a>
+              <a href="#step-source"><b>01</b><span>Configure repositories</span></a>
+              <a href="#step-module"><b>02</b><span>Apply Aether</span></a>
               <a href="#step-record"><b>03</b><span>Define a record</span></a>
               <a href="#step-open"><b>04</b><span>Open and write</span></a>
               <a href="#step-schema"><b>05</b><span>Lock the schema</span></a>
@@ -167,26 +167,25 @@
 
             <div class="steps-content">
               <article id="step-source" class="step">
-                <header><span>01</span><div><h3>Get the source</h3><p>Clone Aether and verify the Java 21 toolchain.</p></div></header>
+                <header><span>01</span><div><h3>Configure plugin resolution</h3><p>Resolve the Aether plugin from Maven Central.</p></div></header>
                 <div class="code-panel">
-                  <div class="code-toolbar"><span>Terminal</span><button class="copy-button" type="button">Copy</button></div>
-                  <pre><code>git clone https://github.com/Grgur00/Aether-Engine.git
-cd Aether-Engine
-./gradlew check</code></pre>
+                  <div class="code-toolbar"><span>settings.gradle.kts</span><button class="copy-button" type="button">Copy</button></div>
+                  <pre><code><span class="tok-key">pluginManagement</span> {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}</code></pre>
                 </div>
               </article>
 
               <article id="step-module" class="step">
-                <header><span>02</span><div><h3>Add your application module</h3><p>Include a module in <code>settings.gradle.kts</code>, then depend on the supported typed surface.</p></div></header>
+                <header><span>02</span><div><h3>Apply the Aether plugin</h3><p>The plugin installs the supported typed runtime and matching codec processor.</p></div></header>
                 <div class="code-panel">
                   <div class="code-toolbar"><span>your-app/build.gradle.kts</span><button class="copy-button" type="button">Copy</button></div>
-                  <pre><code><span class="tok-key">plugins</span> { id(<span class="tok-str">"aether.java-application"</span>) }
-
-<span class="tok-key">dependencies</span> {
-    implementation(project(<span class="tok-str">":modules:aether-api"</span>))
-    implementation(project(<span class="tok-str">":modules:aether-codec"</span>))
-    implementation(project(<span class="tok-str">":modules:aether-embedded-typed"</span>))
-    annotationProcessor(project(<span class="tok-str">":modules:aether-codec-processor"</span>))
+                  <pre><code><span class="tok-key">plugins</span> {
+    application
+    id(<span class="tok-str">"io.github.grgur00.aether"</span>) version <span class="tok-str">"0.1.0"</span>
 }</code></pre>
                 </div>
               </article>
@@ -345,6 +344,7 @@ cd Aether-Engine
                 <li>MVCC snapshots and ordered scans</li>
                 <li>WAL, SSTable, manifest, and compaction foundations</li>
                 <li>Workbench and benchmark tooling</li>
+                <li>Maven Central artifacts and Gradle plugin</li>
               </ul>
             </div>
             <div class="status-next">
@@ -355,7 +355,6 @@ cd Aether-Engine
                 <li>Full obsolete-checkpoint reclamation</li>
                 <li>Complete TCP/TLS cluster runtime</li>
                 <li>Dynamic membership orchestration</li>
-                <li>Published Maven artifacts</li>
               </ul>
             </div>
           </div>
