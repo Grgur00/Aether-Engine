@@ -1,11 +1,68 @@
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.compile.JavaCompile
 
-plugins { base }
+plugins {
+    base
+    id("org.jreleaser") version "1.25.0"
+}
 
-group = "io.aetherdb"
+val releaseGroup = "io.github.grgur00"
+val releaseVersion = providers.gradleProperty("aetherVersion").getOrElse("0.1.0-SNAPSHOT")
 
-version = providers.gradleProperty("aetherVersion").getOrElse("0.1.0-SNAPSHOT")
+allprojects {
+    group = releaseGroup
+    version = releaseVersion
+}
+
+val publishedModules =
+    listOf(
+        "aether-api",
+        "aether-memory",
+        "aether-format",
+        "aether-io",
+        "aether-memtable",
+        "aether-wal",
+        "aether-sstable",
+        "aether-lsm",
+        "aether-engine",
+        "aether-codec-annotations",
+        "aether-codec",
+        "aether-codec-processor",
+        "aether-embedded-typed",
+        "aether-gradle-plugin",
+        "aether-bom",
+    )
+
+tasks.register("stageMavenCentral") {
+    group = "publishing"
+    description = "Builds all public modules in Maven repository layout for Central validation."
+    dependsOn(
+        publishedModules.map {
+            ":modules:$it:publishAllPublicationsToStagingRepository"
+        }
+    )
+}
+
+tasks.register("verifyReleaseVersion") {
+    group = "publishing"
+    description = "Rejects snapshot or malformed Maven Central release versions."
+    doLast {
+        require(!releaseVersion.endsWith("-SNAPSHOT")) {
+            "Maven Central releases require -PaetherVersion=<release version>"
+        }
+        require(releaseVersion.matches(Regex("[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9.-]+)?"))) {
+            "invalid release version: $releaseVersion"
+        }
+    }
+}
+
+tasks.named("stageMavenCentral") { dependsOn("verifyReleaseVersion") }
+
+jreleaser {
+    configFile = file("jreleaser.yml")
+    gitRootSearch = true
+    dependsOnAssemble = false
+}
 
 tasks.register("integrationTest") {
     group = "verification"

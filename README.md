@@ -167,18 +167,33 @@ try (var database = AetherEmbedded.open(directory)) {
 
 `openInMemory()` discards data on close. `open(path)` creates or reopens a local database, holds an operating-system-backed exclusive writer lock, and rejects a second concurrent writer. The default `GROUP_SYNC` mode forces the WAL before publishing a successful write.
 
-For a local multi-module consumer, use:
+After the first Maven Central release, add Central to plugin resolution:
 
 ```kotlin
-dependencies {
-    implementation(project(":modules:aether-api"))
-    implementation(project(":modules:aether-codec"))
-    implementation(project(":modules:aether-embedded-typed"))
-    annotationProcessor(project(":modules:aether-codec-processor"))
+// settings.gradle.kts
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
 }
 ```
 
-Artifacts are not currently published to Maven Central.
+Then apply one plugin:
+
+```kotlin
+// build.gradle.kts
+plugins {
+    application
+    id("io.github.grgur00.aether") version "0.1.0"
+}
+```
+
+It configures Java 21 preview support, the typed embedded runtime, generated
+codec processor, and schema lifecycle tasks. A BOM is also available at
+`io.github.grgur00:aether-bom:0.1.0` for advanced manual module selection.
+Until `0.1.0` is released, use the sample applications in this source checkout.
+Maintainer instructions are in [RELEASING.md](RELEASING.md).
 
 ### Generated record codecs
 

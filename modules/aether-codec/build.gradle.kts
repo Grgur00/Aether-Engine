@@ -1,4 +1,7 @@
-plugins { id("aether.java-library") }
+plugins {
+    id("aether.java-library")
+    id("aether.publishing")
+}
 
 dependencies {
     api(project(":modules:aether-api"))

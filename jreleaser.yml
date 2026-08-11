@@ -1,0 +1,35 @@
+project:
+  name: aether-engine
+  description: Embedded storage engine for Java with durable typed collections
+  longDescription: >-
+    Aether Engine is a deterministic embedded Java storage engine with a WAL,
+    LSM persistence, crash recovery, snapshots, and compile-time generated
+    codecs for durable typed collections.
+  authors:
+    - Grgur00
+  license: Apache-2.0
+  links:
+    homepage: https://grgur00.github.io/Aether-Engine/
+    documentation: https://grgur00.github.io/Aether-Engine/docs/
+    license: https://github.com/Grgur00/Aether-Engine/blob/main/LICENSE
+  inceptionYear: 2026
+
+release:
+  github:
+    enabled: true
+    skipTag: true
+    skipRelease: true
+
+signing:
+  pgp:
+    active: RELEASE
+    armored: true
+
+deploy:
+  maven:
+    mavenCentral:
+      aether:
+        active: RELEASE
+        url: https://central.sonatype.com/api/v1/publisher
+        stagingRepositories:
+          - build/staging-deploy

@@ -1,1 +1,4 @@
-plugins { id("aether.java-library") }
+plugins {
+    id("aether.java-library")
+    id("aether.publishing")
+}

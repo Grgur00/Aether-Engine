@@ -115,7 +115,7 @@
           <div class="docs-table-wrap"><table><thead><tr><th>Requirement</th><th>Current contract</th></tr></thead><tbody>
             <tr><td>Java</td><td>JDK 21+ with preview features enabled by the project build</td></tr>
             <tr><td>Build</td><td>Gradle wrapper checked into the repository</td></tr>
-            <tr><td>Distribution</td><td>Source integration; artifacts are not published to Maven Central</td></tr>
+            <tr><td>Distribution</td><td>Source integration today; Maven Central release pipeline prepared under <code>io.github.grgur00</code></td></tr>
             <tr><td>Persistent ownership</td><td>One process-exclusive writer per database directory</td></tr>
           </tbody></table></div>
         </article>
@@ -169,7 +169,20 @@ git add aether-schemas</code></pre></div>
 
         <article id="project-setup" class="docs-section" data-doc-title="Project setup Gradle dependencies modules annotation processor">
           <header><span class="docs-index">03</span><div><p>Getting started</p><h2>Project setup</h2></div></header>
-          <p>Until artifacts are published, add your application as a subproject of an Aether source checkout. This keeps all internal module versions aligned.</p>
+          <p>The prepared Maven Central release includes a Gradle plugin that aligns the runtime and processor, enables Java 21 preview support, and installs the schema lifecycle tasks. Until <code>0.1.0</code> appears on Central, use the source-checkout setup below.</p>
+          <h3>Maven Central coordinates</h3>
+          <div class="code-panel"><div class="code-toolbar"><span>settings.gradle.kts</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">pluginManagement</span> {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}</code></pre></div>
+          <div class="code-panel"><div class="code-toolbar"><span>build.gradle.kts</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">plugins</span> {
+    application
+    id(<span class="tok-str">"io.github.grgur00.aether"</span>) version <span class="tok-str">"0.1.0"</span>
+}</code></pre></div>
+          <p>The plugin adds <code>aether-embedded-typed</code>, <code>aether-codec</code>, and the matching annotation processor automatically. Advanced consumers can instead import <code>io.github.grgur00:aether-bom:0.1.0</code> and select modules manually.</p>
+          <h3>Source-checkout setup</h3>
           <h3>settings.gradle.kts</h3>
           <div class="code-panel"><div class="code-toolbar"><span>settings.gradle.kts</span><button class="copy-button" type="button">Copy</button></div><pre><code>include(<span class="tok-str">
     ":your-app",

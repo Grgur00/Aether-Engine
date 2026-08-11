@@ -1,7 +1,11 @@
-plugins { id("aether.java-library") }
+plugins {
+    id("aether.java-library")
+    id("aether.publishing")
+}
 
 dependencies {
     api(project(":modules:aether-api"))
+    api(project(":modules:aether-codec-annotations"))
     implementation(project(":modules:aether-codec"))
     implementation(project(":modules:aether-engine"))
     // Keep test-domain annotations visible to IDE Java language servers as well as javac.

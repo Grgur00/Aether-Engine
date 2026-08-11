@@ -57,6 +57,8 @@ include(
     ":modules:aether-codec-annotations",
     ":modules:aether-codec-processor",
     ":modules:aether-embedded-typed",
+    ":modules:aether-bom",
+    ":modules:aether-gradle-plugin",
     ":examples:aether-sample-app",
     ":examples:aether-persistent-notes",
 )
