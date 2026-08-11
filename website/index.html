@@ -195,12 +195,13 @@ cd Aether-Engine
                 <header><span>03</span><div><h3>Define a durable record</h3><p>The processor generates its canonical codec and schema descriptor at compile time.</p></div></header>
                 <div class="code-panel">
                   <div class="code-toolbar"><span>Todo.java</span><button class="copy-button" type="button">Copy</button></div>
-                  <pre><code><span class="tok-key">import</span> io.aetherdb.codec.annotation.AetherRecord;
+                  <pre><code><span class="tok-key">import</span> io.aetherdb.codec.annotation.AetherMaxLength;
+<span class="tok-key">import</span> io.aetherdb.codec.annotation.AetherRecord;
 
 <span class="tok-annotation">@AetherRecord</span>(version = <span class="tok-num">1</span>)
 <span class="tok-key">public record</span> Todo(
-        String id,
-        String title,
+        <span class="tok-annotation">@AetherMaxLength</span>(<span class="tok-num">64</span>) String id,
+        <span class="tok-annotation">@AetherMaxLength</span>(<span class="tok-num">512</span>) String title,
         <span class="tok-key">boolean</span> completed) {}</code></pre>
                 </div>
               </article>

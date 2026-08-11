@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
-  "schemaId": "b160834c-3a61-4811-830e-40d694abbcd6",
-  "javaType": "io.aetherdb.examples.social.FollowRelationship",
+  "schemaId": "cf6edd4f-1fef-386d-a993-0c84960775c1",
+  "javaType": "io.aetherdb.examples.notes.Note",
   "currentVersion": 1,
   "unknownFieldPolicy": "SKIP",
   "reservedFieldIds": [],
@@ -13,22 +13,22 @@
       "fields": [
         {
           "id": 16,
-          "javaName": "followerId",
-          "wireType": "STRING_UTF8",
-          "type": "java.lang.String",
+          "javaName": "id",
+          "wireType": "UUID128",
+          "type": "java.util.UUID",
           "requiredness": "REQUIRED",
-          "maximumEncodedBytes": 64
+          "maximumEncodedBytes": 16
         },
         {
           "id": 17,
-          "javaName": "followedId",
+          "javaName": "text",
           "wireType": "STRING_UTF8",
           "type": "java.lang.String",
           "requiredness": "REQUIRED",
-          "maximumEncodedBytes": 64
+          "maximumEncodedBytes": 4096
         }
       ],
-      "descriptorSha256": "d7dc4357d19abac220d86f16a59ca482792a1a5eda8510134a098e443f3fec94",
+      "descriptorSha256": "15853258d23882e0ce35e2cc6d54edfdb5726db5a02ec3f9af36c321f5fddcf4",
       "compatibilityFromPrevious": "INITIAL"
     }
   ]

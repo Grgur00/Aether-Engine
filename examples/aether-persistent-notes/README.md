@@ -2,6 +2,20 @@
 
 A small Swing application that demonstrates Aether’s persistent typed embedded API.
 
+Its repository uses the same named collection API recommended for applications:
+
+```java
+var notes = database.defineCollection(
+        "persistent-notes",
+        UUID.class,
+        Note.class);
+```
+
+Aether derives the durable collection identity from the name. The generated
+`Note` codec gets its durable schema identity from the committed
+`aether-schemas` lock, so application code does not contain UUID literals or a
+hand-built `CollectionDefinition`.
+
 Run it from the repository root:
 
 ```bash

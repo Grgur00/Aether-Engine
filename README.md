@@ -125,29 +125,23 @@ not presented as cold-disk reads.
 
 ## Typed API quick start
 
-Define a typed collection with stable collection and schema identities:
+Define a generated record and open its collection by name and Java type:
 
 ```java
-import io.aetherdb.api.typed.CollectionDefinition;
-import io.aetherdb.api.typed.CollectionId;
-import io.aetherdb.codec.BuiltInKeyCodecs;
-import io.aetherdb.codec.BuiltInValueCodecs;
+import io.aetherdb.codec.annotation.AetherMaxLength;
+import io.aetherdb.codec.annotation.AetherRecord;
 import io.aetherdb.embedded.typed.AetherEmbedded;
-import java.util.UUID;
 
-var greetings = CollectionDefinition.of(
-        CollectionId.of("c64ef96c-4ef4-40ae-aef8-f30c555665c2"),
-        "greetings",
-        BuiltInKeyCodecs.utf8String(),
-        BuiltInValueCodecs.utf8String(
-                UUID.fromString("4a191d19-71fe-43e8-b941-4ce11b44961e")));
+@AetherRecord(version = 1)
+record Greeting(@AetherMaxLength(256) String message) {}
 
 try (var database = AetherEmbedded.openInMemory()) {
-    var collection = database.collection(greetings);
+    var greetings = database.defineCollection(
+            "greetings", String.class, Greeting.class);
 
-    collection.put("en", "Hello, Aether!");
-    String message = collection.get("en").requireValue();
-    System.out.println(message);
+    greetings.put("en", new Greeting("Hello, Aether!"));
+    Greeting greeting = greetings.get("en").requireValue();
+    System.out.println(greeting.message());
 }
 ```
 
@@ -159,11 +153,15 @@ import java.nio.file.Path;
 Path directory = Path.of("./data/aether");
 
 try (var database = AetherEmbedded.open(directory)) {
-    database.collection(greetings).put("en", "Persistent hello");
+    var greetings = database.defineCollection(
+            "greetings", String.class, Greeting.class);
+    greetings.put("en", new Greeting("Persistent hello"));
 }
 
 try (var database = AetherEmbedded.open(directory)) {
-    System.out.println(database.collection(greetings).get("en").requireValue());
+    var greetings = database.defineCollection(
+            "greetings", String.class, Greeting.class);
+    System.out.println(greetings.get("en").requireValue().message());
 }
 ```
 

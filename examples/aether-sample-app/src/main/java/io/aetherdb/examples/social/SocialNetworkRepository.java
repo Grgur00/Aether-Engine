@@ -1,6 +1,5 @@
 package io.aetherdb.examples.social;
 
-import io.aetherdb.api.typed.CollectionId;
 import io.aetherdb.api.typed.TypedAetherCollection;
 import io.aetherdb.api.typed.TypedAetherDatabase;
 import io.aetherdb.api.typed.TypedKeyValue;
@@ -16,13 +15,6 @@ import java.util.Set;
 
 /** CRUD repository spanning profiles, posts, and directed follow relationships. */
 public final class SocialNetworkRepository {
-    public static final CollectionId PROFILE_COLLECTION =
-            CollectionId.of("7a39f7c1-d995-4b08-a866-4526e175e94f");
-    public static final CollectionId POST_COLLECTION =
-            CollectionId.of("5cc5f1bb-370f-4120-889a-9fc70ad8d787");
-    public static final CollectionId FOLLOW_COLLECTION =
-            CollectionId.of("6b959abb-3c7c-458d-8465-e04fbf469249");
-
     private final TypedAetherDatabase database;
     private final TypedAetherCollection<String, UserProfile> profiles;
     private final TypedAetherCollection<String, SocialPost> posts;
@@ -30,18 +22,11 @@ public final class SocialNetworkRepository {
 
     public SocialNetworkRepository(TypedAetherDatabase database) {
         this.database = Objects.requireNonNull(database, "database");
-        profiles =
-                database.defineCollection(
-                        PROFILE_COLLECTION, "social-profiles", String.class, UserProfile.class);
-        posts =
-                database.defineCollection(
-                        POST_COLLECTION, "social-posts", String.class, SocialPost.class);
+        profiles = database.defineCollection("social-profiles", String.class, UserProfile.class);
+        posts = database.defineCollection("social-posts", String.class, SocialPost.class);
         follows =
                 database.defineCollection(
-                        FOLLOW_COLLECTION,
-                        "social-follows",
-                        String.class,
-                        FollowRelationship.class);
+                        "social-follows", String.class, FollowRelationship.class);
     }
 
     public TypedWriteResult createProfile(UserProfile profile) {

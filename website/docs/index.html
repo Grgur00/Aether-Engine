@@ -132,7 +132,7 @@
 
 <span class="tok-annotation">@AetherRecord</span>(version = <span class="tok-num">1</span>)
 <span class="tok-key">public record</span> Todo(
-        String id,
+        <span class="tok-annotation">@AetherMaxLength</span>(<span class="tok-num">64</span>) String id,
         <span class="tok-annotation">@AetherMaxLength</span>(<span class="tok-num">512</span>) String title,
         <span class="tok-key">boolean</span> completed) {}</code></pre></div>
 
@@ -213,22 +213,12 @@ git add aether-schemas</code></pre></div>
           <p>Derives a stable collection ID from the case-sensitive UTF-8 name, resolves a built-in ordered key codec, and loads the processor-generated record codec. It enables point reads, point writes, range scans, and snapshot reads. Supported key classes are currently <code>String</code>, <code>Long</code>/<code>long</code>, and <code>UUID</code>.</p>
           <div class="code-panel"><div class="code-toolbar"><span>Recommended named collection</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">var</span> todos = db.defineCollection(
         <span class="tok-str">"todos"</span>, String.class, Todo.class);</code></pre></div>
-          <h3>Explicit durable identity</h3>
+          <h3>Advanced: retain an existing identity</h3>
           <div class="signature"><code>defineCollection(CollectionId id, String name, Class&lt;K&gt; keyType, Class&lt;V&gt; valueType)</code></div>
-          <p>Use this overload to retain an existing UUID, decouple identity from display name, or deliberately rename a collection without moving its data. Existing explicit-ID databases are not automatically adopted by the name-derived overload.</p>
-          <h3>Explicit definition</h3>
+          <p>Normal applications do not need this overload. It exists to retain an ID already stored by an older application, decouple identity from a display name, or deliberately rename a collection without moving its data. Existing explicit-ID databases are not automatically adopted by the name-derived overload.</p>
+          <h3>Advanced: custom codecs</h3>
           <div class="signature"><code>collection(CollectionDefinition&lt;K,V&gt; definition)</code></div>
-          <p>Use this for scalar value codecs, custom codecs, or a restricted capability set.</p>
-          <div class="code-panel"><div class="code-toolbar"><span>Explicit definition</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">static final</span> CollectionDefinition&lt;UUID, String&gt; NOTES =
-        <span class="tok-key">new</span> CollectionDefinition&lt;&gt;(
-                CollectionId.of(<span class="tok-str">"7629a9f3-81a7-4346-b68f-cc273e154560"</span>),
-                <span class="tok-str">"notes"</span>,
-                BuiltInKeyCodecs.uuid(),
-                BuiltInValueCodecs.utf8String(
-                        UUID.fromString(<span class="tok-str">"fdd89bea-06ec-4231-bff3-b26047a3b132"</span>)),
-                Set.of(POINT_READ, POINT_WRITE, RANGE_SCAN));
-
-<span class="tok-key">var</span> notes = db.collection(NOTES);</code></pre></div>
+          <p>This low-level API is only for custom codecs, scalar value codecs, restricted capability sets, and compatibility with existing storage formats. It requires deliberate persistent identities and is not part of new-project setup. Prefer a generated <code>@AetherRecord</code> and the named overload everywhere else.</p>
           <h3>Registration checks</h3>
           <p>Opening a definition persists collection metadata. Reusing an ID with a different key codec, schema family, or incompatible fingerprint fails with <code>COLLECTION_SCHEMA_CONFLICT</code>. A newer compatible schema advances the minimum writer version; an older writer is then rejected.</p>
           <h3>Name-derived identity contract</h3>

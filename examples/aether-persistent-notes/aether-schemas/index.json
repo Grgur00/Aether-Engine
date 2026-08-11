@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1,
+  "schemas": [
+    {
+      "javaType": "io.aetherdb.examples.notes.Note",
+      "schemaId": "cf6edd4f-1fef-386d-a993-0c84960775c1",
+      "currentVersion": 1,
+      "lockFile": "cf6edd4f-1fef-386d-a993-0c84960775c1.schema.json"
+    }
+  ]
+}
