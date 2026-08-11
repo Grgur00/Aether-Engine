@@ -4,4 +4,8 @@
     <loc>https://grgur00.github.io/Aether-Engine/</loc>
     <changefreq>weekly</changefreq>
   </url>
+  <url>
+    <loc>https://grgur00.github.io/Aether-Engine/docs/</loc>
+    <changefreq>weekly</changefreq>
+  </url>
 </urlset>

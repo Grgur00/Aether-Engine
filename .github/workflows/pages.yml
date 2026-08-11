@@ -5,6 +5,13 @@ on:
     branches: [main]
     paths:
       - "website/**"
+      - "scripts/check-website-docs.py"
+      - "modules/aether-api/src/main/java/**"
+      - "modules/aether-codec/src/main/java/io/aetherdb/codec/**"
+      - "modules/aether-codec-annotations/src/main/java/**"
+      - "modules/aether-embedded-typed/src/main/java/io/aetherdb/embedded/typed/AetherEmbedded.java"
+      - "modules/aether-engine/src/main/java/io/aetherdb/engine/**"
+      - "gradle.properties"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -26,6 +33,9 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Verify developer documentation
+        run: python3 scripts/check-website-docs.py
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

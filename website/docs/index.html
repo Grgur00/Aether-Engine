@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f2f0e9">
+    <meta name="description" content="Developer documentation for Aether Engine's typed and byte-oriented Java APIs.">
+    <title>Developer documentation — Aether Engine</title>
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../assets/site.css">
+    <link rel="stylesheet" href="../assets/docs.css">
+    <script src="../assets/site.js" defer></script>
+    <script src="../assets/docs.js" defer></script>
+  </head>
+  <body class="docs-body">
+    <a class="skip-link" href="#docs-content">Skip to documentation</a>
+
+    <header class="site-header docs-header" data-header>
+      <div class="header-inner">
+        <a class="brand" href="../" aria-label="Aether Engine home">
+          <svg class="brand-mark" viewBox="0 0 38 38" aria-hidden="true"><path d="M4 29 16.7 5h4.6L34 29h-6.7l-2.2-4.6H12.9L10.7 29H4Zm11.5-10h7L19 11.6 15.5 19Z"/></svg>
+          <span>Aether Engine</span>
+        </a>
+        <span class="docs-label">Developer docs <b>0.1.0-SNAPSHOT</b></span>
+        <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse API</button>
+        <nav class="docs-top-nav" aria-label="Documentation links">
+          <a href="#quickstart">Quickstart</a>
+          <a href="#api-reference">API reference</a>
+          <a href="https://github.com/Grgur00/Aether-Engine">GitHub <span aria-hidden="true">↗</span></a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="docs-layout">
+      <aside id="docs-sidebar" class="docs-sidebar" aria-label="Documentation navigation">
+        <div class="docs-search">
+          <label for="docs-search">Filter documentation</label>
+          <input id="docs-search" type="search" placeholder="Search topics" autocomplete="off">
+          <kbd>/</kbd>
+        </div>
+        <nav>
+          <div class="docs-nav-group">
+            <strong>Start</strong>
+            <a href="#overview">Overview</a>
+            <a href="#requirements">Requirements</a>
+            <a href="#quickstart">Quickstart</a>
+            <a href="#project-setup">Project setup</a>
+          </div>
+          <div class="docs-nav-group">
+            <strong>Typed API</strong>
+            <a href="#typed-model">Mental model</a>
+            <a href="#collections">Collections</a>
+            <a href="#point-operations">Point operations</a>
+            <a href="#typed-batches">Atomic batches</a>
+            <a href="#typed-snapshots">Snapshots</a>
+            <a href="#typed-scans">Ordered scans</a>
+            <a href="#write-outcomes">Write outcomes</a>
+          </div>
+          <div class="docs-nav-group">
+            <strong>Schemas & codecs</strong>
+            <a href="#generated-codecs">Generated codecs</a>
+            <a href="#schema-annotations">Annotations</a>
+            <a href="#schema-workflow">Schema workflow</a>
+            <a href="#schema-evolution">Evolution rules</a>
+            <a href="#built-in-codecs">Built-in codecs</a>
+          </div>
+          <div class="docs-nav-group">
+            <strong>Core byte API</strong>
+            <a href="#byte-api">AetherDatabase</a>
+            <a href="#write-batch">WriteBatch</a>
+            <a href="#raw-snapshots">Raw snapshots</a>
+            <a href="#cursors">Cursors</a>
+            <a href="#write-options">Write options</a>
+          </div>
+          <div class="docs-nav-group">
+            <strong>Operations</strong>
+            <a href="#durability">Durability</a>
+            <a href="#lifecycle">Lifecycle & locking</a>
+            <a href="#metrics">Metrics</a>
+            <a href="#limits">Limits</a>
+            <a href="#exceptions">Exceptions</a>
+            <a href="#storage-model">Storage model</a>
+            <a href="#production-status">Production status</a>
+          </div>
+          <p class="docs-nav-empty" hidden>No matching topics</p>
+        </nav>
+        <div class="docs-sidebar-footer">
+          <a href="https://github.com/Grgur00/Aether-Engine/issues">Report a docs issue ↗</a>
+          <span>Authoritative source: <code>main</code></span>
+        </div>
+      </aside>
+
+      <main id="docs-content" class="docs-content">
+        <article id="overview" class="docs-section docs-intro" data-doc-title="Overview">
+          <div class="docs-kicker">Aether Engine / Developer documentation</div>
+          <h1>Build with Aether.</h1>
+          <p class="docs-lede">
+            Aether is an embedded Java database. It lives inside your process, stores byte keys and
+            values through an LSM-oriented engine, and adds a type-safe collection layer with
+            deterministic generated codecs.
+          </p>
+          <div class="docs-notice warning">
+            <strong>Pre-release contract</strong>
+            <p>Aether is currently <code>0.1.0-SNAPSHOT</code>. Use it for evaluation and development, not durable production data. APIs and persistent formats may change before 1.0.</p>
+          </div>
+          <div class="docs-paths">
+            <a href="#quickstart"><span>Recommended</span><strong>Typed embedded API</strong><p>Java records, collections, generated codecs, atomic batches, snapshots, and ordered scans.</p><b>Start here →</b></a>
+            <a href="#byte-api"><span>Foundation</span><strong>Byte-oriented API</strong><p>Direct byte keys and values, explicit write options, raw cursors, and storage-level semantics.</p><b>Explore the core →</b></a>
+          </div>
+        </article>
+
+        <article id="requirements" class="docs-section" data-doc-title="Requirements installation Java 21 Gradle">
+          <header><span class="docs-index">01</span><div><p>Getting started</p><h2>Requirements</h2></div></header>
+          <p>Aether requires JDK 21 or newer and uses the checked-in Gradle wrapper. You do not need a global Gradle installation.</p>
+          <div class="docs-table-wrap"><table><thead><tr><th>Requirement</th><th>Current contract</th></tr></thead><tbody>
+            <tr><td>Java</td><td>JDK 21+ with preview features enabled by the project build</td></tr>
+            <tr><td>Build</td><td>Gradle wrapper checked into the repository</td></tr>
+            <tr><td>Distribution</td><td>Source integration; artifacts are not published to Maven Central</td></tr>
+            <tr><td>Persistent ownership</td><td>One process-exclusive writer per database directory</td></tr>
+          </tbody></table></div>
+        </article>
+
+        <article id="quickstart" class="docs-section" data-doc-title="Quickstart first database Todo open put get">
+          <header><span class="docs-index">02</span><div><p>Getting started</p><h2>Your first persistent collection</h2></div></header>
+          <p>This example uses a generated record codec, a stable collection identity, and the persistent typed entry point.</p>
+
+          <h3>1. Define a record schema</h3>
+          <div class="code-panel"><div class="code-toolbar"><span>Todo.java</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">package</span> example;
+
+<span class="tok-key">import</span> io.aetherdb.codec.annotation.AetherRecord;
+<span class="tok-key">import</span> io.aetherdb.codec.annotation.AetherMaxLength;
+
+<span class="tok-annotation">@AetherRecord</span>(version = <span class="tok-num">1</span>)
+<span class="tok-key">public record</span> Todo(
+        String id,
+        <span class="tok-annotation">@AetherMaxLength</span>(<span class="tok-num">512</span>) String title,
+        <span class="tok-key">boolean</span> completed) {}</code></pre></div>
+
+          <h3>2. Open the database and define the collection</h3>
+          <div class="code-panel"><div class="code-toolbar"><span>Main.java</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">import</span> io.aetherdb.api.typed.CollectionId;
+<span class="tok-key">import</span> io.aetherdb.api.typed.TypedWriteResult;
+<span class="tok-key">import</span> io.aetherdb.embedded.typed.AetherEmbedded;
+<span class="tok-key">import</span> java.nio.file.Path;
+
+<span class="tok-key">try</span> (<span class="tok-key">var</span> db = AetherEmbedded.open(Path.of(<span class="tok-str">"./data/todos"</span>))) {
+    <span class="tok-key">var</span> todos = db.defineCollection(
+            CollectionId.of(<span class="tok-str">"a53f36dd-f4eb-4aac-9fab-8e62e92185d6"</span>),
+            <span class="tok-str">"todos"</span>,
+            String.class,
+            Todo.class);
+
+    TypedWriteResult result = todos.put(
+            <span class="tok-str">"ship"</span>,
+            <span class="tok-key">new</span> Todo(<span class="tok-str">"ship"</span>, <span class="tok-str">"Ship reliably"</span>, <span class="tok-key">false</span>));
+
+    <span class="tok-key">if</span> (!(result <span class="tok-key">instanceof</span> TypedWriteResult.Applied applied)) {
+        <span class="tok-key">throw new</span> IllegalStateException(<span class="tok-str">"write failed: "</span> + result);
+    }
+
+    Todo stored = todos.get(<span class="tok-str">"ship"</span>).requireValue();
+    System.out.println(stored.title());
+}</code></pre></div>
+          <div class="docs-notice note"><strong>Why is the collection UUID explicit?</strong><p>A record schema ID identifies the value format. A collection ID identifies a logical keyspace. Two collections can intentionally store the same record type, so the current API keeps those identities separate. Generate the UUID once and keep it stable in source.</p></div>
+
+          <h3>3. Accept and commit the schema lock</h3>
+          <div class="code-panel"><div class="code-toolbar"><span>Terminal</span><button class="copy-button" type="button">Copy</button></div><pre><code>./gradlew aetherSchemaInit
+./gradlew aetherSchemaAccept
+git add aether-schemas</code></pre></div>
+          <p>Closing the try-with-resources scope flushes and releases the directory lock. Opening the same path later recovers and reads the same collection.</p>
+        </article>
+
+        <article id="project-setup" class="docs-section" data-doc-title="Project setup Gradle dependencies modules annotation processor">
+          <header><span class="docs-index">03</span><div><p>Getting started</p><h2>Project setup</h2></div></header>
+          <p>Until artifacts are published, add your application as a subproject of an Aether source checkout. This keeps all internal module versions aligned.</p>
+          <h3>settings.gradle.kts</h3>
+          <div class="code-panel"><div class="code-toolbar"><span>settings.gradle.kts</span><button class="copy-button" type="button">Copy</button></div><pre><code>include(<span class="tok-str">
+    ":your-app",
+    ":modules:aether-api",
+    ":modules:aether-codec",
+    ":modules:aether-codec-annotations",
+    ":modules:aether-codec-processor",
+    ":modules:aether-embedded-typed",
+</span>)</code></pre></div>
+          <h3>Application dependencies</h3>
+          <div class="code-panel"><div class="code-toolbar"><span>your-app/build.gradle.kts</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">plugins</span> { id(<span class="tok-str">"aether.java-application"</span>) }
+
+<span class="tok-key">dependencies</span> {
+    implementation(project(<span class="tok-str">":modules:aether-api"</span>))
+    implementation(project(<span class="tok-str">":modules:aether-codec"</span>))
+    implementation(project(<span class="tok-str">":modules:aether-embedded-typed"</span>))
+    annotationProcessor(project(<span class="tok-str">":modules:aether-codec-processor"</span>))
+}</code></pre></div>
+          <p>The processor module brings the annotation types onto its processor path. Add <code>aether-codec-annotations</code> as an implementation dependency only if your build setup does not expose them through that path.</p>
+        </article>
+
+        <article id="typed-model" class="docs-section" data-doc-title="Typed API mental model database definition collection codec envelope">
+          <header><span class="docs-index">04</span><div><p>Typed API</p><h2>Mental model</h2></div></header>
+          <div class="concept-flow" aria-label="Typed API data flow">
+            <div><b>Java value</b><span><code>Todo</code></span></div><i>→</i><div><b>ValueCodec</b><span>schema + version</span></div><i>→</i><div><b>Collection envelope</b><span>collection UUID</span></div><i>→</i><div><b>Byte engine</b><span>WAL + LSM</span></div>
+          </div>
+          <dl class="api-definitions">
+            <div><dt><code>TypedAetherDatabase</code></dt><dd>Owns the underlying byte database, registers collection definitions, creates atomic batches, and creates snapshots.</dd></div>
+            <div><dt><code>CollectionDefinition&lt;K,V&gt;</code></dt><dd>The complete durable contract for a collection: identity, human name, key codec, value codec, and allowed capabilities.</dd></div>
+            <div><dt><code>TypedAetherCollection&lt;K,V&gt;</code></dt><dd>A type-safe handle for point reads, writes, deletes, and—when supported—ordered scans.</dd></div>
+            <div><dt><code>KeyCodec</code> / <code>ValueCodec</code></dt><dd>Stable binary mappings. Keys also determine ordering; values carry a schema UUID and version.</dd></div>
+          </dl>
+          <p>Typed keys are physically prefixed with collection identity and key-codec version. Typed values carry schema identity/version before the codec payload. This prevents collections and incompatible encodings from silently aliasing one another.</p>
+        </article>
+
+        <article id="collections" class="docs-section" data-doc-title="CollectionDefinition CollectionId capabilities defineCollection collection">
+          <header><span class="docs-index">05</span><div><p>Typed API</p><h2>Collections and definitions</h2></div></header>
+          <p>There are two supported ways to open a collection.</p>
+          <h3>Generated record convenience</h3>
+          <div class="signature"><code>defineCollection(CollectionId id, String name, Class&lt;K&gt; keyType, Class&lt;V&gt; valueType)</code></div>
+          <p>Resolves a built-in ordered key codec and a processor-generated record codec. It enables point reads, point writes, range scans, and snapshot reads. Supported key classes are currently <code>String</code>, <code>Long</code>/<code>long</code>, and <code>UUID</code>.</p>
+          <h3>Explicit definition</h3>
+          <div class="signature"><code>collection(CollectionDefinition&lt;K,V&gt; definition)</code></div>
+          <p>Use this for scalar value codecs, custom codecs, or a restricted capability set.</p>
+          <div class="code-panel"><div class="code-toolbar"><span>Explicit definition</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">static final</span> CollectionDefinition&lt;UUID, String&gt; NOTES =
+        <span class="tok-key">new</span> CollectionDefinition&lt;&gt;(
+                CollectionId.of(<span class="tok-str">"7629a9f3-81a7-4346-b68f-cc273e154560"</span>),
+                <span class="tok-str">"notes"</span>,
+                BuiltInKeyCodecs.uuid(),
+                BuiltInValueCodecs.utf8String(
+                        UUID.fromString(<span class="tok-str">"fdd89bea-06ec-4231-bff3-b26047a3b132"</span>)),
+                Set.of(POINT_READ, POINT_WRITE, RANGE_SCAN));
+
+<span class="tok-key">var</span> notes = db.collection(NOTES);</code></pre></div>
+          <h3>Registration checks</h3>
+          <p>Opening a definition persists collection metadata. Reusing an ID with a different key codec, schema family, or incompatible fingerprint fails with <code>COLLECTION_SCHEMA_CONFLICT</code>. A newer compatible schema advances the minimum writer version; an older writer is then rejected.</p>
+          <p>The capability set uses the <code>CollectionCapability</code> enum:</p>
+          <div class="docs-table-wrap"><table><thead><tr><th>Capability</th><th>What it permits</th></tr></thead><tbody>
+            <tr><td><code>POINT_READ</code></td><td>Read one complete logical key</td></tr>
+            <tr><td><code>POINT_WRITE</code></td><td>Insert, replace, or delete one key</td></tr>
+            <tr><td><code>RANGE_SCAN</code></td><td>Scan in codec-defined order; requires <code>OrderedKeyCodec</code></td></tr>
+            <tr><td><code>SNAPSHOT_READ</code></td><td>Read the collection through a stable snapshot</td></tr>
+          </tbody></table></div>
+          <div class="docs-notice note"><strong>Current enforcement</strong><p>The embedded adapter actively checks <code>RANGE_SCAN</code>. In <code>0.1.0-SNAPSHOT</code>, the point-read, point-write, and snapshot flags are descriptive metadata and are not access-control boundaries. Do not use capabilities as a security mechanism.</p></div>
+        </article>
+
+        <article id="point-operations" class="docs-section" data-doc-title="get put delete ReadResult requireValue found not found">
+          <header><span class="docs-index">06</span><div><p>Typed API</p><h2>Point reads and writes</h2></div></header>
+          <h3><code>get(K key)</code></h3>
+          <p>Returns a <code>ReadResult&lt;V&gt;</code>, never <code>null</code>. Use pattern matching when absence is normal, <code>value()</code> for an <code>Optional</code>, or <code>requireValue()</code> when absence is exceptional.</p>
+          <div class="code-panel"><div class="code-toolbar"><span>Read patterns</span><button class="copy-button" type="button">Copy</button></div><pre><code>ReadResult&lt;Todo&gt; result = todos.get(<span class="tok-str">"ship"</span>);
+
+<span class="tok-key">if</span> (result <span class="tok-key">instanceof</span> ReadResult.Found&lt;Todo&gt; found) {
+    System.out.println(found.found().title());
+}
+
+Optional&lt;Todo&gt; optional = result.value();
+Todo required = result.requireValue(); <span class="tok-comment">// throws if absent</span></code></pre></div>
+          <h3><code>put(K key, V value)</code></h3><p>Inserts or replaces one value and returns a <code>TypedWriteResult</code>. Inputs must be non-null and encodable within declared bounds.</p>
+          <h3><code>delete(K key)</code></h3><p>Writes a tombstone for the key. Deleting an absent key is still a valid write operation.</p>
+        </article>
+
+        <article id="typed-batches" class="docs-section" data-doc-title="TypedWriteBatch atomic batch cross collection put delete">
+          <header><span class="docs-index">07</span><div><p>Typed API</p><h2>Atomic cross-collection batches</h2></div></header>
+          <p>Create batches through the database that will submit them. A batch may target several collections owned by that same writable database. All operations receive one contiguous sequence range and commit atomically.</p>
+          <div class="code-panel"><div class="code-toolbar"><span>Atomic relationship update</span><button class="copy-button" type="button">Copy</button></div><pre><code>TypedWriteBatch batch = db.batch()
+        .put(profiles, user.id(), user)
+        .put(handles, user.handle(), user.id())
+        .delete(pendingInvites, user.email());
+
+TypedWriteResult result = db.write(batch);
+<span class="tok-key">if</span> (result <span class="tok-key">instanceof</span> TypedWriteResult.Applied applied) {
+    System.out.println(<span class="tok-str">"Committed "</span> + applied.operationCount() + <span class="tok-str">" changes"</span>);
+}</code></pre></div>
+          <ul class="docs-bullets"><li>A batch is one-shot; submitting it twice throws.</li><li>Collections from another database or snapshot-bound collections are rejected.</li><li>An empty typed batch returns <code>Rejected(commandId, "EMPTY_BATCH", false)</code>.</li><li>The underlying limits are 10,000 operations and 32 MiB encoded size.</li></ul>
+        </article>
+
+        <article id="typed-snapshots" class="docs-section" data-doc-title="TypedAetherSnapshot stable read MVCC read only close">
+          <header><span class="docs-index">08</span><div><p>Typed API</p><h2>Stable snapshots</h2></div></header>
+          <p>A snapshot pins the database’s current sequence. Reads through snapshot-bound collections continue to observe that sequence even after later writes commit.</p>
+          <div class="code-panel"><div class="code-toolbar"><span>Consistent read view</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">try</span> (TypedAetherSnapshot snapshot = db.snapshot()) {
+    <span class="tok-key">var</span> stableTodos = snapshot.collection(todos.definition());
+
+    Todo before = stableTodos.get(<span class="tok-str">"ship"</span>).requireValue();
+    todos.put(<span class="tok-str">"ship"</span>, completedVersion);
+    Todo stillBefore = stableTodos.get(<span class="tok-str">"ship"</span>).requireValue();
+}</code></pre></div>
+          <p>Snapshot collections are read-only: <code>put</code>, <code>delete</code>, and use in a writable batch fail. Always close snapshots promptly; they pin historical visibility and the engine allows at most 1,024 active snapshots.</p>
+        </article>
+
+        <article id="typed-scans" class="docs-section" data-doc-title="scanAll ordered list range OrderedKeyCodec">
+          <header><span class="docs-index">09</span><div><p>Typed API</p><h2>Ordered scans</h2></div></header>
+          <div class="signature"><code>List&lt;TypedKeyValue&lt;K,V&gt;&gt; scanAll()</code></div>
+          <p><code>scanAll()</code> materializes every visible entry in key order and returns an immutable list. It requires the <code>RANGE_SCAN</code> capability and an <code>OrderedKeyCodec</code>.</p>
+          <div class="docs-notice note"><strong>Memory behavior</strong><p>The typed method materializes its complete result. For large or bounded ranges, use the byte API’s closeable cursor until a typed streaming cursor is added.</p></div>
+          <p>String keys use lexicographic UTF-8 byte order, signed longs use an order-preserving sign-bit transform, and UUIDs use unsigned most-significant then least-significant component order.</p>
+        </article>
+
+        <article id="write-outcomes" class="docs-section" data-doc-title="TypedWriteResult Applied Rejected Indeterminate commandId retry">
+          <header><span class="docs-index">10</span><div><p>Typed API</p><h2>Write outcomes</h2></div></header>
+          <p>Do not reduce a typed write result to a boolean. Its three variants describe whether retrying is safe.</p>
+          <div class="result-grid">
+            <div><span>APPLIED</span><h3><code>Applied</code></h3><p>The mutation committed. Includes command ID, operation count, and allocated sequence range.</p></div>
+            <div><span>REJECTED</span><h3><code>Rejected</code></h3><p>No uncertain commit occurred. Inspect the stable reason and <code>retryable</code> flag.</p></div>
+            <div><span>UNCERTAIN</span><h3><code>Indeterminate</code></h3><p>The caller cannot know the final commit status. Follow <code>retryInstructions</code>; never blindly duplicate the command.</p></div>
+          </div>
+          <div class="code-panel"><div class="code-toolbar"><span>Exhaustive handling</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">switch</span> (result) {
+    <span class="tok-key">case</span> TypedWriteResult.Applied applied -&gt;
+            acknowledge(applied.commandId());
+    <span class="tok-key">case</span> TypedWriteResult.Rejected rejected -&gt;
+            handleRejection(rejected.reason(), rejected.retryable());
+    <span class="tok-key">case</span> TypedWriteResult.Indeterminate uncertain -&gt;
+            reconcile(uncertain.commandId(), uncertain.retryInstructions());
+}</code></pre></div>
+          <div class="docs-notice note"><strong>Current adapter behavior</strong><p>The embedded typed adapter currently returns <code>Applied</code> for successful writes and <code>Rejected("EMPTY_BATCH")</code> for an empty batch. Persistent write failures still propagate as exceptions rather than being translated to <code>Indeterminate</code>. The variant is part of the public result model, but complete exception-to-outcome mapping is not implemented yet.</p></div>
+        </article>
+
+        <article id="generated-codecs" class="docs-section" data-doc-title="Generated codecs annotation processor AER1 deterministic ServiceLoader">
+          <header><span class="docs-index">11</span><div><p>Schemas & codecs</p><h2>Generated record codecs</h2></div></header>
+          <p>The annotation processor turns an <code>@AetherRecord</code> into a deterministic AER1 value codec, canonical descriptor, SHA-256 fingerprint, and runtime provider registration. Runtime discovery uses <code>ServiceLoader</code>; descriptor fingerprints are verified while the registry loads.</p>
+          <p><code>GeneratedCodecs.forRecord(Todo.class)</code> is called by <code>defineCollection</code>. It fails with <code>CODEC_NOT_AVAILABLE</code> if the record is unannotated, the processor was not configured, or generated provider resources are absent.</p>
+          <div class="docs-table-wrap"><table><thead><tr><th>Generated artifact</th><th>Purpose</th></tr></thead><tbody>
+            <tr><td>Value codec</td><td>Encode current writer version and decode supported stored versions</td></tr>
+            <tr><td>Canonical descriptor</td><td>Stable machine-readable schema structure</td></tr>
+            <tr><td>SHA-256 fingerprint</td><td>Detect descriptor/code divergence</td></tr>
+            <tr><td>Provider registration</td><td>Resolve codecs from Java record classes at runtime</td></tr>
+            <tr><td>Schema proposal</td><td>Reviewable update written under <code>build/aether-schema/proposal</code></td></tr>
+          </tbody></table></div>
+        </article>
+
+        <article id="schema-annotations" class="docs-section" data-doc-title="AetherRecord AetherField AetherMaxLength AetherMaxEntries AetherEnum annotations">
+          <header><span class="docs-index">12</span><div><p>Schemas & codecs</p><h2>Schema annotations</h2></div></header>
+          <dl class="api-definitions annotations-list">
+            <div><dt><code>@AetherRecord(version)</code></dt><dd>Declares a durable record family and positive writer version. <code>schemaId</code> may be explicit; otherwise the schema tool assigns it through the committed lock.</dd></div>
+            <div><dt><code>@AetherField</code></dt><dd>Controls stable field identity, records the prior name for a rename, and declares optional or nullable semantics.</dd></div>
+            <div><dt><code>@AetherMaxLength</code></dt><dd>Bounds UTF-8 bytes or collection element count for a variable-length component.</dd></div>
+            <div><dt><code>@AetherMaxEntries</code></dt><dd>Bounds decoded elements or entries in a persistent container.</dd></div>
+            <div><dt><code>@AetherEnum</code></dt><dd>Marks an enum as persistent. Every constant needs an explicit positive <code>@AetherEnumValue</code>.</dd></div>
+          </dl>
+          <div class="code-panel"><div class="code-toolbar"><span>Structured record</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-annotation">@AetherEnum</span>
+<span class="tok-key">public enum</span> Status {
+    <span class="tok-annotation">@AetherEnumValue</span>(<span class="tok-num">1</span>) PENDING,
+    <span class="tok-annotation">@AetherEnumValue</span>(<span class="tok-num">2</span>) POSTED
+}
+
+<span class="tok-annotation">@AetherRecord</span>(version = <span class="tok-num">2</span>)
+<span class="tok-key">public record</span> LedgerEntry(
+        UUID accountId,
+        <span class="tok-key">long</span> amountMinor,
+        <span class="tok-annotation">@AetherMaxLength</span>(<span class="tok-num">3</span>) String currency,
+        <span class="tok-annotation">@AetherField</span>(previousName = <span class="tok-str">"state"</span>) Status status,
+        Instant bookedAt) {}</code></pre></div>
+        </article>
+
+        <article id="schema-workflow" class="docs-section" data-doc-title="schema init update accept check proposal lock commands">
+          <header><span class="docs-index">13</span><div><p>Schemas & codecs</p><h2>Schema lock workflow</h2></div></header>
+          <div class="workflow-steps">
+            <div><b>1</b><span><strong>Propose</strong><code>./gradlew aetherSchemaInit</code><small>First lock only</small></span></div>
+            <div><b>2</b><span><strong>Review</strong><code>build/aether-schema/proposal</code><small>No source mutation yet</small></span></div>
+            <div><b>3</b><span><strong>Accept</strong><code>./gradlew aetherSchemaAccept</code><small>Writes aether-schemas/</small></span></div>
+            <div><b>4</b><span><strong>Commit</strong><code>git add aether-schemas</code><small>Durable identity in VCS</small></span></div>
+          </div>
+          <p>For later intentional changes, increment the record version and run <code>aetherSchemaUpdate</code>, review the proposal, then run <code>aetherSchemaAccept</code>. Normal compilation and <code>aetherSchemaCheck</code> only verify; they do not silently rewrite committed locks.</p>
+          <div class="docs-notice warning"><strong>Never regenerate identities casually</strong><p>The lock contains schema UUIDs, stable field IDs, bounds, retired identities, and descriptor fingerprints. Deleting it can make existing data undecodable or misidentified.</p></div>
+        </article>
+
+        <article id="schema-evolution" class="docs-section" data-doc-title="schema evolution compatible rename optional nullable older writer">
+          <header><span class="docs-index">14</span><div><p>Schemas & codecs</p><h2>Evolution rules</h2></div></header>
+          <p>Aether compares stored collection metadata with the current generated descriptor when a collection opens. Compatible upgrades advance the collection’s minimum writer version.</p>
+          <div class="docs-table-wrap"><table><thead><tr><th>Change</th><th>Required action</th><th>Risk</th></tr></thead><tbody>
+            <tr><td>Add a field</td><td>Increment version; make omission from older payloads valid where appropriate</td><td>Old data has no value for the new field</td></tr>
+            <tr><td>Rename a field</td><td>Use <code>@AetherField(previousName="oldName")</code></td><td>A rename without history can look like remove + add</td></tr>
+            <tr><td>Remove a field</td><td>Retire its stable identity through the accepted proposal</td><td>Never reuse the field ID</td></tr>
+            <tr><td>Change bounds</td><td>Review compatibility and generated proposal</td><td>Narrower bounds may reject existing values</td></tr>
+            <tr><td>Change schema UUID</td><td>Treat as a distinct schema family</td><td>Existing collection metadata conflicts</td></tr>
+          </tbody></table></div>
+          <p>Once a newer writer registers a compatible upgrade, an older writer version is rejected for writes with <code>OLDER_WRITER_REJECTED</code>. This prevents old code from reintroducing a superseded format.</p>
+        </article>
+
+        <article id="built-in-codecs" class="docs-section" data-doc-title="BuiltInKeyCodecs BuiltInValueCodecs String Long UUID ordering">
+          <header><span class="docs-index">15</span><div><p>Schemas & codecs</p><h2>Built-in codecs</h2></div></header>
+          <div class="docs-table-wrap"><table><thead><tr><th>Factory</th><th>Logical type</th><th>Ordering / identity</th></tr></thead><tbody>
+            <tr><td><code>BuiltInKeyCodecs.utf8String()</code></td><td><code>String</code></td><td>Lexicographic UTF-8 byte order; max 65,517 encoded bytes</td></tr>
+            <tr><td><code>BuiltInKeyCodecs.signedLong()</code></td><td><code>Long</code></td><td>Natural signed order encoded through sign-bit transformation</td></tr>
+            <tr><td><code>BuiltInKeyCodecs.uuid()</code></td><td><code>UUID</code></td><td>Unsigned high component, then unsigned low component</td></tr>
+            <tr><td><code>BuiltInValueCodecs.utf8String(schemaId)</code></td><td><code>String</code></td><td>Application-selected schema UUID; version 1</td></tr>
+          </tbody></table></div>
+          <p>A custom key codec must supply a stable codec ID, positive encoding version, maximum size, and 32-byte fingerprint. Add <code>OrderedKeyCodec</code> only when encoded byte order agrees with its logical comparator. A value codec must preserve schema identity and decode every stored version it claims to support.</p>
+        </article>
+
+        <article id="byte-api" class="docs-section" data-doc-title="AetherDatabase byte API open in memory put get delete write scan">
+          <header><span class="docs-index">16</span><div><p>Core byte API</p><h2><code>AetherDatabase</code></h2></div></header>
+          <p>The core contract stores arbitrary byte-array keys and values. Implementations defensively copy inputs and outputs, so callers retain ownership of their arrays.</p>
+          <div class="code-panel"><div class="code-toolbar"><span>Byte-oriented database</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">import</span> io.aetherdb.engine.Aether;
+<span class="tok-key">import</span> java.nio.charset.StandardCharsets;
+<span class="tok-key">import</span> java.nio.file.Path;
+
+<span class="tok-key">try</span> (<span class="tok-key">var</span> db = Aether.open(Path.of(<span class="tok-str">"./data/raw"</span>))) {
+    <span class="tok-key">byte</span>[] key = <span class="tok-str">"user:42"</span>.getBytes(StandardCharsets.UTF_8);
+    db.put(key, <span class="tok-str">"Ada"</span>.getBytes(StandardCharsets.UTF_8));
+
+    LookupResult result = db.get(key);
+    <span class="tok-key">if</span> (result.isFound()) {
+        System.out.println(<span class="tok-key">new</span> String(result.value(), StandardCharsets.UTF_8));
+    }
+
+    db.delete(key);
+}</code></pre></div>
+          <p><code>AetherException</code> is the runtime base class for Aether contract failures. Its specialized public variants are:</p>
+          <dl class="api-definitions compact">
+            <div><dt><code>put(key, value)</code></dt><dd>Insert or replace one value using default write options.</dd></div>
+            <div><dt><code>delete(key)</code></dt><dd>Delete one key by writing a tombstone.</dd></div>
+            <div><dt><code>get(key[, snapshot])</code></dt><dd>Return <code>LookupResult.found</code> or the ordinary logical-absence result.</dd></div>
+            <div><dt><code>write(batch[, options])</code></dt><dd>Atomically apply an ordered one-shot batch.</dd></div>
+            <div><dt><code>scan(...)</code></dt><dd>Create a closeable cursor over a half-open byte-key range.</dd></div>
+            <div><dt><code>newSnapshot()</code></dt><dd>Capture the current visibility sequence.</dd></div>
+          </dl>
+        </article>
+
+        <article id="write-batch" class="docs-section" data-doc-title="WriteBatch limits lifecycle one shot state seal submitted">
+          <header><span class="docs-index">17</span><div><p>Core byte API</p><h2><code>WriteBatch</code></h2></div></header>
+          <p>A raw batch is ordered, bounded, defensively copied, and one-shot. Duplicate keys are permitted; their order within the atomic command is preserved.</p>
+          <div class="code-panel"><div class="code-toolbar"><span>Explicit batch</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">try</span> (WriteBatch batch = <span class="tok-key">new</span> WriteBatch()) {
+    batch.put(firstKey, firstValue)
+         .delete(oldKey)
+         .put(secondKey, secondValue);
+
+    WriteResult result = db.write(batch, WriteOptions.defaults());
+    System.out.printf(<span class="tok-str">"sequences %d..%d%n"</span>,
+            result.firstSequence(), result.lastSequence());
+}</code></pre></div>
+          <p>Application code normally interacts with <code>OPEN</code> and a terminal state. The engine uses <code>SEALED</code>, <code>SUBMITTED</code>, <code>SUCCEEDED</code>, <code>FAILED</code>, and <code>INDETERMINATE</code> to track whether a retry can be known safe.</p>
+          <div class="limit-row"><div><strong>10,000</strong><span>maximum operations</span></div><div><strong>32 MiB</strong><span>maximum encoded batch</span></div><div><strong>64 KiB</strong><span>maximum key</span></div><div><strong>16 MiB</strong><span>maximum value</span></div></div>
+        </article>
+
+        <article id="raw-snapshots" class="docs-section" data-doc-title="Snapshot raw sequence id foreign closed limit">
+          <header><span class="docs-index">18</span><div><p>Core byte API</p><h2>Raw snapshots</h2></div></header>
+          <p><code>newSnapshot()</code> returns an immutable database-owned visibility boundary with a local handle ID and highest visible sequence. Pass it back only to the database that created it.</p>
+          <ul class="docs-bullets"><li>A closed snapshot is invalid.</li><li>A snapshot from another database is rejected.</li><li>Closing the database invalidates its owned handles.</li><li>Close snapshots promptly to avoid pinning historical versions.</li></ul>
+        </article>
+
+        <article id="cursors" class="docs-section" data-doc-title="AetherCursor scan range half open scanAll close key value">
+          <header><span class="docs-index">19</span><div><p>Core byte API</p><h2>Cursors and ranges</h2></div></header>
+          <p><code>scan(startInclusive, endExclusive)</code> uses a half-open byte range. <code>scanAll()</code> spans all visible keys. Snapshot overloads preserve the snapshot’s sequence.</p>
+          <div class="code-panel"><div class="code-toolbar"><span>Range scan</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">try</span> (AetherCursor cursor = db.scan(prefix, prefixEnd)) {
+    <span class="tok-key">while</span> (cursor.next()) {
+        consume(cursor.key(), cursor.value());
+    }
+}</code></pre></div>
+          <p>A cursor starts before its first entry. Call <code>next()</code> before <code>key()</code> or <code>value()</code>; both accessors return defensive copies and throw if the cursor is not positioned. Always close the cursor.</p>
+        </article>
+
+        <article id="write-options" class="docs-section" data-doc-title="WriteOptions DurabilityMode timeout backpressure fail fast WriteResult">
+          <header><span class="docs-index">20</span><div><p>Core byte API</p><h2>Write options and results</h2></div></header>
+          <div class="signature"><code>new WriteOptions(durabilityMode, admissionTimeout, failFastOnBackpressure)</code></div>
+          <p><code>WriteOptions.defaults()</code> selects <code>GROUP_SYNC</code>, a 30-second admission timeout, and waiting rather than immediate rejection during slowdown pressure.</p>
+          <p><code>WriteResult</code> reports operation count, first/last allocated sequence, requested durability, and whether the implementation actually performed a storage barrier. In-memory engines report no performed barrier.</p>
+          <div class="docs-notice note"><strong>Admission is not commit</strong><p>The timeout and fail-fast flag control waiting for write-path capacity. They do not convert an outcome beyond the submission uncertainty boundary into a known failure.</p></div>
+        </article>
+
+        <article id="durability" class="docs-section" data-doc-title="durability mode async wal group sync sync barrier crash recovery">
+          <header><span class="docs-index">21</span><div><p>Operations</p><h2>Durability modes</h2></div></header>
+          <div class="docs-table-wrap"><table><thead><tr><th>Mode</th><th>Return boundary</th><th>Trade-off</th></tr></thead><tbody>
+            <tr><td><code>ASYNC_WAL</code></td><td>After append to the process-visible WAL buffer</td><td>Lowest barrier cost; no requested storage sync before return</td></tr>
+            <tr><td><code>GROUP_SYNC</code></td><td>After a shared storage synchronization barrier</td><td>Default; amortizes force cost across admitted writes</td></tr>
+            <tr><td><code>SYNC</code></td><td>Requests a dedicated durability barrier</td><td>Strongest API request; intended for an isolated barrier</td></tr>
+          </tbody></table></div>
+          <p>The persistent engine writes WAL records before publishing visibility. The crash benchmark uses acknowledged durable marker writes followed by <code>Runtime.halt</code>, then reopens and validates every prior marker.</p>
+          <div class="docs-notice note"><strong>Current group-commit behavior</strong><p>The <code>DurabilityMode</code> contract distinguishes <code>SYNC</code> from <code>GROUP_SYNC</code>. The current persistent implementation performs one WAL force for a commit group whenever any request requires synchronization, so <code>SYNC</code> is presently coalesced rather than given a separate force. Treat that distinction as unfinished in this snapshot.</p></div>
+        </article>
+
+        <article id="lifecycle" class="docs-section" data-doc-title="lifecycle open close lock one writer persistent in memory thread safety">
+          <header><span class="docs-index">22</span><div><p>Operations</p><h2>Lifecycle and locking</h2></div></header>
+          <div class="lifecycle-grid"><div><b>Ephemeral</b><code>Aether.openInMemory()</code><p>New deterministic in-memory database. All contents disappear on close.</p></div><div><b>Persistent</b><code>Aether.open(path)</code><p>Create or recover a local database and acquire its process-exclusive writer lock.</p></div><div><b>Typed</b><code>AetherEmbedded.open(path)</code><p>Own the underlying database through the type-safe adapter.</p></div><div><b>Instrumented</b><code>Aether.openWithMetrics(path)</code><p>Own a persistent database through a metered decorator.</p></div></div>
+          <ul class="docs-bullets"><li>Use try-with-resources for databases, snapshots, cursors, and raw batches.</li><li>Do not open the same directory concurrently in an application and Workbench.</li><li><code>instrument(existing)</code> and <code>AetherEmbedded.adapt(existing)</code> transfer close ownership to the returned wrapper.</li><li>Operations after close fail; owned snapshots and cursors become invalid.</li></ul>
+        </article>
+
+        <article id="metrics" class="docs-section" data-doc-title="metrics p50 p95 p99 throughput error rate MeteredAetherDatabase">
+          <header><span class="docs-index">23</span><div><p>Operations</p><h2>Runtime metrics</h2></div></header>
+          <p>The metered decorator records PUT, DELETE, GET, SCAN creation, SNAPSHOT creation, and WRITE submission. It has no external monitoring dependency.</p>
+          <div class="code-panel"><div class="code-toolbar"><span>Collect metrics</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">try</span> (<span class="tok-key">var</span> db = Aether.openWithMetrics(path)) {
+    db.resetMetrics();
+    runWorkload(db);
+
+    OperationMetrics reads = db.metrics().operation(DatabaseOperation.GET);
+    System.out.printf(
+            <span class="tok-str">"rate=%.0f/s p50=%.3fms p95=%.3fms p99=%.3fms errors=%d%n"</span>,
+            reads.operationsPerSecond(),
+            reads.p50LatencyNanos() / <span class="tok-num">1_000_000.0</span>,
+            reads.p95LatencyNanos() / <span class="tok-num">1_000_000.0</span>,
+            reads.p99LatencyMillis(),
+            reads.errors());
+}</code></pre></div>
+          <p>Counts, errors, average/min/max, and throughput cover the complete interval since creation or reset. Percentiles use the most recent bounded 16,384-sample reservoir per operation, preventing telemetry memory from growing with uptime. <code>metrics()</code> returns an immutable point-in-time snapshot.</p>
+        </article>
+
+        <article id="limits" class="docs-section" data-doc-title="limits maximum key value batch snapshots name codec">
+          <header><span class="docs-index">24</span><div><p>Operations</p><h2>Contract limits</h2></div></header>
+          <div class="docs-table-wrap"><table><thead><tr><th>Resource</th><th>Limit</th><th>Enforced by</th></tr></thead><tbody>
+            <tr><td>Operations per raw/typed batch</td><td>10,000</td><td><code>WriteBatch</code></td></tr>
+            <tr><td>Encoded batch</td><td>32 MiB</td><td><code>WriteBatch</code></td></tr>
+            <tr><td>Raw key</td><td>65,536 bytes</td><td><code>WriteBatch</code></td></tr>
+            <tr><td>Raw value</td><td>16 MiB</td><td><code>WriteBatch</code></td></tr>
+            <tr><td>Collection name</td><td>128 UTF-8 bytes</td><td><code>CollectionDefinition</code></td></tr>
+            <tr><td>Key codec version</td><td>1–65,535</td><td><code>CollectionDefinition</code></td></tr>
+            <tr><td>Key codec declared max</td><td>65,517 bytes</td><td><code>CollectionDefinition</code></td></tr>
+            <tr><td>Active snapshots</td><td>1,024</td><td>Reference engines</td></tr>
+            <tr><td>Metrics sample reservoir</td><td>16,384 per operation</td><td>Metered decorator</td></tr>
+          </tbody></table></div>
+        </article>
+
+        <article id="exceptions" class="docs-section" data-doc-title="exceptions AetherException DatabaseOpen Snapshot Closed Sequence IllegalArgument">
+          <header><span class="docs-index">25</span><div><p>Operations</p><h2>Failure model</h2></div></header>
+          <dl class="api-definitions compact">
+            <div><dt><code>DatabaseOpenException</code></dt><dd>Persistent initialization, directory locking, recovery, or opening I/O failed.</dd></div>
+            <div><dt><code>AetherClosedException</code></dt><dd>An operation targeted a closed engine, batch, or handle.</dd></div>
+            <div><dt><code>SnapshotException</code></dt><dd>A snapshot was closed, foreign to the database, or otherwise invalid.</dd></div>
+            <div><dt><code>SnapshotLimitExceededException</code></dt><dd>The engine already owns its maximum active snapshot handles.</dd></div>
+            <div><dt><code>SequenceExhaustedException</code></dt><dd>No further positive sequence can be allocated safely.</dd></div>
+            <div><dt><code>IllegalArgumentException</code></dt><dd>Invalid bounds, codec metadata, ownership, collection conflict, or unsupported Java type.</dd></div>
+            <div><dt><code>UnsupportedOperationException</code></dt><dd>A collection lacks the requested capability or a snapshot-bound collection was used for writes.</dd></div>
+          </dl>
+          <p>Typed write admission outcomes use <code>TypedWriteResult</code> rather than exceptions. Exceptions still represent contract violations, invalid ownership, schema conflicts, closed resources, or unrecoverable engine failures.</p>
+        </article>
+
+        <article id="storage-model" class="docs-section" data-doc-title="storage WAL memtable SSTable manifest LSM Bloom checkpoint recovery">
+          <header><span class="docs-index">26</span><div><p>Operations</p><h2>How persistence works</h2></div></header>
+          <div class="storage-stack">
+            <div><b>01</b><span><strong>Write admission</strong><small>Validate bounds and pressure policy</small></span></div>
+            <div><b>02</b><span><strong>WAL</strong><small>Encode atomic group and perform requested barrier</small></span></div>
+            <div><b>03</b><span><strong>MemTable</strong><small>Publish ordered sequence-visible entries</small></span></div>
+            <div><b>04</b><span><strong>SSTable</strong><small>Restart blocks, Bloom filter, index, properties, checksums</small></span></div>
+            <div><b>05</b><span><strong>Manifest</strong><small>Atomically publish the current file inventory</small></span></div>
+          </div>
+          <p>On open, the persistent engine validates identity and metadata, recovers the durable inventory, and replays required state. The current implementation materializes its checkpoint into heap during open; measured point reads afterward are therefore heap-resident.</p>
+        </article>
+
+        <article id="production-status" class="docs-section" data-doc-title="production status limitations roadmap pre release">
+          <header><span class="docs-index">27</span><div><p>Operations</p><h2>Production-readiness status</h2></div></header>
+          <div class="readiness-grid"><div class="ready"><h3>Implemented</h3><ul><li>Typed collections and generated codecs</li><li>Persistent WAL-backed embedded path</li><li>Atomic batches and MVCC snapshots</li><li>SSTables, manifests, filters, and compaction foundations</li><li>Crash recovery verification</li><li>Metrics, Workbench, and benchmark tooling</li></ul></div><div><h3>Not complete</h3><ul><li>Stable 1.0 API and format guarantees</li><li>Fully integrated background MemTable flush</li><li>Complete obsolete-checkpoint reclamation</li><li>Complete TCP/TLS cluster clients and servers</li><li>Full dynamic membership orchestration</li><li>Published Maven Central artifacts</li></ul></div></div>
+          <div class="docs-notice warning"><strong>Decision rule</strong><p>If losing or migrating the data would be unacceptable, do not deploy the current release as the system of record. Track the roadmap and format guarantees before production adoption.</p></div>
+        </article>
+
+        <article id="api-reference" class="docs-section api-index" data-doc-title="API reference packages classes methods index">
+          <header><span class="docs-index">28</span><div><p>Reference</p><h2>Public API index</h2></div></header>
+          <div class="package-grid">
+            <div><code>io.aetherdb.api</code><a href="#byte-api">AetherDatabase</a><a href="#cursors">AetherCursor</a><a href="#raw-snapshots">Snapshot</a><a href="#write-batch">WriteBatch</a><a href="#write-options">WriteOptions / WriteResult</a><a href="#durability">DurabilityMode</a></div>
+            <div><code>io.aetherdb.api.typed</code><a href="#typed-model">TypedAetherDatabase</a><a href="#collections">CollectionDefinition / CollectionId</a><a href="#point-operations">TypedAetherCollection / ReadResult</a><a href="#typed-batches">TypedWriteBatch</a><a href="#write-outcomes">TypedWriteResult</a><a href="#generated-codecs">KeyCodec / ValueCodec</a></div>
+            <div><code>io.aetherdb.engine</code><a href="#lifecycle">Aether</a><a href="#metrics">MeteredAetherDatabase</a><a href="#metrics">DatabaseMetrics</a><a href="#metrics">OperationMetrics</a><a href="#metrics">DatabaseOperation</a></div>
+            <div><code>io.aetherdb.embedded.typed</code><a href="#quickstart">AetherEmbedded</a><code>io.aetherdb.codec</code><a href="#built-in-codecs">BuiltInKeyCodecs</a><a href="#built-in-codecs">BuiltInValueCodecs</a><a href="#generated-codecs">GeneratedCodecs</a></div>
+          </div>
+          <div class="docs-end"><p>Found a mismatch between these docs and the code?</p><a href="https://github.com/Grgur00/Aether-Engine/issues/new?template=bug_report.md">Open a documentation issue ↗</a></div>
+        </article>
+      </main>
+
+      <aside class="docs-toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <nav id="page-toc"></nav>
+        <a href="#overview">Back to top ↑</a>
+      </aside>
+    </div>
+  </body>
+</html>

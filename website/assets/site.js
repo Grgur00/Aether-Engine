@@ -6,12 +6,12 @@ const updateHeader = () => header.classList.toggle("scrolled", window.scrollY > 
 updateHeader();
 window.addEventListener("scroll", updateHeader, { passive: true });
 
-menuButton.addEventListener("click", () => {
+menuButton?.addEventListener("click", () => {
   const open = navigation.classList.toggle("open");
   menuButton.setAttribute("aria-expanded", String(open));
 });
 
-navigation.addEventListener("click", (event) => {
+navigation?.addEventListener("click", (event) => {
   if (!event.target.closest("a")) return;
   navigation.classList.remove("open");
   menuButton.setAttribute("aria-expanded", "false");

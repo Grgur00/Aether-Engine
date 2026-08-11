@@ -6,6 +6,10 @@ The current release includes a deterministic in-memory engine and a first local 
 
 > **Status:** pre-release (`0.1.0-SNAPSHOT`). Do not use it for durable production data yet.
 
+**[Developer documentation](https://grgur00.github.io/Aether-Engine/docs/)** — setup,
+typed collections, schema evolution, the byte API, durability, metrics, limits, and operational
+behavior.
+
 ## Highlights
 
 - Typed collections with stable UUID identities

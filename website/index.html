@@ -32,7 +32,7 @@
 
         <nav id="primary-nav" class="primary-nav" aria-label="Primary navigation">
           <a href="#architecture">Architecture</a>
-          <a href="#quickstart">Quickstart</a>
+          <a href="docs/">Documentation</a>
           <a href="#operations">Operations</a>
           <a href="#status">Status</a>
           <a class="nav-github" href="https://github.com/Grgur00/Aether-Engine">GitHub <span aria-hidden="true">↗</span></a>
@@ -209,12 +209,10 @@ cd Aether-Engine
                 <header><span>04</span><div><h3>Open, write, and read</h3><p>The directory is created on first use and exclusively locked until close.</p></div></header>
                 <div class="code-panel">
                   <div class="code-toolbar"><span>Main.java</span><button class="copy-button" type="button">Copy</button></div>
-                  <pre><code><span class="tok-key">var</span> todos = CollectionId.of(
-        <span class="tok-str">"a53f36dd-f4eb-4aac-9fab-8e62e92185d6"</span>);
-
-<span class="tok-key">try</span> (<span class="tok-key">var</span> db = AetherEmbedded.open(Path.of(<span class="tok-str">"./data/app"</span>))) {
+                  <pre><code><span class="tok-key">try</span> (<span class="tok-key">var</span> db = AetherEmbedded.open(Path.of(<span class="tok-str">"./data/app"</span>))) {
     <span class="tok-key">var</span> collection = db.defineCollection(
-            todos, <span class="tok-str">"todos"</span>, String.class, Todo.class);
+            CollectionId.of(<span class="tok-str">"a53f36dd-f4eb-4aac-9fab-8e62e92185d6"</span>),
+            <span class="tok-str">"todos"</span>, String.class, Todo.class);
 
     collection.put(<span class="tok-str">"ship"</span>,
             <span class="tok-key">new</span> Todo(<span class="tok-str">"ship"</span>, <span class="tok-str">"Ship reliably"</span>, <span class="tok-key">false</span>));
@@ -381,7 +379,7 @@ cd Aether-Engine
           </a>
           <p>Embedded storage foundations for serious Java systems.</p>
         </div>
-        <div class="footer-links"><strong>Project</strong><a href="https://github.com/Grgur00/Aether-Engine">Source</a><a href="https://github.com/Grgur00/Aether-Engine/blob/main/ROADMAP.md">Roadmap</a><a href="https://github.com/Grgur00/Aether-Engine/blob/main/CHANGELOG.md">Changelog</a></div>
+        <div class="footer-links"><strong>Project</strong><a href="docs/">Documentation</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a><a href="https://github.com/Grgur00/Aether-Engine/blob/main/ROADMAP.md">Roadmap</a><a href="https://github.com/Grgur00/Aether-Engine/blob/main/CHANGELOG.md">Changelog</a></div>
         <div class="footer-links"><strong>Community</strong><a href="https://github.com/Grgur00/Aether-Engine/blob/main/CONTRIBUTING.md">Contributing</a><a href="https://github.com/Grgur00/Aether-Engine/issues">Issues</a><a href="https://github.com/Grgur00/Aether-Engine/blob/main/SECURITY.md">Security</a></div>
         <div class="footer-meta"><span>Apache License 2.0</span><span>© 2026 Aether Engine contributors</span></div>
       </div>
