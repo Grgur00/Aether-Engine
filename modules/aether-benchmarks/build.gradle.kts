@@ -6,7 +6,7 @@ dependencies {
     implementation("org.hdrhistogram:HdrHistogram:2.2.2")
 }
 
-application { mainClass = "io.aetherdb.benchmarks.CvBenchmark" }
+application { mainClass = "io.aetherdb.benchmarks.BenchmarkProfileRunner" }
 
 tasks.named<JavaExec>("run") {
     if (System.getenv("AETHER_JFR") == "true") {
@@ -22,5 +22,6 @@ tasks.named<JavaExec>("run") {
                 "dumponexit=true," +
                 "maxsize=2g"
         )
+        systemProperty("aether.benchmark.jfr.path", recording.absolutePath)
     }
 }

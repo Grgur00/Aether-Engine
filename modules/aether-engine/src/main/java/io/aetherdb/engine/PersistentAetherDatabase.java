@@ -1,7 +1,10 @@
 package io.aetherdb.engine;
 
+import io.aetherdb.admission.AdmissionDecision;
+import io.aetherdb.admission.AdmissionOutcome;
 import io.aetherdb.api.AetherCursor;
 import io.aetherdb.api.AetherDatabase;
+import io.aetherdb.api.DurabilityMode;
 import io.aetherdb.api.Snapshot;
 import io.aetherdb.api.WriteBatch;
 import io.aetherdb.api.WriteOptions;
@@ -12,6 +15,9 @@ import io.aetherdb.api.exceptions.DatabaseOpenException;
 import io.aetherdb.api.exceptions.SnapshotException;
 import io.aetherdb.api.exceptions.SnapshotLimitExceededException;
 import io.aetherdb.api.result.LookupResult;
+import io.aetherdb.config.AetherConfigRegistry;
+import io.aetherdb.config.AetherConfigValidator;
+import io.aetherdb.config.AetherConfiguration;
 import io.aetherdb.io.DatabaseIdentityV1;
 import io.aetherdb.io.DatabaseLock;
 import io.aetherdb.io.FormatOptionsV1;
@@ -22,6 +28,7 @@ import io.aetherdb.lsm.iterator.InternalEntry;
 import io.aetherdb.lsm.iterator.ListInternalIterator;
 import io.aetherdb.lsm.pressure.WritePressureController;
 import io.aetherdb.lsm.pressure.WritePressureInput;
+import io.aetherdb.lsm.pressure.WritePressurePolicy;
 import io.aetherdb.lsm.pressure.WritePressureSnapshot;
 import io.aetherdb.lsm.pressure.WritePressureState;
 import io.aetherdb.memory.NativeMemoryBudget;
@@ -29,6 +36,9 @@ import io.aetherdb.memory.RegionConfig;
 import io.aetherdb.memtable.reference.VersionedKeyValueStore;
 import io.aetherdb.memtable.skiplist.MemTableLookupResult;
 import io.aetherdb.memtable.skiplist.NativeSkipListMemTable;
+import io.aetherdb.reliability.CrashContext;
+import io.aetherdb.reliability.CrashPointIds;
+import io.aetherdb.reliability.CrashPointRegistry;
 import io.aetherdb.sstable.InternalKey;
 import io.aetherdb.sstable.SSTableBuilder;
 import io.aetherdb.sstable.SSTableEntry;
@@ -40,6 +50,8 @@ import io.aetherdb.sstable.manifest.ManifestFileMetadata;
 import io.aetherdb.sstable.manifest.VersionSet;
 import io.aetherdb.wal.format.WalFormatV1;
 import io.aetherdb.wal.format.WalFragmentCodec;
+import io.aetherdb.wal.format.WalCorruptionException;
+import io.aetherdb.wal.format.WalLogicalGroupCodec;
 import io.aetherdb.wal.format.WalSegmentHeader;
 
 import java.io.EOFException;
@@ -57,7 +69,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
@@ -69,12 +83,8 @@ import java.util.concurrent.locks.LockSupport;
 final class PersistentAetherDatabase implements AetherDatabase {
     private static final String IDENTITY = "DB-IDENTITY";
     private static final String OPTIONS = "FORMAT-OPTIONS";
-    private static final int GROUP_HEADER_BYTES = 48;
-    private static final int MAXIMUM_SNAPSHOTS = 1_024;
-    private static final long MEMTABLE_BYTES = RegionConfig.DEFAULT_CAPACITY_BYTES;
-    private static final LevelCompactionConfig COMPACTION_CONFIG = LevelCompactionConfig.defaults();
-    private static final WritePressureController PRESSURE = new WritePressureController();
     private static final Comparator<byte[]> BYTE_ORDER = Arrays::compareUnsigned;
+    private static final AetherConfigRegistry CONFIG_REGISTRY = AetherConfigRegistry.defaults();
 
     private final Object snapshotIdentity = new Object();
     private final Set<SnapshotHandle> snapshots =
@@ -85,6 +95,8 @@ final class PersistentAetherDatabase implements AetherDatabase {
     private FileChannel wal;
     private final VersionSet versions;
     private final NativeMemoryBudget nativeBudget;
+    private final RuntimeConfiguration configuration;
+    private final WritePressureController pressureController;
     private final List<SSTableReader> tables = new ArrayList<>();
     private final CommitCoordinator commits = new CommitCoordinator();
     private NativeSkipListMemTable active;
@@ -99,6 +111,13 @@ final class PersistentAetherDatabase implements AetherDatabase {
 
     /** Opens or creates the process-exclusive local database. */
     static PersistentAetherDatabase open(Path requested) {
+        return open(requested, new AetherConfiguration(Map.of("aether.security.profile", "development")));
+    }
+
+    /** Opens or creates the process-exclusive local database with validated configuration. */
+    static PersistentAetherDatabase open(Path requested, AetherConfiguration configuration) {
+        AetherConfigValidator.defaults().validate(Objects.requireNonNull(configuration, "configuration"));
+        RuntimeConfiguration runtimeConfiguration = RuntimeConfiguration.from(configuration);
         DatabaseLock lock = null;
         FileChannel wal = null;
         VersionSet versions = null;
@@ -139,8 +158,8 @@ final class PersistentAetherDatabase implements AetherDatabase {
             long walSegment = versions.current().minimumWalFileNumber();
             Path walPath = root.resolve(WalFormatV1.fileName(walSegment));
             wal = FileChannel.open(walPath, StandardOpenOption.READ, StandardOpenOption.WRITE);
-            NativeMemoryBudget nativeBudget = new NativeMemoryBudget(MEMTABLE_BYTES);
-            active = createMemTable(nativeBudget, identity.databaseId(), 1);
+            NativeMemoryBudget nativeBudget = new NativeMemoryBudget(runtimeConfiguration.memtableBytes());
+            active = createMemTable(nativeBudget, runtimeConfiguration.memtableBytes(), identity.databaseId(), 1);
             WalRecovery recovery =
                     recoverWal(
                             wal,
@@ -160,6 +179,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
                     openedTables,
                     active,
                     nativeBudget,
+                    runtimeConfiguration,
                     walSegment,
                     recovery.lastSequence(),
                     recovery.records());
@@ -184,6 +204,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
             List<SSTableReader> tables,
             NativeSkipListMemTable active,
             NativeMemoryBudget nativeBudget,
+            RuntimeConfiguration configuration,
             long walSegmentNumber,
             long lastSequence,
             int records) {
@@ -195,6 +216,8 @@ final class PersistentAetherDatabase implements AetherDatabase {
         this.tables.addAll(tables);
         this.active = active;
         this.nativeBudget = nativeBudget;
+        this.configuration = configuration;
+        pressureController = new WritePressureController(configuration.writePressurePolicy());
         this.lastVisibleSequence = lastSequence;
         this.walSegmentNumber = walSegmentNumber;
         this.walRecordNumber = records;
@@ -230,7 +253,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
     @Override
     public synchronized Snapshot newSnapshot() {
         ensureOpen();
-        if (snapshots.size() >= MAXIMUM_SNAPSHOTS)
+        if (snapshots.size() >= configuration.maximumSnapshots())
             throw new SnapshotLimitExceededException("active snapshot limit exceeded");
         if (nextSnapshotId <= 0) throw new SnapshotException("snapshot ID exhausted");
         SnapshotHandle[] holder = new SnapshotHandle[1];
@@ -268,7 +291,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
 
     @Override
     public void write(WriteBatch batch) {
-        write(batch, WriteOptions.defaults());
+        write(batch, configuration.defaultWriteOptions());
     }
 
     @Override
@@ -397,6 +420,9 @@ final class PersistentAetherDatabase implements AetherDatabase {
             built = builder.finish();
             Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE);
             syncDirectory(root);
+            CrashPointRegistry.hit(
+                    CrashPointIds.FLUSH_AFTER_SSTABLE_FORCE_BEFORE_MANIFEST,
+                    tableCrashContext(fileNumber, 0, built));
         } finally {
             Files.deleteIfExists(temporary);
         }
@@ -453,11 +479,12 @@ final class PersistentAetherDatabase implements AetherDatabase {
         tables.add(SSTableReader.open(target, databaseId, added));
         NativeSkipListMemTable previous = active;
         previous.retire();
-        active = createMemTable(nativeBudget, databaseId, ++memTableNumber);
+        active = createMemTable(nativeBudget, configuration.memtableBytes(), databaseId, ++memTableNumber);
         compactIfNeeded();
     }
 
     private void compactIfNeeded() throws IOException {
+        if (!configuration.compactionEnabled()) return;
         boolean changed;
         do {
             changed = false;
@@ -471,7 +498,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
                 long levelBytes = 0;
                 for (ManifestFileMetadata file : versions.current().files(level))
                     levelBytes = Math.addExact(levelBytes, file.fileSize());
-                if (levelBytes > COMPACTION_CONFIG.targetBytes(level)) {
+                if (levelBytes > configuration.compactionConfig().targetBytes(level)) {
                     compactSelection(List.of(versions.current().files(level).get(0)), level + 1);
                     changed = true;
                     break;
@@ -547,7 +574,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
 
         List<List<InternalEntry>> partitions =
                 partitionCompactionOutput(
-                        retained, COMPACTION_CONFIG.targetOutputFileBytes(outputLevel));
+                        retained, configuration.compactionConfig().targetOutputFileBytes(outputLevel));
         List<ManifestFileMetadata> additions = new ArrayList<>();
         List<Path> created = new ArrayList<>();
         long nextFile = versions.current().nextFileNumber();
@@ -593,6 +620,9 @@ final class PersistentAetherDatabase implements AetherDatabase {
                 }
             }
             if (!created.isEmpty()) syncDirectory(root);
+            CrashPointRegistry.hit(
+                    CrashPointIds.COMPACTION_AFTER_OUTPUT_FORCE_BEFORE_MANIFEST,
+                    compactionCrashContext(outputLevel, additions.size(), inputs.size()));
             List<io.aetherdb.sstable.manifest.ManifestDeletion> deletions =
                     inputs.stream()
                             .map(
@@ -611,6 +641,9 @@ final class PersistentAetherDatabase implements AetherDatabase {
                             additions,
                             deletions);
             versions.logAndApply(edit);
+            CrashPointRegistry.hit(
+                    CrashPointIds.COMPACTION_AFTER_MANIFEST_BEFORE_DELETE,
+                    compactionCrashContext(outputLevel, additions.size(), deletions.size()));
         } catch (Throwable failure) {
             for (Path path : created)
                 try {
@@ -724,6 +757,11 @@ final class PersistentAetherDatabase implements AetherDatabase {
             }
             try {
                 ensureOpen();
+                CrashPointRegistry.hit(
+                        CrashPointIds.WRITE_BEFORE_SEAL,
+                        CrashContext.of(
+                                "operation_count",
+                                Integer.toString(request.batch.operationCount())));
                 request.batch.sealForSubmission();
                 if (request.batch.operationCount() == 0) {
                     request.batch.markSucceeded();
@@ -732,18 +770,33 @@ final class PersistentAetherDatabase implements AetherDatabase {
                     continue;
                 }
                 long required = requiredNativeBytes(request.batch);
-                if (required > MEMTABLE_BYTES - 256)
+                if (required > configuration.memtableBytes() - 256)
                     throw new IllegalArgumentException("batch cannot fit in one MemTable");
                 admitWrite(required, request.options);
                 long first = Math.addExact(lastVisibleSequence, 1);
                 long last = Math.addExact(first, request.batch.operationCount() - 1L);
-                byte[] logical = encodeGroup(request.batch, first, last);
+                CrashPointRegistry.hit(
+                        CrashPointIds.WRITE_AFTER_SEQUENCE_ALLOCATED,
+                        writeSequenceCrashContext(first, last, request.batch.operationCount()));
+                byte[] logical = WalLogicalGroupCodec.encode(request.batch, first, last);
                 if (WalFormatV1.estimateEndOffset(wal.position(), logical.length)
-                        > WalFormatV1.SEGMENT_CAPACITY) flushActive();
+                        > configuration.walSegmentBytes()) flushActive();
                 int recordNumber = Math.incrementExact(walRecordNumber);
-                byte[] physical = WalFragmentCodec.fragment(logical, wal.position(), recordNumber);
+                long walStartOffset = wal.position();
+                byte[] physical = WalFragmentCodec.fragment(logical, walStartOffset, recordNumber);
                 request.batch.markSubmitted();
+                CrashContext walContext =
+                        walCrashContext(
+                                recordNumber, walStartOffset, logical.length, physical.length);
+                CrashPointRegistry.hit(CrashPointIds.WAL_BEFORE_FRAGMENT_WRITE, walContext);
                 writeFully(wal, ByteBuffer.wrap(physical));
+                CrashPointRegistry.hit(
+                        CrashPointIds.WAL_AFTER_FRAGMENT_WRITE_BEFORE_FORCE,
+                        walCrashContext(
+                                recordNumber,
+                                walStartOffset + physical.length,
+                                logical.length,
+                                physical.length));
                 walRecordNumber = recordNumber;
                 applyBatch(active, request.batch, first);
                 lastVisibleSequence = last;
@@ -763,6 +816,9 @@ final class PersistentAetherDatabase implements AetherDatabase {
         if (backgroundFailure == null && forceRequested) {
             try {
                 forceWal();
+                CrashPointRegistry.hit(
+                        CrashPointIds.WAL_AFTER_FORCE_BEFORE_VISIBILITY,
+                        forceCrashContext(prepared));
                 forced = true;
             } catch (Throwable failure) {
                 backgroundFailure = failure;
@@ -825,8 +881,82 @@ final class PersistentAetherDatabase implements AetherDatabase {
         walForceCount++;
     }
 
+    private static CrashContext walCrashContext(
+            int recordNumber, long walOffset, int logicalBytes, int physicalBytes) {
+        LinkedHashMap<String, String> attributes = new LinkedHashMap<>();
+        attributes.put("record_number", Integer.toUnsignedString(recordNumber));
+        attributes.put("wal_offset", Long.toUnsignedString(walOffset));
+        attributes.put("logical_bytes", Integer.toString(logicalBytes));
+        attributes.put("physical_bytes", Integer.toString(physicalBytes));
+        return new CrashContext(attributes);
+    }
+
+    private static CrashContext tableCrashContext(
+            long fileNumber, int level, TableFileMetadata metadata) {
+        LinkedHashMap<String, String> attributes = new LinkedHashMap<>();
+        attributes.put("file_number", Long.toUnsignedString(fileNumber));
+        attributes.put("level", Integer.toString(level));
+        attributes.put("file_size", Long.toUnsignedString(metadata.fileSize()));
+        attributes.put("entry_count", Long.toUnsignedString(metadata.entryCount()));
+        attributes.put("smallest_sequence", Long.toUnsignedString(metadata.smallestSequence()));
+        attributes.put("largest_sequence", Long.toUnsignedString(metadata.largestSequence()));
+        return new CrashContext(attributes);
+    }
+
+    private static CrashContext compactionCrashContext(
+            int outputLevel, int additionCount, int deletionCount) {
+        LinkedHashMap<String, String> attributes = new LinkedHashMap<>();
+        attributes.put("output_level", Integer.toString(outputLevel));
+        attributes.put("addition_count", Integer.toString(additionCount));
+        attributes.put("deletion_count", Integer.toString(deletionCount));
+        return new CrashContext(attributes);
+    }
+
+    private static CrashContext writeSequenceCrashContext(
+            long firstSequence, long lastSequence, int operationCount) {
+        LinkedHashMap<String, String> attributes = new LinkedHashMap<>();
+        attributes.put("first_sequence", Long.toUnsignedString(firstSequence));
+        attributes.put("last_sequence", Long.toUnsignedString(lastSequence));
+        attributes.put("operation_count", Integer.toString(operationCount));
+        return new CrashContext(attributes);
+    }
+
+    private static CrashContext forceCrashContext(List<PreparedCommit> prepared) {
+        LinkedHashMap<String, String> attributes = new LinkedHashMap<>();
+        attributes.put("prepared_count", Integer.toString(prepared.size()));
+        if (!prepared.isEmpty()) {
+            attributes.put(
+                    "first_sequence",
+                    Long.toUnsignedString(prepared.get(0).firstSequence()));
+            attributes.put(
+                    "last_sequence",
+                    Long.toUnsignedString(prepared.get(prepared.size() - 1).lastSequence()));
+        }
+        return new CrashContext(attributes);
+    }
+
     synchronized long walForceCountForTesting() {
         return walForceCount;
+    }
+
+    static int configuredMaximumSnapshotsForTesting(AetherConfiguration configuration) {
+        AetherConfigValidator.defaults().validate(Objects.requireNonNull(configuration, "configuration"));
+        return RuntimeConfiguration.from(configuration).maximumSnapshots();
+    }
+
+    static long configuredWalSegmentBytesForTesting(AetherConfiguration configuration) {
+        AetherConfigValidator.defaults().validate(Objects.requireNonNull(configuration, "configuration"));
+        return RuntimeConfiguration.from(configuration).walSegmentBytes();
+    }
+
+    static int configuredImmutableMemtableStopForTesting(AetherConfiguration configuration) {
+        AetherConfigValidator.defaults().validate(Objects.requireNonNull(configuration, "configuration"));
+        return RuntimeConfiguration.from(configuration).writePressurePolicy().immutableMemtableStop();
+    }
+
+    static DurabilityMode configuredDefaultDurabilityForTesting(AetherConfiguration configuration) {
+        AetherConfigValidator.defaults().validate(Objects.requireNonNull(configuration, "configuration"));
+        return RuntimeConfiguration.from(configuration).defaultWriteOptions().durabilityMode();
     }
 
     private void admitWrite(long requiredNativeBytes, WriteOptions options) throws IOException {
@@ -834,7 +964,8 @@ final class PersistentAetherDatabase implements AetherDatabase {
             flushActive();
         compactIfNeeded();
         WritePressureSnapshot pressure = pressure(requiredNativeBytes);
-        if (pressure.state() == WritePressureState.NORMAL) return;
+        AdmissionDecision decision = writeAdmissionDecision(pressure);
+        if (decision.accepted()) return;
         if (pressure.state() == WritePressureState.SLOWDOWN && !options.failFastOnBackpressure()) {
             long allowedNanos;
             try {
@@ -849,7 +980,40 @@ final class PersistentAetherDatabase implements AetherDatabase {
             }
         }
         throw new AetherException(
-                "write admission rejected by " + pressure.state() + ": " + pressure.reasons());
+                "write admission rejected by "
+                        + decision.outcome()
+                        + ": "
+                        + String.join(", ", decision.reasons()));
+    }
+
+    static AdmissionDecision writeAdmissionDecision(WritePressureSnapshot pressure) {
+        return switch (pressure.state()) {
+            case NORMAL ->
+                    new AdmissionDecision(AdmissionOutcome.ACCEPTED, List.of(), java.time.Duration.ZERO);
+            case SLOWDOWN ->
+                    new AdmissionDecision(
+                            AdmissionOutcome.REJECTED_BEFORE_ACK,
+                            writeAdmissionReasons(pressure),
+                            java.time.Duration.ofNanos(Math.multiplyExact(pressure.delayMicros(), 1_000L)));
+            case STOPPED_RETRYABLE ->
+                    new AdmissionDecision(
+                            AdmissionOutcome.RESOURCE_EXHAUSTED,
+                            writeAdmissionReasons(pressure),
+                            java.time.Duration.ZERO);
+            case FAILED ->
+                    new AdmissionDecision(
+                            AdmissionOutcome.REJECTED_BEFORE_ACK,
+                            writeAdmissionReasons(pressure),
+                            java.time.Duration.ZERO);
+        };
+    }
+
+    private static List<String> writeAdmissionReasons(WritePressureSnapshot pressure) {
+        if (pressure.reasons().isEmpty()) return List.of("write pressure: " + pressure.state());
+        return pressure.reasons().stream()
+                .map(reason -> "write pressure: " + reason)
+                .sorted()
+                .toList();
     }
 
     private WritePressureSnapshot pressure(long requiredNativeBytes) throws IOException {
@@ -858,7 +1022,10 @@ final class PersistentAetherDatabase implements AetherDatabase {
             long bytes = 0;
             for (ManifestFileMetadata file : versions.current().files(level))
                 bytes = Math.addExact(bytes, file.fileSize());
-            debt = Math.addExact(debt, Math.max(0, bytes - COMPACTION_CONFIG.targetBytes(level)));
+            debt =
+                    Math.addExact(
+                            debt,
+                            Math.max(0, bytes - configuration.compactionConfig().targetBytes(level)));
         }
         java.nio.file.FileStore store = Files.getFileStore(root);
         WritePressureInput input =
@@ -873,7 +1040,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
                         true,
                         false,
                         false);
-        return PRESSURE.evaluate(input);
+        return pressureController.evaluate(input);
     }
 
     private static void applyBatch(
@@ -1035,21 +1202,22 @@ final class PersistentAetherDatabase implements AetherDatabase {
         for (byte[] logical : groups) {
             record++;
             valid = WalFormatV1.estimateEndOffset(valid, logical.length);
-            DecodedGroup group = decodeGroup(logical);
-            if (group.last() <= persistedWatermark) continue;
-            if (group.first() <= persistedWatermark || group.first() != expected)
+            WalLogicalGroupCodec.DecodedGroup group = decodeGroup(logical);
+            if (group.lastSequence() <= persistedWatermark) continue;
+            if (group.firstSequence() <= persistedWatermark || group.firstSequence() != expected)
                 throw new IOException("WAL sequence discontinuity");
             applyDecoded(target, group);
-            expected = group.last() + 1;
-            recoveredLast = group.last();
+            expected = group.lastSequence() + 1;
+            recoveredLast = group.lastSequence();
         }
         return new WalRecovery(valid, record, recoveredLast);
     }
 
-    private static void applyDecoded(NativeSkipListMemTable target, DecodedGroup group)
+    private static void applyDecoded(
+            NativeSkipListMemTable target, WalLogicalGroupCodec.DecodedGroup group)
             throws IOException {
-        long sequence = group.first();
-        for (Mutation mutation : group.mutations()) {
+        long sequence = group.firstSequence();
+        for (WalLogicalGroupCodec.Mutation mutation : group.mutations()) {
             NativeSkipListMemTable.InsertResult result =
                     mutation.delete()
                             ? target.delete(mutation.key(), sequence)
@@ -1060,84 +1228,12 @@ final class PersistentAetherDatabase implements AetherDatabase {
         }
     }
 
-    private static byte[] encodeGroup(WriteBatch batch, long first, long last) {
-        int size = GROUP_HEADER_BYTES;
-        for (WriteBatch.Mutation mutation : batch.mutations()) {
-            size =
-                    Math.addExact(
-                            size,
-                            12
-                                    + mutation.key().length
-                                    + (mutation instanceof WriteBatch.Put put
-                                            ? put.value().length
-                                            : 0));
+    private static WalLogicalGroupCodec.DecodedGroup decodeGroup(byte[] encoded) throws IOException {
+        try {
+            return WalLogicalGroupCodec.decode(encoded);
+        } catch (WalCorruptionException failure) {
+            throw new IOException(failure.getMessage(), failure);
         }
-        byte[] result = new byte[size];
-        ByteBuffer bytes = little(result);
-        bytes.put("AETHGRP1".getBytes(java.nio.charset.StandardCharsets.US_ASCII))
-                .putShort((short) 1)
-                .putShort((short) GROUP_HEADER_BYTES)
-                .putInt(size)
-                .putLong(first)
-                .putLong(last)
-                .putInt(batch.operationCount())
-                .putInt(0)
-                .putInt(0)
-                .putInt(0);
-        for (WriteBatch.Mutation mutation : batch.mutations()) {
-            byte[] key = mutation.key(),
-                    value = mutation instanceof WriteBatch.Put put ? put.value() : new byte[0];
-            bytes.put((byte) (mutation instanceof WriteBatch.Delete ? 2 : 1))
-                    .put(new byte[3])
-                    .putInt(key.length)
-                    .putInt(value.length)
-                    .put(key)
-                    .put(value);
-        }
-        bytes.putInt(44, io.aetherdb.format.checksum.MaskedCrc32c.masked(result, 0, 44));
-        return result;
-    }
-
-    private static DecodedGroup decodeGroup(byte[] encoded) throws IOException {
-        if (encoded.length < GROUP_HEADER_BYTES) throw new IOException("short WAL group");
-        ByteBuffer bytes = little(encoded);
-        byte[] magic = new byte[8];
-        bytes.get(magic);
-        if (!Arrays.equals(magic, "AETHGRP1".getBytes(java.nio.charset.StandardCharsets.US_ASCII))
-                || bytes.getShort() != 1
-                || bytes.getShort() != GROUP_HEADER_BYTES
-                || bytes.getInt() != encoded.length) {
-            throw new IOException("invalid WAL group header");
-        }
-        long first = bytes.getLong(), last = bytes.getLong();
-        int count = bytes.getInt();
-        if (bytes.getInt() != 0
-                || bytes.getInt() != 0
-                || bytes.getInt() != io.aetherdb.format.checksum.MaskedCrc32c.masked(encoded, 0, 44)
-                || first < 1
-                || last < first
-                || last - first + 1 != count) throw new IOException("invalid WAL group metadata");
-        List<Mutation> mutations = new ArrayList<>();
-        for (int index = 0; index < count; index++) {
-            if (bytes.remaining() < 12) throw new IOException("truncated WAL operation");
-            int type = Byte.toUnsignedInt(bytes.get());
-            if (bytes.get() != 0 || bytes.get() != 0 || bytes.get() != 0)
-                throw new IOException("invalid WAL operation flags");
-            int keyLength = bytes.getInt(), valueLength = bytes.getInt();
-            if (keyLength < 0
-                    || keyLength > WriteBatch.MAX_KEY_BYTES
-                    || valueLength < 0
-                    || valueLength > WriteBatch.MAX_VALUE_BYTES
-                    || bytes.remaining() < keyLength + valueLength
-                    || type != 1 && type != 2
-                    || type == 2 && valueLength != 0)
-                throw new IOException("invalid WAL operation");
-            byte[] key = new byte[keyLength], value = new byte[valueLength];
-            bytes.get(key).get(value);
-            mutations.add(new Mutation(key, value, type == 2));
-        }
-        if (bytes.hasRemaining()) throw new IOException("WAL group trailing bytes");
-        return new DecodedGroup(first, last, mutations);
     }
 
     private SnapshotHandle validateSnapshot(Snapshot snapshot) {
@@ -1157,12 +1253,65 @@ final class PersistentAetherDatabase implements AetherDatabase {
     }
 
     private static NativeSkipListMemTable createMemTable(
-            NativeMemoryBudget budget, UUID databaseId, long number) {
+            NativeMemoryBudget budget, long capacityBytes, UUID databaseId, long number) {
         return new NativeSkipListMemTable(
                 budget,
-                MEMTABLE_BYTES,
+                capacityBytes,
                 "mem-" + databaseId + '-' + number,
                 databaseId.getLeastSignificantBits() ^ number);
+    }
+
+    private record RuntimeConfiguration(
+            long memtableBytes,
+            long walSegmentBytes,
+            int maximumSnapshots,
+            boolean compactionEnabled,
+            LevelCompactionConfig compactionConfig,
+            WritePressurePolicy writePressurePolicy,
+            WriteOptions defaultWriteOptions) {
+        private RuntimeConfiguration {
+            RegionConfig.validateCapacity(memtableBytes);
+            if (walSegmentBytes < WalFormatV1.HEADER_BLOCK_BYTES
+                    || walSegmentBytes > WalFormatV1.SEGMENT_CAPACITY) {
+                throw new IllegalArgumentException("invalid WAL segment byte threshold");
+            }
+            if (maximumSnapshots <= 0) throw new IllegalArgumentException("maximumSnapshots must be positive");
+            Objects.requireNonNull(compactionConfig, "compactionConfig");
+            Objects.requireNonNull(writePressurePolicy, "writePressurePolicy");
+            Objects.requireNonNull(defaultWriteOptions, "defaultWriteOptions");
+        }
+
+        static RuntimeConfiguration from(AetherConfiguration configuration) {
+            return new RuntimeConfiguration(
+                    longValue(configuration, "aether.memtable.native_bytes"),
+                    longValue(configuration, "aether.wal.segment_bytes"),
+                    intValue(configuration, "aether.snapshots.max_open"),
+                    booleanValue(configuration, "aether.compaction.enabled"),
+                    LevelCompactionConfig.defaults(),
+                    WritePressurePolicy.forImmutableLimit(
+                            intValue(configuration, "aether.memtable.immutable_limit")),
+                    new WriteOptions(
+                            DurabilityMode.valueOf(
+                                    configuration
+                                            .getOrDefault(
+                                                    CONFIG_REGISTRY.require(
+                                                            "aether.wal.durability_mode"))
+                                            .toUpperCase(java.util.Locale.ROOT)),
+                            WriteOptions.defaults().admissionTimeout(),
+                            WriteOptions.defaults().failFastOnBackpressure()));
+        }
+
+        private static long longValue(AetherConfiguration configuration, String name) {
+            return Long.parseLong(configuration.getOrDefault(CONFIG_REGISTRY.require(name)));
+        }
+
+        private static int intValue(AetherConfiguration configuration, String name) {
+            return Integer.parseInt(configuration.getOrDefault(CONFIG_REGISTRY.require(name)));
+        }
+
+        private static boolean booleanValue(AetherConfiguration configuration, String name) {
+            return Boolean.parseBoolean(configuration.getOrDefault(CONFIG_REGISTRY.require(name)));
+        }
     }
 
     private static void atomicWrite(Path root, String name, byte[] data) throws IOException {
@@ -1294,7 +1443,4 @@ final class PersistentAetherDatabase implements AetherDatabase {
 
     private record PreparedCommit(CommitRequest request, long firstSequence, long lastSequence) {}
 
-    private record Mutation(byte[] key, byte[] value, boolean delete) {}
-
-    private record DecodedGroup(long first, long last, List<Mutation> mutations) {}
 }

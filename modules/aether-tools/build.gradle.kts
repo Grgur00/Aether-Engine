@@ -1,10 +1,16 @@
 plugins { id("aether.java-application") }
 
 dependencies {
+    implementation(project(":modules:aether-admission"))
     implementation(project(":modules:aether-api"))
+    implementation(project(":modules:aether-config"))
+    implementation(project(":modules:aether-crypto"))
     implementation(project(":modules:aether-engine"))
     implementation(project(":modules:aether-format"))
     implementation(project(":modules:aether-io"))
+    implementation(project(":modules:aether-release"))
+    implementation(project(":modules:aether-reliability"))
+    implementation(project(":modules:aether-security-core"))
     implementation(project(":modules:aether-sstable"))
     implementation(project(":modules:aether-wal"))
 }

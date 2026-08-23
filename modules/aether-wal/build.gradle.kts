@@ -7,5 +7,6 @@ dependencies {
     implementation(project(":modules:aether-api"))
     implementation(project(":modules:aether-memory"))
     implementation(project(":modules:aether-format"))
+    implementation(project(":modules:aether-reliability"))
     implementation(project(":modules:aether-io"))
 }

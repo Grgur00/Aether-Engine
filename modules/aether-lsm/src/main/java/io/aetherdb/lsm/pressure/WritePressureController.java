@@ -1,19 +1,21 @@
 package io.aetherdb.lsm.pressure;
 
-import io.aetherdb.lsm.compaction.LevelCompactionConfig;
-
 import java.util.EnumSet;
 import java.util.Set;
 
 /** Pure write-pressure evaluator; admission waits happen before sequence or WAL mutation. */
 public final class WritePressureController {
-    private static final long WAL_SLOW = 512 * LevelCompactionConfig.MIB;
-    private static final long WAL_STOP = 2 * LevelCompactionConfig.GIB;
-    private static final long DEBT_SLOW = 2 * LevelCompactionConfig.GIB;
-    private static final long DEBT_STOP = 8 * LevelCompactionConfig.GIB;
+    private final WritePressurePolicy policy;
 
     /** Creates a stateless pressure evaluator. */
-    public WritePressureController() {}
+    public WritePressureController() {
+        this(WritePressurePolicy.defaults());
+    }
+
+    /** Creates a pressure evaluator with explicit thresholds. */
+    public WritePressureController(WritePressurePolicy policy) {
+        this.policy = java.util.Objects.requireNonNull(policy, "policy");
+    }
 
     /**
      * Evaluates one consistent set of pressure measurements.
@@ -25,52 +27,76 @@ public final class WritePressureController {
         Set<WritePressureReason> reasons = EnumSet.noneOf(WritePressureReason.class);
         boolean failed = input.backgroundFailed();
         boolean stopped =
-                input.immutableMemTables() >= 4
+                input.immutableMemTables() >= policy.immutableMemtableStop()
                         || !input.nativeCapacityAvailable()
-                        || input.retainedWalBytes() >= WAL_STOP
-                        || input.levelZeroFiles() >= 20
-                        || input.compactionDebtBytes() >= DEBT_STOP
+                        || input.retainedWalBytes() >= policy.walBytesStop()
+                        || input.levelZeroFiles() >= policy.levelZeroStop()
+                        || input.compactionDebtBytes() >= policy.compactionDebtStop()
                         || input.administrativelyPaused();
         if (input.backgroundFailed()) reasons.add(WritePressureReason.BACKGROUND_FAILURE);
         if (input.administrativelyPaused()) reasons.add(WritePressureReason.ADMINISTRATIVE_PAUSE);
-        if (input.immutableMemTables() >= 2) reasons.add(WritePressureReason.IMMUTABLE_MEMTABLES);
+        if (input.immutableMemTables() >= policy.immutableMemtableSlow())
+            reasons.add(WritePressureReason.IMMUTABLE_MEMTABLES);
         if (!input.nativeCapacityAvailable()) reasons.add(WritePressureReason.NATIVE_CAPACITY);
-        if (input.retainedWalBytes() >= WAL_SLOW) reasons.add(WritePressureReason.WAL_BYTES);
-        if (input.levelZeroFiles() >= 12) reasons.add(WritePressureReason.LEVEL_ZERO_FILES);
-        if (input.compactionDebtBytes() >= DEBT_SLOW)
+        if (input.retainedWalBytes() >= policy.walBytesSlow())
+            reasons.add(WritePressureReason.WAL_BYTES);
+        if (input.levelZeroFiles() >= policy.levelZeroSlow())
+            reasons.add(WritePressureReason.LEVEL_ZERO_FILES);
+        if (input.compactionDebtBytes() >= policy.compactionDebtSlow())
             reasons.add(WritePressureReason.COMPACTION_DEBT);
 
         if (input.diskMeasurementAvailable()) {
             long slowDisk =
                     Math.max(
-                            10 * LevelCompactionConfig.GIB, percentage(input.totalDiskBytes(), 15));
+                            10 * io.aetherdb.lsm.compaction.LevelCompactionConfig.GIB,
+                            percentage(input.totalDiskBytes(), 15));
             long stopDisk =
-                    Math.max(2 * LevelCompactionConfig.GIB, percentage(input.totalDiskBytes(), 5));
+                    Math.max(
+                            2 * io.aetherdb.lsm.compaction.LevelCompactionConfig.GIB,
+                            percentage(input.totalDiskBytes(), 5));
             if (input.usableDiskBytes() < slowDisk) reasons.add(WritePressureReason.DISK_SPACE);
             if (input.usableDiskBytes() < stopDisk) stopped = true;
         }
         if (failed) return new WritePressureSnapshot(WritePressureState.FAILED, reasons, 0, 1);
         if (stopped)
             return new WritePressureSnapshot(WritePressureState.STOPPED_RETRYABLE, reasons, 0, 1);
-        double severity = maximumSeverity(input);
+        double severity = maximumSeverity(input, policy);
         if (reasons.isEmpty())
             return new WritePressureSnapshot(WritePressureState.NORMAL, reasons, 0, 0);
         long delay = Math.min(10_000, Math.round(100 + severity * severity * 9_900));
         return new WritePressureSnapshot(WritePressureState.SLOWDOWN, reasons, delay, severity);
     }
 
-    private static double maximumSeverity(WritePressureInput input) {
+    private static double maximumSeverity(WritePressureInput input, WritePressurePolicy policy) {
         double severity = 0;
-        severity = Math.max(severity, ratio(input.immutableMemTables(), 2, 4));
-        severity = Math.max(severity, ratio(input.retainedWalBytes(), WAL_SLOW, WAL_STOP));
-        severity = Math.max(severity, ratio(input.levelZeroFiles(), 12, 20));
-        severity = Math.max(severity, ratio(input.compactionDebtBytes(), DEBT_SLOW, DEBT_STOP));
+        severity =
+                Math.max(
+                        severity,
+                        ratio(
+                                input.immutableMemTables(),
+                                policy.immutableMemtableSlow(),
+                                policy.immutableMemtableStop()));
+        severity =
+                Math.max(
+                        severity,
+                        ratio(input.retainedWalBytes(), policy.walBytesSlow(), policy.walBytesStop()));
+        severity = Math.max(severity, ratio(input.levelZeroFiles(), policy.levelZeroSlow(), policy.levelZeroStop()));
+        severity =
+                Math.max(
+                        severity,
+                        ratio(
+                                input.compactionDebtBytes(),
+                                policy.compactionDebtSlow(),
+                                policy.compactionDebtStop()));
         if (input.diskMeasurementAvailable()) {
             long slow =
                     Math.max(
-                            10 * LevelCompactionConfig.GIB, percentage(input.totalDiskBytes(), 15));
+                            10 * io.aetherdb.lsm.compaction.LevelCompactionConfig.GIB,
+                            percentage(input.totalDiskBytes(), 15));
             long stop =
-                    Math.max(2 * LevelCompactionConfig.GIB, percentage(input.totalDiskBytes(), 5));
+                    Math.max(
+                            2 * io.aetherdb.lsm.compaction.LevelCompactionConfig.GIB,
+                            percentage(input.totalDiskBytes(), 5));
             severity = Math.max(severity, 1 - ratio(input.usableDiskBytes(), stop, slow));
         }
         return Math.max(0, Math.min(1, severity));

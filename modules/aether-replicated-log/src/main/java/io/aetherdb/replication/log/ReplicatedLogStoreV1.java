@@ -6,6 +6,9 @@ import io.aetherdb.replication.api.ReplicatedEntryType;
 import io.aetherdb.replication.api.ReplicatedLogEntry;
 import io.aetherdb.replication.api.ReplicatedLogStore;
 import io.aetherdb.replication.api.ReplicatedLogStoreIdentity;
+import io.aetherdb.reliability.CrashContext;
+import io.aetherdb.reliability.CrashPointIds;
+import io.aetherdb.reliability.CrashPointRegistry;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -20,6 +23,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
@@ -175,6 +179,9 @@ public final class ReplicatedLogStoreV1 implements ReplicatedLogStore {
         try {
             active.force(true);
             durableIndex = lastIndexRaw();
+            CrashPointRegistry.hit(
+                    CrashPointIds.RAFT_APPEND_AFTER_LOG_PERSIST_BEFORE_REPLY,
+                    appendPersistContext(requestedIndex, durableIndex));
         } catch (IOException problem) {
             failure = problem;
             throw failure("replicated-log force failed", problem);
@@ -568,6 +575,13 @@ public final class ReplicatedLogStoreV1 implements ReplicatedLogStore {
                 entry.term(),
                 entry.stateSequenceAfter(),
                 entry.entryHash());
+    }
+
+    private static CrashContext appendPersistContext(long requestedIndex, long durableIndex) {
+        LinkedHashMap<String, String> attributes = new LinkedHashMap<>();
+        attributes.put("requested_index", Long.toUnsignedString(requestedIndex));
+        attributes.put("durable_index", Long.toUnsignedString(durableIndex));
+        return new CrashContext(attributes);
     }
 
     private long lastIndexRaw() {

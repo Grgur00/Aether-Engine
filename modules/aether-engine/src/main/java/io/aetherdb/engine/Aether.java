@@ -1,6 +1,7 @@
 package io.aetherdb.engine;
 
 import io.aetherdb.api.AetherDatabase;
+import io.aetherdb.config.AetherConfiguration;
 
 import java.nio.file.Path;
 
@@ -25,6 +26,18 @@ public final class Aether {
      */
     public static AetherDatabase open(Path directory) {
         return PersistentAetherDatabase.open(directory);
+    }
+
+    /**
+     * Opens or creates one process-exclusive persistent local database with validated production
+     * configuration.
+     *
+     * @param directory database directory
+     * @param configuration resolved Aether configuration
+     * @return opened persistent database
+     */
+    public static AetherDatabase open(Path directory, AetherConfiguration configuration) {
+        return PersistentAetherDatabase.open(directory, configuration);
     }
 
     /**

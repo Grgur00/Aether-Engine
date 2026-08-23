@@ -49,6 +49,22 @@ final class WritePressureControllerTest {
     }
 
     @Test
+    void customImmutableMemtablePolicyChangesSlowAndStopThresholds() {
+        WritePressureController custom =
+                new WritePressureController(WritePressurePolicy.forImmutableLimit(8));
+
+        assertEquals(
+                WritePressureState.NORMAL,
+                custom.evaluate(input(3, true, 0, 0, 0, 100, 100)).state());
+        assertEquals(
+                WritePressureState.SLOWDOWN,
+                custom.evaluate(input(4, true, 0, 0, 0, 100, 100)).state());
+        assertEquals(
+                WritePressureState.STOPPED_RETRYABLE,
+                custom.evaluate(input(8, true, 0, 0, 0, 100, 100)).state());
+    }
+
+    @Test
     void diskThresholdUsesAbsoluteOrPercentageMaximum() {
         long gib = LevelCompactionConfig.GIB;
         WritePressureSnapshot stopped =

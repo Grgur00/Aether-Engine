@@ -40,9 +40,9 @@ public final class ClientWriteCodecV1 {
                 .putInt(regionBytes)
                 .putInt(1)
                 .putLong(request.configurationVersion())
-                .putLong(0)
-                .putLong(0)
-                .putLong(0)
+                .putLong(request.commandId().getMostSignificantBits())
+                .putLong(request.commandId().getLeastSignificantBits())
+                .putLong(request.deduplicated() ? 1 : 0)
                 .putLong(keys)
                 .putLong(values);
         int hashPosition = b.position();
@@ -86,7 +86,9 @@ public final class ClientWriteCodecV1 {
         int count = b.getInt(), region = b.getInt();
         if (b.getInt() != 1 || region != in.length - 128) throw invalid();
         long config = b.getLong();
-        if (b.getLong() != 0 || b.getLong() != 0 || b.getLong() != 0) throw invalid();
+        UUID commandId = new UUID(b.getLong(), b.getLong());
+        long deduplicationFlags = b.getLong();
+        if ((deduplicationFlags & ~1L) != 0) throw invalid();
         long keys = b.getLong(), values = b.getLong();
         byte[] hash = new byte[32];
         b.get(hash);
@@ -117,7 +119,7 @@ public final class ClientWriteCodecV1 {
             actualValues += vl;
         }
         if (b.hasRemaining() || keys != actualKeys || values != actualValues) throw invalid();
-        return new ClientWriteRequest(config, ops);
+        return new ClientWriteRequest(config, commandId, (deduplicationFlags & 1L) == 1L, ops);
     }
 
     private static byte[] sha(byte[] value) {

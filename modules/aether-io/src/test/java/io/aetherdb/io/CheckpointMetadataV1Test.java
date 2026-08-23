@@ -3,8 +3,15 @@ package io.aetherdb.io;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.aetherdb.format.catalog.AetherFormatCatalog;
+import io.aetherdb.format.catalog.FormatGoldenFixture;
+import io.aetherdb.format.catalog.FormatGoldenFixtureCatalog;
+
 import org.junit.jupiter.api.Test;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.UUID;
 
 class CheckpointMetadataV1Test {
@@ -32,5 +39,49 @@ class CheckpointMetadataV1Test {
         encoded[100] ^= 1;
         assertThatThrownBy(() -> CheckpointMetadataV1.decode(encoded))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void checkpointMetadataMatchesGoldenFixtureCatalog() {
+        byte[] fingerprint = new byte[32];
+        for (int index = 0; index < fingerprint.length; index++) fingerprint[index] = (byte) index;
+        CheckpointMetadataV1 metadata =
+                new CheckpointMetadataV1(
+                        UUID.fromString("3bd39131-3aca-4569-bfe5-cd7d5a1a3421"),
+                        42,
+                        100,
+                        7,
+                        7,
+                        9,
+                        3,
+                        1234,
+                        fingerprint);
+        byte[] encoded = metadata.encode();
+        FormatGoldenFixture fixture =
+                FormatGoldenFixtureCatalog.current(AetherFormatCatalog.current())
+                        .require(
+                                "aether.checkpoint_metadata.v1",
+                                "canonical-checkpoint-metadata-v1");
+
+        assertThat(encoded).hasSize(fixture.byteLength());
+        assertThat(sha256Hex(encoded)).isEqualTo(fixture.sha256Hex());
+        CheckpointMetadataV1 decoded = CheckpointMetadataV1.decode(encoded);
+        assertThat(decoded.databaseId()).isEqualTo(metadata.databaseId());
+        assertThat(decoded.checkpointSequence()).isEqualTo(metadata.checkpointSequence());
+        assertThat(decoded.creationEpochMillis()).isEqualTo(metadata.creationEpochMillis());
+        assertThat(decoded.sourceReadViewGeneration()).isEqualTo(metadata.sourceReadViewGeneration());
+        assertThat(decoded.sourceManifestNumber()).isEqualTo(metadata.sourceManifestNumber());
+        assertThat(decoded.checkpointManifestNumber()).isEqualTo(metadata.checkpointManifestNumber());
+        assertThat(decoded.sstableFileCount()).isEqualTo(metadata.sstableFileCount());
+        assertThat(decoded.totalSstableBytes()).isEqualTo(metadata.totalSstableBytes());
+        assertThat(decoded.compatibilityFingerprint()).isEqualTo(fingerprint);
+    }
+
+    private static String sha256Hex(byte[] bytes) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
+        } catch (NoSuchAlgorithmException e) {
+            throw new AssertionError(e);
+        }
     }
 }

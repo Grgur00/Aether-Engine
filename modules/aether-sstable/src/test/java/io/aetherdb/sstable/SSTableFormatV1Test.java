@@ -3,6 +3,11 @@ package io.aetherdb.sstable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.aetherdb.format.catalog.AetherFormatCatalog;
+import io.aetherdb.format.catalog.FormatGoldenFixture;
+import io.aetherdb.format.catalog.FormatGoldenFixtureCatalog;
+import io.aetherdb.reliability.CorruptionMutator;
+import io.aetherdb.reliability.CorruptionPlan;
 import io.aetherdb.sstable.block.BlockEnvelope;
 import io.aetherdb.sstable.block.BlockHandle;
 import io.aetherdb.sstable.block.BlockKind;
@@ -17,7 +22,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -84,12 +92,7 @@ class SSTableFormatV1Test {
 
     @Test
     void restartCompressionReconstructsExactEntries() {
-        List<RestartBlock.Entry> entries =
-                List.of(
-                        new RestartBlock.Entry(bytes("car"), bytes("1")),
-                        new RestartBlock.Entry(bytes("carbon"), new byte[0]),
-                        new RestartBlock.Entry(bytes("cart"), bytes("3")),
-                        new RestartBlock.Entry(bytes("dog"), bytes("4")));
+        List<RestartBlock.Entry> entries = canonicalRestartBlockFixtureEntries();
         assertThat(RestartBlock.decode(RestartBlock.encode(entries, 2)))
                 .containsExactlyElementsOf(entries);
         int bodySize = 0;
@@ -103,6 +106,21 @@ class SSTableFormatV1Test {
         }
         assertThat(bodySize + restartCount * 4 + 4)
                 .isEqualTo(RestartBlock.encode(entries, 2).length);
+    }
+
+    @Test
+    void restartBlockMatchesGoldenFixtureCatalog() {
+        List<RestartBlock.Entry> entries = canonicalRestartBlockFixtureEntries();
+        byte[] encoded = RestartBlock.encode(entries, 2);
+        FormatGoldenFixture fixture =
+                FormatGoldenFixtureCatalog.current(AetherFormatCatalog.current())
+                        .require(
+                                "aether.sstable_restart_block.v1",
+                                "canonical-four-entry-block-v1");
+
+        assertThat(encoded).hasSize(fixture.byteLength());
+        assertThat(sha256Hex(encoded)).isEqualTo(fixture.sha256Hex());
+        assertThat(RestartBlock.decode(encoded)).containsExactlyElementsOf(entries);
     }
 
     @Test
@@ -147,6 +165,22 @@ class SSTableFormatV1Test {
     }
 
     @Test
+    void bloomFilterMatchesGoldenFixtureCatalog() {
+        byte[] filter =
+                BloomFilterV1.build(List.of(bytes("alpha"), bytes("bravo"), bytes("charlie")));
+        FormatGoldenFixture fixture =
+                FormatGoldenFixtureCatalog.current(AetherFormatCatalog.current())
+                        .require("aether.sstable_bloom.v1", "canonical-three-key-filter-v1");
+        BloomFilterV1.Filter decoded = BloomFilterV1.decode(filter);
+
+        assertThat(filter).hasSize(fixture.byteLength());
+        assertThat(sha256Hex(filter)).isEqualTo(fixture.sha256Hex());
+        assertThat(decoded.mayContain(bytes("alpha"))).isTrue();
+        assertThat(decoded.mayContain(bytes("bravo"))).isTrue();
+        assertThat(decoded.mayContain(bytes("charlie"))).isTrue();
+    }
+
+    @Test
     void blockEnvelopeAuthenticatesRawBytesAndTrailerMetadata() {
         byte[] physical = BlockEnvelope.encode(bytes("payload"), BlockKind.DATA);
         assertThat(BlockEnvelope.decode(physical, BlockKind.DATA)).isEqualTo(bytes("payload"));
@@ -162,6 +196,20 @@ class SSTableFormatV1Test {
     }
 
     @Test
+    void blockEnvelopeMatchesGoldenFixtureCatalog() {
+        byte[] physical = BlockEnvelope.encode(bytes("payload"), BlockKind.DATA);
+        FormatGoldenFixture fixture =
+                FormatGoldenFixtureCatalog.current(AetherFormatCatalog.current())
+                        .require(
+                                "aether.sstable_block_envelope.v1",
+                                "canonical-data-block-envelope-v1");
+
+        assertThat(physical).hasSize(fixture.byteLength());
+        assertThat(sha256Hex(physical)).isEqualTo(fixture.sha256Hex());
+        assertThat(BlockEnvelope.decode(physical, BlockKind.DATA)).isEqualTo(bytes("payload"));
+    }
+
+    @Test
     void blockHandleIsCanonicalBoundedAndRejectsReservedBytes() {
         BlockHandle handle = new BlockHandle(4_096, 200);
         assertThat(BlockHandle.decode(handle.encode())).isEqualTo(handle);
@@ -172,6 +220,19 @@ class SSTableFormatV1Test {
         reserved[12] = 1;
         assertThatThrownBy(() -> BlockHandle.decode(reserved))
                 .isInstanceOf(SSTableCorruptionException.class);
+    }
+
+    @Test
+    void blockHandleMatchesGoldenFixtureCatalog() {
+        BlockHandle handle = new BlockHandle(4_096, 200);
+        byte[] encoded = handle.encode();
+        FormatGoldenFixture fixture =
+                FormatGoldenFixtureCatalog.current(AetherFormatCatalog.current())
+                        .require("aether.sstable_block_handle.v1", "canonical-offset-length-v1");
+
+        assertThat(encoded).hasSize(fixture.byteLength());
+        assertThat(sha256Hex(encoded)).isEqualTo(fixture.sha256Hex());
+        assertThat(BlockHandle.decode(encoded)).isEqualTo(handle);
     }
 
     @Test
@@ -191,6 +252,21 @@ class SSTableFormatV1Test {
         assertThatThrownBy(() -> SSTableHeaderV1.decodeRegion(corrupt))
                 .isInstanceOf(SSTableCorruptionException.class);
         assertThat(ByteBuffer.wrap(region).order(ByteOrder.LITTLE_ENDIAN).getLong(16)).isEqualTo(7);
+    }
+
+    @Test
+    void exactHeaderRegionMatchesGoldenFixtureCatalog() {
+        UUID databaseId = UUID.fromString("3b80c2d5-5044-4e3c-b34d-c574805d47e2");
+        SSTableHeaderV1 expected = new SSTableHeaderV1(7, databaseId, 19, 2, 31, 3, 1234, 8_192);
+        byte[] region = new byte[SSTableHeaderV1.HEADER_REGION_BYTES];
+        System.arraycopy(expected.encode(), 0, region, 0, SSTableHeaderV1.HEADER_BYTES);
+        FormatGoldenFixture fixture =
+                FormatGoldenFixtureCatalog.current(AetherFormatCatalog.current())
+                        .require("aether.sstable.v1", "canonical-header-region-v1");
+
+        assertThat(region).hasSize(fixture.byteLength());
+        assertThat(sha256Hex(region)).isEqualTo(fixture.sha256Hex());
+        assertThat(SSTableHeaderV1.decodeRegion(region)).isEqualTo(expected);
     }
 
     @Test
@@ -222,6 +298,28 @@ class SSTableFormatV1Test {
         corrupt[124] ^= 1;
         assertThatThrownBy(() -> SSTableFooterV1.decode(corrupt))
                 .isInstanceOf(SSTableCorruptionException.class);
+    }
+
+    @Test
+    void footerMatchesGoldenFixtureCatalog() {
+        UUID databaseId = UUID.fromString("a791fb43-012a-4af8-93a9-34ae5ed988a7");
+        SSTableFooterV1 footer =
+                new SSTableFooterV1(
+                        new BlockHandle(4_096, 80),
+                        new BlockHandle(4_176, 80),
+                        new BlockHandle(4_256, 80),
+                        new BlockHandle(4_336, 80),
+                        9,
+                        8_192,
+                        databaseId);
+        byte[] encoded = footer.encode();
+        FormatGoldenFixture fixture =
+                FormatGoldenFixtureCatalog.current(AetherFormatCatalog.current())
+                        .require("aether.sstable_footer.v1", "canonical-four-handle-footer-v1");
+
+        assertThat(encoded).hasSize(fixture.byteLength());
+        assertThat(sha256Hex(encoded)).isEqualTo(fixture.sha256Hex());
+        assertThat(SSTableFooterV1.decode(encoded)).isEqualTo(footer);
     }
 
     @Test
@@ -275,6 +373,33 @@ class SSTableFormatV1Test {
     }
 
     @Test
+    void corruptionMutatorDrivesTableHeaderAndDataBlockFailures() throws Exception {
+        Path table = temporaryDirectory.resolve("SST-00000000000000000078.aesst");
+        UUID databaseId = UUID.fromString("63e4f862-6e48-404d-a6e5-e81d6f31ff8f");
+        SSTableBuilder builder = new SSTableBuilder(table, 78, databaseId, 2);
+        builder.add(new InternalKey(bytes("a"), 3, (byte) 1), bytes("alpha"));
+        builder.add(new InternalKey(bytes("b"), 2, (byte) 1), bytes("bravo"));
+        TableFileMetadata metadata = builder.finish();
+        byte[] original = Files.readAllBytes(table);
+
+        byte[] headerCorrupt =
+                CorruptionMutator.apply(original, CorruptionPlan.flipBit(56, 0));
+        Files.write(table, headerCorrupt);
+        assertThatThrownBy(() -> SSTableReader.open(table, metadata))
+                .isInstanceOf(SSTableCorruptionException.class)
+                .hasMessageContaining("header");
+
+        byte[] dataCorrupt =
+                CorruptionMutator.apply(
+                        original,
+                        CorruptionPlan.flipBit(SSTableHeaderV1.HEADER_REGION_BYTES + 3, 0));
+        Files.write(table, dataCorrupt);
+        assertThatThrownBy(() -> SSTableReader.open(table, metadata))
+                .isInstanceOf(SSTableCorruptionException.class)
+                .hasMessageContaining("checksum");
+    }
+
+    @Test
     void indexedLookupResolvesEntriesAcrossBlockBoundaries() throws Exception {
         Path table = temporaryDirectory.resolve("SST-00000000000000000088.aesst");
         UUID databaseId = UUID.fromString("c98f846d-939f-44f6-9d8a-51084c7cb0d1");
@@ -306,5 +431,21 @@ class SSTableFormatV1Test {
         byte[] bytes = new byte[length];
         random.nextBytes(bytes);
         return bytes;
+    }
+
+    private static List<RestartBlock.Entry> canonicalRestartBlockFixtureEntries() {
+        return List.of(
+                new RestartBlock.Entry(bytes("car"), bytes("1")),
+                new RestartBlock.Entry(bytes("carbon"), new byte[0]),
+                new RestartBlock.Entry(bytes("cart"), bytes("3")),
+                new RestartBlock.Entry(bytes("dog"), bytes("4")));
+    }
+
+    private static String sha256Hex(byte[] bytes) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
+        } catch (NoSuchAlgorithmException e) {
+            throw new AssertionError(e);
+        }
     }
 }

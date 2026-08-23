@@ -3,6 +3,8 @@ package io.aetherdb.rpc.transport;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.aetherdb.admission.AdmissionOutcome;
+import io.aetherdb.config.AetherConfiguration;
 import io.aetherdb.rpc.api.RpcBackpressureMode;
 import io.aetherdb.rpc.api.RpcCallOptions;
 import io.aetherdb.rpc.api.RpcExecutionPolicy;
@@ -15,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -154,5 +157,109 @@ class PlaintextDevelopmentRpcTest {
                     .hasCauseInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("IDEMPOTENT");
         }
+    }
+
+    @Test
+    void outboundAdmissionAcceptsWhenQueueHasCapacity() {
+        var decision = PlaintextDevelopmentRpc.outboundAdmission(ECHO, 1024, 1, 0, false);
+
+        assertThat(decision.outcome()).isEqualTo(AdmissionOutcome.ACCEPTED);
+        assertThat(decision.reasons()).isEmpty();
+    }
+
+    @Test
+    void outboundAdmissionRejectsWhenPermitBudgetWouldBeExhausted() {
+        var decision =
+                PlaintextDevelopmentRpc.outboundAdmission(
+                        ECHO, 1024, 1, 64 * 1024 - 1, false);
+
+        assertThat(decision.outcome()).isEqualTo(AdmissionOutcome.RESOURCE_EXHAUSTED);
+        assertThat(decision.reasons())
+                .containsExactly("emergency limit reached: VIRTUAL_THREAD_INFLIGHT");
+    }
+
+    @Test
+    void outboundAdmissionRejectsDrainingConnectionBeforeQueueEvaluation() {
+        var decision = PlaintextDevelopmentRpc.outboundAdmission(ECHO, 1024, 1, 0, true);
+
+        assertThat(decision.outcome()).isEqualTo(AdmissionOutcome.DRAINING_REJECTED);
+        assertThat(decision.reasons()).containsExactly("node is draining");
+    }
+
+    @Test
+    void rpcTransportConfigurationUsesChapter32LimitsForOutboundAdmission() {
+        RpcTransportConfiguration configuration =
+                RpcTransportConfiguration.from(
+                        new AetherConfiguration(
+                                Map.of(
+                                        "aether.security.profile",
+                                        "development",
+                                        "aether.rpc.outbound_bytes",
+                                        "1048576")));
+
+        var accepted =
+                PlaintextDevelopmentRpc.outboundAdmission(ECHO, 1024, 1, 1022, false, configuration);
+        var rejected =
+                PlaintextDevelopmentRpc.outboundAdmission(ECHO, 1024, 1, 1023, false, configuration);
+
+        assertThat(configuration.outboundPermits()).isEqualTo(1024);
+        assertThat(accepted.outcome()).isEqualTo(AdmissionOutcome.ACCEPTED);
+        assertThat(rejected.outcome()).isEqualTo(AdmissionOutcome.RESOURCE_EXHAUSTED);
+    }
+
+    @Test
+    void inboundAdmissionAcceptsKnownAndUnknownOperationsWithinWindow() {
+        var known = PlaintextDevelopmentRpc.inboundAdmission(ECHO, 1024, 0, 0, false);
+        var unknown = PlaintextDevelopmentRpc.inboundAdmission(null, 1024, 0, 0, false);
+
+        assertThat(known.outcome()).isEqualTo(AdmissionOutcome.ACCEPTED);
+        assertThat(unknown.outcome()).isEqualTo(AdmissionOutcome.ACCEPTED);
+    }
+
+    @Test
+    void inboundAdmissionRejectsWhenConnectionWindowWouldBeExhausted() {
+        var decision =
+                PlaintextDevelopmentRpc.inboundAdmission(
+                        ECHO, 1, 64L * 1024 * 1024 - 1, 0, false);
+
+        assertThat(decision.outcome()).isEqualTo(AdmissionOutcome.RESOURCE_EXHAUSTED);
+        assertThat(decision.reasons()).containsExactly("emergency limit reached: RPC_INBOUND_BYTES");
+    }
+
+    @Test
+    void inboundAdmissionRejectsWhenStreamLimitWouldBeExhausted() {
+        var decision = PlaintextDevelopmentRpc.inboundAdmission(ECHO, 1, 0, 1023, false);
+
+        assertThat(decision.outcome()).isEqualTo(AdmissionOutcome.RESOURCE_EXHAUSTED);
+        assertThat(decision.reasons()).containsExactly("emergency limit reached: RPC_INFLIGHT_STREAMS");
+    }
+
+    @Test
+    void rpcTransportConfigurationUsesChapter32LimitsForInboundAdmission() {
+        RpcTransportConfiguration configuration =
+                RpcTransportConfiguration.from(
+                        new AetherConfiguration(
+                                Map.of(
+                                        "aether.security.profile",
+                                        "development",
+                                        "aether.rpc.inbound_bytes",
+                                        "1048576",
+                                        "aether.rpc.max_streams",
+                                        "2")));
+
+        var bytes =
+                PlaintextDevelopmentRpc.inboundAdmission(
+                        ECHO, 1, 1024L * 1024L - 1, 0, false, configuration);
+        var streams = PlaintextDevelopmentRpc.inboundAdmission(ECHO, 1, 0, 2, false, configuration);
+
+        assertThat(bytes.outcome()).isEqualTo(AdmissionOutcome.RESOURCE_EXHAUSTED);
+        assertThat(streams.outcome()).isEqualTo(AdmissionOutcome.RESOURCE_EXHAUSTED);
+    }
+
+    @Test
+    void inboundAdmissionRejectsKnownOperationOverDeclaredRequestLimit() {
+        assertThatThrownBy(() -> PlaintextDevelopmentRpc.inboundAdmission(ECHO, 4 * 1024 * 1024 + 1, 0, 0, false))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("request exceeds operation limit");
     }
 }

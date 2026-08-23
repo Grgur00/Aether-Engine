@@ -6,6 +6,16 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import io.aetherdb.api.*;
 import io.aetherdb.api.exceptions.DatabaseOpenException;
+import io.aetherdb.admission.AdmissionOutcome;
+import io.aetherdb.config.AetherConfiguration;
+import io.aetherdb.lsm.pressure.WritePressureReason;
+import io.aetherdb.lsm.pressure.WritePressureSnapshot;
+import io.aetherdb.lsm.pressure.WritePressureState;
+import io.aetherdb.reliability.CrashPointException;
+import io.aetherdb.reliability.CrashPointIds;
+import io.aetherdb.reliability.CrashPointRegistry;
+import io.aetherdb.reliability.ScopedCrashPoint;
+import io.aetherdb.reliability.TriggeringCrashPoint;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
@@ -17,6 +27,56 @@ import java.util.*;
 
 class PersistentAetherDatabaseTest {
     @TempDir Path temp;
+
+    @Test
+    void writePressureNormalMapsToAcceptedAdmissionDecision() {
+        var decision =
+                PersistentAetherDatabase.writeAdmissionDecision(
+                        new WritePressureSnapshot(
+                                WritePressureState.NORMAL, Set.of(), 0, 0));
+
+        assertThat(decision.outcome()).isEqualTo(AdmissionOutcome.ACCEPTED);
+        assertThat(decision.reasons()).isEmpty();
+        assertThat(decision.suggestedDelay()).isZero();
+    }
+
+    @Test
+    void writePressureSlowdownMapsToPreAckDecisionWithDelay() {
+        var decision =
+                PersistentAetherDatabase.writeAdmissionDecision(
+                        new WritePressureSnapshot(
+                                WritePressureState.SLOWDOWN,
+                                Set.of(WritePressureReason.WAL_BYTES),
+                                250,
+                                0.5));
+
+        assertThat(decision.outcome()).isEqualTo(AdmissionOutcome.REJECTED_BEFORE_ACK);
+        assertThat(decision.reasons()).containsExactly("write pressure: WAL_BYTES");
+        assertThat(decision.suggestedDelay()).isEqualTo(java.time.Duration.ofNanos(250_000));
+    }
+
+    @Test
+    void writePressureStoppedAndFailedMapToExplicitRejections() {
+        var stopped =
+                PersistentAetherDatabase.writeAdmissionDecision(
+                        new WritePressureSnapshot(
+                                WritePressureState.STOPPED_RETRYABLE,
+                                Set.of(WritePressureReason.NATIVE_CAPACITY),
+                                0,
+                                1));
+        var failed =
+                PersistentAetherDatabase.writeAdmissionDecision(
+                        new WritePressureSnapshot(
+                                WritePressureState.FAILED,
+                                Set.of(WritePressureReason.BACKGROUND_FAILURE),
+                                0,
+                                1));
+
+        assertThat(stopped.outcome()).isEqualTo(AdmissionOutcome.RESOURCE_EXHAUSTED);
+        assertThat(stopped.reasons()).containsExactly("write pressure: NATIVE_CAPACITY");
+        assertThat(failed.outcome()).isEqualTo(AdmissionOutcome.REJECTED_BEFORE_ACK);
+        assertThat(failed.reasons()).containsExactly("write pressure: BACKGROUND_FAILURE");
+    }
 
     @Test
     void valuesAndDeletesSurviveMultipleReopens() {
@@ -35,6 +95,62 @@ class PersistentAetherDatabaseTest {
         try (AetherDatabase db = Aether.open(root)) {
             assertThat(db.get(b("a")).isFound()).isFalse();
         }
+    }
+
+    @Test
+    void runtimeConfigurationUsesChapter32SnapshotLimit() {
+        AetherConfiguration configuration =
+                new AetherConfiguration(
+                        Map.of(
+                                "aether.security.profile",
+                                "development",
+                                "aether.snapshots.max_open",
+                                "1"));
+
+        assertThat(PersistentAetherDatabase.configuredMaximumSnapshotsForTesting(configuration))
+                .isEqualTo(1);
+    }
+
+    @Test
+    void runtimeConfigurationUsesChapter32WalSegmentLimit() {
+        AetherConfiguration configuration =
+                new AetherConfiguration(
+                        Map.of(
+                                "aether.security.profile",
+                                "development",
+                                "aether.wal.segment_bytes",
+                                Long.toString(4L * 1024L * 1024L)));
+
+        assertThat(PersistentAetherDatabase.configuredWalSegmentBytesForTesting(configuration))
+                .isEqualTo(4L * 1024L * 1024L);
+    }
+
+    @Test
+    void runtimeConfigurationUsesChapter32ImmutableMemtableLimit() {
+        AetherConfiguration configuration =
+                new AetherConfiguration(
+                        Map.of(
+                                "aether.security.profile",
+                                "development",
+                                "aether.memtable.immutable_limit",
+                                "8"));
+
+        assertThat(PersistentAetherDatabase.configuredImmutableMemtableStopForTesting(configuration))
+                .isEqualTo(8);
+    }
+
+    @Test
+    void runtimeConfigurationUsesChapter32WalDurabilityMode() {
+        AetherConfiguration configuration =
+                new AetherConfiguration(
+                        Map.of(
+                                "aether.security.profile",
+                                "development",
+                                "aether.wal.durability_mode",
+                                "SYNC"));
+
+        assertThat(PersistentAetherDatabase.configuredDefaultDurabilityForTesting(configuration))
+                .isEqualTo(DurabilityMode.SYNC);
     }
 
     @Test
@@ -67,6 +183,63 @@ class PersistentAetherDatabaseTest {
         try (AetherDatabase recovered = Aether.open(crash)) {
             assertThat(text(recovered.get(b("key")).value())).isEqualTo("wal");
         }
+    }
+
+    @Test
+    void walCrashPointAfterFragmentWriteMakesBatchOutcomeIndeterminate() {
+        Path root = temp.resolve("db");
+        TriggeringCrashPoint crashPoint =
+                new TriggeringCrashPoint(CrashPointIds.WAL_AFTER_FRAGMENT_WRITE_BEFORE_FORCE, 1);
+
+        try (ScopedCrashPoint ignored = CrashPointRegistry.install(crashPoint);
+                AetherDatabase db = Aether.open(root);
+                WriteBatch batch = new WriteBatch().put(b("key"), b("value"))) {
+            assertThat(ignored).isNotNull();
+            assertThatThrownBy(() -> db.write(batch))
+                    .isInstanceOf(CrashPointException.class)
+                    .hasMessageContaining(CrashPointIds.WAL_AFTER_FRAGMENT_WRITE_BEFORE_FORCE);
+            assertThat(batch.state()).isEqualTo(WriteBatch.State.INDETERMINATE);
+        }
+
+        assertThat(crashPoint.hits()).isEqualTo(1);
+    }
+
+    @Test
+    void writeCrashPointAfterSequenceAllocationFailsBeforeWalSubmission() {
+        Path root = temp.resolve("db");
+        TriggeringCrashPoint crashPoint =
+                new TriggeringCrashPoint(CrashPointIds.WRITE_AFTER_SEQUENCE_ALLOCATED, 1);
+
+        try (ScopedCrashPoint ignored = CrashPointRegistry.install(crashPoint);
+                AetherDatabase db = Aether.open(root);
+                WriteBatch batch = new WriteBatch().put(b("key"), b("value"))) {
+            assertThat(ignored).isNotNull();
+            assertThatThrownBy(() -> db.write(batch))
+                    .isInstanceOf(CrashPointException.class)
+                    .hasMessageContaining(CrashPointIds.WRITE_AFTER_SEQUENCE_ALLOCATED);
+            assertThat(batch.state()).isEqualTo(WriteBatch.State.FAILED);
+        }
+
+        assertThat(crashPoint.hits()).isEqualTo(1);
+    }
+
+    @Test
+    void walCrashPointAfterForceBeforeAckMakesBatchOutcomeIndeterminate() {
+        Path root = temp.resolve("db");
+        TriggeringCrashPoint crashPoint =
+                new TriggeringCrashPoint(CrashPointIds.WAL_AFTER_FORCE_BEFORE_VISIBILITY, 1);
+
+        try (ScopedCrashPoint ignored = CrashPointRegistry.install(crashPoint);
+                AetherDatabase db = Aether.open(root);
+                WriteBatch batch = new WriteBatch().put(b("key"), b("value"))) {
+            assertThat(ignored).isNotNull();
+            assertThatThrownBy(() -> db.write(batch))
+                    .isInstanceOf(CrashPointException.class)
+                    .hasMessageContaining(CrashPointIds.WAL_AFTER_FORCE_BEFORE_VISIBILITY);
+            assertThat(batch.state()).isEqualTo(WriteBatch.State.INDETERMINATE);
+        }
+
+        assertThat(crashPoint.hits()).isEqualTo(1);
     }
 
     @Test

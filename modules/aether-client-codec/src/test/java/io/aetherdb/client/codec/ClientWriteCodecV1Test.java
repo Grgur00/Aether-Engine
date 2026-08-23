@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 
 final class ClientWriteCodecV1Test {
     @Test
@@ -28,9 +29,30 @@ final class ClientWriteCodecV1Test {
         assertThat(encoded).hasSize(128 + 16 + 14 + 3 + 16 + 15);
         var decoded = ClientWriteCodecV1.decode(encoded);
         assertThat(decoded.configurationVersion()).isEqualTo(7);
+        assertThat(decoded.commandId()).isEqualTo(ClientWriteRequest.NO_COMMAND_ID);
+        assertThat(decoded.deduplicated()).isFalse();
         assertThat(decoded.operations()).hasSize(2);
         assertThat(decoded.operations().get(0).value()).isEqualTo(bytes("Ada"));
         assertThat(decoded.operations().get(1).type()).isEqualTo(ClientWriteOperation.Type.DELETE);
+    }
+
+    @Test
+    void deduplicatedCommandIdentityRoundTrips() {
+        UUID commandId = UUID.fromString("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
+        var request =
+                ClientWriteRequest.deduplicated(
+                        9,
+                        commandId,
+                        List.of(
+                                new ClientWriteOperation(
+                                        ClientWriteOperation.Type.PUT, bytes("k"), bytes("v"))));
+
+        var decoded = ClientWriteCodecV1.decode(ClientWriteCodecV1.encode(request));
+
+        assertThat(decoded.configurationVersion()).isEqualTo(9);
+        assertThat(decoded.commandId()).isEqualTo(commandId);
+        assertThat(decoded.deduplicated()).isTrue();
+        assertThat(decoded.operations().getFirst().key()).isEqualTo(bytes("k"));
     }
 
     @Test

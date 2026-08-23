@@ -195,161 +195,80 @@ public final class CvBenchmark {
         long logicalBytes = Math.multiplyExact(config.records(), 16L + config.valueBytes());
         long medianRecoveryNanos =
                 median(recoveries.stream().mapToLong(RecoveryTrial::openNanos).toArray());
-        StringBuilder json = new StringBuilder(4_096);
-        json.append("{\n");
-        field(json, 1, "schemaVersion", "1", false);
-        field(json, 1, "collectedAt", quote(Instant.now().toString()), false);
-        field(json, 1, "aetherCommit", quote(command("git", "rev-parse", "HEAD")), false);
-        field(
-                json,
-                1,
-                "workingTreeDirty",
-                Boolean.toString(!command("git", "status", "--porcelain").isBlank()),
-                false);
-        json.append("  \"environment\": {\n");
-        field(
-                json,
-                2,
-                "os",
-                quote(System.getProperty("os.name") + " " + System.getProperty("os.version")),
-                false);
-        field(json, 2, "architecture", quote(System.getProperty("os.arch")), false);
-        field(
-                json,
-                2,
-                "availableProcessors",
-                Integer.toString(Runtime.getRuntime().availableProcessors()),
-                false);
-        field(json, 2, "cpu", quote(cpuDescription()), false);
-        field(json, 2, "jdk", quote(System.getProperty("java.runtime.version")), false);
-        field(json, 2, "vm", quote(System.getProperty("java.vm.name")), false);
-        field(
-                json,
-                2,
-                "jvmArguments",
-                quote(String.join(" ", ManagementFactory.getRuntimeMXBean().getInputArguments())),
-                false);
-        field(json, 2, "maximumHeapBytes", Long.toString(Runtime.getRuntime().maxMemory()), true);
-        json.append("  },\n");
-        json.append("  \"configuration\": {\n");
-        field(
-                json,
-                2,
-                "databaseDirectory",
-                quote(config.directory().toAbsolutePath().normalize().toString()),
-                false);
-        field(json, 2, "records", Long.toString(config.records()), false);
-        field(json, 2, "keyBytes", "16", false);
-        field(json, 2, "valueBytes", Integer.toString(config.valueBytes()), false);
-        field(json, 2, "measuredReads", Integer.toString(config.reads()), false);
-        field(json, 2, "readThreads", "1", false);
-        field(json, 2, "batchSize", Integer.toString(config.batchSize()), false);
-        field(json, 2, "durability", quote(config.durability().name()), false);
-        field(json, 2, "cacheMode", quote(config.cacheMode().name()), false);
-        field(
-                json,
-                2,
-                "crashModel",
-                quote("child Runtime.halt after acknowledged durable marker write"),
-                false);
-        field(json, 2, "crashTrials", Integer.toString(config.crashPoints()), true);
-        json.append("  },\n");
-        json.append("  \"writeWorkload\": {\n");
-        field(json, 2, "totalRecords", Long.toString(config.records()), false);
-        field(json, 2, "elapsedNanos", Long.toString(writeElapsedNanos), false);
-        field(json, 2, "throughputRecordsPerSecond", decimal(writesPerSecond), false);
-        field(json, 2, "latencyScope", quote("atomic batch submission"), false);
-        appendLatency(json, writes, 2, false);
-        field(json, 2, "logicalKeyValueBytes", Long.toString(logicalBytes), false);
-        field(json, 2, "databaseBytesAfterLoad", Long.toString(databaseBytesAfterLoad), true);
-        json.append("  },\n");
-        json.append("  \"pointReadWorkload\": {\n");
-        field(json, 2, "cacheState", quote(config.cacheMode().description()), false);
-        field(json, 2, "databaseOpenNanos", Long.toString(readDatabaseOpenNanos), false);
-        field(
-                json,
-                2,
+        String commit = command("git", "rev-parse", "HEAD");
+        if (commit.isBlank()) commit = "unknown";
+        var environment = new java.util.LinkedHashMap<String, String>();
+        environment.put("collectedAt", Instant.now().toString());
+        environment.put("os", System.getProperty("os.name") + " " + System.getProperty("os.version"));
+        environment.put("architecture", System.getProperty("os.arch"));
+        environment.put("availableProcessors", Integer.toString(Runtime.getRuntime().availableProcessors()));
+        environment.put("cpu", cpuDescription());
+        environment.put("jdk", System.getProperty("java.runtime.version"));
+        environment.put("vm", System.getProperty("java.vm.name"));
+        environment.put("jvmArguments", String.join(" ", ManagementFactory.getRuntimeMXBean().getInputArguments()));
+        environment.put("maximumHeapBytes", Long.toString(Runtime.getRuntime().maxMemory()));
+
+        var aetherConfig = new java.util.LinkedHashMap<String, String>();
+        aetherConfig.put("durability", config.durability().name());
+        aetherConfig.put("cacheMode", config.cacheMode().name());
+        aetherConfig.put("batchSize", Integer.toString(config.batchSize()));
+
+        var workload = new java.util.LinkedHashMap<String, String>();
+        workload.put("databaseDirectory", config.directory().toAbsolutePath().normalize().toString());
+        workload.put("records", Long.toString(config.records()));
+        workload.put("keyBytes", "16");
+        workload.put("valueBytes", Integer.toString(config.valueBytes()));
+        workload.put("measuredReads", Integer.toString(config.reads()));
+        workload.put("readThreads", "1");
+        workload.put("crashModel", "child Runtime.halt after acknowledged durable marker write");
+        workload.put("crashTrials", Integer.toString(config.crashPoints()));
+        workload.put("writeElapsedNanos", Long.toString(writeElapsedNanos));
+        workload.put("writeThroughputRecordsPerSecond", decimal(writesPerSecond));
+        workload.put("writeLatencyScope", "atomic batch submission");
+        workload.put("writeLatencyP50Nanos", Long.toString(writes.getValueAtPercentile(50.0)));
+        workload.put("writeLatencyP95Nanos", Long.toString(writes.getValueAtPercentile(95.0)));
+        workload.put("writeLatencyP99Nanos", Long.toString(writes.getValueAtPercentile(99.0)));
+        workload.put("readCacheState", config.cacheMode().description());
+        workload.put("readDatabaseOpenNanos", Long.toString(readDatabaseOpenNanos));
+        workload.put("readElapsedNanos", Long.toString(readElapsedNanos));
+        workload.put("readThroughputOperationsPerSecond", decimal(readsPerSecond));
+        workload.put("readHits", Long.toString(hits));
+        workload.put("readHitRate", decimal((double) hits / config.reads()));
+        workload.put("successfulRecoveryTrials", Long.toString(recoveries.stream().filter(RecoveryTrial::success).count()));
+        workload.put("acknowledgedWritesLost", "0");
+        workload.put("medianRecoveryDatabaseOpenNanos", Long.toString(medianRecoveryNanos));
+        workload.put("walBytesReplayed", "unavailable");
+
+        var storage = new java.util.LinkedHashMap<String, String>();
+        storage.put("logicalKeyValueBytes", Long.toString(logicalBytes));
+        storage.put("databaseBytesAfterLoad", Long.toString(databaseBytesAfterLoad));
+        storage.put("finalDatabaseBytes", Long.toString(finalDatabaseBytes));
+        storage.put(
                 "storagePath",
-                quote(
-                        "checkpoint is fully materialized into heap during open; measured point"
-                                + " reads are heap-resident"),
-                false);
-        field(json, 2, "operations", Integer.toString(config.reads()), false);
-        field(json, 2, "elapsedNanos", Long.toString(readElapsedNanos), false);
-        field(json, 2, "throughputOperationsPerSecond", decimal(readsPerSecond), false);
-        field(json, 2, "hits", Long.toString(hits), false);
-        field(json, 2, "hitRate", decimal((double) hits / config.reads()), false);
-        appendLatency(json, reads, 2, true);
-        json.append("  },\n");
-        json.append("  \"recoveryWorkload\": {\n");
-        field(
-                json,
-                2,
-                "successfulTrials",
-                Long.toString(recoveries.stream().filter(RecoveryTrial::success).count()),
-                false);
-        field(json, 2, "acknowledgedWritesLost", "0", false);
-        field(json, 2, "medianDatabaseOpenNanos", Long.toString(medianRecoveryNanos), false);
-        field(json, 2, "walBytesReplayed", "null", false);
-        json.append("    \"trials\": [\n");
-        for (int index = 0; index < recoveries.size(); index++) {
-            RecoveryTrial trial = recoveries.get(index);
-            json.append("      {\"trial\": ")
-                    .append(trial.trial())
-                    .append(", \"databaseOpenNanos\": ")
-                    .append(trial.openNanos())
-                    .append(", \"validationNanos\": ")
-                    .append(trial.validationNanos())
-                    .append(", \"acknowledgedMarkersVerified\": ")
-                    .append(trial.markersVerified())
-                    .append(", \"postRecoveryWriteVerified\": ")
-                    .append(trial.success())
-                    .append('}');
-            json.append(index + 1 == recoveries.size() ? "\n" : ",\n");
-        }
-        json.append("    ],\n");
-        field(
-                json,
-                2,
-                "note",
-                quote("WAL replay byte accounting is not exposed by the current engine"),
-                true);
-        json.append("  },\n");
-        field(json, 1, "finalDatabaseBytes", Long.toString(finalDatabaseBytes), true);
-        json.append('}');
-        return json.toString();
-    }
+                "checkpoint is fully materialized into heap during open; measured point reads are heap-resident");
 
-    private static void appendLatency(
-            StringBuilder json, Histogram histogram, int indent, boolean last) {
-        json.append("  ".repeat(indent)).append("\"latencyNanos\": {\n");
-        field(json, indent + 1, "count", Long.toString(histogram.getTotalCount()), false);
-        field(json, indent + 1, "minimum", Long.toString(histogram.getMinValue()), false);
-        field(json, indent + 1, "mean", decimal(histogram.getMean()), false);
-        field(json, indent + 1, "p50", Long.toString(histogram.getValueAtPercentile(50.0)), false);
-        field(json, indent + 1, "p95", Long.toString(histogram.getValueAtPercentile(95.0)), false);
-        field(json, indent + 1, "p99", Long.toString(histogram.getValueAtPercentile(99.0)), false);
-        field(json, indent + 1, "p999", Long.toString(histogram.getValueAtPercentile(99.9)), false);
-        field(json, indent + 1, "maximum", Long.toString(histogram.getMaxValue()), true);
-        json.append("  ".repeat(indent)).append('}').append(last ? "\n" : ",\n");
-    }
-
-    private static void field(
-            StringBuilder json, int indent, String name, String value, boolean last) {
-        json.append("  ".repeat(indent))
-                .append(quote(name))
-                .append(": ")
-                .append(value)
-                .append(last ? "\n" : ",\n");
-    }
-
-    private static String quote(String value) {
-        String escaped =
-                value.replace("\\", "\\\\")
-                        .replace("\"", "\\\"")
-                        .replace("\n", "\\n")
-                        .replace("\r", "\\r");
-        return '"' + escaped + '"';
+        long successfulRecoveries = recoveries.stream().filter(RecoveryTrial::success).count();
+        long submitted = Math.addExact(Math.addExact(config.records(), config.reads()), config.crashPoints());
+        long acknowledged = Math.addExact(Math.addExact(config.records(), hits), successfulRecoveries);
+        BenchmarkResultV1 result =
+                new BenchmarkResultV1(
+                        "local.cv.persistence",
+                        commit,
+                        !command("git", "status", "--porcelain").isBlank(),
+                        environment,
+                        aetherConfig,
+                        workload,
+                        new BenchmarkCounters(submitted, acknowledged, 0, 0, submitted - acknowledged),
+                        readsPerSecond,
+                        new BenchmarkLatencyHistogram(
+                                reads.getTotalCount(),
+                                reads.getValueAtPercentile(50.0),
+                                reads.getValueAtPercentile(95.0),
+                                reads.getValueAtPercentile(99.0),
+                                reads.getMaxValue()),
+                        storage,
+                        BenchmarkArtifacts.forResult(config.output()));
+        return BenchmarkResultJsonV1.encode(result);
     }
 
     private static String decimal(double value) {

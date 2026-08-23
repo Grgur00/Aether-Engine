@@ -1,6 +1,9 @@
 package io.aetherdb.sstable.manifest;
 
 import io.aetherdb.io.PathSecurityValidator;
+import io.aetherdb.reliability.CrashContext;
+import io.aetherdb.reliability.CrashPointIds;
+import io.aetherdb.reliability.CrashPointRegistry;
 import io.aetherdb.sstable.SSTableReader;
 
 import java.io.IOException;
@@ -11,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
@@ -167,6 +171,10 @@ public final class VersionSet implements AutoCloseable {
         if (version == null)
             throw new ManifestCorruptionException("manifest contains no complete snapshot");
         if (offset != contents.length) {
+            Path backup = backupManifestBeforeRepair(manifest, contents);
+            CrashPointRegistry.hit(
+                    CrashPointIds.REPAIR_AFTER_BACKUP_BEFORE_TRUNCATE,
+                    repairContext(manifest, backup, offset, contents.length));
             try (FileChannel repair = FileChannel.open(manifest, StandardOpenOption.WRITE)) {
                 repair.truncate(offset);
                 repair.force(true);
@@ -323,6 +331,8 @@ public final class VersionSet implements AutoCloseable {
         byte[] record = ManifestCodecV1.encodeRecord(delta);
         writeFully(writer, ByteBuffer.wrap(record));
         writer.force(true);
+        CrashPointRegistry.hit(
+                CrashPointIds.MANIFEST_AFTER_APPEND_BEFORE_CURRENT, manifestContext(delta));
         current = candidate;
         return candidate;
     }
@@ -426,10 +436,50 @@ public final class VersionSet implements AutoCloseable {
                 channel.force(true);
             }
             atomicMove(temporary, root.resolve(CURRENT));
+            CrashPointRegistry.hit(
+                    CrashPointIds.MANIFEST_AFTER_CURRENT_BEFORE_DIR_SYNC,
+                    CrashContext.of("generation", Long.toUnsignedString(generation)));
             syncDirectory(root);
         } finally {
             Files.deleteIfExists(temporary);
         }
+    }
+
+    private static CrashContext manifestContext(ManifestEdit edit) {
+        LinkedHashMap<String, String> attributes = new LinkedHashMap<>();
+        attributes.put("edit_number", Long.toUnsignedString(edit.editNumber()));
+        attributes.put("next_file_number", Long.toUnsignedString(edit.nextFileNumber()));
+        attributes.put(
+                "last_assigned_sequence", Long.toUnsignedString(edit.lastAssignedSequence()));
+        attributes.put(
+                "persisted_sequence_watermark",
+                Long.toUnsignedString(edit.persistedSequenceWatermark()));
+        return new CrashContext(attributes);
+    }
+
+    private static Path backupManifestBeforeRepair(Path manifest, byte[] contents)
+            throws IOException {
+        Path backup =
+                manifest.resolveSibling(
+                        manifest.getFileName()
+                                + ".repair-backup-"
+                                + UUID.randomUUID().toString().replace("-", ""));
+        try (FileChannel channel =
+                FileChannel.open(backup, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
+            writeFully(channel, ByteBuffer.wrap(contents));
+            channel.force(true);
+        }
+        return backup;
+    }
+
+    private static CrashContext repairContext(
+            Path manifest, Path backup, long validEndOffset, long originalBytes) {
+        LinkedHashMap<String, String> attributes = new LinkedHashMap<>();
+        attributes.put("manifest", manifest.getFileName().toString());
+        attributes.put("backup", backup.getFileName().toString());
+        attributes.put("valid_end_offset", Long.toUnsignedString(validEndOffset));
+        attributes.put("original_bytes", Long.toUnsignedString(originalBytes));
+        return new CrashContext(attributes);
     }
 
     private static void atomicMove(Path source, Path target) throws IOException {

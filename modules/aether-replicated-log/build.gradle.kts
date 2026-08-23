@@ -5,4 +5,5 @@ dependencies {
     implementation(project(":modules:aether-api"))
     implementation(project(":modules:aether-format"))
     implementation(project(":modules:aether-io"))
+    implementation(project(":modules:aether-reliability"))
 }

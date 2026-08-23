@@ -6,15 +6,30 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import io.aetherdb.api.WriteBatch;
+import io.aetherdb.format.catalog.AetherFormatCatalog;
+import io.aetherdb.format.catalog.FormatGoldenFixture;
+import io.aetherdb.format.catalog.FormatGoldenFixtureCatalog;
+import io.aetherdb.io.DatabaseLock;
 import io.aetherdb.replication.api.ReplicatedEntryType;
 import io.aetherdb.replication.api.ReplicatedLogEntry;
+import io.aetherdb.reliability.CrashPointException;
+import io.aetherdb.reliability.CrashPointIds;
+import io.aetherdb.reliability.CrashPointRegistry;
+import io.aetherdb.reliability.ScopedCrashPoint;
+import io.aetherdb.reliability.TriggeringCrashPoint;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,6 +63,37 @@ class ReplicatedLogStoreV1Test {
     }
 
     @Test
+    void segmentHeaderMatchesGoldenFixtureCatalog() {
+        ReplicatedLogSegmentHeaderV1 header =
+                new ReplicatedLogSegmentHeaderV1(
+                        CLUSTER, NODE, 1, 1, 0, 0, new byte[32], 1234);
+        byte[] encoded = header.encodeRegion();
+        FormatGoldenFixture fixture =
+                FormatGoldenFixtureCatalog.current(AetherFormatCatalog.current())
+                        .require(
+                                "aether.replicated_log_segment.v1",
+                                "canonical-first-segment-header-v1");
+
+        assertThat(encoded).hasSize(fixture.byteLength());
+        assertThat(sha256Hex(encoded)).isEqualTo(fixture.sha256Hex());
+        assertThat(ReplicatedLogSegmentHeaderV1.decodeRegion(encoded, CLUSTER, NODE, 1))
+                .isEqualTo(header);
+    }
+
+    @Test
+    void entryRecordMatchesGoldenFixtureCatalog() {
+        ReplicatedLogEntry entry = command(1, 1, 1, new byte[32], "a");
+        byte[] encoded = ReplicatedLogEntryCodecV1.encode(entry);
+        FormatGoldenFixture fixture =
+                FormatGoldenFixtureCatalog.current(AetherFormatCatalog.current())
+                        .require("aether.replicated_log_entry.v1", "canonical-command-entry-v1");
+
+        assertThat(encoded).hasSize(fixture.byteLength());
+        assertThat(sha256Hex(encoded)).isEqualTo(fixture.sha256Hex());
+        assertThat(ReplicatedLogEntryCodecV1.decode(encoded)).isEqualTo(entry);
+    }
+
+    @Test
     void suffixTruncationProtectsCommitAndAppliedBoundariesAndPermitsSafeReuse() {
         Path directory = temporaryDirectory.resolve("truncate");
         try (var store = ReplicatedLogStoreV1.open(directory, CLUSTER, NODE)) {
@@ -67,6 +113,30 @@ class ReplicatedLogStoreV1Test {
             assertThat(store.lastTerm()).isEqualTo(2);
             assertThat(store.read(2)).isEqualTo(replacement);
         }
+    }
+
+    @Test
+    void appendCrashPointFiresAfterLogForceBeforeReply() throws Exception {
+        Path testRoot = Path.of("build", "tmp", "replicated-log-crash-tests");
+        Files.createDirectories(testRoot);
+        Path directory = Files.createTempDirectory(testRoot, "append-crash-point-");
+        TriggeringCrashPoint crashPoint =
+                new TriggeringCrashPoint(
+                        CrashPointIds.RAFT_APPEND_AFTER_LOG_PERSIST_BEFORE_REPLY, 1);
+
+        try (var store = storeForForceTesting(directory);
+                ScopedCrashPoint scope = CrashPointRegistry.install(crashPoint)) {
+            assertThat(scope).isNotNull();
+            assertThatThrownBy(
+                            () ->
+                                    store.appendAndForce(
+                                            List.of(command(1, 1, 1, new byte[32], "a"))))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasRootCauseInstanceOf(CrashPointException.class);
+            assertThat(store.durableIndex()).isEqualTo(1);
+        }
+
+        assertThat(crashPoint.hits()).isEqualTo(1);
     }
 
     @Test
@@ -133,5 +203,42 @@ class ReplicatedLogStoreV1Test {
                 sequence,
                 previousHash,
                 command.encode());
+    }
+
+    private static ReplicatedLogStoreV1 storeForForceTesting(Path root) throws Exception {
+        DatabaseLock lock = DatabaseLock.acquire(root);
+        Constructor<ReplicatedLogStoreV1> constructor =
+                ReplicatedLogStoreV1.class.getDeclaredConstructor(
+                        Path.class, ReplicatedLogIdentityV1.class, DatabaseLock.class);
+        constructor.setAccessible(true);
+        ReplicatedLogStoreV1 store =
+                constructor.newInstance(
+                        root, new ReplicatedLogIdentityV1(CLUSTER, NODE, 1), lock);
+        Path segment = root.resolve(ReplicatedLogFormatV1.segmentName(1));
+        FileChannel active =
+                FileChannel.open(
+                        segment,
+                        StandardOpenOption.CREATE_NEW,
+                        StandardOpenOption.READ,
+                        StandardOpenOption.WRITE);
+        set(store, "active", active);
+        set(store, "activePath", segment);
+        set(store, "activeSegmentNumber", 1L);
+        set(store, "nextSegmentNumber", 2L);
+        return store;
+    }
+
+    private static void set(Object target, String fieldName, Object value) throws Exception {
+        Field field = target.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(target, value);
+    }
+
+    private static String sha256Hex(byte[] bytes) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
+        } catch (NoSuchAlgorithmException e) {
+            throw new AssertionError(e);
+        }
     }
 }

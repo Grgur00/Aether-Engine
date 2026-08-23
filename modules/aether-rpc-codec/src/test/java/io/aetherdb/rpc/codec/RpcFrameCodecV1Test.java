@@ -3,9 +3,16 @@ package io.aetherdb.rpc.codec;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.aetherdb.format.catalog.AetherFormatCatalog;
+import io.aetherdb.format.catalog.FormatGoldenFixture;
+import io.aetherdb.format.catalog.FormatGoldenFixtureCatalog;
+
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,11 +22,7 @@ final class RpcFrameCodecV1Test {
     @Test
     void exactFrameRoundTripUses64ByteHeaderAndDetectsCorruption() {
         byte[] payload = {1, 2, 3};
-        RpcFrame frame =
-                new RpcFrame(
-                        new RpcFrameHeaderV1(
-                                RpcFrameType.REQUEST, 3, 1, 42, 3, 3, 0, 5000, 0, INVOCATION),
-                        payload);
+        RpcFrame frame = canonicalRequestFrame(payload);
         byte[] encoded = RpcFrameCodecV1.encode(frame);
         assertThat(encoded).hasSize(67);
         RpcFrame decoded = RpcFrameCodecV1.decode(encoded);
@@ -29,6 +32,19 @@ final class RpcFrameCodecV1Test {
         assertThatThrownBy(() -> RpcFrameCodecV1.decode(encoded))
                 .isInstanceOf(RpcProtocolException.class)
                 .hasMessageContaining("checksum");
+    }
+
+    @Test
+    void exactFrameMatchesGoldenFixtureCatalog() {
+        byte[] payload = {1, 2, 3};
+        byte[] encoded = RpcFrameCodecV1.encode(canonicalRequestFrame(payload));
+        FormatGoldenFixture fixture =
+                FormatGoldenFixtureCatalog.current(AetherFormatCatalog.current())
+                        .require("aether.rpc_frame.v1", "canonical-request-frame-v1");
+
+        assertThat(encoded).hasSize(fixture.byteLength());
+        assertThat(sha256Hex(encoded)).isEqualTo(fixture.sha256Hex());
+        assertThat(RpcFrameCodecV1.decode(encoded).payload()).containsExactly(payload);
     }
 
     @Test
@@ -85,28 +101,26 @@ final class RpcFrameCodecV1Test {
     @Test
     void helloIsExactAndChecksumProtected() {
         RpcHelloV1 hello =
-                new RpcHelloV1(
-                        RpcHelloV1.Role.DIALER,
-                        UUID.fromString("11111111-1111-1111-8111-111111111111"),
-                        UUID.fromString("22222222-2222-2222-8222-222222222222"),
-                        UUID.fromString("33333333-3333-3333-8333-333333333333"),
-                        7,
-                        1024 * 1024,
-                        16 * 1024 * 1024,
-                        1024,
-                        64 * 1024 * 1024,
-                        30_000,
-                        10_000,
-                        1,
-                        0,
-                        0,
-                        21);
+                canonicalDialerHello();
         byte[] encoded = hello.encode();
         assertThat(encoded).hasSize(192);
         assertThat(RpcHelloV1.decode(encoded)).isEqualTo(hello);
         encoded[170] = 1;
         assertThatThrownBy(() -> RpcHelloV1.decode(encoded))
                 .isInstanceOf(RpcProtocolException.class);
+    }
+
+    @Test
+    void exactHelloMatchesGoldenFixtureCatalog() {
+        RpcHelloV1 hello = canonicalDialerHello();
+        byte[] encoded = hello.encode();
+        FormatGoldenFixture fixture =
+                FormatGoldenFixtureCatalog.current(AetherFormatCatalog.current())
+                        .require("aether.rpc_hello.v1", "canonical-dialer-hello-v1");
+
+        assertThat(encoded).hasSize(fixture.byteLength());
+        assertThat(sha256Hex(encoded)).isEqualTo(fixture.sha256Hex());
+        assertThat(RpcHelloV1.decode(encoded)).isEqualTo(hello);
     }
 
     @Test
@@ -157,5 +171,48 @@ final class RpcFrameCodecV1Test {
                 .isInstanceOf(RpcProtocolException.class)
                 .hasMessageContaining("negotiated payload limit");
         assertThat(decoder.retainedBytes()).isEqualTo(64);
+    }
+
+    private static RpcFrame canonicalRequestFrame(byte[] payload) {
+        return new RpcFrame(
+                new RpcFrameHeaderV1(
+                        RpcFrameType.REQUEST,
+                        RpcFrameHeaderV1.BEGIN | RpcFrameHeaderV1.END,
+                        1,
+                        42,
+                        payload.length,
+                        payload.length,
+                        0,
+                        5000,
+                        0,
+                        INVOCATION),
+                payload);
+    }
+
+    private static RpcHelloV1 canonicalDialerHello() {
+        return new RpcHelloV1(
+                RpcHelloV1.Role.DIALER,
+                UUID.fromString("11111111-1111-1111-8111-111111111111"),
+                UUID.fromString("22222222-2222-2222-8222-222222222222"),
+                UUID.fromString("33333333-3333-3333-8333-333333333333"),
+                7,
+                1024 * 1024,
+                16 * 1024 * 1024,
+                1024,
+                64 * 1024 * 1024,
+                30_000,
+                10_000,
+                1,
+                0,
+                0,
+                21);
+    }
+
+    private static String sha256Hex(byte[] bytes) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
+        } catch (NoSuchAlgorithmException e) {
+            throw new AssertionError(e);
+        }
     }
 }

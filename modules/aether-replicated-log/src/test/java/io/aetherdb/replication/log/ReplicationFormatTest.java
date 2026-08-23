@@ -7,6 +7,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import io.aetherdb.api.WriteBatch;
 import io.aetherdb.replication.api.ReplicatedEntryType;
+import io.aetherdb.reliability.CorruptionMutator;
+import io.aetherdb.reliability.CorruptionPlan;
 
 import org.junit.jupiter.api.Test;
 
@@ -135,6 +137,43 @@ final class ReplicationFormatTest {
             assertThatThrownBy(() -> ReplicatedLogEntryCodecV1.decode(corrupt))
                     .isInstanceOf(IllegalArgumentException.class);
         }
+    }
+
+    @Test
+    void corruptionMutatorDrivesReplicatedLogFormatFailures() {
+        UUID cluster = UUID.fromString("11111111-1111-1111-8111-111111111111");
+        UUID node = UUID.fromString("22222222-2222-2222-8222-222222222222");
+        var identity = new ReplicatedLogIdentityV1(cluster, node, 42);
+        byte[] corruptIdentity =
+                CorruptionMutator.apply(identity.encode(), CorruptionPlan.flipBit(140, 0));
+        assertThatThrownBy(() -> ReplicatedLogIdentityV1.decode(corruptIdentity))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        var header = new ReplicatedLogSegmentHeaderV1(cluster, node, 1, 1, 0, 0, new byte[32], 42);
+        byte[] corruptHeader =
+                CorruptionMutator.apply(header.encodeRegion(), CorruptionPlan.flipBit(3000, 0));
+        assertThatThrownBy(
+                        () ->
+                                ReplicatedLogSegmentHeaderV1.decodeRegion(
+                                        corruptHeader, cluster, node, 1))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        var entry =
+                ReplicatedLogEntryCodecV1.create(
+                        ReplicatedEntryType.NOOP,
+                        0,
+                        1,
+                        1,
+                        new UUID(0, 0),
+                        0,
+                        0,
+                        new byte[32],
+                        new byte[0]);
+        byte[] corruptEntry =
+                CorruptionMutator.apply(
+                        ReplicatedLogEntryCodecV1.encode(entry), CorruptionPlan.flipBit(196, 0));
+        assertThatThrownBy(() -> ReplicatedLogEntryCodecV1.decode(corruptEntry))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     private static byte[] bytes(String value) {

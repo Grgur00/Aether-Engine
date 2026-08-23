@@ -1,5 +1,13 @@
 package io.aetherdb.rpc.transport;
 
+import io.aetherdb.admission.AdmissionController;
+import io.aetherdb.admission.AdmissionDecision;
+import io.aetherdb.admission.AdmissionResource;
+import io.aetherdb.admission.AdmissionSnapshot;
+import io.aetherdb.admission.ResourceMeasurement;
+import io.aetherdb.config.AetherConfiguration;
+import io.aetherdb.rpc.api.RpcAdmission;
+import io.aetherdb.rpc.api.RpcAdmissionMapper;
 import io.aetherdb.rpc.api.RpcBackpressureMode;
 import io.aetherdb.rpc.api.RpcCallOptions;
 import io.aetherdb.rpc.api.RpcCancellationToken;
@@ -56,26 +64,36 @@ import java.util.concurrent.atomic.AtomicLong;
  * not provide confidentiality or certificate authentication and must not be used in production.
  */
 public final class PlaintextDevelopmentRpc {
-    private static final int FRAME_BYTES = 1024 * 1024;
-    private static final int MESSAGE_BYTES = 64 * 1024 * 1024;
-    private static final int STREAMS = 1024;
-    private static final int WINDOW_BYTES = 64 * 1024 * 1024;
-    private static final int OUTBOUND_PERMITS = 64 * 1024;
-    private static final int PERMIT_BYTES = 1024;
+    private static final RpcTransportConfiguration DEFAULT_CONFIGURATION =
+            RpcTransportConfiguration.defaults();
+    private static final AdmissionController ADMISSION = new AdmissionController();
 
     private PlaintextDevelopmentRpc() {}
 
     /** Binds a development server; port zero requests an ephemeral operating-system port. */
     public static RpcServer bind(RpcIdentity identity, String host, int port) {
-        return new DevelopmentServer(identity, host, port);
+        return new DevelopmentServer(identity, host, port, DEFAULT_CONFIGURATION);
+    }
+
+    /** Binds a development server with validated Chapter 32 RPC transport limits. */
+    public static RpcServer bind(
+            RpcIdentity identity, String host, int port, AetherConfiguration configuration) {
+        return new DevelopmentServer(
+                identity, host, port, RpcTransportConfiguration.from(configuration));
     }
 
     /** Creates a development client that owns and reuses multiplexed peer connections. */
     public static RpcClient client(RpcIdentity identity) {
-        return new DevelopmentClient(identity);
+        return new DevelopmentClient(identity, DEFAULT_CONFIGURATION);
     }
 
-    private static RpcHelloV1 hello(RpcIdentity identity, RpcHelloV1.Role role) {
+    /** Creates a development client with validated Chapter 32 RPC transport limits. */
+    public static RpcClient client(RpcIdentity identity, AetherConfiguration configuration) {
+        return new DevelopmentClient(identity, RpcTransportConfiguration.from(configuration));
+    }
+
+    private static RpcHelloV1 hello(
+            RpcIdentity identity, RpcHelloV1.Role role, RpcTransportConfiguration configuration) {
         long nonce;
         do nonce = java.util.concurrent.ThreadLocalRandom.current().nextLong();
         while (nonce == 0);
@@ -85,10 +103,10 @@ public final class PlaintextDevelopmentRpc {
                 identity.nodeId(),
                 identity.sessionId(),
                 nonce,
-                FRAME_BYTES,
-                MESSAGE_BYTES,
-                STREAMS,
-                WINDOW_BYTES,
+                configuration.frameBytes(),
+                configuration.messageBytes(),
+                configuration.streams(),
+                configuration.inboundBytes(),
                 30_000,
                 10_000,
                 0,
@@ -144,12 +162,13 @@ public final class PlaintextDevelopmentRpc {
 
     private static final class FrameInput {
         private final InputStream input;
-        private final RpcFrameDecoder decoder = new RpcFrameDecoder(FRAME_BYTES);
+        private final RpcFrameDecoder decoder;
         private final byte[] buffer = new byte[64 * 1024];
         private final java.util.ArrayDeque<RpcFrame> ready = new java.util.ArrayDeque<>();
 
-        private FrameInput(InputStream input) {
+        private FrameInput(InputStream input, RpcTransportConfiguration configuration) {
             this.input = input;
+            decoder = new RpcFrameDecoder(configuration.frameBytes());
         }
 
         private RpcFrame next() throws IOException {
@@ -166,6 +185,7 @@ public final class PlaintextDevelopmentRpc {
 
     private static final class DevelopmentServer implements RpcServer {
         private final RpcIdentity identity;
+        private final RpcTransportConfiguration configuration;
         private final ServerSocket listener;
         private final RpcEndpoint endpoint;
         private final Map<Integer, RegisteredOperation> operations = new ConcurrentHashMap<>();
@@ -174,8 +194,10 @@ public final class PlaintextDevelopmentRpc {
         private final SetOfConnections open = new SetOfConnections();
         private final AtomicBoolean closed = new AtomicBoolean();
 
-        private DevelopmentServer(RpcIdentity identity, String host, int port) {
+        private DevelopmentServer(
+                RpcIdentity identity, String host, int port, RpcTransportConfiguration configuration) {
             this.identity = Objects.requireNonNull(identity, "identity");
+            this.configuration = Objects.requireNonNull(configuration, "configuration");
             if (host == null || host.isBlank() || port < 0 || port > 65_535)
                 throw new IllegalArgumentException("invalid bind endpoint");
             try {
@@ -229,7 +251,7 @@ public final class PlaintextDevelopmentRpc {
             try (socket;
                     InputStream input = socket.getInputStream();
                     OutputStream output = socket.getOutputStream()) {
-                FrameInput frames = new FrameInput(input);
+                FrameInput frames = new FrameInput(input, configuration);
                 RpcFrame incomingHello = frames.next();
                 if (incomingHello.header().type() != RpcFrameType.HELLO)
                     throw new RpcProtocolException("HELLO must be first frame");
@@ -239,7 +261,9 @@ public final class PlaintextDevelopmentRpc {
                         RpcHelloV1.Role.DIALER,
                         null);
                 writeFrame(
-                        output, writeLock, helloFrame(hello(identity, RpcHelloV1.Role.ACCEPTOR)));
+                        output,
+                        writeLock,
+                        helloFrame(hello(identity, RpcHelloV1.Role.ACCEPTOR, configuration)));
                 while (!closed.get())
                     applyServerFrame(frames.next(), streams, inboundBytes, output, writeLock);
             } catch (IOException | RuntimeException ignored) {
@@ -268,11 +292,34 @@ public final class PlaintextDevelopmentRpc {
             if (header.type() != RpcFrameType.REQUEST)
                 throw new RpcProtocolException("unexpected server-side frame: " + header.type());
             RegisteredOperation operation = operations.get(header.code());
-            int limit = operation == null ? MESSAGE_BYTES : operation.descriptor.requestLimit();
+            int limit =
+                    operation == null
+                            ? configuration.messageBytes()
+                            : operation.descriptor.requestLimit();
             ServerStream stream = streams.get(header.streamId());
             if (stream == null) {
                 if (!header.beginsMessage())
                     throw new RpcProtocolException("fragment without admitted stream");
+                AdmissionDecision decision =
+                        inboundAdmission(
+                                operation == null ? null : operation.descriptor,
+                                header.messageLength(),
+                                inboundBytes.get(),
+                                streams.size(),
+                                closed.get(),
+                                configuration);
+                if (!decision.accepted()) {
+                    respond(
+                            output,
+                            writeLock,
+                            header.streamId(),
+                            header.invocationId(),
+                            RpcAdmissionMapper.status(decision),
+                            String.join("; ", decision.reasons())
+                                    .getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                            4096);
+                    return;
+                }
                 reserveInbound(inboundBytes, header.messageLength());
                 ServerStream created =
                         new ServerStream(
@@ -302,7 +349,7 @@ public final class PlaintextDevelopmentRpc {
                         header.invocationId(),
                         RpcStatus.INVALID_ARGUMENT,
                         "unknown operation".getBytes(java.nio.charset.StandardCharsets.UTF_8),
-                        MESSAGE_BYTES);
+                        configuration.messageBytes());
                 return;
             }
             if (body.length > operation.descriptor.requestLimit())
@@ -412,10 +459,10 @@ public final class PlaintextDevelopmentRpc {
             }
         }
 
-        private static void reserveInbound(AtomicLong inboundBytes, int bytes) {
+        private void reserveInbound(AtomicLong inboundBytes, int bytes) {
             while (true) {
                 long current = inboundBytes.get(), updated = current + bytes;
-                if (updated > MESSAGE_BYTES)
+                if (updated > configuration.inboundBytes())
                     throw new RpcProtocolException("connection inbound assembly budget exhausted");
                 if (inboundBytes.compareAndSet(current, updated)) return;
             }
@@ -429,7 +476,7 @@ public final class PlaintextDevelopmentRpc {
             if (streams.remove(streamId, stream)) inboundBytes.addAndGet(-stream.reservedBytes);
         }
 
-        private static void respond(
+        private void respond(
                 OutputStream output,
                 Object writeLock,
                 long stream,
@@ -447,7 +494,7 @@ public final class PlaintextDevelopmentRpc {
                                 invocation,
                                 0,
                                 bounded,
-                                FRAME_BYTES)) writeFrame(output, writeLock, frame);
+                                configuration.frameBytes())) writeFrame(output, writeLock, frame);
             } catch (IOException ignored) {
                 /* Connection reader observes terminal socket failure. */
             }
@@ -476,14 +523,16 @@ public final class PlaintextDevelopmentRpc {
 
     private static final class DevelopmentClient implements RpcClient {
         private final RpcIdentity identity;
+        private final RpcTransportConfiguration configuration;
         private final Map<String, ClientConnection> connections = new ConcurrentHashMap<>();
         private final ScheduledExecutorService deadlines =
                 Executors.newSingleThreadScheduledExecutor(
                         Thread.ofVirtual().name("aether-rpc-deadlines").factory());
         private final AtomicBoolean closed = new AtomicBoolean();
 
-        private DevelopmentClient(RpcIdentity identity) {
+        private DevelopmentClient(RpcIdentity identity, RpcTransportConfiguration configuration) {
             this.identity = Objects.requireNonNull(identity, "identity");
+            this.configuration = Objects.requireNonNull(configuration, "configuration");
         }
 
         @Override
@@ -561,17 +610,17 @@ public final class PlaintextDevelopmentRpc {
                 socket = configuredSocket();
                 socket.connect(new InetSocketAddress(endpoint.host(), endpoint.port()), 3000);
                 Object writeLock = new Object();
-                FrameInput input = new FrameInput(socket.getInputStream());
+                FrameInput input = new FrameInput(socket.getInputStream(), configuration);
                 writeFrame(
                         socket.getOutputStream(),
                         writeLock,
-                        helloFrame(hello(identity, RpcHelloV1.Role.DIALER)));
+                        helloFrame(hello(identity, RpcHelloV1.Role.DIALER, configuration)));
                 RpcFrame peerFrame = input.next();
                 if (peerFrame.header().type() != RpcFrameType.HELLO)
                     throw new RpcProtocolException("HELLO must be first frame");
                 RpcHelloV1 peer = RpcHelloV1.decode(peerFrame.payload());
                 validatePeer(identity, peer, RpcHelloV1.Role.ACCEPTOR, endpoint.expectedNodeId());
-                return new ClientConnection(socket, input, writeLock, peer.nodeId());
+                return new ClientConnection(socket, input, writeLock, peer.nodeId(), configuration);
             } catch (IOException | RuntimeException failure) {
                 if (socket != null)
                     try {
@@ -602,16 +651,24 @@ public final class PlaintextDevelopmentRpc {
         private final RpcStreamIdAllocator streams =
                 new RpcStreamIdAllocator(RpcStreamIdAllocator.Role.DIALER);
         private final Map<Long, PendingCall> pending = new ConcurrentHashMap<>();
-        private final Semaphore outbound = new Semaphore(OUTBOUND_PERMITS, true);
+        private final RpcTransportConfiguration configuration;
+        private final Semaphore outbound;
         private final AtomicLong inboundBytes = new AtomicLong();
         private final AtomicBoolean closed = new AtomicBoolean();
 
-        private ClientConnection(Socket socket, FrameInput input, Object writeLock, UUID peerNodeId)
+        private ClientConnection(
+                Socket socket,
+                FrameInput input,
+                Object writeLock,
+                UUID peerNodeId,
+                RpcTransportConfiguration configuration)
                 throws IOException {
             this.socket = socket;
             this.input = input;
             this.writeLock = writeLock;
             this.peerNodeId = peerNodeId;
+            this.configuration = Objects.requireNonNull(configuration, "configuration");
+            outbound = new Semaphore(configuration.outboundPermits(), true);
             output = socket.getOutputStream();
             Thread.ofVirtual().name("aether-rpc-client-reader-" + peerNodeId).start(this::readLoop);
         }
@@ -625,6 +682,19 @@ public final class PlaintextDevelopmentRpc {
                 return CompletableFuture.failedFuture(
                         new IllegalStateException("RPC connection is closed"));
             int permits = permits(body.length);
+            AdmissionDecision decision =
+                    outboundAdmission(
+                            operation,
+                            body.length,
+                            permits,
+                            configuration.outboundPermits() - outbound.availablePermits(),
+                            closed.get(),
+                            configuration);
+            if (!decision.accepted())
+                return CompletableFuture.failedFuture(
+                        new IllegalStateException(
+                                "RESOURCE_EXHAUSTED: outbound RPC queue: "
+                                        + String.join("; ", decision.reasons())));
             boolean acquired;
             try {
                 acquired =
@@ -661,7 +731,7 @@ public final class PlaintextDevelopmentRpc {
                                 invocation,
                                 timeout,
                                 body,
-                                FRAME_BYTES)) writeFrame(output, writeLock, frame);
+                                configuration.frameBytes())) writeFrame(output, writeLock, frame);
             } catch (IOException | RuntimeException failure) {
                 pending.remove(stream);
                 outbound.release(permits);
@@ -785,14 +855,18 @@ public final class PlaintextDevelopmentRpc {
             failAll(new IOException("RPC connection closed for peer " + peerNodeId));
         }
 
-        private static int permits(int bytes) {
-            return Math.max(1, Math.toIntExact((bytes + (long) PERMIT_BYTES - 1) / PERMIT_BYTES));
+        private int permits(int bytes) {
+            return Math.max(
+                    1,
+                    Math.toIntExact(
+                            (bytes + (long) configuration.permitBytes() - 1)
+                                    / configuration.permitBytes()));
         }
 
         private void reserveClientInbound(int bytes) {
             while (true) {
                 long current = inboundBytes.get(), updated = current + bytes;
-                if (updated > MESSAGE_BYTES)
+                if (updated > configuration.messageBytes())
                     throw new RpcProtocolException("connection inbound response budget exhausted");
                 if (inboundBytes.compareAndSet(current, updated)) return;
             }
@@ -802,6 +876,68 @@ public final class PlaintextDevelopmentRpc {
             int reserved = call.reservedBytes.getAndSet(0);
             if (reserved != 0) inboundBytes.addAndGet(-reserved);
         }
+    }
+
+    static AdmissionDecision outboundAdmission(
+            RpcOperationDescriptor operation,
+            int bodyBytes,
+            int permits,
+            int usedPermits,
+            boolean draining) {
+        return outboundAdmission(
+                operation, bodyBytes, permits, usedPermits, draining, DEFAULT_CONFIGURATION);
+    }
+
+    static AdmissionDecision outboundAdmission(
+            RpcOperationDescriptor operation,
+            int bodyBytes,
+            int permits,
+            int usedPermits,
+            boolean draining,
+            RpcTransportConfiguration configuration) {
+        return ADMISSION.evaluate(
+                configuration.admissionPolicies().outbound(),
+                new AdmissionSnapshot(
+                        Map.of(
+                                AdmissionResource.VIRTUAL_THREAD_INFLIGHT,
+                                new ResourceMeasurement(
+                                        AdmissionResource.VIRTUAL_THREAD_INFLIGHT,
+                                        Math.max(0, usedPermits)))),
+                RpcAdmission.outboundRequest(operation, bodyBytes, permits, draining));
+    }
+
+    static AdmissionDecision inboundAdmission(
+            RpcOperationDescriptor operation,
+            int bodyBytes,
+            long usedBytes,
+            int activeStreams,
+            boolean draining) {
+        return inboundAdmission(
+                operation, bodyBytes, usedBytes, activeStreams, draining, DEFAULT_CONFIGURATION);
+    }
+
+    static AdmissionDecision inboundAdmission(
+            RpcOperationDescriptor operation,
+            int bodyBytes,
+            long usedBytes,
+            int activeStreams,
+            boolean draining,
+            RpcTransportConfiguration configuration) {
+        return ADMISSION.evaluate(
+                configuration.admissionPolicies().inbound(),
+                new AdmissionSnapshot(
+                        Map.of(
+                                AdmissionResource.RPC_INBOUND_BYTES,
+                                new ResourceMeasurement(
+                                        AdmissionResource.RPC_INBOUND_BYTES,
+                                        Math.max(0, usedBytes)),
+                                AdmissionResource.RPC_INFLIGHT_STREAMS,
+                                new ResourceMeasurement(
+                                        AdmissionResource.RPC_INFLIGHT_STREAMS,
+                                        Math.max(0, activeStreams)))),
+                operation == null
+                        ? RpcAdmission.inboundRequest(bodyBytes, draining)
+                        : RpcAdmission.inboundRequest(operation, bodyBytes, draining));
     }
 
     private static final class PendingCall {

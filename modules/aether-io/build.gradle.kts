@@ -6,4 +6,5 @@ plugins {
 dependencies {
     implementation(project(":modules:aether-memory"))
     implementation(project(":modules:aether-format"))
+    testImplementation(project(":modules:aether-reliability"))
 }
