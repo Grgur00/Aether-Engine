@@ -847,6 +847,7 @@ def oct5k_summary(summary):
         steady = backend.get("steadyState", {})
         lifecycle = backend.get("lifecycle", {})
         cold_start = backend.get("coldStart") or {}
+        segmentation = backend.get("segmentationMetrics") or {}
         rows.append({
             "profile": summary.get("profile"),
             "backend": backend_name,
@@ -862,6 +863,9 @@ def oct5k_summary(summary):
             "trainingMsMean": metric_value(lifecycle.get("trainingMs")),
             "totalMsMean": metric_value(lifecycle.get("totalMs")),
             "inputWaitPercentMean": metric_value(steady.get("inputWaitPercent")),
+            "segmentationLoss": segmentation.get("loss"),
+            "dice": segmentation.get("dice"),
+            "meanIoU": segmentation.get("meanIoU"),
             "coldStartPassed": cold_start.get("passed"),
             "measuredKeysAlreadyPresent": cold_start.get("measuredKeysAlreadyPresent"),
         })

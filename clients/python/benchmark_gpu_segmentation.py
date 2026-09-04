@@ -802,6 +802,7 @@ def run_backend(torch, model, optimizer, loss_function, device, backend, context
     steps = []
     epoch_walls = []
     current_epoch = None
+    segmentation_metrics = None
 
     if context.args.warmup_steps:
         for step_index, scheduled in enumerate(prepared_batches(context, backend, scheduled_batches(context.args, context.args.warmup_steps))):
@@ -863,6 +864,7 @@ def run_backend(torch, model, optimizer, loss_function, device, backend, context
     finally:
         process_end = process_metrics_snapshot()
         gpu_samples = sampler.stop()
+    segmentation_metrics = segmentation_sanity_metrics(torch, model, loss_function, device, context)
     return summarize_backend(
         backend,
         steps,
@@ -872,6 +874,7 @@ def run_backend(torch, model, optimizer, loss_function, device, backend, context
         gpu_samples,
         process_metrics_delta(process_start, process_end, training_ms),
         cold_start_gate,
+        segmentation_metrics,
     )
 
 
@@ -885,6 +888,34 @@ def scheduled_batches(args, total_steps):
             yield batch_indices, epoch
             produced += 1
         epoch += 1
+
+
+def segmentation_sanity_metrics(torch, model, loss_function, device, context):
+    if not context.reference:
+        return None
+    indices = list(range(min(context.args.batch_size, len(context.reference))))
+    batch = stack_values([context.reference[index] for index in indices], context.np)
+    cpu_tensors, _ = normalize_cpu_batch(torch, batch)
+    images = cpu_tensors["images"].to(device, non_blocking=False)
+    masks = cpu_tensors["masks"].to(device, non_blocking=False)
+    with torch.no_grad():
+        logits = model(images)
+        loss = loss_function(logits, masks)
+        predictions = torch.sigmoid(logits) >= 0.5
+        targets = masks >= 0.5
+        intersection = (predictions & targets).sum().float()
+        prediction_total = predictions.sum().float()
+        target_total = targets.sum().float()
+        union = (predictions | targets).sum().float()
+        dice = (2 * intersection) / torch.clamp(prediction_total + target_total, min=1)
+        mean_iou = intersection / torch.clamp(union, min=1)
+    torch.cuda.synchronize(device)
+    return {
+        "samplesChecked": len(indices),
+        "loss": float(loss.item()),
+        "dice": float(dice.item()),
+        "meanIoU": float(mean_iou.item()),
+    }
 
 
 def prepared_batches(context, backend, schedule):
@@ -1222,7 +1253,7 @@ def proc_self_io():
         return None
 
 
-def summarize_backend(backend, steps, epoch_walls, training_ms, context, gpu_samples, process_metrics, cold_start_gate=None):
+def summarize_backend(backend, steps, epoch_walls, training_ms, context, gpu_samples, process_metrics, cold_start_gate=None, segmentation_metrics=None):
     batch_size = context.args.batch_size
     resize = context.args.resize
     total_samples = len(steps) * batch_size
@@ -1259,6 +1290,7 @@ def summarize_backend(backend, steps, epoch_walls, training_ms, context, gpu_sam
         "transferLabel": "host-to-device CPU->PyTorch cuda device",
         "tensorLayout": summarize_tensor_layout(steps),
         "coldStart": cold_start_gate,
+        "segmentationMetrics": segmentation_metrics,
         "gpu": {
             "utilizationMean": mean(utilization_values) if utilization_values else None,
             "utilizationP50": percentile(utilization_values, 50) if utilization_values else None,
