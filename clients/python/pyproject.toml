@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aether-training-cache"
+version = "0.1.0"
+description = "Python client for the local Aether training-data cache"
+requires-python = ">=3.10"
+dependencies = ["numpy", "tiktoken>=0.14,<0.15"]
+
+[project.scripts]
+aether-bench = "aether_bench:main"
+
+[tool.setuptools]
+py-modules = [
+    "aether_bench",
+    "benchmark_gpu_segmentation",
+    "aetherml_crash_recovery",
+    "benchmark_aetherml",
+    "oct_segmentation_workload",
+    "reproduce_aetherml",
+]
+packages = ["aether_cache", "aether_training_cache", "aetherml"]
