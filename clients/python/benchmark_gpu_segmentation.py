@@ -188,7 +188,7 @@ def run_benchmark(args):
 def run_training_once(args, torch, np, device, run_index):
     run_seed = args.seed + run_index
     samples = load_sources(args)
-    reference = [preprocess_sample(sample, args, np) for sample in samples]
+    reference = [artifact_to_tensor_sample(preprocess_sample(sample, args, np), np) for sample in samples]
     checksums = dataset_checksums(reference)
     assert_equivalent_inputs(reference, checksums)
     measured_steps = effective_measured_steps(args)
@@ -966,6 +966,7 @@ def train_step(torch, model, optimizer, loss_function, device, backend, context,
         "aetherPublishMs": counters.get("aetherPublishMs", 0.0),
         "mmapReadMs": counters.get("mmapReadMs", 0.0),
         "tensorBuildMs": counters.get("tensorBuildMs", 0.0),
+        "artifactDecodeMs": counters.get("artifactDecodeMs", 0.0),
         "hostToDeviceMs": host_to_device_ms,
         "forwardMs": forward_ms,
         "lossMs": loss_ms,
@@ -1253,7 +1254,7 @@ def summarize_backend(backend, steps, epoch_walls, training_ms, context, gpu_sam
         "fullDatasetChecksum": context.checksums["combinedChecksum"],
         "timing": {field: mean([step[field] for step in steps]) for field in [
             "batchPrepareMs", "sourceLoadMs", "preprocessMs", "aetherLookupMs", "aetherPublishMs",
-            "mmapReadMs", "tensorBuildMs", "prefetchWaitMs", "hostToDeviceMs", "forwardMs", "lossMs", "backwardMs", "optimizerMs",
+            "mmapReadMs", "tensorBuildMs", "artifactDecodeMs", "prefetchWaitMs", "hostToDeviceMs", "forwardMs", "lossMs", "backwardMs", "optimizerMs",
         ]},
         "transferLabel": "host-to-device CPU->PyTorch cuda device",
         "tensorLayout": summarize_tensor_layout(steps),
@@ -1419,6 +1420,7 @@ class BackendContext:
         self.static_path = self.directory / "static-preprocessed.dat"
         self.static_mmap = None
         self.static_file = None
+        self.static_offsets = []
         self.ram_ready = None
         self.populate_times = {}
         self.protocol = {
@@ -1469,16 +1471,20 @@ class BackendContext:
 
     def _build_static(self):
         started = time.perf_counter()
-        rows = self.np.stack([pack_sample(sample, self.np) for sample in self.reference])
-        rows.astype(self.np.float32).tofile(self.static_path)
+        self.static_offsets = []
+        with self.static_path.open("wb") as stream:
+            for sample in self.reference:
+                payload = pack_payload(sample)
+                self.static_offsets.append((stream.tell(), len(payload)))
+                stream.write(struct.pack("<I", len(payload)))
+                stream.write(payload)
         self.populate_times["STATIC_PREPROCESSED_MMAP"] = elapsed_ms(started)
         self.static_file = self.static_path.open("r+b")
         self.static_mmap = mmap.mmap(self.static_file.fileno(), 0)
-        self.static_shape = rows.shape
 
     def _build_ram(self):
         started = time.perf_counter()
-        self.ram_ready = [(sample["image"].copy(), sample["mask"].copy()) for sample in self.reference]
+        self.ram_ready = [pack_payload(sample) for sample in self.reference]
         self.populate_times["RAM_READY"] = elapsed_ms(started)
 
     def _prepopulate_aether_cache(self):
@@ -1529,7 +1535,7 @@ class BackendContext:
 
     def _raw_batch(self, indices):
         started = time.perf_counter()
-        values = [preprocess_sample(self.sources[index], self.args, self.np) for index in indices]
+        values = [artifact_to_tensor_sample(preprocess_sample(self.sources[index], self.args, self.np), self.np) for index in indices]
         return stack_values(values, self.np), {"sourceLoadMs": 0.0, "preprocessMs": elapsed_ms(started)}
 
     def _aether_batch(self, indices):
@@ -1545,15 +1551,20 @@ class BackendContext:
         self.protocol["lookupNanos"] += lookup_nanos
         values = []
         publish = []
-        preprocess_started = time.perf_counter()
+        decode_ms = 0.0
+        preprocess_ms = 0.0
         for index, key in zip(indices, keys):
             if key in cached:
+                decode_started = time.perf_counter()
                 values.append(unpack_payload(cached[key], self.np))
+                decode_ms += elapsed_ms(decode_started)
             else:
+                preprocess_started = time.perf_counter()
                 sample = preprocess_sample(self.sources[index], self.args, self.np)
+                preprocess_ms += elapsed_ms(preprocess_started)
+                sample = artifact_to_tensor_sample(sample, self.np)
                 values.append(sample)
                 publish.append((key, sample))
-        preprocess_ms = elapsed_ms(preprocess_started)
         publish_started = time.perf_counter_ns()
         if publish:
             published = self.store.commit_bytes_many(
@@ -1581,21 +1592,24 @@ class BackendContext:
             "preprocessMs": preprocess_ms,
             "aetherLookupMs": lookup_nanos / 1e6,
             "aetherPublishMs": publish_nanos / 1e6,
+            "artifactDecodeMs": decode_ms,
         }
 
     def _static_batch(self, indices):
         started = time.perf_counter()
-        row_size = 2 * self.args.resize * self.args.resize
-        array = self.np.frombuffer(self.static_mmap, dtype=self.np.float32).reshape(self.static_shape)
         values = []
         for index in indices:
-            row = array[index].reshape((2, 1, self.args.resize, self.args.resize))
-            values.append({"image": row[0].copy(), "mask": row[1].copy()})
+            offset, payload_size = self.static_offsets[index]
+            header_size = struct.unpack("<I", self.static_mmap[offset:offset + 4])[0]
+            if header_size != payload_size:
+                raise ValueError("static mmap artifact length prefix mismatch")
+            start = offset + 4
+            values.append(unpack_payload(self.static_mmap[start:start + payload_size], self.np))
         return stack_values(values, self.np), {"mmapReadMs": elapsed_ms(started), "tensorBuildMs": 0.0}
 
     def _ram_batch(self, indices):
         started = time.perf_counter()
-        values = [{"image": self.ram_ready[index][0], "mask": self.ram_ready[index][1]} for index in indices]
+        values = [unpack_payload(self.ram_ready[index], self.np) for index in indices]
         return stack_values(values, self.np), {"tensorBuildMs": elapsed_ms(started)}
 
     def cache_key(self, index):
@@ -1825,10 +1839,6 @@ def deterministic_denoise_pass(image, np):
     return (center * 0.5 + (north + south + west + east) * 0.125).astype(np.float32)
 
 
-def pack_sample(sample, np):
-    return np.stack([sample["image"], sample["mask"]])
-
-
 def stack_values(values, np):
     return {
         "images": np.stack([value["image"] for value in values]).astype(np.float32),
@@ -1841,9 +1851,12 @@ def pack_payload(sample):
         "sample_id": sample["sample_id"],
         "imageShape": sample["image"].shape,
         "maskShape": sample["mask"].shape,
+        "imageDtype": "float16",
+        "maskDtype": "uint8",
+        "artifactEncodingVersion": "nchw-float16-uint8-v1",
     }, separators=(",", ":"), sort_keys=True).encode("utf-8")
-    image = sample["image"].astype("float32", copy=False).tobytes()
-    mask = sample["mask"].astype("float32", copy=False).tobytes()
+    image = sample["image"].astype("float16", copy=False).tobytes()
+    mask = (sample["mask"] > 0).astype("uint8", copy=False).tobytes()
     return struct.pack("<I", len(header)) + header + image + mask
 
 
@@ -1855,16 +1868,22 @@ def unpack_payload(payload, np):
     value = json.loads(payload[4:header_end].decode("utf-8"))
     image_count = element_count(value["imageShape"])
     mask_count = element_count(value["maskShape"])
-    image_bytes = image_count * 4
-    mask_bytes = mask_count * 4
+    image_dtype = np.dtype(value.get("imageDtype", "float32"))
+    mask_dtype = np.dtype(value.get("maskDtype", "float32"))
+    image_bytes = image_count * image_dtype.itemsize
+    mask_bytes = mask_count * mask_dtype.itemsize
     body = memoryview(payload)[header_end:]
     if len(body) != image_bytes + mask_bytes:
         raise ValueError("cached payload byte length does not match tensor shapes")
     return {
         "sample_id": value["sample_id"],
-        "image": np.frombuffer(body[:image_bytes], dtype=np.float32).copy().reshape(value["imageShape"]),
-        "mask": np.frombuffer(body[image_bytes:image_bytes + mask_bytes], dtype=np.float32).copy().reshape(value["maskShape"]),
+        "image": np.frombuffer(body[:image_bytes], dtype=image_dtype).astype(np.float32).reshape(value["imageShape"]),
+        "mask": np.frombuffer(body[image_bytes:image_bytes + mask_bytes], dtype=mask_dtype).astype(np.float32).reshape(value["maskShape"]),
     }
+
+
+def artifact_to_tensor_sample(sample, np):
+    return unpack_payload(pack_payload(sample), np)
 
 
 def element_count(shape):
@@ -1934,9 +1953,9 @@ def deterministic_parameters(args):
             "denoiseRadius": 1.0,
             "normalizationVersion": "percentile-minmax-v1",
             "contrastNormalization": "fixed-percentile-minmax",
-            "persistedImageDtype": "float32",
-            "persistedMaskDtype": "binary-fp32",
-            "artifactEncodingVersion": "nchw-fp32-binary-v1",
+            "persistedImageDtype": "float16",
+            "persistedMaskDtype": "uint8",
+            "artifactEncodingVersion": "nchw-float16-uint8-v1",
             "preprocessPasses": args.preprocess_passes,
         }
     return {
@@ -1948,7 +1967,9 @@ def deterministic_parameters(args):
         "normalizationVersion": "zscore-v1",
         "channelLayoutEncoding": "nchw-fp32",
         "maskEncoding": "binary-fp32",
-        "payloadEncoding": "nchw-fp32-binary-v1",
+        "payloadEncoding": "nchw-float16-uint8-v1",
+        "persistedImageDtype": "float16",
+        "persistedMaskDtype": "uint8",
         "preprocessPasses": args.preprocess_passes,
         "implementationOutputVersion": "gpu-segmentation-v1",
     }

@@ -725,6 +725,9 @@ def export_tidy_reports(summary, output_dir):
     oct5k_summary_rows = oct5k_summary(summary)
     if oct5k_summary_rows:
         export_manifest["oct5kSummaryCsv"] = write_csv(output_dir / "oct5k-summary.csv", oct5k_summary_rows)
+    figure_exports = export_gpu_figures(summary, output_dir)
+    if figure_exports:
+        export_manifest["figures"] = figure_exports
     (output_dir / "exports.json").write_text(json.dumps(export_manifest, indent=2) + "\n", encoding="utf-8")
     summary["exports"] = export_manifest
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
@@ -739,6 +742,99 @@ def write_csv(path, rows):
         writer.writeheader()
         writer.writerows(rows)
     return str(path)
+
+
+def export_gpu_figures(summary, output_dir):
+    gpu = summary.get("reportData", {}).get("benchmark_gpu_segmentation", {})
+    backends = gpu.get("backends", {})
+    if not backends:
+        return {}
+    try:
+        import matplotlib.pyplot as plt
+    except Exception:
+        return {"status": "SKIPPED_MATPLOTLIB_UNAVAILABLE"}
+    figures_dir = output_dir / "figures"
+    figures_dir.mkdir(parents=True, exist_ok=True)
+    exports = {}
+    labels = [name for name in ("RAW_RECOMPUTE", "AETHER_CACHE", "STATIC_PREPROCESSED_MMAP", "RAM_READY") if name in backends]
+    if labels:
+        path = figures_dir / "warm-throughput.png"
+        plot_bar(
+            plt,
+            labels,
+            [metric_value(backends[name].get("steadyState", {}).get("samplesPerSecond")) for name in labels],
+            "samples/s",
+            path,
+        )
+        exports["warmThroughputPng"] = str(path)
+        path = figures_dir / "gpu-utilization.png"
+        plot_bar(
+            plt,
+            labels,
+            [metric_value(backends[name].get("gpu", {}).get("utilizationMean")) or 0 for name in labels],
+            "nvidia-smi sampled GPU utilization %",
+            path,
+        )
+        exports["gpuUtilizationPng"] = str(path)
+    raw = backends.get("RAW_RECOMPUTE")
+    aether = backends.get("AETHER_CACHE")
+    if raw and aether:
+        raw_epoch = metric_value(raw.get("steadyState", {}).get("meanEpochMs")) or 0
+        aether_epoch = metric_value(aether.get("steadyState", {}).get("meanEpochMs")) or 0
+        aether_populate = metric_value(aether.get("lifecycle", {}).get("populateMs")) or 0
+        epochs = [1, 2, 3, 4, 5, 10, 15, 18, 20, 25, 30, 40, 50]
+        deltas = [(aether_populate + aether_epoch * epoch) - raw_epoch * epoch for epoch in epochs]
+        path = figures_dir / "lifecycle-crossover.png"
+        plot_line(plt, epochs, deltas, "epochs", "Aether - RAW lifecycle wall ms", path, zero_line=True)
+        exports["lifecycleCrossoverPng"] = str(path)
+        path = figures_dir / "cumulative-lifecycle.png"
+        cumulative = aether.get("lifecycle", {}).get("cumulativeByEpochMs", [])
+        if cumulative:
+            plot_line(
+                plt,
+                [point["epoch"] for point in cumulative],
+                [point["totalMs"] for point in cumulative],
+                "epoch",
+                "Aether cumulative lifecycle ms",
+                path,
+            )
+            exports["cumulativeLifecyclePng"] = str(path)
+        path = figures_dir / "publication-cost.png"
+        plot_bar(
+            plt,
+            ["publish", "lookup", "avoided_preprocess"],
+            [
+                metric_value(aether.get("timing", {}).get("aetherPublishMs")) or 0,
+                metric_value(aether.get("timing", {}).get("aetherLookupMs")) or 0,
+                max(0, (metric_value(raw.get("timing", {}).get("preprocessMs")) or 0) - (metric_value(aether.get("timing", {}).get("artifactDecodeMs")) or 0)),
+            ],
+            "ms / batch",
+            path,
+        )
+        exports["publicationCostPng"] = str(path)
+    return exports
+
+
+def plot_bar(plt, labels, values, ylabel, path):
+    plt.figure(figsize=(8, 4.5))
+    plt.bar(labels, values, color=["#4b5563", "#2563eb", "#059669", "#d97706"][:len(labels)])
+    plt.ylabel(ylabel)
+    plt.xticks(rotation=20, ha="right")
+    plt.tight_layout()
+    plt.savefig(path, dpi=160)
+    plt.close()
+
+
+def plot_line(plt, xs, ys, xlabel, ylabel, path, zero_line=False):
+    plt.figure(figsize=(8, 4.5))
+    plt.plot(xs, ys, marker="o", color="#2563eb")
+    if zero_line:
+        plt.axhline(0, color="#111827", linewidth=1)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.tight_layout()
+    plt.savefig(path, dpi=160)
+    plt.close()
 
 
 def oct5k_summary(summary):
@@ -786,6 +882,13 @@ def step_row(summary, run_index, seed, backend_name, step):
         "batchSize": step.get("batchSize"),
         "inputWaitMs": step.get("inputWaitMs"),
         "batchPrepareMs": step.get("batchPrepareMs"),
+        "sourceLoadMs": step.get("sourceLoadMs"),
+        "preprocessMs": step.get("preprocessMs"),
+        "aetherLookupMs": step.get("aetherLookupMs"),
+        "aetherPublishMs": step.get("aetherPublishMs"),
+        "mmapReadMs": step.get("mmapReadMs"),
+        "tensorBuildMs": step.get("tensorBuildMs"),
+        "artifactDecodeMs": step.get("artifactDecodeMs"),
         "prefetchWaitMs": step.get("prefetchWaitMs"),
         "hostToDeviceMs": step.get("hostToDeviceMs"),
         "forwardMs": step.get("forwardMs"),
