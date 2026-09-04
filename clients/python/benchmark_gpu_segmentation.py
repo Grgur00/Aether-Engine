@@ -221,9 +221,18 @@ def run_training_once(args, torch, np, device, run_index):
     random.Random(run_seed).shuffle(backend_order)
     context = BackendContext(args, reference, samples, np)
     context.run_seed = run_seed
+    validation_args = copy.copy(args)
+    validation_args.aether_cache_dir = None
+    validation_args.aether_cache_mode = "fresh"
+    validation_args.initial_cache_hit_ratio = 0.0
+    validation_context = BackendContext(validation_args, reference, samples, np)
     try:
-        equivalence = validate_backend_equivalence(context, reference)
-        context.reset_aether_cache()
+        validation_context.run_seed = run_seed
+        equivalence = validate_backend_equivalence(validation_context, reference)
+    finally:
+        validation_context.close()
+
+    try:
         results = {}
         for backend in backend_order:
             set_seed(torch, run_seed)
@@ -473,6 +482,7 @@ def cache_dynamics(protocol, args):
         "prepopulatePreviousVersion": args.prepopulate_previous_version,
         "targetInitialCacheHitRatio": protocol.get("targetInitialCacheHitRatio", 0.0),
         "prepopulatedEntries": protocol.get("prepopulatedEntries", 0),
+        "initialPresentIndices": protocol.get("initialPresentIndices", []),
         "lookups": lookups,
         "hits": protocol.get("cacheHits") or 0,
         "misses": misses,
@@ -492,23 +502,22 @@ def cache_dynamics(protocol, args):
 
 
 def cache_invariants(dynamics, args):
-    target = dynamics["targetInitialCacheHitRatio"]
-    expected_prepopulated = int(round(args.samples * target / 100))
-    expected = expected_cache_counts(args, expected_prepopulated)
+    initial_present = set(dynamics.get("initialPresentIndices", []))
+    expected = expected_cache_counts(args, initial_present)
     expected_lookups = expected["lookups"]
     expected_misses = expected["misses"]
     expected_published = expected_misses
     expected_hits = expected["hits"]
     passed = (
         dynamics["lookups"] == expected_lookups
-        and dynamics["prepopulatedEntries"] == expected_prepopulated
+        and dynamics["prepopulatedEntries"] == len(initial_present)
         and dynamics["misses"] == expected_misses
         and dynamics["publishedSamples"] == expected_published
         and dynamics["hits"] == expected_hits
     )
     return {
         "expectedLookups": expected_lookups,
-        "expectedPrepopulatedEntries": expected_prepopulated,
+        "expectedPrepopulatedEntries": len(initial_present),
         "expectedHits": expected_hits,
         "expectedMisses": expected_misses,
         "expectedPublishedSamples": expected_published,
@@ -516,8 +525,8 @@ def cache_invariants(dynamics, args):
     }
 
 
-def expected_cache_counts(args, prepopulated_entries):
-    seen = set(range(prepopulated_entries))
+def expected_cache_counts(args, initial_present_indices):
+    seen = set(initial_present_indices)
     lookups = 0
     misses = 0
     for batch_indices, _ in scheduled_batches(args, effective_measured_steps(args)):
@@ -1583,6 +1592,7 @@ class BackendContext:
         self.reference = reference
         self.sources = sources
         self.np = np
+        self.initial_present_indices = set()
         self.external_aether_cache = bool(args.aether_cache_dir)
         if self.external_aether_cache:
             self.directory = Path(args.aether_cache_dir)
@@ -1672,14 +1682,16 @@ class BackendContext:
     def _prepopulate_aether_cache(self):
         target_hit_ratio = self._target_initial_hit_ratio()
         if self.external_aether_cache and self.args.aether_cache_mode == "reuse":
-            present = self._existing_cache_entries()
-            self.prepopulated_aether_entries = present
-            self.target_initial_cache_hit_ratio = (present / max(len(self.sources), 1)) * 100.0
+            present_indices = self._existing_cache_indices()
+            self.initial_present_indices = present_indices
+            self.prepopulated_aether_entries = len(present_indices)
+            self.target_initial_cache_hit_ratio = (len(present_indices) / max(len(self.sources), 1)) * 100.0
             self.populate_times["AETHER_CACHE"] = 0.0
             return
 
         hit_count = int(round(self.args.samples * target_hit_ratio / 100))
         if hit_count <= 0:
+            self.initial_present_indices = set()
             self.populate_times["AETHER_CACHE"] = 0.0
             self.prepopulated_aether_entries = 0
             self.target_initial_cache_hit_ratio = target_hit_ratio
@@ -1693,6 +1705,7 @@ class BackendContext:
             }
             for index in range(hit_count)
         ]
+        self.initial_present_indices = set(range(hit_count))
         self.store.commit_bytes_many(
             entries,
             transformation_name="oct_deterministic_preprocess",
@@ -1704,10 +1717,13 @@ class BackendContext:
         self.prepopulated_aether_entries = len(entries)
         self.target_initial_cache_hit_ratio = target_hit_ratio
 
-    def _existing_cache_entries(self):
+    def _existing_cache_indices(self):
         current_keys = [self.cache_key(index) for index in range(len(self.sources))]
         present = self.store.cached_artifact_ids(current_keys)
-        return len(present)
+        return {index for index, key in enumerate(current_keys) if key in present}
+
+    def _existing_cache_entries(self):
+        return len(self._existing_cache_indices())
 
     def _target_initial_hit_ratio(self):
         if self.external_aether_cache and self.args.aether_cache_mode == "reuse":
@@ -1852,6 +1868,7 @@ class BackendContext:
         protocol["walForceCount"] = 0
         protocol["prepopulatedEntries"] = getattr(self, "prepopulated_aether_entries", 0)
         protocol["targetInitialCacheHitRatio"] = getattr(self, "target_initial_cache_hit_ratio", 0.0)
+        protocol["initialPresentIndices"] = sorted(getattr(self, "initial_present_indices", set()))
         return protocol
 
     def peak_memory_bytes(self):
