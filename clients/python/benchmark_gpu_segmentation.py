@@ -1751,15 +1751,20 @@ class BackendContext:
                 existing = self.mmap_store.lookup(key)
                 if existing is not None:
                     self.static_offsets[key] = existing
-        self.populate_times["STATIC_PREPROCESSED_MMAP"] = 0.0 if self.args.mmap_cache_mode == "reuse" else elapsed_ms(started)
-        if self.args.mmap_cache_mode == "fresh":
+        self.populate_times["STATIC_PREPROCESSED_MMAP"] = (
+            0.0
+            if self.args.mmap_cache_mode == "reuse"
+            else elapsed_ms(started)
+        )
+        if current_file.exists() and current_file.stat().st_size > 0:
             self.static_file = current_file.open("r+b")
-            self.static_mmap = mmap.mmap(self.static_file.fileno(), 0)
+            self.static_mmap = mmap.mmap(
+                self.static_file.fileno(),
+                0,
+            )
         else:
-            if not current_file.exists():
-                current_file.touch()
-            self.static_file = current_file.open("r+b")
-            self.static_mmap = mmap.mmap(self.static_file.fileno(), 0)
+            self.static_file = None
+            self.static_mmap = None
 
     def _build_ram(self):
         started = time.perf_counter()
