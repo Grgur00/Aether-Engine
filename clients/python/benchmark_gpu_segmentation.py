@@ -1740,19 +1740,26 @@ class BackendContext:
         started = time.perf_counter()
         self.static_offsets = {}
         current_file = self.mmap_store.data_path
-        if self.args.mmap_cache_mode == "fresh" or not self.mmap_store.index:
+        if self.args.mmap_cache_mode == "fresh":
             if current_file.exists():
                 current_file.unlink()
             self.mmap_store.index = {}
             self.mmap_store._save_index()
-        for index, sample in enumerate(self.reference):
-            key = self.cache_key(index)
-            payload = pack_payload(sample)
-            self.mmap_store.put(key, payload)
-            self.static_offsets[key] = self.mmap_store.lookup(key)
-        self.populate_times["STATIC_PREPROCESSED_MMAP"] = elapsed_ms(started)
-        self.static_file = current_file.open("r+b")
-        self.static_mmap = mmap.mmap(self.static_file.fileno(), 0)
+        elif self.args.mmap_cache_mode == "reuse":
+            for index in range(len(self.sources)):
+                key = self.cache_key(index)
+                existing = self.mmap_store.lookup(key)
+                if existing is not None:
+                    self.static_offsets[key] = existing
+        self.populate_times["STATIC_PREPROCESSED_MMAP"] = 0.0 if self.args.mmap_cache_mode == "reuse" else elapsed_ms(started)
+        if self.args.mmap_cache_mode == "fresh":
+            self.static_file = current_file.open("r+b")
+            self.static_mmap = mmap.mmap(self.static_file.fileno(), 0)
+        else:
+            if not current_file.exists():
+                current_file.touch()
+            self.static_file = current_file.open("r+b")
+            self.static_mmap = mmap.mmap(self.static_file.fileno(), 0)
 
     def _build_ram(self):
         started = time.perf_counter()
@@ -1907,22 +1914,36 @@ class BackendContext:
     def _static_batch(self, indices):
         started = time.perf_counter()
         values = []
+        source_load_ms = 0.0
+        preprocess_ms = 0.0
+        append_ms = 0.0
         for index in indices:
             key = self.cache_key(index)
             offset_and_size = self.static_offsets.get(key)
             if offset_and_size is None:
-                payload = pack_payload(self.reference[index])
+                sample, counters = preprocess_sample_with_timing(self.sources[index], self.args, self.np)
+                source_load_ms += counters.get("sourceLoadMs", 0.0)
+                preprocess_ms += counters.get("preprocessMs", 0.0)
+                sample = artifact_to_tensor_sample(sample, self.np)
+                append_started = time.perf_counter()
+                payload = pack_payload(sample)
                 offset_and_size = self.mmap_store.put(key, payload)
+                append_ms += elapsed_ms(append_started)
                 self.static_offsets[key] = offset_and_size
-            offset, record_size = offset_and_size
             payload = self.mmap_store.get(key)
             if payload is None:
                 raise ValueError(f"missing prepared mmap payload for key {key}")
             header_size = struct.unpack("<I", payload[:4])[0]
+            values.append(unpack_payload(payload[4:], self.np))
             if header_size != len(payload) - 4:
                 raise ValueError("static mmap artifact length prefix mismatch")
-            values.append(unpack_payload(payload[4:], self.np))
-        return stack_values(values, self.np), {"mmapReadMs": elapsed_ms(started), "tensorBuildMs": 0.0}
+        return stack_values(values, self.np), {
+            "mmapReadMs": elapsed_ms(started),
+            "sourceLoadMs": source_load_ms,
+            "preprocessMs": preprocess_ms,
+            "mmapPublishMs": append_ms,
+            "tensorBuildMs": 0.0,
+        }
 
     def _ram_batch(self, indices):
         started = time.perf_counter()
@@ -1976,11 +1997,43 @@ class BackendContext:
 
     def populate_mmap_dataset(self):
         entries_requested = 0
+        initial_reusable_entries = len(self.static_offsets)
+        hits = 0
+        misses = 0
+        entries_appended = 0
+        bytes_appended = 0
+        lookup_ms = 0.0
+        append_ms = 0.0
         for batch_indices in batch_plan(self.args):
             entries_requested += len(batch_indices)
-            self._static_batch(batch_indices)
+            for index in batch_indices:
+                key = self.cache_key(index)
+                start_lookup = time.perf_counter()
+                present = self.mmap_store.lookup(key)
+                lookup_ms += elapsed_ms(start_lookup)
+                if present is None:
+                    misses += 1
+                    sample, _ = preprocess_sample_with_timing(self.sources[index], self.args, self.np)
+                    payload = pack_payload(artifact_to_tensor_sample(sample, self.np))
+                    start_append = time.perf_counter()
+                    self.mmap_store.put(key, payload)
+                    append_ms += elapsed_ms(start_append)
+                    bytes_appended += len(payload)
+                    entries_appended += 1
+                    self.static_offsets[key] = self.mmap_store.lookup(key)
+                else:
+                    hits += 1
         return {
             "entriesRequested": entries_requested,
+            "initialReusableEntries": initial_reusable_entries,
+            "initialMissingEntries": max(0, len(self.sources) - initial_reusable_entries),
+            "lookups": entries_requested,
+            "hits": hits,
+            "misses": misses,
+            "entriesAppended": entries_appended,
+            "bytesAppended": bytes_appended,
+            "lookupMs": lookup_ms,
+            "appendMs": append_ms,
             "entriesStored": len(self.mmap_store.index),
             "cacheDir": str(self.mmap_root),
         }
