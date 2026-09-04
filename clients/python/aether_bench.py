@@ -49,6 +49,7 @@ def parse_args(argv=None):
     parser.add_argument("--initial-cache-hit-ratio", type=float, default=0.0)
     parser.add_argument("--prepopulate-previous-version", action="store_true")
     parser.add_argument("--prefetch-batches", type=int, default=0)
+    parser.add_argument("--augmentation-mode", choices=["auto", "none", "light"], default="auto")
     parser.add_argument("--gpu-sample-interval-ms", type=float, default=250.0)
     parser.add_argument(
         "--sweep-plan",
@@ -62,6 +63,8 @@ def parse_args(argv=None):
     apply_profile_defaults(args)
     if args.oct5k_image_size is not None:
         args.resize = args.oct5k_image_size
+    if args.augmentation_mode == "auto":
+        args.augmentation_mode = "light" if args.dataset_kind == "oct5k" else "none"
     validate_args(args)
     return args
 
@@ -184,6 +187,7 @@ def run_suite(args):
             "initialCacheHitRatio": args.initial_cache_hit_ratio,
             "prepopulatePreviousVersion": args.prepopulate_previous_version,
             "prefetchBatches": args.prefetch_batches,
+            "augmentationMode": args.augmentation_mode,
             "gpuSampleIntervalMs": args.gpu_sample_interval_ms,
             "sweepPlan": args.sweep_plan,
             "planOnly": args.plan_only,
@@ -280,6 +284,8 @@ def gpu_training_command(args, output_path):
         *([] if not args.prepopulate_previous_version else ["--prepopulate-previous-version"]),
         "--prefetch-batches",
         str(args.prefetch_batches),
+        "--augmentation-mode",
+        args.augmentation_mode,
         "--gpu-sample-interval-ms",
         str(args.gpu_sample_interval_ms),
         "--output",
@@ -858,6 +864,7 @@ def oct5k_summary(summary):
             "datasetManifest": summary.get("configuration", {}).get("datasetManifest"),
             "datasetSplit": summary.get("configuration", {}).get("datasetSplit"),
             "oct5kTransformVersion": summary.get("configuration", {}).get("oct5kTransformVersion"),
+            "augmentationMode": summary.get("configuration", {}).get("augmentationMode"),
             "samplesPerSecondMean": metric_value(steady.get("samplesPerSecond")),
             "meanEpochMs": metric_value(steady.get("meanEpochMs")),
             "populateMsMean": metric_value(lifecycle.get("populateMs")),
@@ -898,6 +905,7 @@ def step_row(summary, run_index, seed, backend_name, step):
         "mmapReadMs": step.get("mmapReadMs"),
         "tensorBuildMs": step.get("tensorBuildMs"),
         "artifactDecodeMs": step.get("artifactDecodeMs"),
+        "randomAugmentationMs": step.get("randomAugmentationMs"),
         "prefetchWaitMs": step.get("prefetchWaitMs"),
         "hostToDeviceMs": step.get("hostToDeviceMs"),
         "forwardMs": step.get("forwardMs"),

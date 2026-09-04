@@ -74,11 +74,14 @@ def parse_args(argv=None):
     parser.add_argument("--initial-cache-hit-ratio", type=float, default=0.0)
     parser.add_argument("--prepopulate-previous-version", action="store_true")
     parser.add_argument("--prefetch-batches", type=int, default=0)
+    parser.add_argument("--augmentation-mode", choices=["auto", "none", "light"], default="auto")
     parser.add_argument("--gpu-sample-interval-ms", type=float, default=250.0)
     parser.add_argument("--output", default="build/gpu-training.json")
     args = parser.parse_args(argv)
     if args.oct5k_image_size is not None:
         args.resize = args.oct5k_image_size
+    if args.augmentation_mode == "auto":
+        args.augmentation_mode = "light" if args.dataset_kind == "oct5k" else "none"
     args.invocation_args = list(sys.argv[1:] if argv is None else argv)
     validate_args(args)
     return args
@@ -200,6 +203,7 @@ def run_training_once(args, torch, np, device, run_index):
     backend_order = list(BACKENDS)
     random.Random(run_seed).shuffle(backend_order)
     context = BackendContext(args, reference, samples, np)
+    context.run_seed = run_seed
     try:
         equivalence = validate_backend_equivalence(context, reference)
         context.reset_aether_cache()
@@ -988,6 +992,9 @@ def train_step(torch, model, optimizer, loss_function, device, backend, context,
     else:
         batch, counters, batch_prepare_ms = prepared
         input_wait_ms = prefetch_wait_ms
+    augmentation_start = time.perf_counter()
+    batch = augment_batch(batch, context, batch_indices, step, epoch)
+    augmentation_ms = elapsed_ms(augmentation_start)
     batch_checksum = batch_checksums(batch)
     cpu_tensors, tensor_layout = normalize_cpu_batch(torch, batch)
     transfer_start = time.perf_counter()
@@ -1026,6 +1033,7 @@ def train_step(torch, model, optimizer, loss_function, device, backend, context,
         "mmapReadMs": counters.get("mmapReadMs", 0.0),
         "tensorBuildMs": counters.get("tensorBuildMs", 0.0),
         "artifactDecodeMs": counters.get("artifactDecodeMs", 0.0),
+        "randomAugmentationMs": augmentation_ms,
         "hostToDeviceMs": host_to_device_ms,
         "forwardMs": forward_ms,
         "lossMs": loss_ms,
@@ -1049,6 +1057,31 @@ def normalize_cpu_batch(torch, batch):
         "images": tensor_layout_metadata(torch, images),
         "masks": tensor_layout_metadata(torch, masks),
     }
+
+
+def augment_batch(batch, context, batch_indices, step, epoch):
+    if context.args.augmentation_mode == "none":
+        return batch
+    np = context.np
+    seed_material = json.dumps({
+        "seed": getattr(context, "run_seed", context.args.seed),
+        "epoch": epoch,
+        "step": step,
+        "indices": list(batch_indices),
+        "mode": context.args.augmentation_mode,
+    }, sort_keys=True).encode("utf-8")
+    seed = int.from_bytes(hashlib.sha256(seed_material).digest()[:8], "little") & ((1 << 63) - 1)
+    rng = np.random.default_rng(seed)
+    images = batch["images"].copy()
+    masks = batch["masks"].copy()
+    if rng.random() < 0.5:
+        images = images[:, :, :, ::-1].copy()
+        masks = masks[:, :, :, ::-1].copy()
+    scale = np.float32(rng.uniform(0.95, 1.05))
+    offset = np.float32(rng.uniform(-0.025, 0.025))
+    noise = rng.normal(0.0, 0.005, size=images.shape).astype(np.float32)
+    images = np.clip(images * scale + offset + noise, -8.0, 8.0).astype(np.float32)
+    return {"images": images, "masks": masks.astype(np.float32, copy=False)}
 
 
 def expected_contiguous_stride(shape):
@@ -1313,7 +1346,7 @@ def summarize_backend(backend, steps, epoch_walls, training_ms, context, gpu_sam
         "fullDatasetChecksum": context.checksums["combinedChecksum"],
         "timing": {field: mean([step[field] for step in steps]) for field in [
             "batchPrepareMs", "sourceLoadMs", "preprocessMs", "aetherLookupMs", "aetherPublishMs",
-            "mmapReadMs", "tensorBuildMs", "artifactDecodeMs", "prefetchWaitMs", "hostToDeviceMs", "forwardMs", "lossMs", "backwardMs", "optimizerMs",
+            "mmapReadMs", "tensorBuildMs", "artifactDecodeMs", "randomAugmentationMs", "prefetchWaitMs", "hostToDeviceMs", "forwardMs", "lossMs", "backwardMs", "optimizerMs",
         ]},
         "transferLabel": "host-to-device CPU->PyTorch cuda device",
         "tensorLayout": summarize_tensor_layout(steps),
@@ -2097,6 +2130,7 @@ def configuration(args):
         "initialCacheHitRatio": args.initial_cache_hit_ratio,
         "prepopulatePreviousVersion": args.prepopulate_previous_version,
         "prefetchBatches": args.prefetch_batches,
+        "augmentationMode": args.augmentation_mode,
         "gpuSampleIntervalMs": args.gpu_sample_interval_ms,
         "backends": list(BACKENDS),
     }
