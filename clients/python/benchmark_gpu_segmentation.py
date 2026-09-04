@@ -349,6 +349,7 @@ def aggregate_backend_runs(backend, backend_runs):
     representative["steadyState"] = {
         "meanEpochMs": distribution([run["steadyState"]["meanEpochMs"] for run in backend_runs]),
         "samplesPerSecond": distribution([run["steadyState"]["samplesPerSecond"] for run in backend_runs]),
+        "effectiveSamplesPerSecond": distribution([run["steadyState"]["effectiveSamplesPerSecond"] for run in backend_runs]),
         "stepsPerSecond": distribution([run["steadyState"]["stepsPerSecond"] for run in backend_runs]),
         "pixelsPerSecond": distribution([run["steadyState"]["pixelsPerSecond"] for run in backend_runs]),
         "effectiveMegapixelsPerSecond": distribution([run["steadyState"]["effectiveMegapixelsPerSecond"] for run in backend_runs]),
@@ -1318,7 +1319,7 @@ def proc_self_io():
 def summarize_backend(backend, steps, epoch_walls, training_ms, context, gpu_samples, process_metrics, cold_start_gate=None, segmentation_metrics=None):
     batch_size = context.args.batch_size
     resize = context.args.resize
-    total_samples = len(steps) * batch_size
+    total_samples = sum(step["batchSize"] for step in steps)
     total_pixels = total_samples * resize * resize
     total_step_ms = sum(step["stepWallMs"] for step in steps)
     input_wait_ms = sum(step["inputWaitMs"] for step in steps)
@@ -1337,6 +1338,7 @@ def summarize_backend(backend, steps, epoch_walls, training_ms, context, gpu_sam
         "steadyState": {
             "meanEpochMs": mean(epoch_walls),
             "samplesPerSecond": total_samples / max(total_step_ms / 1000, 1e-9),
+            "effectiveSamplesPerSecond": total_samples / max(training_ms / 1000, 1e-9),
             "stepsPerSecond": len(steps) / max(total_step_ms / 1000, 1e-9),
             "pixelsPerSecond": total_pixels / max(total_step_ms / 1000, 1e-9),
             "effectiveMegapixelsPerSecond": total_pixels / max(total_step_ms / 1000, 1e-9) / 1_000_000,
@@ -1489,6 +1491,10 @@ def compare_pair(aether, baseline):
     return {
         "aetherInputWaitPercentDelta": aether["steadyState"]["inputWaitPercent"] - baseline["steadyState"]["inputWaitPercent"],
         "aetherSamplesPerSecondRatio": ratio(aether["steadyState"]["samplesPerSecond"], baseline["steadyState"]["samplesPerSecond"]),
+        "aetherEffectiveSamplesPerSecondRatio": ratio(
+            aether["steadyState"]["effectiveSamplesPerSecond"],
+            baseline["steadyState"]["effectiveSamplesPerSecond"],
+        ),
         "aetherTrainingWallMsDelta": aether["lifecycle"]["trainingMs"] - baseline["lifecycle"]["trainingMs"],
         "aetherTotalMsDelta": aether["lifecycle"]["totalMs"] - baseline["lifecycle"]["totalMs"],
     }

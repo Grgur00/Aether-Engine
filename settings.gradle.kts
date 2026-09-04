@@ -27,6 +27,7 @@ include(
     ":modules:aether-wal",
     ":modules:aether-sstable",
     ":modules:aether-cache",
+    ":modules:aether-training-cache",
     ":modules:aether-lsm",
     ":modules:aether-engine",
     ":modules:aether-testkit",
