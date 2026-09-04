@@ -848,6 +848,7 @@ def oct5k_summary(summary):
         lifecycle = backend.get("lifecycle", {})
         cold_start = backend.get("coldStart") or {}
         segmentation = backend.get("segmentationMetrics") or {}
+        admission = gpu.get("admissionModel") or {}
         rows.append({
             "profile": summary.get("profile"),
             "backend": backend_name,
@@ -868,6 +869,10 @@ def oct5k_summary(summary):
             "meanIoU": segmentation.get("meanIoU"),
             "coldStartPassed": cold_start.get("passed"),
             "measuredKeysAlreadyPresent": cold_start.get("measuredKeysAlreadyPresent"),
+            "zeroMarginPredictedBreakEvenEpoch": metric_value(admission.get("zeroMarginPredictedBreakEvenEpoch")),
+            "onePercentMarginPredictedBreakEvenEpoch": metric_value(admission.get("onePercentMarginPredictedBreakEvenEpoch")),
+            "observedSampledCrossoverEpoch": metric_value(admission.get("observedSampledCrossoverEpoch")),
+            "predictionErrorEpochs": metric_value(admission.get("predictionErrorEpochs")),
         })
     return rows
 
@@ -941,6 +946,11 @@ def cache_dynamics_row(summary, run_index, seed, dynamics):
         "bytesWritten": dynamics.get("bytesWritten"),
         "writeBatchCount": dynamics.get("writeBatchCount"),
         "entriesPerWriteBatchMean": dynamics.get("entriesPerWriteBatchMean"),
+        "invariantsPassed": (dynamics.get("invariants") or {}).get("passed"),
+        "expectedLookups": (dynamics.get("invariants") or {}).get("expectedLookups"),
+        "expectedHits": (dynamics.get("invariants") or {}).get("expectedHits"),
+        "expectedMisses": (dynamics.get("invariants") or {}).get("expectedMisses"),
+        "expectedPublishedSamples": (dynamics.get("invariants") or {}).get("expectedPublishedSamples"),
     }
 
 

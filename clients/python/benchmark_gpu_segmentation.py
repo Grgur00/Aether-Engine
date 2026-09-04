@@ -170,6 +170,7 @@ def run_benchmark(args):
         "cacheDynamics": aggregate["cacheDynamics"],
         "outcome": aggregate["outcome"],
         "breakEvenMargin": 0.01,
+        "admissionModel": aggregate["admissionModel"],
         "correctness": {
             "allChecksumsEqual": True,
             "checksums": representative["checksums"],
@@ -227,6 +228,7 @@ def run_training_once(args, torch, np, device, run_index):
             "aetherOperationMetrics": context.store.operation_metrics(),
             "comparisons": compare_backends(results),
             "trainingBreakEvenEpoch": training_break_even_epoch(results),
+            "admissionModel": admission_model(results),
             "outcome": training_outcome(results),
             "checksums": checksums,
             "samplesCheckedElementwise": min(8, len(reference)),
@@ -325,6 +327,7 @@ def aggregate_runs(runs):
         "cacheDynamics": aggregate_cache_dynamics([run.get("cacheDynamics", {}) for run in runs]),
         "comparisons": aggregate_comparisons([run.get("comparisons", {}) for run in runs]),
         "trainingBreakEvenEpoch": aggregate_break_even([run.get("trainingBreakEvenEpoch") for run in runs]),
+        "admissionModel": aggregate_admission_models([run.get("admissionModel") for run in runs]),
         "outcome": aggregate_outcomes([run.get("outcome", {}) for run in runs]),
     }
 
@@ -571,6 +574,31 @@ def aggregate_break_even(values):
     return {
         "epoch": distribution(epochs),
         "rawRuns": values,
+    }
+
+
+def aggregate_admission_models(models):
+    present = [model for model in models if model]
+    if not present:
+        return None
+    fields = [
+        "zeroMarginPredictedBreakEvenEpoch",
+        "onePercentMarginPredictedBreakEvenEpoch",
+        "observedSampledCrossoverEpoch",
+        "predictionErrorEpochs",
+        "rawEpochMs",
+        "aetherWarmEpochMs",
+        "aetherPopulateMs",
+    ]
+    return {
+        "runs": len(present),
+        **{
+            field: distribution([model[field] for model in present if model.get(field) is not None])
+            for field in fields
+        },
+        "margin": 0.01,
+        "equation": present[0].get("equation"),
+        "rawRuns": present,
     }
 
 
@@ -1435,6 +1463,41 @@ def training_break_even_epoch(results):
                 "margin": margin,
             }
     return None
+
+
+def admission_model(results):
+    aether = results.get("AETHER_CACHE")
+    raw = results.get("RAW_RECOMPUTE")
+    if not aether or not raw:
+        return None
+    raw_epoch = raw["steadyState"]["meanEpochMs"]
+    aether_epoch = aether["steadyState"]["meanEpochMs"]
+    aether_populate = aether["lifecycle"]["populateMs"]
+    zero_margin = predicted_break_even_epoch(raw_epoch, aether_epoch, aether_populate, margin=0.0)
+    one_percent = predicted_break_even_epoch(raw_epoch, aether_epoch, aether_populate, margin=0.01)
+    observed = training_break_even_epoch(results)
+    observed_epoch = observed.get("epoch") if observed else None
+    return {
+        "equation": "aether_populate_ms + aether_warm_epoch_ms * N <= (1 - margin) * raw_epoch_ms * N",
+        "rawEpochMs": raw_epoch,
+        "aetherWarmEpochMs": aether_epoch,
+        "aetherPopulateMs": aether_populate,
+        "zeroMarginPredictedBreakEvenEpoch": zero_margin,
+        "onePercentMarginPredictedBreakEvenEpoch": one_percent,
+        "observedSampledCrossoverEpoch": observed_epoch,
+        "predictionErrorEpochs": None if observed_epoch is None or one_percent is None else observed_epoch - one_percent,
+        "margin": 0.01,
+    }
+
+
+def predicted_break_even_epoch(raw_epoch_ms, aether_epoch_ms, aether_populate_ms, margin):
+    effective_raw = raw_epoch_ms * (1 - margin)
+    per_epoch_savings = effective_raw - aether_epoch_ms
+    if per_epoch_savings <= 0:
+        return None
+    if aether_populate_ms <= 0:
+        return 0.0
+    return aether_populate_ms / per_epoch_savings
 
 
 def ratio(left, right):
