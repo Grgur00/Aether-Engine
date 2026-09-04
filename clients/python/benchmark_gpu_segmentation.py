@@ -1662,9 +1662,22 @@ class BackendContext:
         raise ValueError(f"unknown backend: {backend}")
 
     def _raw_batch(self, indices):
-        started = time.perf_counter()
-        values = [artifact_to_tensor_sample(preprocess_sample(self.sources[index], self.args, self.np), self.np) for index in indices]
-        return stack_values(values, self.np), {"sourceLoadMs": 0.0, "preprocessMs": elapsed_ms(started)}
+        values = []
+        source_load_ms = 0.0
+        preprocess_ms = 0.0
+        artifact_decode_ms = 0.0
+        for index in indices:
+            sample, counters = preprocess_sample_with_timing(self.sources[index], self.args, self.np)
+            source_load_ms += counters.get("sourceLoadMs", 0.0)
+            preprocess_ms += counters.get("preprocessMs", 0.0)
+            artifact_started = time.perf_counter()
+            values.append(artifact_to_tensor_sample(sample, self.np))
+            artifact_decode_ms += elapsed_ms(artifact_started)
+        return stack_values(values, self.np), {
+            "sourceLoadMs": source_load_ms,
+            "preprocessMs": preprocess_ms,
+            "artifactDecodeMs": artifact_decode_ms,
+        }
 
     def _aether_batch(self, indices):
         lookup_started = time.perf_counter_ns()
@@ -1680,6 +1693,7 @@ class BackendContext:
         values = []
         publish = []
         decode_ms = 0.0
+        source_load_ms = 0.0
         preprocess_ms = 0.0
         for index, key in zip(indices, keys):
             if key in cached:
@@ -1687,10 +1701,12 @@ class BackendContext:
                 values.append(unpack_payload(cached[key], self.np))
                 decode_ms += elapsed_ms(decode_started)
             else:
-                preprocess_started = time.perf_counter()
-                sample = preprocess_sample(self.sources[index], self.args, self.np)
-                preprocess_ms += elapsed_ms(preprocess_started)
+                sample, counters = preprocess_sample_with_timing(self.sources[index], self.args, self.np)
+                preprocess_ms += counters.get("preprocessMs", 0.0)
+                source_load_ms += counters.get("sourceLoadMs", 0.0)
+                decode_started = time.perf_counter()
                 sample = artifact_to_tensor_sample(sample, self.np)
+                decode_ms += elapsed_ms(decode_started)
                 values.append(sample)
                 publish.append((key, sample))
         publish_started = time.perf_counter_ns()
@@ -1717,6 +1733,7 @@ class BackendContext:
             self.protocol["entriesPerWriteBatch"].append(len(publish))
         self.protocol["publishNanos"] += publish_nanos
         return stack_values(values, self.np), {
+            "sourceLoadMs": source_load_ms,
             "preprocessMs": preprocess_ms,
             "aetherLookupMs": lookup_nanos / 1e6,
             "aetherPublishMs": publish_nanos / 1e6,
@@ -1900,9 +1917,15 @@ def resolve_manifest_path(value, manifest_root):
 
 
 def preprocess_sample(sample, args, np):
+    value, _ = preprocess_sample_with_timing(sample, args, np)
+    return value
+
+
+def preprocess_sample_with_timing(sample, args, np):
     if sample.get("kind") == "oct5k":
         return preprocess_oct5k_sample(sample, args, np)
     resize = args.resize
+    started = time.perf_counter()
     raw = np.frombuffer(sample["raw"], dtype=np.uint8).astype(np.float32).reshape(sample["height"], sample["width"])
     image = nearest_resize(raw, resize, np) / 255.0
     for _ in range(args.preprocess_passes - 1):
@@ -1911,7 +1934,10 @@ def preprocess_sample(sample, args, np):
     std = float(image.std()) or 1.0
     normalized = ((image - mean) / std).astype(np.float32)
     mask = (image >= float(image.mean())).astype(np.float32)
-    return {"sample_id": sample["sample_id"], "image": normalized.reshape(1, resize, resize), "mask": mask.reshape(1, resize, resize)}
+    return (
+        {"sample_id": sample["sample_id"], "image": normalized.reshape(1, resize, resize), "mask": mask.reshape(1, resize, resize)},
+        {"sourceLoadMs": 0.0, "preprocessMs": elapsed_ms(started)},
+    )
 
 
 def preprocess_oct5k_sample(sample, args, np):
@@ -1922,14 +1948,19 @@ def preprocess_oct5k_sample(sample, args, np):
     bilinear = getattr(getattr(Image, "Resampling", Image), "BILINEAR")
     nearest = getattr(getattr(Image, "Resampling", Image), "NEAREST")
     resize = args.resize
+    source_started = time.perf_counter()
     with Image.open(sample["image_path"]) as image_stream:
-        image = image_stream.convert("L").resize((resize, resize), bilinear)
-        image = image.filter(ImageFilter.GaussianBlur(radius=1.0))
-        image_array = np.asarray(image, dtype=np.float32)
+        image = image_stream.convert("L").copy()
     with Image.open(sample["mask_path"]) as mask_stream:
         validate_semantic_mask_mode(mask_stream.mode, sample["mask_path"])
-        mask = mask_stream.resize((resize, resize), nearest)
-        mask_array = np.asarray(mask, dtype=np.int64)
+        mask = mask_stream.copy()
+    source_load_ms = elapsed_ms(source_started)
+    preprocess_started = time.perf_counter()
+    image = image.resize((resize, resize), bilinear)
+    image = image.filter(ImageFilter.GaussianBlur(radius=1.0))
+    image_array = np.asarray(image, dtype=np.float32)
+    mask = mask.resize((resize, resize), nearest)
+    mask_array = np.asarray(mask, dtype=np.int64)
     lower, upper = np.percentile(image_array, [1, 99])
     if upper <= lower:
         upper = lower + 1.0
@@ -1942,7 +1973,7 @@ def preprocess_oct5k_sample(sample, args, np):
         "sample_id": sample["sample_id"],
         "image": normalized.reshape(1, resize, resize),
         "mask": mask_binary.reshape(1, resize, resize),
-    }
+    }, {"sourceLoadMs": source_load_ms, "preprocessMs": elapsed_ms(preprocess_started)}
 
 
 def validate_semantic_mask_mode(mode, path):
