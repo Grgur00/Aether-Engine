@@ -64,6 +64,7 @@ def parse_args(argv=None):
     parser.add_argument("--dataset-split", default="train")
     parser.add_argument("--oct5k-image-size", type=int)
     parser.add_argument("--oct5k-transform-version", default="oct5k-v1")
+    parser.add_argument("--trust-manifest-hashes", action="store_true")
     parser.add_argument("--accelerator-backend", choices=["auto", "cuda", "rocm"], default="auto")
     parser.add_argument("--expected-gpu", default="")
     parser.add_argument("--warmup-steps", type=int, default=12)
@@ -1905,6 +1906,13 @@ def load_oct5k_sources(args):
             raise ValueError(f"OCT5K mask_path does not exist: {mask_path}")
         image_sha = row["image_sha256"].strip().lower()
         mask_sha = row["mask_sha256"].strip().lower()
+        if not args.trust_manifest_hashes:
+            actual_image_sha = file_sha256(image_path)
+            actual_mask_sha = file_sha256(mask_path)
+            if actual_image_sha != image_sha:
+                raise ValueError(f"OCT5K image_sha256 mismatch for sample_id={sample_id}: {image_path}")
+            if actual_mask_sha != mask_sha:
+                raise ValueError(f"OCT5K mask_sha256 mismatch for sample_id={sample_id}: {mask_path}")
         expected_identity = hashlib.sha256(f"{image_sha}:{mask_sha}".encode("utf-8")).hexdigest()
         source_identity = row["source_identity"].strip().lower()
         if source_identity != expected_identity:
@@ -2095,6 +2103,7 @@ def dataset_integrity_summary(args, sources):
         "datasetKind": args.dataset_kind,
         "manifestPath": str(Path(args.dataset_manifest).resolve()) if args.dataset_manifest else None,
         "manifestSha256": file_sha256(Path(args.dataset_manifest)) if args.dataset_manifest else None,
+        "manifestHashesVerified": bool(args.dataset_manifest and not args.trust_manifest_hashes),
         "datasetSplit": args.dataset_split,
         "pairedSamplesUsed": len(sources),
         "diseaseDistribution": dict(sorted(diseases.items())),
@@ -2168,6 +2177,7 @@ def configuration(args):
         "datasetSplit": args.dataset_split,
         "oct5kImageSize": args.oct5k_image_size,
         "oct5kTransformVersion": args.oct5k_transform_version,
+        "verifyManifestHashes": not args.trust_manifest_hashes,
         "acceleratorBackend": args.accelerator_backend,
         "expectedGpu": args.expected_gpu,
         "warmupSteps": args.warmup_steps,

@@ -39,6 +39,7 @@ def parse_args(argv=None):
     parser.add_argument("--dataset-split", default="train")
     parser.add_argument("--oct5k-image-size", type=int)
     parser.add_argument("--oct5k-transform-version", default="oct5k-v1")
+    parser.add_argument("--trust-manifest-hashes", action="store_true")
     parser.add_argument("--accelerator-backend", choices=["auto", "cuda", "rocm"], default="auto")
     parser.add_argument("--expected-gpu", default="")
     parser.add_argument("--warmup-steps", type=int, default=12)
@@ -177,6 +178,7 @@ def run_suite(args):
             "datasetSplit": args.dataset_split,
             "oct5kImageSize": args.oct5k_image_size,
             "oct5kTransformVersion": args.oct5k_transform_version,
+            "verifyManifestHashes": not args.trust_manifest_hashes,
             "acceleratorBackend": args.accelerator_backend,
             "expectedGpu": args.expected_gpu,
             "warmupSteps": args.warmup_steps,
@@ -265,6 +267,7 @@ def gpu_training_command(args, output_path):
         args.dataset_split,
         "--oct5k-transform-version",
         args.oct5k_transform_version,
+        *([] if not args.trust_manifest_hashes else ["--trust-manifest-hashes"]),
         "--expected-gpu",
         args.expected_gpu,
         "--accelerator-backend",
