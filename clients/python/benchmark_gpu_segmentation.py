@@ -1434,6 +1434,8 @@ def validate_backend_equivalence(context, reference):
     indices = list(range(sample_count))
     expected = stack_values([reference[index] for index in indices], context.np)
     expected_checksums = batch_checksums(expected)
+    expected_augmented = augment_batch(expected, context, indices, step=0, epoch=0)
+    expected_augmented_checksums = batch_checksums(expected_augmented)
     results = {}
     for backend in BACKENDS:
         batch, _ = context.batch(backend, indices)
@@ -1441,15 +1443,30 @@ def validate_backend_equivalence(context, reference):
         same_dtype = batch["images"].dtype == expected["images"].dtype and batch["masks"].dtype == expected["masks"].dtype
         same_values = bool(context.np.array_equal(batch["images"], expected["images"]) and context.np.array_equal(batch["masks"], expected["masks"]))
         checksums = batch_checksums(batch)
+        augmented = augment_batch(batch, context, indices, step=0, epoch=0)
+        same_augmented_values = bool(
+            context.np.array_equal(augmented["images"], expected_augmented["images"])
+            and context.np.array_equal(augmented["masks"], expected_augmented["masks"])
+        )
+        augmented_checksums = batch_checksums(augmented)
         results[backend] = {
             "samplesChecked": sample_count,
             "sameShape": same_shape,
             "sameDtype": same_dtype,
             "sameValues": same_values,
             "checksums": checksums,
+            "sameAugmentedValues": same_augmented_values,
+            "augmentedChecksums": augmented_checksums,
         }
-        if not (same_shape and same_dtype and same_values and checksums == expected_checksums):
-            raise RuntimeError(f"{backend} does not feed equivalent deterministic tensors")
+        if not (
+            same_shape
+            and same_dtype
+            and same_values
+            and checksums == expected_checksums
+            and same_augmented_values
+            and augmented_checksums == expected_augmented_checksums
+        ):
+            raise RuntimeError(f"{backend} does not feed equivalent model input tensors")
     return results
 
 
