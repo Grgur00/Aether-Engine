@@ -76,6 +76,9 @@ def parse_args(argv=None):
     parser.add_argument("--aether-cache-dir")
     parser.add_argument("--aether-cache-mode", choices=["fresh", "reuse"], default="fresh")
     parser.add_argument("--aether-populate-only", action="store_true")
+    parser.add_argument("--mmap-cache-dir")
+    parser.add_argument("--mmap-cache-mode", choices=["fresh", "reuse"], default="fresh")
+    parser.add_argument("--mmap-populate-only", action="store_true")
     parser.add_argument("--prepopulate-previous-version", action="store_true")
     parser.add_argument("--prefetch-batches", type=int, default=0)
     parser.add_argument("--augmentation-mode", choices=["auto", "none", "light"], default="auto")
@@ -110,6 +113,8 @@ def validate_args(args):
         raise ValueError("initial-cache-hit-ratio must be between 0 and 100")
     if args.aether_cache_mode not in {"fresh", "reuse"}:
         raise ValueError("aether-cache-mode must be either fresh or reuse")
+    if args.mmap_cache_mode not in {"fresh", "reuse"}:
+        raise ValueError("mmap-cache-mode must be either fresh or reuse")
     if args.input_dir is not None and not Path(args.input_dir).is_dir():
         raise ValueError("input-dir must be an existing directory")
     if args.dataset_kind == "oct5k":
@@ -167,6 +172,19 @@ def run_benchmark(args):
             "status": "PASSED",
             "endedAt": time.time(),
             "populateOnly": populate_summary,
+            "allPassed": True,
+        })
+        return base
+
+    if args.mmap_populate_only:
+        sources = load_sources(args)
+        reference = [artifact_to_tensor_sample(preprocess_sample(sample, args, np), np) for sample in sources]
+        context = BackendContext(args, reference, sources, np)
+        populate_summary = context.populate_mmap_dataset()
+        base.update({
+            "status": "PASSED",
+            "endedAt": time.time(),
+            "mmapPopulateOnly": populate_summary,
             "allPassed": True,
         })
         return base
@@ -1586,6 +1604,58 @@ def ratio(left, right):
     return None if right == 0 else left / right
 
 
+class PersistentMmapStore:
+    def __init__(self, root):
+        self.root = Path(root)
+        self.root.mkdir(parents=True, exist_ok=True)
+        self.data_path = self.root / "data.bin"
+        self.index_path = self.root / "index.json"
+        self.index = self._load_index()
+
+    def _load_index(self):
+        if not self.index_path.exists():
+            return {}
+        try:
+            return json.loads(self.index_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return {}
+
+    def _save_index(self):
+        self.index_path.write_text(json.dumps(self.index, sort_keys=True), encoding="utf-8")
+
+    def contains(self, key):
+        return key in self.index
+
+    def lookup(self, key):
+        entry = self.index.get(key)
+        if entry is None:
+            return None
+        return entry["offset"], entry["size"]
+
+    def get(self, key):
+        lookup = self.lookup(key)
+        if lookup is None:
+            return None
+        offset, size = lookup
+        with self.data_path.open("rb") as stream:
+            stream.seek(offset)
+            data = stream.read(size)
+        if len(data) != size:
+            raise ValueError(f"mmap payload for key {key} is truncated")
+        return data
+
+    def put(self, key, payload):
+        if key in self.index:
+            return self.lookup(key)
+        record = struct.pack("<I", len(payload)) + payload
+        with self.data_path.open("ab") as stream:
+            offset = stream.tell()
+            stream.write(record)
+        self.index[key] = {"offset": offset, "size": len(record)}
+        self._save_index()
+        return offset, len(record)
+
+
 class BackendContext:
     def __init__(self, args, reference, sources, np):
         self.args = args
@@ -1604,10 +1674,15 @@ class BackendContext:
         else:
             self.directory = Path(tempfile.mkdtemp(prefix="aether-gpu-seg-"))
             self.store = AetherMLStore(self.directory / "aether", code_commit="gpu-training")
-        self.static_path = self.directory / "static-preprocessed.dat"
+        self.mmap_root = Path(args.mmap_cache_dir) if args.mmap_cache_dir else self.directory / "mmap"
+        if args.mmap_cache_dir and args.mmap_cache_mode == "fresh":
+            shutil.rmtree(self.mmap_root, ignore_errors=True)
+        self.mmap_root.mkdir(parents=True, exist_ok=True)
+        self.mmap_store = PersistentMmapStore(self.mmap_root)
+        self.static_path = self.mmap_root / "static-preprocessed.dat"
         self.static_mmap = None
         self.static_file = None
-        self.static_offsets = []
+        self.static_offsets = {}
         self.ram_ready = None
         self.populate_times = {}
         self.protocol = {
@@ -1663,15 +1738,20 @@ class BackendContext:
 
     def _build_static(self):
         started = time.perf_counter()
-        self.static_offsets = []
-        with self.static_path.open("wb") as stream:
-            for sample in self.reference:
-                payload = pack_payload(sample)
-                self.static_offsets.append((stream.tell(), len(payload)))
-                stream.write(struct.pack("<I", len(payload)))
-                stream.write(payload)
+        self.static_offsets = {}
+        current_file = self.mmap_store.data_path
+        if self.args.mmap_cache_mode == "fresh" or not self.mmap_store.index:
+            if current_file.exists():
+                current_file.unlink()
+            self.mmap_store.index = {}
+            self.mmap_store._save_index()
+        for index, sample in enumerate(self.reference):
+            key = self.cache_key(index)
+            payload = pack_payload(sample)
+            self.mmap_store.put(key, payload)
+            self.static_offsets[key] = self.mmap_store.lookup(key)
         self.populate_times["STATIC_PREPROCESSED_MMAP"] = elapsed_ms(started)
-        self.static_file = self.static_path.open("r+b")
+        self.static_file = current_file.open("r+b")
         self.static_mmap = mmap.mmap(self.static_file.fileno(), 0)
 
     def _build_ram(self):
@@ -1828,12 +1908,20 @@ class BackendContext:
         started = time.perf_counter()
         values = []
         for index in indices:
-            offset, payload_size = self.static_offsets[index]
-            header_size = struct.unpack("<I", self.static_mmap[offset:offset + 4])[0]
-            if header_size != payload_size:
+            key = self.cache_key(index)
+            offset_and_size = self.static_offsets.get(key)
+            if offset_and_size is None:
+                payload = pack_payload(self.reference[index])
+                offset_and_size = self.mmap_store.put(key, payload)
+                self.static_offsets[key] = offset_and_size
+            offset, record_size = offset_and_size
+            payload = self.mmap_store.get(key)
+            if payload is None:
+                raise ValueError(f"missing prepared mmap payload for key {key}")
+            header_size = struct.unpack("<I", payload[:4])[0]
+            if header_size != len(payload) - 4:
                 raise ValueError("static mmap artifact length prefix mismatch")
-            start = offset + 4
-            values.append(unpack_payload(self.static_mmap[start:start + payload_size], self.np))
+            values.append(unpack_payload(payload[4:], self.np))
         return stack_values(values, self.np), {"mmapReadMs": elapsed_ms(started), "tensorBuildMs": 0.0}
 
     def _ram_batch(self, indices):
@@ -1885,6 +1973,17 @@ class BackendContext:
             self.static_file.close()
         if not self.external_aether_cache:
             shutil.rmtree(self.directory, ignore_errors=True)
+
+    def populate_mmap_dataset(self):
+        entries_requested = 0
+        for batch_indices in batch_plan(self.args):
+            entries_requested += len(batch_indices)
+            self._static_batch(batch_indices)
+        return {
+            "entriesRequested": entries_requested,
+            "entriesStored": len(self.mmap_store.index),
+            "cacheDir": str(self.mmap_root),
+        }
 
     def populate_aether_dataset(self):
         entries_requested = 0
@@ -2283,6 +2382,9 @@ def configuration(args):
         "aetherCacheDir": args.aether_cache_dir,
         "aetherCacheMode": args.aether_cache_mode,
         "aetherPopulateOnly": args.aether_populate_only,
+        "mmapCacheDir": args.mmap_cache_dir,
+        "mmapCacheMode": args.mmap_cache_mode,
+        "mmapPopulateOnly": args.mmap_populate_only,
         "prepopulatePreviousVersion": args.prepopulate_previous_version,
         "prefetchBatches": args.prefetch_batches,
         "augmentationMode": args.augmentation_mode,
