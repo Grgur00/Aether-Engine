@@ -73,6 +73,9 @@ def parse_args(argv=None):
     parser.add_argument("--runs", type=int, default=1)
     parser.add_argument("--preprocess-passes", type=int, default=1)
     parser.add_argument("--initial-cache-hit-ratio", type=float, default=0.0)
+    parser.add_argument("--aether-cache-dir")
+    parser.add_argument("--aether-cache-mode", choices=["fresh", "reuse"], default="fresh")
+    parser.add_argument("--aether-populate-only", action="store_true")
     parser.add_argument("--prepopulate-previous-version", action="store_true")
     parser.add_argument("--prefetch-batches", type=int, default=0)
     parser.add_argument("--augmentation-mode", choices=["auto", "none", "light"], default="auto")
@@ -105,6 +108,8 @@ def validate_args(args):
         raise ValueError("changed-percent must be between 0 and 100")
     if not 0 <= args.initial_cache_hit_ratio <= 100:
         raise ValueError("initial-cache-hit-ratio must be between 0 and 100")
+    if args.aether_cache_mode not in {"fresh", "reuse"}:
+        raise ValueError("aether-cache-mode must be either fresh or reuse")
     if args.input_dir is not None and not Path(args.input_dir).is_dir():
         raise ValueError("input-dir must be an existing directory")
     if args.dataset_kind == "oct5k":
@@ -154,6 +159,17 @@ def run_benchmark(args):
 
     import torch
     import numpy as np
+
+    if args.aether_populate_only:
+        context = BackendContext(args, [artifact_to_tensor_sample(preprocess_sample(sample, args, np), np) for sample in load_sources(args)], load_sources(args), np)
+        populate_summary = context.populate_aether_dataset()
+        base.update({
+            "status": "PASSED",
+            "endedAt": time.time(),
+            "populateOnly": populate_summary,
+            "allPassed": True,
+        })
+        return base
 
     device = torch.device("cuda")
     device_smoke = gpu_smoke_test(torch, device)
@@ -856,7 +872,7 @@ def run_backend(torch, model, optimizer, loss_function, device, backend, context
                 prefetch_wait_ms=prefetch_wait_ms,
             )
         torch.cuda.synchronize(device)
-        if backend == "AETHER_CACHE":
+        if backend == "AETHER_CACHE" and not context.external_aether_cache:
             context.reset_aether_cache()
     cold_start_gate = aether_cold_start_gate(context) if backend == "AETHER_CACHE" else None
 
@@ -1567,8 +1583,17 @@ class BackendContext:
         self.reference = reference
         self.sources = sources
         self.np = np
-        self.directory = Path(tempfile.mkdtemp(prefix="aether-gpu-seg-"))
-        self.store = AetherMLStore(self.directory / "aether", code_commit="gpu-training")
+        self.external_aether_cache = bool(args.aether_cache_dir)
+        if self.external_aether_cache:
+            self.directory = Path(args.aether_cache_dir)
+            self.directory.mkdir(parents=True, exist_ok=True)
+            if args.aether_cache_mode == "fresh":
+                shutil.rmtree(self.directory, ignore_errors=True)
+                self.directory.mkdir(parents=True, exist_ok=True)
+            self.store = AetherMLStore(self.directory, code_commit="gpu-training")
+        else:
+            self.directory = Path(tempfile.mkdtemp(prefix="aether-gpu-seg-"))
+            self.store = AetherMLStore(self.directory / "aether", code_commit="gpu-training")
         self.static_path = self.directory / "static-preprocessed.dat"
         self.static_mmap = None
         self.static_file = None
@@ -1597,6 +1622,11 @@ class BackendContext:
         self._prepopulate_aether_cache()
 
     def reset_aether_cache(self):
+        if self.external_aether_cache:
+            self.store = AetherMLStore(self.directory, code_commit="gpu-training")
+            self.reset_measured_counters()
+            self._prepopulate_aether_cache()
+            return
         shutil.rmtree(self.store.root, ignore_errors=True)
         self.store = AetherMLStore(self.directory / "aether", code_commit="gpu-training")
         self.reset_measured_counters()
@@ -1641,6 +1671,13 @@ class BackendContext:
 
     def _prepopulate_aether_cache(self):
         target_hit_ratio = self._target_initial_hit_ratio()
+        if self.external_aether_cache and self.args.aether_cache_mode == "reuse":
+            present = self._existing_cache_entries()
+            self.prepopulated_aether_entries = present
+            self.target_initial_cache_hit_ratio = (present / max(len(self.sources), 1)) * 100.0
+            self.populate_times["AETHER_CACHE"] = 0.0
+            return
+
         hit_count = int(round(self.args.samples * target_hit_ratio / 100))
         if hit_count <= 0:
             self.populate_times["AETHER_CACHE"] = 0.0
@@ -1667,7 +1704,14 @@ class BackendContext:
         self.prepopulated_aether_entries = len(entries)
         self.target_initial_cache_hit_ratio = target_hit_ratio
 
+    def _existing_cache_entries(self):
+        current_keys = [self.cache_key(index) for index in range(len(self.sources))]
+        present = self.store.cached_artifact_ids(current_keys)
+        return len(present)
+
     def _target_initial_hit_ratio(self):
+        if self.external_aether_cache and self.args.aether_cache_mode == "reuse":
+            return (self._existing_cache_entries() / max(len(self.sources), 1)) * 100.0
         if self.args.initial_cache_hit_ratio > 0:
             return self.args.initial_cache_hit_ratio
         if self.args.prepopulate_previous_version:
@@ -1822,7 +1866,34 @@ class BackendContext:
             self.static_mmap.close()
         if self.static_file is not None:
             self.static_file.close()
-        shutil.rmtree(self.directory, ignore_errors=True)
+        if not self.external_aether_cache:
+            shutil.rmtree(self.directory, ignore_errors=True)
+
+    def populate_aether_dataset(self):
+        entries_requested = 0
+        total_misses = 0
+        total_entries_published = 0
+        start_hits = self.protocol["cacheHits"]
+        start_misses = self.protocol["cacheMisses"]
+        start_publish_batches = len(self.protocol["entriesPerWriteBatch"])
+        start_bytes_written = self.protocol["bytesPublished"]
+        for batch_indices in batch_plan(self.args):
+            entries_requested += len(batch_indices)
+            self.batch("AETHER_CACHE", batch_indices)
+        total_misses = self.protocol["cacheMisses"] - start_misses
+        total_entries_published = sum(self.protocol["entriesPerWriteBatch"][start_publish_batches:])
+        total_bytes_written = self.protocol["bytesPublished"] - start_bytes_written
+        return {
+            "entriesRequested": entries_requested,
+            "misses": total_misses,
+            "entriesPublished": total_entries_published,
+            "bytesWritten": total_bytes_written,
+            "lookupMs": (self.protocol.get("lookupNanos", 0) / 1e6),
+            "publishMs": (self.protocol.get("publishNanos", 0) / 1e6),
+            "initialReusableEntries": self.prepopulated_aether_entries,
+            "initialHitRatio": self.target_initial_cache_hit_ratio,
+            "cacheHits": self.protocol["cacheHits"] - start_hits,
+        }
 
 
 def aether_cold_start_gate(context):
@@ -2192,6 +2263,9 @@ def configuration(args):
         "modelTier": args.model_tier,
         "preprocessPasses": args.preprocess_passes,
         "initialCacheHitRatio": args.initial_cache_hit_ratio,
+        "aetherCacheDir": args.aether_cache_dir,
+        "aetherCacheMode": args.aether_cache_mode,
+        "aetherPopulateOnly": args.aether_populate_only,
         "prepopulatePreviousVersion": args.prepopulate_previous_version,
         "prefetchBatches": args.prefetch_batches,
         "augmentationMode": args.augmentation_mode,
