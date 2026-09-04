@@ -7,15 +7,17 @@ name = "aether-training-cache"
 version = "0.1.0"
 description = "Python client for the local Aether training-data cache"
 requires-python = ">=3.10"
-dependencies = ["numpy", "tiktoken>=0.14,<0.15"]
+dependencies = ["numpy", "Pillow>=9", "tiktoken>=0.14,<0.15"]
 
 [project.scripts]
 aether-bench = "aether_bench:main"
+build-oct5k-manifest = "build_oct5k_manifest:main"
 
 [tool.setuptools]
 py-modules = [
     "aether_bench",
     "benchmark_gpu_segmentation",
+    "build_oct5k_manifest",
     "aetherml_crash_recovery",
     "benchmark_aetherml",
     "oct_segmentation_workload",

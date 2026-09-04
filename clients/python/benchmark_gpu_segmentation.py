@@ -1,5 +1,6 @@
 import argparse
 import copy
+import csv
 import hashlib
 import json
 import math
@@ -58,6 +59,11 @@ def parse_args(argv=None):
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--input-dir")
     parser.add_argument("--extensions", default=".bin,.raw,.dat,.png,.jpg,.jpeg,.tif,.tiff")
+    parser.add_argument("--dataset-kind", choices=["synthetic", "oct5k"], default="synthetic")
+    parser.add_argument("--dataset-manifest")
+    parser.add_argument("--dataset-split", default="train")
+    parser.add_argument("--oct5k-image-size", type=int)
+    parser.add_argument("--oct5k-transform-version", default="oct5k-v1")
     parser.add_argument("--accelerator-backend", choices=["auto", "cuda", "rocm"], default="auto")
     parser.add_argument("--expected-gpu", default="")
     parser.add_argument("--warmup-steps", type=int, default=12)
@@ -71,6 +77,8 @@ def parse_args(argv=None):
     parser.add_argument("--gpu-sample-interval-ms", type=float, default=250.0)
     parser.add_argument("--output", default="build/gpu-training.json")
     args = parser.parse_args(argv)
+    if args.oct5k_image_size is not None:
+        args.resize = args.oct5k_image_size
     args.invocation_args = list(sys.argv[1:] if argv is None else argv)
     validate_args(args)
     return args
@@ -95,6 +103,13 @@ def validate_args(args):
         raise ValueError("initial-cache-hit-ratio must be between 0 and 100")
     if args.input_dir is not None and not Path(args.input_dir).is_dir():
         raise ValueError("input-dir must be an existing directory")
+    if args.dataset_kind == "oct5k":
+        if not args.dataset_manifest:
+            raise ValueError("dataset-kind=oct5k requires --dataset-manifest")
+        if not Path(args.dataset_manifest).is_file():
+            raise ValueError("dataset-manifest must be an existing CSV file")
+    if args.oct5k_image_size is not None and args.oct5k_image_size < 4:
+        raise ValueError("oct5k-image-size must be at least 4")
 
 
 def run_benchmark(args):
@@ -104,7 +119,7 @@ def run_benchmark(args):
     base = {
         "benchmark": "aether-bench",
         "profile": args.profile,
-        "dataset": "oct",
+        "dataset": "oct5k" if args.dataset_kind == "oct5k" else "oct",
         "pipeline": "segmentation",
         "status": "UNKNOWN",
         "startedAt": started,
@@ -161,6 +176,7 @@ def run_benchmark(args):
             "samplesCheckedElementwise": representative["samplesCheckedElementwise"],
             "backendEquivalence": representative["backendEquivalence"],
         },
+        "datasetIntegrity": representative["datasetIntegrity"],
         "runs": runs,
         "runAggregate": aggregate,
         "crashRecoveryReference": crash_reference,
@@ -196,14 +212,18 @@ def run_training_once(args, torch, np, device, run_index):
             warm_backend(context, backend)
             run_model_warmup(torch, model, loss_function, optimizer, device, args)
             results[backend] = run_backend(torch, model, optimizer, loss_function, device, backend, context, measured_steps)
+        protocol = context.protocol_counters()
+        dynamics = cache_dynamics(protocol, args)
+        if not dynamics["invariants"]["passed"]:
+            raise RuntimeError(f"Aether cache dynamics invariant failed: {dynamics['invariants']}")
         return {
             "runIndex": run_index,
             "seed": run_seed,
             "backendOrder": backend_order,
             "model": model_info,
             "backends": results,
-            "protocol": context.protocol_counters(),
-            "cacheDynamics": cache_dynamics(context.protocol_counters(), args),
+            "protocol": protocol,
+            "cacheDynamics": dynamics,
             "aetherOperationMetrics": context.store.operation_metrics(),
             "comparisons": compare_backends(results),
             "trainingBreakEvenEpoch": training_break_even_epoch(results),
@@ -211,6 +231,7 @@ def run_training_once(args, torch, np, device, run_index):
             "checksums": checksums,
             "samplesCheckedElementwise": min(8, len(reference)),
             "backendEquivalence": equivalence,
+            "datasetIntegrity": dataset_integrity_summary(args, samples),
         }
     finally:
         context.close()
@@ -258,6 +279,12 @@ def cache_invalidation_self_test(args):
     normalization_params["normalizationVersion"] = "zscore-v2"
     implementation_params = dict(base_params)
     implementation_params["implementationOutputVersion"] = "gpu-segmentation-v2"
+    transform_version_params = dict(base_params)
+    transform_version_params["transformImplementationVersion"] = "oct5k-v2"
+    denoise_params = dict(base_params)
+    denoise_params["denoiseRadius"] = 2.0
+    artifact_params = dict(base_params)
+    artifact_params["artifactEncodingVersion"] = "nchw-fp32-binary-v2"
     base_key = test_cache_key(base_params, source_identity="synthetic:42:0", source_hash="raw-a")
     result = {
         "sameInputSameTransformStable": base_key == test_cache_key(base_params, source_identity="synthetic:42:0", source_hash="raw-a"),
@@ -265,6 +292,9 @@ def cache_invalidation_self_test(args):
         "sourceHashChangeMisses": base_key != test_cache_key(base_params, source_identity="synthetic:42:0", source_hash="raw-b"),
         "resizeChangeMisses": base_key != test_cache_key(resize_params, source_identity="synthetic:42:0", source_hash="raw-a"),
         "normalizationChangeMisses": base_key != test_cache_key(normalization_params, source_identity="synthetic:42:0", source_hash="raw-a"),
+        "denoiseConfigChangeMisses": base_key != test_cache_key(denoise_params, source_identity="synthetic:42:0", source_hash="raw-a"),
+        "transformVersionChangeMisses": base_key != test_cache_key(transform_version_params, source_identity="synthetic:42:0", source_hash="raw-a"),
+        "artifactEncodingChangeMisses": base_key != test_cache_key(artifact_params, source_identity="synthetic:42:0", source_hash="raw-a"),
         "implementationVersionChangeMisses": base_key != test_cache_key(implementation_params, source_identity="synthetic:42:0", source_hash="raw-a"),
     }
     result["passed"] = all(result.values())
@@ -412,7 +442,7 @@ def cache_dynamics(protocol, args):
     lookups = (protocol.get("cacheHits") or 0) + (protocol.get("cacheMisses") or 0)
     misses = protocol.get("cacheMisses") or 0
     published = protocol.get("bytesPublished") or 0
-    return {
+    dynamics = {
         "configuredChangedPercent": args.changed_percent,
         "configuredInitialCacheHitRatio": args.initial_cache_hit_ratio,
         "prepopulatePreviousVersion": args.prepopulate_previous_version,
@@ -432,6 +462,46 @@ def cache_dynamics(protocol, args):
         "writeBatchCount": protocol.get("writeBatchCount") or 0,
         "entriesPerWriteBatchMean": protocol.get("entriesPerWriteBatchMean") or 0,
     }
+    dynamics["invariants"] = cache_invariants(dynamics, args)
+    return dynamics
+
+
+def cache_invariants(dynamics, args):
+    target = dynamics["targetInitialCacheHitRatio"]
+    expected_prepopulated = int(round(args.samples * target / 100))
+    expected = expected_cache_counts(args, expected_prepopulated)
+    expected_lookups = expected["lookups"]
+    expected_misses = expected["misses"]
+    expected_published = expected_misses
+    expected_hits = expected["hits"]
+    passed = (
+        dynamics["lookups"] == expected_lookups
+        and dynamics["prepopulatedEntries"] == expected_prepopulated
+        and dynamics["misses"] == expected_misses
+        and dynamics["publishedSamples"] == expected_published
+        and dynamics["hits"] == expected_hits
+    )
+    return {
+        "expectedLookups": expected_lookups,
+        "expectedPrepopulatedEntries": expected_prepopulated,
+        "expectedHits": expected_hits,
+        "expectedMisses": expected_misses,
+        "expectedPublishedSamples": expected_published,
+        "passed": passed,
+    }
+
+
+def expected_cache_counts(args, prepopulated_entries):
+    seen = set(range(prepopulated_entries))
+    lookups = 0
+    misses = 0
+    for batch_indices, _ in scheduled_batches(args, effective_measured_steps(args)):
+        for index in batch_indices:
+            lookups += 1
+            if index not in seen:
+                seen.add(index)
+                misses += 1
+    return {"lookups": lookups, "misses": misses, "hits": lookups - misses}
 
 
 def aggregate_cache_dynamics(dynamics_by_run):
@@ -752,7 +822,8 @@ def run_backend(torch, model, optimizer, loss_function, device, backend, context
             )
         torch.cuda.synchronize(device)
         if backend == "AETHER_CACHE":
-            context.reset_measured_counters()
+            context.reset_aether_cache()
+    cold_start_gate = aether_cold_start_gate(context) if backend == "AETHER_CACHE" else None
 
     sampler = GpuUtilizationSampler(context.args.gpu_sample_interval_ms)
     sampler.start()
@@ -792,7 +863,16 @@ def run_backend(torch, model, optimizer, loss_function, device, backend, context
     finally:
         process_end = process_metrics_snapshot()
         gpu_samples = sampler.stop()
-    return summarize_backend(backend, steps, epoch_walls, training_ms, context, gpu_samples, process_metrics_delta(process_start, process_end, training_ms))
+    return summarize_backend(
+        backend,
+        steps,
+        epoch_walls,
+        training_ms,
+        context,
+        gpu_samples,
+        process_metrics_delta(process_start, process_end, training_ms),
+        cold_start_gate,
+    )
 
 
 def scheduled_batches(args, total_steps):
@@ -1141,7 +1221,7 @@ def proc_self_io():
         return None
 
 
-def summarize_backend(backend, steps, epoch_walls, training_ms, context, gpu_samples, process_metrics):
+def summarize_backend(backend, steps, epoch_walls, training_ms, context, gpu_samples, process_metrics, cold_start_gate=None):
     batch_size = context.args.batch_size
     resize = context.args.resize
     total_samples = len(steps) * batch_size
@@ -1158,6 +1238,7 @@ def summarize_backend(backend, steps, epoch_walls, training_ms, context, gpu_sam
             "trainingMs": training_ms,
             "totalTrainingWallMs": training_ms,
             "totalMs": training_ms + context.populate_ms(backend),
+            "cumulativeByEpochMs": cumulative_lifecycle_by_epoch(epoch_walls, context.populate_ms(backend)),
         },
         "steadyState": {
             "meanEpochMs": mean(epoch_walls),
@@ -1176,6 +1257,7 @@ def summarize_backend(backend, steps, epoch_walls, training_ms, context, gpu_sam
         ]},
         "transferLabel": "host-to-device CPU->PyTorch cuda device",
         "tensorLayout": summarize_tensor_layout(steps),
+        "coldStart": cold_start_gate,
         "gpu": {
             "utilizationMean": mean(utilization_values) if utilization_values else None,
             "utilizationP50": percentile(utilization_values, 50) if utilization_values else None,
@@ -1204,6 +1286,15 @@ def summarize_steps(steps):
         field: distribution([step[field] for step in steps])
         for field in ("inputWaitMs", "batchPrepareMs", "prefetchWaitMs", "hostToDeviceMs", "forwardMs", "backwardMs", "optimizerMs", "stepWallMs")
     }
+
+
+def cumulative_lifecycle_by_epoch(epoch_walls, populate_ms):
+    cumulative = []
+    total = populate_ms
+    for index, epoch_ms in enumerate(epoch_walls, start=1):
+        total += epoch_ms
+        cumulative.append({"epoch": index, "totalMs": total})
+    return cumulative
 
 
 def summarize_tensor_layout(steps):
@@ -1509,10 +1600,13 @@ class BackendContext:
 
     def cache_key(self, index):
         source = self.sources[index]
+        source_hash = source.get("source_hash")
+        if source_hash is None:
+            source_hash = hashlib.sha256(source["raw"]).hexdigest()
         descriptor = json.dumps({
             "sample_id": source["sample_id"],
             "source_identity": source["source_identity"],
-            "source_hash": hashlib.sha256(source["raw"]).hexdigest(),
+            "source_hash": source_hash,
             "deterministic_parameters": deterministic_parameters(self.args),
         }, sort_keys=True)
         return hashlib.sha256(descriptor.encode("utf-8")).hexdigest()
@@ -1548,39 +1642,124 @@ class BackendContext:
         shutil.rmtree(self.directory, ignore_errors=True)
 
 
+def aether_cold_start_gate(context):
+    keys = [context.cache_key(index) for index in range(context.args.samples)]
+    present = sum(1 for key in keys if (context.store.cache_dir / f"{key}.json").exists())
+    target = getattr(context, "target_initial_cache_hit_ratio", 0.0)
+    prepopulated = getattr(context, "prepopulated_aether_entries", 0)
+    if target == 0:
+        passed = present == 0 and prepopulated == 0
+    else:
+        passed = present == prepopulated
+    return {
+        "requestedInitialHitRatio": target,
+        "entriesBeforeMeasuredStep0": prepopulated,
+        "measuredKeysAlreadyPresent": present,
+        "passed": passed,
+    }
+
+
 def warm_backend(context, backend):
     if backend in ("STATIC_PREPROCESSED_MMAP", "RAM_READY"):
         context.batch(backend, list(range(min(context.args.batch_size, context.args.samples))))
 
 
 def load_sources(args):
+    if args.dataset_kind == "oct5k":
+        return load_oct5k_sources(args)
     if args.input_dir is None:
-        return [
-            {
+        sources = []
+        for index in range(args.samples):
+            raw = synthetic_oct_bytes(index, args.height, args.width, args.seed)
+            sources.append({
+                "kind": "synthetic",
                 "sample_id": f"oct-{index:05d}",
-                "raw": synthetic_oct_bytes(index, args.height, args.width, args.seed),
+                "raw": raw,
                 "height": args.height,
                 "width": args.width,
                 "source_identity": f"synthetic:{args.seed}:{index}",
-            }
-            for index in range(args.samples)
-        ]
+                "source_hash": hashlib.sha256(raw).hexdigest(),
+            })
+        return sources
     paths = discover_input_files(Path(args.input_dir), args.extensions)[:args.samples]
     if len(paths) < args.samples:
         raise ValueError("input-dir does not contain enough matching samples")
-    return [
-        {
+    sources = []
+    for path in paths:
+        raw = oct_sized_bytes(path.read_bytes(), args.height, args.width, path)
+        sources.append({
+            "kind": "synthetic",
             "sample_id": path.stem,
-            "raw": oct_sized_bytes(path.read_bytes(), args.height, args.width, path),
+            "raw": raw,
             "height": args.height,
             "width": args.width,
             "source_identity": str(path),
-        }
-        for path in paths
-    ]
+            "source_hash": hashlib.sha256(raw).hexdigest(),
+        })
+    return sources
+
+
+def load_oct5k_sources(args):
+    manifest_path = Path(args.dataset_manifest).resolve()
+    manifest_root = manifest_path.parent
+    required = {"sample_id", "image_path", "mask_path", "disease", "image_sha256", "mask_sha256", "source_identity"}
+    with manifest_path.open(newline="", encoding="utf-8") as stream:
+        reader = csv.DictReader(stream)
+        fields = set(reader.fieldnames or [])
+        missing = required - fields
+        if missing:
+            raise ValueError(f"dataset-manifest is missing required columns: {sorted(missing)}")
+        rows = [row for row in reader if not row.get("split") or row.get("split") == args.dataset_split]
+    if len(rows) < args.samples:
+        raise ValueError(f"dataset-manifest split {args.dataset_split!r} has {len(rows)} rows, fewer than --samples={args.samples}")
+    seen_sample_ids = set()
+    sources = []
+    for row in rows[:args.samples]:
+        sample_id = row["sample_id"].strip()
+        if not sample_id:
+            raise ValueError("dataset-manifest contains an empty sample_id")
+        if sample_id in seen_sample_ids:
+            raise ValueError(f"dataset-manifest contains duplicate sample_id: {sample_id}")
+        seen_sample_ids.add(sample_id)
+        image_path = resolve_manifest_path(row["image_path"], manifest_root)
+        mask_path = resolve_manifest_path(row["mask_path"], manifest_root)
+        if not image_path.is_file():
+            raise ValueError(f"OCT5K image_path does not exist: {image_path}")
+        if not mask_path.is_file():
+            raise ValueError(f"OCT5K mask_path does not exist: {mask_path}")
+        image_sha = row["image_sha256"].strip().lower()
+        mask_sha = row["mask_sha256"].strip().lower()
+        expected_identity = hashlib.sha256(f"{image_sha}:{mask_sha}".encode("utf-8")).hexdigest()
+        source_identity = row["source_identity"].strip().lower()
+        if source_identity != expected_identity:
+            raise ValueError(f"OCT5K source_identity mismatch for sample_id={sample_id}")
+        sources.append({
+            "kind": "oct5k",
+            "sample_id": sample_id,
+            "image_path": image_path,
+            "mask_path": mask_path,
+            "disease": row["disease"].strip(),
+            "image_sha256": image_sha,
+            "mask_sha256": mask_sha,
+            "source_identity": source_identity,
+            "source_hash": f"{image_sha}:{mask_sha}",
+        })
+    identities = [source["source_identity"] for source in sources]
+    if len(set(identities)) != len(identities):
+        raise ValueError("dataset-manifest contains duplicate OCT5K source identities")
+    return sources
+
+
+def resolve_manifest_path(value, manifest_root):
+    path = Path(value)
+    if not path.is_absolute():
+        path = manifest_root / path
+    return path.resolve()
 
 
 def preprocess_sample(sample, args, np):
+    if sample.get("kind") == "oct5k":
+        return preprocess_oct5k_sample(sample, args, np)
     resize = args.resize
     raw = np.frombuffer(sample["raw"], dtype=np.uint8).astype(np.float32).reshape(sample["height"], sample["width"])
     image = nearest_resize(raw, resize, np) / 255.0
@@ -1591,6 +1770,44 @@ def preprocess_sample(sample, args, np):
     normalized = ((image - mean) / std).astype(np.float32)
     mask = (image >= float(image.mean())).astype(np.float32)
     return {"sample_id": sample["sample_id"], "image": normalized.reshape(1, resize, resize), "mask": mask.reshape(1, resize, resize)}
+
+
+def preprocess_oct5k_sample(sample, args, np):
+    try:
+        from PIL import Image, ImageFilter
+    except ImportError as error:
+        raise RuntimeError("dataset-kind=oct5k requires Pillow; install the clients/python package dependencies") from error
+    bilinear = getattr(getattr(Image, "Resampling", Image), "BILINEAR")
+    nearest = getattr(getattr(Image, "Resampling", Image), "NEAREST")
+    resize = args.resize
+    with Image.open(sample["image_path"]) as image_stream:
+        image = image_stream.convert("L").resize((resize, resize), bilinear)
+        image = image.filter(ImageFilter.GaussianBlur(radius=1.0))
+        image_array = np.asarray(image, dtype=np.float32)
+    with Image.open(sample["mask_path"]) as mask_stream:
+        validate_semantic_mask_mode(mask_stream.mode, sample["mask_path"])
+        mask = mask_stream.resize((resize, resize), nearest)
+        mask_array = np.asarray(mask, dtype=np.int64)
+    lower, upper = np.percentile(image_array, [1, 99])
+    if upper <= lower:
+        upper = lower + 1.0
+    clipped = np.clip(image_array, lower, upper)
+    normalized = ((clipped - lower) / (upper - lower)).astype(np.float32)
+    for _ in range(args.preprocess_passes - 1):
+        normalized = deterministic_denoise_pass(normalized, np)
+    mask_binary = (mask_array > 0).astype(np.float32)
+    return {
+        "sample_id": sample["sample_id"],
+        "image": normalized.reshape(1, resize, resize),
+        "mask": mask_binary.reshape(1, resize, resize),
+    }
+
+
+def validate_semantic_mask_mode(mode, path):
+    if mode in {"RGB", "RGBA", "CMYK", "HSV"}:
+        raise ValueError(f"OCT5K mask appears to be an RGB visualization, not semantic labels: {path}")
+    if mode not in {"1", "L", "P", "I", "I;16"}:
+        raise ValueError(f"OCT5K mask uses unsupported semantic label mode {mode!r}: {path}")
 
 
 def nearest_resize(image, target, np):
@@ -1674,6 +1891,24 @@ def assert_equivalent_inputs(reference, checksums):
         raise RuntimeError("deterministic preprocessing checksum mismatch")
 
 
+def dataset_integrity_summary(args, sources):
+    diseases = {}
+    for source in sources:
+        disease = source.get("disease", "synthetic")
+        diseases[disease] = diseases.get(disease, 0) + 1
+    return {
+        "datasetKind": args.dataset_kind,
+        "manifestPath": str(Path(args.dataset_manifest).resolve()) if args.dataset_manifest else None,
+        "manifestSha256": file_sha256(Path(args.dataset_manifest)) if args.dataset_manifest else None,
+        "datasetSplit": args.dataset_split,
+        "pairedSamplesUsed": len(sources),
+        "diseaseDistribution": dict(sorted(diseases.items())),
+        "sourceIdentityCount": len({source["source_identity"] for source in sources}),
+        "sourceIdentityCollisions": len(sources) - len({source["source_identity"] for source in sources}),
+        "passed": len(sources) == args.samples and len({source["source_identity"] for source in sources}) == len(sources),
+    }
+
+
 def batch_plan(args):
     for start in range(0, args.samples, args.batch_size):
         yield list(range(start, min(args.samples, start + args.batch_size)))
@@ -1684,7 +1919,28 @@ def effective_measured_steps(args):
 
 
 def deterministic_parameters(args):
+    if args.dataset_kind == "oct5k":
+        return {
+            "dataset": "OCT5K",
+            "pipeline": "segmentation",
+            "transformImplementationVersion": args.oct5k_transform_version,
+            "outputImageSize": args.resize,
+            "decodeMode": "grayscale",
+            "imageResizeAlgorithm": "bilinear",
+            "maskResizeAlgorithm": "nearest",
+            "percentileClipLower": 1,
+            "percentileClipUpper": 99,
+            "denoiseAlgorithm": "gaussian_blur",
+            "denoiseRadius": 1.0,
+            "normalizationVersion": "percentile-minmax-v1",
+            "contrastNormalization": "fixed-percentile-minmax",
+            "persistedImageDtype": "float32",
+            "persistedMaskDtype": "binary-fp32",
+            "artifactEncodingVersion": "nchw-fp32-binary-v1",
+            "preprocessPasses": args.preprocess_passes,
+        }
     return {
+        "dataset": "synthetic-oct",
         "pipeline": "segmentation",
         "height": args.height,
         "width": args.width,
@@ -1710,6 +1966,11 @@ def configuration(args):
         "changedPercent": args.changed_percent,
         "seed": args.seed,
         "inputDir": args.input_dir,
+        "datasetKind": args.dataset_kind,
+        "datasetManifest": args.dataset_manifest,
+        "datasetSplit": args.dataset_split,
+        "oct5kImageSize": args.oct5k_image_size,
+        "oct5kTransformVersion": args.oct5k_transform_version,
         "acceleratorBackend": args.accelerator_backend,
         "expectedGpu": args.expected_gpu,
         "warmupSteps": args.warmup_steps,
@@ -1727,7 +1988,7 @@ def configuration(args):
 
 def storage_locations(args):
     return {
-        "rawPath": args.input_dir or "synthetic-generator",
+        "rawPath": args.dataset_manifest if args.dataset_kind == "oct5k" else (args.input_dir or "synthetic-generator"),
         "aetherPath": "temporary-per-run",
         "mmapPath": "temporary-per-run",
         "filesystem": filesystem_name(Path.cwd()),
@@ -1749,8 +2010,19 @@ def filesystem_name(path):
 
 
 def dataset_version(args):
+    if args.dataset_kind == "oct5k":
+        manifest_hash = file_sha256(Path(args.dataset_manifest))[:12] if args.dataset_manifest else "missing-manifest"
+        return f"oct5k-{args.dataset_split}-{args.samples}-manifest-{manifest_hash}-size-{args.resize}-transform-{args.oct5k_transform_version}"
     source = args.input_dir or "synthetic"
     return f"{source}-oct-{args.samples}x{args.height}x{args.width}-resize-{args.resize}-passes-{args.preprocess_passes}-seed-{args.seed}"
+
+
+def file_sha256(path):
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def distribution(values):

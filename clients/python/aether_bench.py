@@ -34,6 +34,11 @@ def parse_args(argv=None):
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--input-dir", default=None)
     parser.add_argument("--extensions", default=".bin,.raw,.dat,.png,.jpg,.jpeg,.tif,.tiff")
+    parser.add_argument("--dataset-kind", choices=["synthetic", "oct5k"], default="synthetic")
+    parser.add_argument("--dataset-manifest")
+    parser.add_argument("--dataset-split", default="train")
+    parser.add_argument("--oct5k-image-size", type=int)
+    parser.add_argument("--oct5k-transform-version", default="oct5k-v1")
     parser.add_argument("--accelerator-backend", choices=["auto", "cuda", "rocm"], default="auto")
     parser.add_argument("--expected-gpu", default="")
     parser.add_argument("--warmup-steps", type=int, default=12)
@@ -55,6 +60,8 @@ def parse_args(argv=None):
     parser.add_argument("--output-dir", default="build/aether-bench")
     args = parser.parse_args(argv)
     apply_profile_defaults(args)
+    if args.oct5k_image_size is not None:
+        args.resize = args.oct5k_image_size
     validate_args(args)
     return args
 
@@ -93,6 +100,13 @@ def validate_args(args):
         raise ValueError("initial-cache-hit-ratio must be between 0 and 100")
     if args.input_dir is not None and not Path(args.input_dir).is_dir():
         raise ValueError("input-dir must be an existing directory")
+    if args.dataset_kind == "oct5k":
+        if not args.dataset_manifest:
+            raise ValueError("dataset-kind=oct5k requires --dataset-manifest")
+        if not Path(args.dataset_manifest).is_file():
+            raise ValueError("dataset-manifest must be an existing CSV file")
+    if args.oct5k_image_size is not None and args.oct5k_image_size < 4:
+        raise ValueError("oct5k-image-size must be at least 4")
     if args.plan_only and args.sweep_plan == "none":
         raise ValueError("plan-only requires --sweep-plan")
 
@@ -155,6 +169,11 @@ def run_suite(args):
             "batchSize": args.batch_size,
             "seed": args.seed,
             "inputDir": args.input_dir,
+            "datasetKind": args.dataset_kind,
+            "datasetManifest": args.dataset_manifest,
+            "datasetSplit": args.dataset_split,
+            "oct5kImageSize": args.oct5k_image_size,
+            "oct5kTransformVersion": args.oct5k_transform_version,
             "acceleratorBackend": args.accelerator_backend,
             "expectedGpu": args.expected_gpu,
             "warmupSteps": args.warmup_steps,
@@ -236,6 +255,12 @@ def gpu_training_command(args, output_path):
         str(args.changed_percent),
         "--seed",
         str(args.seed),
+        "--dataset-kind",
+        args.dataset_kind,
+        "--dataset-split",
+        args.dataset_split,
+        "--oct5k-transform-version",
+        args.oct5k_transform_version,
         "--expected-gpu",
         args.expected_gpu,
         "--accelerator-backend",
@@ -262,6 +287,10 @@ def gpu_training_command(args, output_path):
     ]
     if args.input_dir is not None:
         command.extend(["--input-dir", args.input_dir, "--extensions", args.extensions])
+    if args.dataset_manifest is not None:
+        command.extend(["--dataset-manifest", args.dataset_manifest])
+    if args.oct5k_image_size is not None:
+        command.extend(["--oct5k-image-size", str(args.oct5k_image_size)])
     return command
 
 
@@ -693,6 +722,9 @@ def export_tidy_reports(summary, output_dir):
         "stepRecordsCsv": write_csv(output_dir / "tidy-gpu-steps.csv", step_rows),
         "cacheDynamicsCsv": write_csv(output_dir / "tidy-gpu-cache-dynamics.csv", cache_dynamics_rows),
     }
+    oct5k_summary_rows = oct5k_summary(summary)
+    if oct5k_summary_rows:
+        export_manifest["oct5kSummaryCsv"] = write_csv(output_dir / "oct5k-summary.csv", oct5k_summary_rows)
     (output_dir / "exports.json").write_text(json.dumps(export_manifest, indent=2) + "\n", encoding="utf-8")
     summary["exports"] = export_manifest
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
@@ -707,6 +739,37 @@ def write_csv(path, rows):
         writer.writeheader()
         writer.writerows(rows)
     return str(path)
+
+
+def oct5k_summary(summary):
+    if summary.get("configuration", {}).get("datasetKind") != "oct5k":
+        return []
+    gpu = summary.get("reportData", {}).get("benchmark_gpu_segmentation", {})
+    backends = gpu.get("backends", {})
+    rows = []
+    for backend_name, backend in backends.items():
+        steady = backend.get("steadyState", {})
+        lifecycle = backend.get("lifecycle", {})
+        cold_start = backend.get("coldStart") or {}
+        rows.append({
+            "profile": summary.get("profile"),
+            "backend": backend_name,
+            "samples": summary.get("configuration", {}).get("samples"),
+            "epochs": summary.get("configuration", {}).get("repeat"),
+            "runs": summary.get("configuration", {}).get("runs"),
+            "datasetManifest": summary.get("configuration", {}).get("datasetManifest"),
+            "datasetSplit": summary.get("configuration", {}).get("datasetSplit"),
+            "oct5kTransformVersion": summary.get("configuration", {}).get("oct5kTransformVersion"),
+            "samplesPerSecondMean": metric_value(steady.get("samplesPerSecond")),
+            "meanEpochMs": metric_value(steady.get("meanEpochMs")),
+            "populateMsMean": metric_value(lifecycle.get("populateMs")),
+            "trainingMsMean": metric_value(lifecycle.get("trainingMs")),
+            "totalMsMean": metric_value(lifecycle.get("totalMs")),
+            "inputWaitPercentMean": metric_value(steady.get("inputWaitPercent")),
+            "coldStartPassed": cold_start.get("passed"),
+            "measuredKeysAlreadyPresent": cold_start.get("measuredKeysAlreadyPresent"),
+        })
+    return rows
 
 
 def step_row(summary, run_index, seed, backend_name, step):
