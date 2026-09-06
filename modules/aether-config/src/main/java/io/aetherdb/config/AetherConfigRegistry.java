@@ -19,6 +19,7 @@ public final class AetherConfigRegistry {
         LinkedHashMap<String, ConfigSetting> settings = new LinkedHashMap<>();
         add(settings, "aether.storage.path", ConfigType.STRING, "", null, null, ConfigScope.NODE_LOCAL, false, true, false);
         add(settings, "aether.storage.lock.timeout_seconds", ConfigType.INTEGER, "30", 1L, 3600L, ConfigScope.NODE_LOCAL, true, false, false);
+        add(settings, "aether.storage.disk_pressure.enabled", ConfigType.BOOLEAN, "true", null, null, ConfigScope.NODE_LOCAL, true, false, false);
 
         add(settings, "aether.wal.durability_mode", ConfigType.STRING, "GROUP_SYNC", null, null, ConfigScope.CLUSTER_WIDE, false, true, false);
         add(settings, "aether.wal.segment_bytes", ConfigType.LONG, Long.toString(64L * MIB), MIB, 64L * MIB, ConfigScope.NODE_LOCAL, false, true, false);
