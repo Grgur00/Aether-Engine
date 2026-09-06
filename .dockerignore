@@ -1,0 +1,11 @@
+.git
+.gradle
+.venv
+**/__pycache__
+**/build
+**/data
+results
+Docs
+website
+*.jfr
+*.tokens

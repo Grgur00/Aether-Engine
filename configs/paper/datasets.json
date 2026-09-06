@@ -1,0 +1,29 @@
+{
+  "oct5k": {
+    "manifestV1": "/kaggle/working/aether-data/oct5k-v1.csv",
+    "manifestV2": "/kaggle/working/aether-data/oct5k-v2.csv",
+    "samplesV1": 1170,
+    "samplesV2": 1505,
+    "expectedReusable": 1003,
+    "imageSize": 256,
+    "split": "train"
+  },
+  "coco": {
+    "manifestV1": "/kaggle/working/aether-data/coco-v1.csv",
+    "manifestV2": "/kaggle/working/aether-data/coco-v2.csv",
+    "samplesV1": 6667,
+    "samplesV2": 10000,
+    "imageSize": 256,
+    "numClasses": 80,
+    "split": "train"
+  },
+  "imagenet": {
+    "manifestV1": "/kaggle/working/aether-data/imagenet-v1.csv",
+    "manifestV2": "/kaggle/working/aether-data/imagenet-v2.csv",
+    "samplesV1": 6667,
+    "samplesV2": 10000,
+    "imageSize": 256,
+    "numClasses": 1000,
+    "split": "train"
+  }
+}

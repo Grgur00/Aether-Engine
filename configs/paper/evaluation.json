@@ -1,0 +1,146 @@
+{
+  "campaigns": [
+    {
+      "name": "primary",
+      "driver": "run_matrix.py",
+      "arguments": [
+        "--datasets",
+        "oct5k",
+        "--repeats",
+        "24",
+        "--confirmatory"
+      ]
+    },
+    {
+      "name": "cross-lifecycle",
+      "driver": "run_matrix.py",
+      "arguments": [
+        "--datasets",
+        "coco,imagenet",
+        "--repeats",
+        "12"
+      ]
+    },
+    {
+      "name": "cross-window",
+      "driver": "run_matrix.py",
+      "arguments": [
+        "--datasets",
+        "oct5k,coco,imagenet",
+        "--repeats",
+        "24",
+        "--measured-steps",
+        "100"
+      ]
+    },
+    {
+      "name": "reuse",
+      "driver": "run_matrix.py",
+      "arguments": [
+        "--repeats",
+        "10",
+        "--reuse-ratios",
+        "0,25,50,66.6445,75,90,100"
+      ]
+    },
+    {
+      "name": "size",
+      "driver": "run_matrix.py",
+      "arguments": [
+        "--datasets",
+        "coco,imagenet",
+        "--repeats",
+        "10",
+        "--sizes",
+        "1505,5000,10000,25000,50000,100000",
+        "--reuse-ratios",
+        "66.6445",
+        "--backends",
+        "raw,aether,mmap"
+      ]
+    },
+    {
+      "name": "cost",
+      "driver": "run_matrix.py",
+      "arguments": [
+        "--repeats",
+        "10",
+        "--preprocess-passes",
+        "1,2,4,8"
+      ]
+    },
+    {
+      "name": "workers",
+      "driver": "run_matrix.py",
+      "arguments": [
+        "--repeats",
+        "10",
+        "--workers",
+        "0,2,4,8"
+      ]
+    },
+    {
+      "name": "gpu-scaling",
+      "driver": "run_matrix.py",
+      "arguments": [
+        "--repeats",
+        "10",
+        "--gpu-counts",
+        "1,2"
+      ]
+    },
+    {
+      "name": "concurrency",
+      "driver": "concurrency_matrix.py",
+      "arguments": [
+        "--clients",
+        "1,2,4",
+        "--workers",
+        "0,2,4,8",
+        "--repeats",
+        "10"
+      ]
+    },
+    {
+      "name": "durability",
+      "driver": "fault_injection.py",
+      "arguments": [
+        "--trials-per-point",
+        "100"
+      ]
+    },
+    {
+      "name": "evolution",
+      "driver": "transform_evolution.py",
+      "arguments": [
+        "--repeats",
+        "10"
+      ]
+    },
+    {
+      "name": "workflow",
+      "driver": "run_matrix.py",
+      "arguments": [
+        "--repeats",
+        "10",
+        "--workflow-experiments",
+        "5"
+      ]
+    },
+    {
+      "name": "dali",
+      "driver": "dali_comparison.py",
+      "arguments": [
+        "--repeats",
+        "12"
+      ]
+    }
+  ],
+  "notes": [
+    "Size/full-dataset runs require actual sufficiently large manifests and RAM; fail rather than synthesize duplicate images.",
+    "Two-GPU campaign requires two visible CUDA devices. Single-node DataParallel is not distributed scaling.",
+    "Concurrent-client campaign is a storage microbenchmark; the separate workers campaign measures real DataLoader training.",
+    "Each family uses its own frozen protocol and statistical analysis; do not pool workloads/hardware as replicas.",
+    "DALI is a separate canonical RGB workload: direct GPU DALI versus caches of identical DALI outputs. Install a compatible DALI CUDA build before this campaign; no substitution for the primary Pillow/OCT protocol."
+  ]
+}

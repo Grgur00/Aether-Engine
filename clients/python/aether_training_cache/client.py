@@ -140,6 +140,22 @@ class AetherTrainingCache:
     def get(self, key: CacheKey) -> bytes | None:
         return self._request(1, key)
 
+    def contains_many(self, keys: Iterable[CacheKey]) -> set[CacheKey]:
+        keys = list(keys)
+        if len(keys) > 4096:
+            raise ValueError("presence batch is limited to 4096 keys")
+        body = bytearray(bytes([1, 8]) + struct.pack(">I", len(keys)))
+        for key in keys:
+            namespace, sample = key.namespace.encode("utf-8"), key.sample_id.encode("utf-8")
+            body.extend(struct.pack(">I", len(namespace)) + namespace)
+            body.extend(struct.pack(">I", len(sample)) + sample + key.transform.digest)
+        response = self._round_trip(body)
+        if response is None or len(response) != 4 + len(keys) or struct.unpack(">I", response[:4])[0] != len(keys):
+            raise IOError("invalid presence response")
+        if any(value not in (0, 1) for value in response[4:]):
+            raise IOError("invalid presence status")
+        return {key for key, present in zip(keys, response[4:]) if present}
+
     def get_ref(self, key: CacheKey) -> SegmentReference | None:
         return self._reference(key)
 

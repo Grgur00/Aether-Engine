@@ -21,10 +21,13 @@ import time
 from pathlib import Path
 
 from aetherml import AetherMLStore, environment_report
+from aether_training_cache.persistent_mmap import PersistentMmapStore
+from aether_training_cache.java_store import JavaArtifactStore
 from oct_segmentation_workload import discover_input_files, oct_sized_bytes, synthetic_oct_bytes
 
 
 BACKENDS = ("RAW_RECOMPUTE", "AETHER_CACHE", "STATIC_PREPROCESSED_MMAP", "RAM_READY")
+BACKEND_NAMES = {"raw": "RAW_RECOMPUTE", "aether": "AETHER_CACHE", "mmap": "STATIC_PREPROCESSED_MMAP", "ram": "RAM_READY"}
 TIMING_MODE = "wall+synchronize"
 
 
@@ -49,17 +52,20 @@ def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Run CUDA/ROCm-gated OCT segmentation GPU training benchmark.")
     parser.add_argument("--profile", choices=["gpu-acceptance", "gpu-training"], default="gpu-training")
     parser.add_argument("--samples", type=int, default=1024)
+    parser.add_argument("--backends", default="raw,aether,mmap,ram")
     parser.add_argument("--height", type=int, default=256)
     parser.add_argument("--width", type=int, default=256)
     parser.add_argument("--resize", type=int, default=256)
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--epochs", type=int, default=5)
     parser.add_argument("--workers", type=int, default=0)
+    parser.add_argument("--gpu-count", type=int, choices=[1, 2], default=1)
     parser.add_argument("--changed-percent", type=float, default=30.0)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--input-dir")
     parser.add_argument("--extensions", default=".bin,.raw,.dat,.png,.jpg,.jpeg,.tif,.tiff")
-    parser.add_argument("--dataset-kind", choices=["synthetic", "oct5k"], default="synthetic")
+    parser.add_argument("--dataset-kind", choices=["synthetic", "oct5k", "coco", "imagenet"], default="synthetic")
+    parser.add_argument("--num-classes", type=int)
     parser.add_argument("--dataset-manifest")
     parser.add_argument("--dataset-split", default="train")
     parser.add_argument("--oct5k-image-size", type=int)
@@ -72,7 +78,16 @@ def parse_args(argv=None):
     parser.add_argument("--model-tier", choices=["small", "medium", "large"], default="small")
     parser.add_argument("--runs", type=int, default=1)
     parser.add_argument("--preprocess-passes", type=int, default=1)
+    parser.add_argument("--normalization-scale", type=float, default=1.0)
+    parser.add_argument("--normalization-offset", type=float, default=0.0)
+    parser.add_argument("--pipeline-version", default="paper-v1")
+    parser.add_argument("--artifact-codec", choices=["none", "zlib"], default="none")
+    parser.add_argument("--max-reference-bytes", type=int, default=16 * 1024 ** 3)
     parser.add_argument("--initial-cache-hit-ratio", type=float, default=0.0)
+    parser.add_argument("--aether-engine", choices=["python", "java"], default="python")
+    parser.add_argument("--cache-durability", choices=["recoverable", "durable"], default="recoverable")
+    parser.add_argument("--aether-port", type=int, default=9484)
+    parser.add_argument("--aether-namespace", default="tpds")
     parser.add_argument("--aether-cache-dir")
     parser.add_argument("--aether-cache-mode", choices=["fresh", "reuse"], default="fresh")
     parser.add_argument("--aether-populate-only", action="store_true")
@@ -85,6 +100,12 @@ def parse_args(argv=None):
     parser.add_argument("--gpu-sample-interval-ms", type=float, default=250.0)
     parser.add_argument("--output", default="build/gpu-training.json")
     args = parser.parse_args(argv)
+    selected = args.backends.split(",")
+    if not {"raw", "aether", "mmap"} <= set(selected) or not set(selected) <= set(BACKEND_NAMES) or len(set(selected)) != len(selected):
+        parser.error("select raw,aether,mmap and optionally ram, with no duplicates")
+    args.backend_names = tuple(BACKEND_NAMES[name] for name in selected)
+    if args.num_classes is None:
+        args.num_classes = 80 if args.dataset_kind == "coco" else 1000
     if args.oct5k_image_size is not None:
         args.resize = args.oct5k_image_size
     if args.augmentation_mode == "auto":
@@ -95,18 +116,33 @@ def parse_args(argv=None):
 
 
 def validate_args(args):
+    if args.aether_engine == "java" and args.runs != 1:
+        raise ValueError("Java paired runs require isolated stores; use scripts/run_matrix.py")
     if args.samples < 1 or args.height < 4 or args.width < 4 or args.resize < 4:
         raise ValueError("samples, height, width, and resize must be positive and at least 4 where applicable")
     if args.batch_size < 1 or args.epochs < 1 or args.runs < 1 or args.warmup_steps < 0 or args.measured_steps < 0:
         raise ValueError("batch-size, epochs, and runs must be positive; warmup/measured steps must be non-negative")
+    if not math.isfinite(args.normalization_scale) or not math.isfinite(args.normalization_offset):
+        raise ValueError("normalization scale/offset must be finite")
+    channels = 3 if args.dataset_kind in {"coco", "imagenet"} else 1
+    target_elements = args.num_classes if channels == 3 else args.resize * args.resize
+    if "RAM_READY" in args.backend_names:
+        ram_copies = 1 + args.workers
+        estimated_bytes = args.samples * (args.resize * args.resize * channels * (4 + 2 * ram_copies) + target_elements * (4 + ram_copies))
+    else:
+        estimated_bytes = args.batch_size * (args.resize ** 2 * channels + target_elements) * 8 * (args.workers + 1) * max(1, args.prefetch_batches)
+    if estimated_bytes > args.max_reference_bytes:
+        raise ValueError(f"reference plus RAM baseline requires about {estimated_bytes} bytes; reduce --samples or explicitly raise --max-reference-bytes on a capable host")
     if args.preprocess_passes < 1:
         raise ValueError("preprocess-passes must be positive")
     if args.prefetch_batches < 0:
         raise ValueError("prefetch-batches must be non-negative")
     if args.gpu_sample_interval_ms < 0:
         raise ValueError("gpu-sample-interval-ms must be non-negative")
-    if args.workers != 0:
-        raise ValueError("gpu-training currently requires workers=0 until fair multiprocessing is implemented")
+    if args.workers < 0:
+        raise ValueError("workers must be non-negative")
+    if args.workers and args.aether_engine != "java":
+        raise ValueError("multiprocess workers require --aether-engine java")
     if not 0 <= args.changed_percent <= 100:
         raise ValueError("changed-percent must be between 0 and 100")
     if not 0 <= args.initial_cache_hit_ratio <= 100:
@@ -117,9 +153,9 @@ def validate_args(args):
         raise ValueError("mmap-cache-mode must be either fresh or reuse")
     if args.input_dir is not None and not Path(args.input_dir).is_dir():
         raise ValueError("input-dir must be an existing directory")
-    if args.dataset_kind == "oct5k":
+    if args.dataset_kind in {"oct5k", "coco", "imagenet"}:
         if not args.dataset_manifest:
-            raise ValueError("dataset-kind=oct5k requires --dataset-manifest")
+            raise ValueError("real datasets require --dataset-manifest")
         if not Path(args.dataset_manifest).is_file():
             raise ValueError("dataset-manifest must be an existing CSV file")
     if args.oct5k_image_size is not None and args.oct5k_image_size < 4:
@@ -128,13 +164,16 @@ def validate_args(args):
 
 def run_benchmark(args):
     started = time.time()
+    os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
     numpy_status = import_numpy_status()
     accelerator = accelerator_report()
     base = {
         "benchmark": "aether-bench",
         "profile": args.profile,
-        "dataset": "oct5k" if args.dataset_kind == "oct5k" else "oct",
-        "pipeline": "segmentation",
+        "dataset": args.dataset_kind,
+        "pipeline": "classification" if args.dataset_kind in {"coco", "imagenet"} else "segmentation",
+        "storageEngine": args.aether_engine,
+        "pageCacheProtocol": "uncontrolled; reference and presence preflight reads precede measurement",
         "status": "UNKNOWN",
         "startedAt": started,
         "endedAt": None,
@@ -153,42 +192,33 @@ def run_benchmark(args):
         "runAggregate": {},
         "allPassed": False,
     }
+    if args.aether_populate_only or args.mmap_populate_only:
+        if not numpy_status.get("available", False):
+            raise RuntimeError("NumPy is required for population")
+        import numpy as np
+        sources = load_sources(args)
+        reference = make_reference(args, sources, np)
+        context = BackendContext(args, reference, sources, np)
+        try:
+            if args.aether_populate_only:
+                base["populateOnly"] = context.populate_aether_dataset()
+            if args.mmap_populate_only:
+                base["mmapPopulateOnly"] = context.populate_mmap_dataset()
+        finally:
+            context.close()
+        base.update(status="PASSED", endedAt=time.time(), allPassed=True)
+        return base
+
     skip_reason = unsupported_reason(numpy_status, accelerator, args.accelerator_backend, args.expected_gpu)
     if skip_reason:
-        base.update({
-            "status": "SKIPPED_UNSUPPORTED_ACCELERATOR",
-            "skipReason": skip_reason,
-            "endedAt": time.time(),
-        })
+        base.update(status="SKIPPED_UNSUPPORTED_ACCELERATOR", skipReason=skip_reason, endedAt=time.time())
         return base
 
     import torch
     import numpy as np
 
-    if args.aether_populate_only:
-        context = BackendContext(args, [artifact_to_tensor_sample(preprocess_sample(sample, args, np), np) for sample in load_sources(args)], load_sources(args), np)
-        populate_summary = context.populate_aether_dataset()
-        base.update({
-            "status": "PASSED",
-            "endedAt": time.time(),
-            "populateOnly": populate_summary,
-            "allPassed": True,
-        })
-        return base
-
-    if args.mmap_populate_only:
-        sources = load_sources(args)
-        reference = [artifact_to_tensor_sample(preprocess_sample(sample, args, np), np) for sample in sources]
-        context = BackendContext(args, reference, sources, np)
-        populate_summary = context.populate_mmap_dataset()
-        base.update({
-            "status": "PASSED",
-            "endedAt": time.time(),
-            "mmapPopulateOnly": populate_summary,
-            "allPassed": True,
-        })
-        return base
-
+    if torch.cuda.device_count() < args.gpu_count:
+        raise RuntimeError("requested GPU count is unavailable")
     device = torch.device("cuda")
     device_smoke = gpu_smoke_test(torch, device)
     runs = [run_training_once(args, torch, np, device, run_index) for run_index in range(args.runs)]
@@ -206,6 +236,7 @@ def run_benchmark(args):
         "comparisons": aggregate["comparisons"],
         "trainingBreakEvenEpoch": aggregate["trainingBreakEvenEpoch"],
         "cacheDynamics": aggregate["cacheDynamics"],
+        "mmapDynamics": representative["mmapDynamics"] if len(runs) == 1 else {"perRun": [run["mmapDynamics"] for run in runs]},
         "outcome": aggregate["outcome"],
         "breakEvenMargin": 0.01,
         "admissionModel": aggregate["admissionModel"],
@@ -224,43 +255,80 @@ def run_benchmark(args):
     return base
 
 
+class LazyReferenceSequence:
+    """Bounded-memory reference when the RAM upper-bound backend is omitted."""
+    def __init__(self, args, sources, np):
+        self.args, self.sources, self.np = args, sources, np
+
+    def __len__(self):
+        return len(self.sources)
+
+    def __getitem__(self, index):
+        if isinstance(index, slice):
+            return [self[item] for item in range(*index.indices(len(self)))]
+        return artifact_to_tensor_sample(preprocess_sample(self.sources[index], self.args, self.np), self.np)
+
+
+def make_reference(args, sources, np):
+    reference = LazyReferenceSequence(args, sources, np)
+    return list(reference) if "RAM_READY" in args.backend_names else reference
+
+
 def run_training_once(args, torch, np, device, run_index):
     run_seed = args.seed + run_index
     samples = load_sources(args)
-    reference = [artifact_to_tensor_sample(preprocess_sample(sample, args, np), np) for sample in samples]
+    reference = make_reference(args, samples, np)
     checksums = dataset_checksums(reference)
     assert_equivalent_inputs(reference, checksums)
     measured_steps = effective_measured_steps(args)
     set_seed(torch, run_seed)
-    model = create_model(args.model_tier, torch).to(device)
+    model = create_workload_model(args, torch).to(device)
+    if args.gpu_count > 1:
+        model = torch.nn.DataParallel(model, device_ids=list(range(args.gpu_count)))
     initial_state = copy.deepcopy(model.state_dict())
     model_info = model_metadata(model, args, torch)
-    backend_order = list(BACKENDS)
+    backend_order = list(args.backend_names)
     random.Random(run_seed).shuffle(backend_order)
     context = BackendContext(args, reference, samples, np)
     context.run_seed = run_seed
     validation_args = copy.copy(args)
+    validation_args.aether_namespace = args.aether_namespace + "-validation-" + __import__("uuid").uuid4().hex
+    validation_args.mmap_cache_dir = None
+    validation_args.mmap_cache_mode = "fresh"
     validation_args.aether_cache_dir = None
     validation_args.aether_cache_mode = "fresh"
     validation_args.initial_cache_hit_ratio = 0.0
-    validation_context = BackendContext(validation_args, reference, samples, np)
+    validation_args.samples = min(8, len(samples))
+    validation_reference = [reference[index] for index in range(validation_args.samples)]
+    validation_context = BackendContext(validation_args, validation_reference, samples[:validation_args.samples], np)
     try:
         validation_context.run_seed = run_seed
-        equivalence = validate_backend_equivalence(validation_context, reference)
+        equivalence = validate_backend_equivalence(validation_context, validation_reference)
     finally:
         validation_context.close()
+    del validation_context
 
     try:
         results = {}
         for backend in backend_order:
             set_seed(torch, run_seed)
-            model = create_model(args.model_tier, torch).to(device)
+            model = create_workload_model(args, torch).to(device)
+            if args.gpu_count > 1:
+                model = torch.nn.DataParallel(model, device_ids=list(range(args.gpu_count)))
             model.load_state_dict(initial_state)
             optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3)
-            loss_function = torch.nn.BCEWithLogitsLoss()
+            loss_function = torch.nn.CrossEntropyLoss() if args.dataset_kind == "imagenet" else torch.nn.BCEWithLogitsLoss()
             warm_backend(context, backend)
             run_model_warmup(torch, model, loss_function, optimizer, device, args)
             results[backend] = run_backend(torch, model, optimizer, loss_function, device, backend, context, measured_steps)
+        model_parity = len({value["modelStateSha256"] for value in results.values()}) == 1
+        if not model_parity:
+            raise RuntimeError("backend final model states differ under the deterministic protocol")
+        mmap_dynamics = context.mmap_dynamics()
+        if not mmap_dynamics["invariants"]["passed"]:
+            raise RuntimeError(f"mmap cache dynamics invariant failed: {mmap_dynamics}")
+        if context.initial_mmap_indices != context.initial_present_indices:
+            raise RuntimeError("Aether and mmap must start with identical reusable sample indices")
         protocol = context.protocol_counters()
         dynamics = cache_dynamics(protocol, args)
         if not dynamics["invariants"]["passed"]:
@@ -273,6 +341,7 @@ def run_training_once(args, torch, np, device, run_index):
             "backends": results,
             "protocol": protocol,
             "cacheDynamics": dynamics,
+            "mmapDynamics": context.mmap_dynamics(),
             "aetherOperationMetrics": context.store.operation_metrics(),
             "comparisons": compare_backends(results),
             "trainingBreakEvenEpoch": training_break_even_epoch(results),
@@ -281,6 +350,8 @@ def run_training_once(args, torch, np, device, run_index):
             "checksums": checksums,
             "samplesCheckedElementwise": min(8, len(reference)),
             "backendEquivalence": equivalence,
+            "modelParityPassed": model_parity,
+            "engineInfo": getattr(context, "engine_info", {"engine": "python-prototype"}),
             "datasetIntegrity": dataset_integrity_summary(args, samples),
         }
     finally:
@@ -486,7 +557,7 @@ def aggregate_protocol(protocols):
     summed["cacheMissCount"] = summed["cacheMisses"]
     summed["bytesRead"] = summed["bytesReturned"]
     summed["bytesWritten"] = summed["bytesPublished"]
-    summed["walForceCount"] = 0
+    summed["walForceCount"] = None if any(protocol.get("walForceCount") is None for protocol in protocols) else sum(protocol.get("walForceCount", 0) for protocol in protocols)
     return summed
 
 
@@ -786,10 +857,15 @@ def gpu_name_matches(name, expected_gpu):
     return expected in actual or ("amd radeon rx 7900" in expected and "amd radeon rx 7900" in actual)
 
 
+def synchronize_device(torch, device):
+    if device.type == "cuda":
+        torch.cuda.synchronize(device)
+
+
 def gpu_smoke_test(torch, device):
     x = torch.randn(1024, 1024, device=device)
     y = x @ x
-    torch.cuda.synchronize(device)
+    synchronize_device(torch, device)
     if not torch.isfinite(y).all():
         raise RuntimeError("GPU matmul smoke test produced non-finite values")
     return True
@@ -799,6 +875,15 @@ def set_seed(torch, seed):
     random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
+    torch.use_deterministic_algorithms(True)
+    torch.backends.cudnn.benchmark = False
+
+
+def create_workload_model(args, torch):
+    if args.dataset_kind in {"coco", "imagenet"}:
+        from aether_training_cache.vision_workload import model
+        return model(args, torch)
+    return create_model(args.model_tier, torch)
 
 
 def create_model(tier, torch):
@@ -841,7 +926,7 @@ def create_model(tier, torch):
 def model_metadata(model, args, torch):
     parameter_count = sum(parameter.numel() for parameter in model.parameters())
     return {
-        "name": "small_unet",
+        "name": "rgb_classification_cnn" if args.dataset_kind in {"coco", "imagenet"} else "small_unet",
         "tier": args.model_tier,
         "parameters": parameter_count,
         "precision": "fp32",
@@ -865,46 +950,39 @@ def validate_device_events(torch):
 
 
 def run_model_warmup(torch, model, loss_function, optimizer, device, args):
-    x = torch.zeros((args.batch_size, 1, args.resize, args.resize), device=device)
-    y = torch.zeros((args.batch_size, 1, args.resize, args.resize), device=device)
-    for _ in range(min(args.warmup_steps, 4)):
+    classification = args.dataset_kind in {"coco", "imagenet"}
+    x = torch.zeros((args.batch_size, 3 if classification else 1, args.resize, args.resize), device=device)
+    y = torch.zeros((args.batch_size, args.num_classes) if classification else (args.batch_size, 1, args.resize, args.resize), device=device)
+    if args.dataset_kind == "imagenet":
+        y[:, 0] = 1
+    for _ in range(args.warmup_steps):
         optimizer.zero_grad(set_to_none=True)
         loss = loss_function(model(x), y)
         loss.backward()
         optimizer.step()
-    torch.cuda.synchronize(device)
+    synchronize_device(torch, device)
 
 
 def run_backend(torch, model, optimizer, loss_function, device, backend, context, measured_steps):
+    from aether_training_cache.resources import snapshot, delta
     steps = []
     epoch_walls = []
     current_epoch = None
     segmentation_metrics = None
 
-    if context.args.warmup_steps:
-        for step_index, scheduled in enumerate(prepared_batches(context, backend, scheduled_batches(context.args, context.args.warmup_steps))):
-            batch_indices, epoch, prepared, prefetch_wait_ms = scheduled
-            train_step(
-                torch,
-                model,
-                optimizer,
-                loss_function,
-                device,
-                backend,
-                context,
-                batch_indices,
-                step_index,
-                epoch,
-                prepared=prepared,
-                prefetch_wait_ms=prefetch_wait_ms,
-            )
-        torch.cuda.synchronize(device)
-        if backend == "AETHER_CACHE" and not context.external_aether_cache:
-            context.reset_aether_cache()
     cold_start_gate = aether_cold_start_gate(context) if backend == "AETHER_CACHE" else None
+    if backend == "AETHER_CACHE":
+        context.store.reset_operation_metrics()
 
     sampler = GpuUtilizationSampler(context.args.gpu_sample_interval_ms)
     sampler.start()
+    context.worker_resources = {}
+    java_pid = getattr(context, "engine_info", {}).get("pid")
+    java_before = snapshot(java_pid) if java_pid else None
+    parent_before = snapshot()
+    if device.type == "cuda":
+        for index in range(context.args.gpu_count):
+            torch.cuda.reset_peak_memory_stats(index)
     process_start = process_metrics_snapshot()
     training_start = time.perf_counter()
     epoch_start = training_start
@@ -936,13 +1014,15 @@ def run_backend(torch, model, optimizer, loss_function, device, backend, context
             steps.append(step)
         if measured_steps > 0:
             epoch_walls.append((time.perf_counter() - epoch_start) * 1000)
-        torch.cuda.synchronize(device)
+        synchronize_device(torch, device)
         training_ms = (time.perf_counter() - training_start) * 1000
     finally:
         process_end = process_metrics_snapshot()
+        parent_usage = delta(parent_before, snapshot())
+        java_usage = delta(java_before, snapshot(java_pid)) if java_before else None
         gpu_samples = sampler.stop()
     segmentation_metrics = segmentation_sanity_metrics(torch, model, loss_function, device, context)
-    return summarize_backend(
+    report = summarize_backend(
         backend,
         steps,
         epoch_walls,
@@ -953,6 +1033,20 @@ def run_backend(torch, model, optimizer, loss_function, device, backend, context
         cold_start_gate,
         segmentation_metrics,
     )
+    state_digest = hashlib.sha256()
+    for name, value in sorted(model.state_dict().items()):
+        state_digest.update(name.encode("utf-8"))
+        state_digest.update(value.detach().cpu().contiguous().numpy().tobytes())
+    report["modelStateSha256"] = state_digest.hexdigest()
+    report["lossTrajectory"] = [step["loss"] for step in steps]
+    report["resources"] = {"parent": parent_usage, "java": java_usage,
+        "loaderWorkers": context.worker_resources,
+        "workerScope": "sum of batch preparation windows per worker; excludes startup, IPC and idle time",
+        "javaScope": "whole engine during backend window, including background work",
+        "gpuHoursDuringTraining": training_ms / 3600000 * context.args.gpu_count if device.type == "cuda" else 0,
+        "gpuPeakAllocatedBytes": [torch.cuda.max_memory_allocated(i) for i in range(context.args.gpu_count)] if device.type == "cuda" else [],
+        "gpuHoursScope": "selected GPU count times measured training wall; setup and validation excluded"}
+    return report
 
 
 def scheduled_batches(args, total_steps):
@@ -978,6 +1072,11 @@ def segmentation_sanity_metrics(torch, model, loss_function, device, context):
     with torch.no_grad():
         logits = model(images)
         loss = loss_function(logits, masks)
+        if context.args.dataset_kind in {"coco", "imagenet"}:
+            synchronize_device(torch, device)
+            return {"task": "classification", "samplesChecked": len(indices), "loss": float(loss.item()),
+                    "targetEncoding": "one-hot" if context.args.dataset_kind == "imagenet" else "multi-hot",
+                    "logitsSha256": hashlib.sha256(logits.detach().cpu().numpy().tobytes()).hexdigest()}
         predictions = torch.sigmoid(logits) >= 0.5
         targets = masks >= 0.5
         intersection = (predictions & targets).sum().float()
@@ -986,7 +1085,7 @@ def segmentation_sanity_metrics(torch, model, loss_function, device, context):
         union = (predictions | targets).sum().float()
         dice = (2 * intersection) / torch.clamp(prediction_total + target_total, min=1)
         mean_iou = intersection / torch.clamp(union, min=1)
-    torch.cuda.synchronize(device)
+    synchronize_device(torch, device)
     return {
         "samplesChecked": len(indices),
         "loss": float(loss.item()),
@@ -996,6 +1095,10 @@ def segmentation_sanity_metrics(torch, model, loss_function, device, context):
 
 
 def prepared_batches(context, backend, schedule):
+    if context.args.workers > 0:
+        from aether_training_cache.loader_workers import worker_batches
+        yield from worker_batches(context, backend, schedule)
+        return
     if context.args.prefetch_batches <= 0:
         for batch_indices, epoch in schedule:
             yield batch_indices, epoch, None, 0.0
@@ -1045,24 +1148,24 @@ def train_step(torch, model, optimizer, loss_function, device, backend, context,
     transfer_start = time.perf_counter()
     images = cpu_tensors["images"].to(device, non_blocking=False)
     masks = cpu_tensors["masks"].to(device, non_blocking=False)
-    torch.cuda.synchronize(device)
+    synchronize_device(torch, device)
     host_to_device_ms = elapsed_ms(transfer_start)
     optimizer.zero_grad(set_to_none=True)
     forward_start = time.perf_counter()
     logits = model(images)
-    torch.cuda.synchronize(device)
+    synchronize_device(torch, device)
     forward_ms = elapsed_ms(forward_start)
     loss_start = time.perf_counter()
     loss = loss_function(logits, masks)
-    torch.cuda.synchronize(device)
+    synchronize_device(torch, device)
     loss_ms = elapsed_ms(loss_start)
     backward_start = time.perf_counter()
     loss.backward()
-    torch.cuda.synchronize(device)
+    synchronize_device(torch, device)
     backward_ms = elapsed_ms(backward_start)
     optimizer_start = time.perf_counter()
     optimizer.step()
-    torch.cuda.synchronize(device)
+    synchronize_device(torch, device)
     optimizer_ms = elapsed_ms(optimizer_start)
     return {
         "step": step,
@@ -1483,7 +1586,7 @@ def validate_backend_equivalence(context, reference):
     expected_augmented = augment_batch(expected, context, indices, step=0, epoch=0)
     expected_augmented_checksums = batch_checksums(expected_augmented)
     results = {}
-    for backend in BACKENDS:
+    for backend in context.args.backend_names:
         batch, _ = context.batch(backend, indices)
         same_shape = batch["images"].shape == expected["images"].shape and batch["masks"].shape == expected["masks"].shape
         same_dtype = batch["images"].dtype == expected["images"].dtype and batch["masks"].dtype == expected["masks"].dtype
@@ -1604,58 +1707,6 @@ def ratio(left, right):
     return None if right == 0 else left / right
 
 
-class PersistentMmapStore:
-    def __init__(self, root):
-        self.root = Path(root)
-        self.root.mkdir(parents=True, exist_ok=True)
-        self.data_path = self.root / "data.bin"
-        self.index_path = self.root / "index.json"
-        self.index = self._load_index()
-
-    def _load_index(self):
-        if not self.index_path.exists():
-            return {}
-        try:
-            return json.loads(self.index_path.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
-            return {}
-
-    def _save_index(self):
-        self.index_path.write_text(json.dumps(self.index, sort_keys=True), encoding="utf-8")
-
-    def contains(self, key):
-        return key in self.index
-
-    def lookup(self, key):
-        entry = self.index.get(key)
-        if entry is None:
-            return None
-        return entry["offset"], entry["size"]
-
-    def get(self, key):
-        lookup = self.lookup(key)
-        if lookup is None:
-            return None
-        offset, size = lookup
-        with self.data_path.open("rb") as stream:
-            stream.seek(offset)
-            data = stream.read(size)
-        if len(data) != size:
-            raise ValueError(f"mmap payload for key {key} is truncated")
-        return data
-
-    def put(self, key, payload):
-        if key in self.index:
-            return self.lookup(key)
-        record = struct.pack("<I", len(payload)) + payload
-        with self.data_path.open("ab") as stream:
-            offset = stream.tell()
-            stream.write(record)
-        self.index[key] = {"offset": offset, "size": len(record)}
-        self._save_index()
-        return offset, len(record)
-
-
 class BackendContext:
     def __init__(self, args, reference, sources, np):
         self.args = args
@@ -1670,15 +1721,15 @@ class BackendContext:
             if args.aether_cache_mode == "fresh":
                 shutil.rmtree(self.directory, ignore_errors=True)
                 self.directory.mkdir(parents=True, exist_ok=True)
-            self.store = AetherMLStore(self.directory, code_commit="gpu-training")
+            self.store = self._open_store(self.directory)
         else:
             self.directory = Path(tempfile.mkdtemp(prefix="aether-gpu-seg-"))
-            self.store = AetherMLStore(self.directory / "aether", code_commit="gpu-training")
+            self.store = self._open_store(self.directory / "aether")
         self.mmap_root = Path(args.mmap_cache_dir) if args.mmap_cache_dir else self.directory / "mmap"
         if args.mmap_cache_dir and args.mmap_cache_mode == "fresh":
             shutil.rmtree(self.mmap_root, ignore_errors=True)
         self.mmap_root.mkdir(parents=True, exist_ok=True)
-        self.mmap_store = PersistentMmapStore(self.mmap_root)
+        self.mmap_store = PersistentMmapStore(self.mmap_root, durable=args.cache_durability == "durable")
         self.static_path = self.mmap_root / "static-preprocessed.dat"
         self.static_mmap = None
         self.static_file = None
@@ -1706,14 +1757,28 @@ class BackendContext:
         self._build_ram()
         self._prepopulate_aether_cache()
 
+    def _open_store(self, root):
+        if self.args.aether_engine == "java":
+            store = JavaArtifactStore(port=self.args.aether_port, namespace=self.args.aether_namespace)
+            info = store.engine_info()
+            if info.get("engine") != "java-training-cache" or info.get("durability") != self.args.cache_durability.upper():
+                store.close()
+                raise ValueError(f"daemon does not match the requested engine/durability: {info}")
+            self.engine_info = info
+            return store
+        return AetherMLStore(root, code_commit="gpu-training")
+
     def reset_aether_cache(self):
+        if self.args.aether_engine == "java":
+            self.reset_measured_counters()
+            return
         if self.external_aether_cache:
-            self.store = AetherMLStore(self.directory, code_commit="gpu-training")
+            self.store = self._open_store(self.directory)
             self.reset_measured_counters()
             self._prepopulate_aether_cache()
             return
         shutil.rmtree(self.store.root, ignore_errors=True)
-        self.store = AetherMLStore(self.directory / "aether", code_commit="gpu-training")
+        self.store = self._open_store(self.directory / "aether")
         self.reset_measured_counters()
         self._prepopulate_aether_cache()
 
@@ -1739,12 +1804,8 @@ class BackendContext:
     def _build_static(self):
         started = time.perf_counter()
         self.static_offsets = {}
-        current_file = self.mmap_store.data_path
         if self.args.mmap_cache_mode == "fresh":
-            if current_file.exists():
-                current_file.unlink()
-            self.mmap_store.index = {}
-            self.mmap_store._save_index()
+            self.mmap_store.clear()
         elif self.args.mmap_cache_mode == "reuse":
             for index in range(len(self.sources)):
                 key = self.cache_key(index)
@@ -1756,24 +1817,29 @@ class BackendContext:
             if self.args.mmap_cache_mode == "reuse"
             else elapsed_ms(started)
         )
-        if current_file.exists() and current_file.stat().st_size > 0:
-            self.static_file = current_file.open("r+b")
-            self.static_mmap = mmap.mmap(
-                self.static_file.fileno(),
-                0,
-            )
-        else:
-            self.static_file = None
-            self.static_mmap = None
+        if self.args.mmap_cache_mode == "fresh":
+            hit_count = int(round(self.args.samples * self._target_initial_hit_ratio() / 100))
+            for index in range(hit_count):
+                key = self.cache_key(index)
+                self.static_offsets[key] = self.mmap_store.put(key, pack_payload(self.reference[index]))
+        self.initial_mmap_indices = {index for index in range(len(self.sources))
+                                     if self.mmap_store.contains(self.cache_key(index))}
+        self.mmap_protocol = dict(lookups=0, hits=0, misses=0, lookupMs=0.0)
+        self.mmap_store.reset_metrics()
 
     def _build_ram(self):
+        if "RAM_READY" not in self.args.backend_names:
+            self.ram_ready = None
+            return
         started = time.perf_counter()
         self.ram_ready = [pack_payload(sample) for sample in self.reference]
         self.populate_times["RAM_READY"] = elapsed_ms(started)
 
     def _prepopulate_aether_cache(self):
+        if self.args.aether_engine == "java" and self.args.aether_cache_mode == "fresh" and self._existing_cache_indices():
+            raise ValueError("Java namespace is not fresh; use a new store/namespace or explicit reuse")
         target_hit_ratio = self._target_initial_hit_ratio()
-        if self.external_aether_cache and self.args.aether_cache_mode == "reuse":
+        if (self.external_aether_cache or self.args.aether_engine == "java") and self.args.aether_cache_mode == "reuse":
             present_indices = self._existing_cache_indices()
             self.initial_present_indices = present_indices
             self.prepopulated_aether_entries = len(present_indices)
@@ -1818,7 +1884,7 @@ class BackendContext:
         return len(self._existing_cache_indices())
 
     def _target_initial_hit_ratio(self):
-        if self.external_aether_cache and self.args.aether_cache_mode == "reuse":
+        if (self.external_aether_cache or self.args.aether_engine == "java") and self.args.aether_cache_mode == "reuse":
             return (self._existing_cache_entries() / max(len(self.sources), 1)) * 100.0
         if self.args.initial_cache_hit_ratio > 0:
             return self.args.initial_cache_hit_ratio
@@ -1917,37 +1983,38 @@ class BackendContext:
         }
 
     def _static_batch(self, indices):
-        started = time.perf_counter()
-        values = []
-        source_load_ms = 0.0
-        preprocess_ms = 0.0
-        append_ms = 0.0
+        values, pending, keys = [], [], []
+        source_load_ms = preprocess_ms = 0.0
+        append_before = self.mmap_store.metrics["appendMs"]
+        read_before = self.mmap_store.metrics["readMs"]
         for index in indices:
             key = self.cache_key(index)
-            offset_and_size = self.static_offsets.get(key)
-            if offset_and_size is None:
+            keys.append(key)
+            lookup_started = time.perf_counter()
+            present = self.mmap_store.lookup(key)
+            self.mmap_protocol["lookupMs"] += elapsed_ms(lookup_started)
+            self.mmap_protocol["lookups"] += 1
+            self.mmap_protocol["hits" if present is not None else "misses"] += 1
+            if present is None:
                 sample, counters = preprocess_sample_with_timing(self.sources[index], self.args, self.np)
                 source_load_ms += counters.get("sourceLoadMs", 0.0)
                 preprocess_ms += counters.get("preprocessMs", 0.0)
-                sample = artifact_to_tensor_sample(sample, self.np)
-                append_started = time.perf_counter()
-                payload = pack_payload(sample)
-                offset_and_size = self.mmap_store.put(key, payload)
-                append_ms += elapsed_ms(append_started)
-                self.static_offsets[key] = offset_and_size
-            payload = self.mmap_store.get(key)
-            if payload is None:
+                pending.append((key, pack_payload(artifact_to_tensor_sample(sample, self.np))))
+        if pending:
+            self.static_offsets.update(self.mmap_store.put_many(pending))
+        decode_ms = 0.0
+        for key in keys:
+            record = self.mmap_store.get(key)
+            if record is None:
                 raise ValueError(f"missing prepared mmap payload for key {key}")
-            header_size = struct.unpack("<I", payload[:4])[0]
-            values.append(unpack_payload(payload[4:], self.np))
-            if header_size != len(payload) - 4:
-                raise ValueError("static mmap artifact length prefix mismatch")
+            started = time.perf_counter()
+            values.append(unpack_payload(record[4:], self.np))
+            decode_ms += elapsed_ms(started)
         return stack_values(values, self.np), {
-            "mmapReadMs": elapsed_ms(started),
-            "sourceLoadMs": source_load_ms,
-            "preprocessMs": preprocess_ms,
-            "mmapPublishMs": append_ms,
-            "tensorBuildMs": 0.0,
+            "mmapReadMs": self.mmap_store.metrics["readMs"] - read_before,
+            "sourceLoadMs": source_load_ms, "preprocessMs": preprocess_ms,
+            "mmapPublishMs": self.mmap_store.metrics["appendMs"] - append_before,
+            "artifactDecodeMs": decode_ms, "tensorBuildMs": 0.0,
         }
 
     def _ram_batch(self, indices):
@@ -1973,17 +2040,34 @@ class BackendContext:
 
     def protocol_counters(self):
         protocol = dict(self.protocol)
+        protocol["counterScope"] = "logical benchmark batch operations; transport counters are separate"
         entries = protocol["entriesPerWriteBatch"]
         protocol["entriesPerWriteBatchMean"] = mean(entries)
         protocol["cacheHitCount"] = protocol["cacheHits"]
         protocol["cacheMissCount"] = protocol["cacheMisses"]
         protocol["bytesRead"] = protocol["bytesReturned"]
         protocol["bytesWritten"] = protocol["bytesPublished"]
-        protocol["walForceCount"] = 0
+        protocol["walForceCount"] = None if self.args.aether_engine == "java" else 0
+        if self.args.aether_engine == "java":
+            protocol["transport"] = self.store.client.protocol_metrics()
         protocol["prepopulatedEntries"] = getattr(self, "prepopulated_aether_entries", 0)
         protocol["targetInitialCacheHitRatio"] = getattr(self, "target_initial_cache_hit_ratio", 0.0)
         protocol["initialPresentIndices"] = sorted(getattr(self, "initial_present_indices", set()))
         return protocol
+
+    def mmap_dynamics(self):
+        expected = expected_cache_counts(self.args, self.initial_mmap_indices)
+        report = {**self.mmap_protocol, **self.mmap_store.metrics,
+                  "initialReusableEntries": len(self.initial_mmap_indices),
+                  "initialMissingEntries": len(self.sources) - len(self.initial_mmap_indices),
+                  "initialPresentIndices": sorted(self.initial_mmap_indices),
+                  "payloadReadPath": "mmap.ACCESS_READ slicing",
+                  "mmapPageFaults": None,
+                  "pageFaultNote": "Per-mapping page faults unavailable; process totals reported separately"}
+        report["invariants"] = {"expected": expected, "passed": all(
+            report[key] == value for key, value in expected.items())
+            and report["entriesAppended"] == expected["misses"]}
+        return report
 
     def peak_memory_bytes(self):
         try:
@@ -1993,6 +2077,9 @@ class BackendContext:
             return 0
 
     def close(self):
+        self.mmap_store.close()
+        if self.args.aether_engine == "java":
+            self.store.close()
         if self.static_mmap is not None:
             self.static_mmap.close()
         if self.static_file is not None:
@@ -2001,6 +2088,7 @@ class BackendContext:
             shutil.rmtree(self.directory, ignore_errors=True)
 
     def populate_mmap_dataset(self):
+        population_started = time.perf_counter()
         entries_requested = 0
         initial_reusable_entries = len(self.static_offsets)
         hits = 0
@@ -2011,6 +2099,7 @@ class BackendContext:
         append_ms = 0.0
         for batch_indices in batch_plan(self.args):
             entries_requested += len(batch_indices)
+            pending = []
             for index in batch_indices:
                 key = self.cache_key(index)
                 start_lookup = time.perf_counter()
@@ -2020,14 +2109,16 @@ class BackendContext:
                     misses += 1
                     sample, _ = preprocess_sample_with_timing(self.sources[index], self.args, self.np)
                     payload = pack_payload(artifact_to_tensor_sample(sample, self.np))
-                    start_append = time.perf_counter()
-                    self.mmap_store.put(key, payload)
-                    append_ms += elapsed_ms(start_append)
-                    bytes_appended += len(payload)
-                    entries_appended += 1
-                    self.static_offsets[key] = self.mmap_store.lookup(key)
+                    pending.append((key, payload))
                 else:
                     hits += 1
+            if pending:
+                start_append = time.perf_counter()
+                published = self.mmap_store.put_many(pending)
+                append_ms += elapsed_ms(start_append)
+                bytes_appended += sum(len(payload) + 4 for _, payload in pending)
+                entries_appended += len(published)
+                self.static_offsets.update(published)
         return {
             "entriesRequested": entries_requested,
             "initialReusableEntries": initial_reusable_entries,
@@ -2039,11 +2130,13 @@ class BackendContext:
             "bytesAppended": bytes_appended,
             "lookupMs": lookup_ms,
             "appendMs": append_ms,
+            "populationWallMs": elapsed_ms(population_started),
             "entriesStored": len(self.mmap_store.index),
             "cacheDir": str(self.mmap_root),
         }
 
     def populate_aether_dataset(self):
+        population_started = time.perf_counter()
         entries_requested = 0
         total_misses = 0
         total_entries_published = 0
@@ -2060,6 +2153,7 @@ class BackendContext:
         return {
             "entriesRequested": entries_requested,
             "misses": total_misses,
+            "populationWallMs": elapsed_ms(population_started),
             "entriesPublished": total_entries_published,
             "bytesWritten": total_bytes_written,
             "lookupMs": (self.protocol.get("lookupNanos", 0) / 1e6),
@@ -2072,7 +2166,7 @@ class BackendContext:
 
 def aether_cold_start_gate(context):
     keys = [context.cache_key(index) for index in range(context.args.samples)]
-    present = sum(1 for key in keys if (context.store.cache_dir / f"{key}.json").exists())
+    present = len(context.store.cached_artifact_ids(keys))
     target = getattr(context, "target_initial_cache_hit_ratio", 0.0)
     prepopulated = getattr(context, "prepopulated_aether_entries", 0)
     if target == 0:
@@ -2088,11 +2182,14 @@ def aether_cold_start_gate(context):
 
 
 def warm_backend(context, backend):
-    if backend in ("STATIC_PREPROCESSED_MMAP", "RAM_READY"):
+    if backend == "RAM_READY":
         context.batch(backend, list(range(min(context.args.batch_size, context.args.samples))))
 
 
 def load_sources(args):
+    if args.dataset_kind in {"coco", "imagenet"}:
+        from aether_training_cache.vision_workload import load_sources as load_vision_sources
+        return load_vision_sources(args)
     if args.dataset_kind == "oct5k":
         return load_oct5k_sources(args)
     if args.input_dir is None:
@@ -2198,6 +2295,19 @@ def preprocess_sample(sample, args, np):
 
 
 def preprocess_sample_with_timing(sample, args, np):
+    value, counters = _preprocess_sample_with_timing(sample, args, np)
+    value["artifactCodec"] = args.artifact_codec
+    started = time.perf_counter()
+    if args.normalization_scale != 1.0 or args.normalization_offset != 0.0:
+        value["image"] = (value["image"] * args.normalization_scale + args.normalization_offset).astype(np.float32)
+    counters["preprocessMs"] += elapsed_ms(started)
+    return value, counters
+
+
+def _preprocess_sample_with_timing(sample, args, np):
+    if sample.get("kind") in {"coco", "imagenet"}:
+        from aether_training_cache.vision_workload import preprocess
+        return preprocess(sample, args, np)
     if sample.get("kind") == "oct5k":
         return preprocess_oct5k_sample(sample, args, np)
     resize = args.resize
@@ -2282,6 +2392,10 @@ def stack_values(values, np):
 
 
 def pack_payload(sample):
+    import zlib
+    codec = sample.get("artifactCodec", "none")
+    if codec not in {"none", "zlib"}:
+        raise ValueError("unsupported artifact codec")
     header = json.dumps({
         "sample_id": sample["sample_id"],
         "imageShape": sample["image"].shape,
@@ -2289,10 +2403,12 @@ def pack_payload(sample):
         "imageDtype": "float16",
         "maskDtype": "uint8",
         "artifactEncodingVersion": "nchw-float16-uint8-v1",
+        "artifactCodec": codec,
     }, separators=(",", ":"), sort_keys=True).encode("utf-8")
     image = sample["image"].astype("float16", copy=False).tobytes()
     mask = (sample["mask"] > 0).astype("uint8", copy=False).tobytes()
-    return struct.pack("<I", len(header)) + header + image + mask
+    body = zlib.compress(image + mask) if codec == "zlib" else image + mask
+    return struct.pack("<I", len(header)) + header + body
 
 
 def unpack_payload(payload, np):
@@ -2308,10 +2424,20 @@ def unpack_payload(payload, np):
     image_bytes = image_count * image_dtype.itemsize
     mask_bytes = mask_count * mask_dtype.itemsize
     body = memoryview(payload)[header_end:]
+    codec = value.get("artifactCodec", "none")
+    if codec == "zlib":
+        import zlib
+        decoder = zlib.decompressobj()
+        body = memoryview(decoder.decompress(body, image_bytes + mask_bytes + 1))
+        if not decoder.eof or decoder.unused_data:
+            raise ValueError("incomplete or trailing compressed artifact data")
+    elif codec != "none":
+        raise ValueError("unsupported artifact codec")
     if len(body) != image_bytes + mask_bytes:
         raise ValueError("cached payload byte length does not match tensor shapes")
     return {
         "sample_id": value["sample_id"],
+        "artifactCodec": codec,
         "image": np.frombuffer(body[:image_bytes], dtype=image_dtype).astype(np.float32).reshape(value["imageShape"]),
         "mask": np.frombuffer(body[image_bytes:image_bytes + mask_bytes], dtype=mask_dtype).astype(np.float32).reshape(value["maskShape"]),
     }
@@ -2360,7 +2486,9 @@ def dataset_integrity_summary(args, sources):
         "diseaseDistribution": dict(sorted(diseases.items())),
         "sourceIdentityCount": len({source["source_identity"] for source in sources}),
         "sourceIdentityCollisions": len(sources) - len({source["source_identity"] for source in sources}),
-        "passed": len(sources) == args.samples and len({source["source_identity"] for source in sources}) == len(sources),
+        "identityNote": "Content-identical real rows are reported, not rejected; artifact keys also bind unique sample IDs",
+        "sampleIdCount": len({source["sample_id"] for source in sources}),
+        "passed": len(sources) == args.samples and len({source["sample_id"] for source in sources}) == len(sources),
     }
 
 
@@ -2374,6 +2502,15 @@ def effective_measured_steps(args):
 
 
 def deterministic_parameters(args):
+    return {**_deterministic_parameters(args), "pipelineVersion": args.pipeline_version,
+            "artifactCodec": args.artifact_codec,
+            "normalizationScale": args.normalization_scale, "normalizationOffset": args.normalization_offset}
+
+
+def _deterministic_parameters(args):
+    if args.dataset_kind in {"coco", "imagenet"}:
+        from aether_training_cache.vision_workload import parameters
+        return parameters(args)
     if args.dataset_kind == "oct5k":
         return {
             "dataset": "OCT5K",
@@ -2420,10 +2557,14 @@ def configuration(args):
         "batchSize": args.batch_size,
         "epochs": args.epochs,
         "workers": args.workers,
+        "loaderWorkerStartupIncluded": args.workers > 0,
+        "gpuCount": args.gpu_count,
+        "gpuParallelism": "single-node DataParallel" if args.gpu_count > 1 else "single GPU",
         "changedPercent": args.changed_percent,
         "seed": args.seed,
         "inputDir": args.input_dir,
         "datasetKind": args.dataset_kind,
+        "numClasses": args.num_classes if args.dataset_kind in {"coco", "imagenet"} else None,
         "datasetManifest": args.dataset_manifest,
         "datasetSplit": args.dataset_split,
         "oct5kImageSize": args.oct5k_image_size,
@@ -2436,7 +2577,15 @@ def configuration(args):
         "measuredStepsEffective": effective_measured_steps(args),
         "modelTier": args.model_tier,
         "preprocessPasses": args.preprocess_passes,
+        "normalizationScale": args.normalization_scale,
+        "normalizationOffset": args.normalization_offset,
+        "pipelineVersion": args.pipeline_version,
+        "maxReferenceBytes": args.max_reference_bytes,
         "initialCacheHitRatio": args.initial_cache_hit_ratio,
+        "aetherEngine": args.aether_engine,
+        "cacheDurability": args.cache_durability,
+        "aetherPort": args.aether_port if args.aether_engine == "java" else None,
+        "aetherNamespace": args.aether_namespace if args.aether_engine == "java" else None,
         "aetherCacheDir": args.aether_cache_dir,
         "aetherCacheMode": args.aether_cache_mode,
         "aetherPopulateOnly": args.aether_populate_only,
@@ -2447,7 +2596,7 @@ def configuration(args):
         "prefetchBatches": args.prefetch_batches,
         "augmentationMode": args.augmentation_mode,
         "gpuSampleIntervalMs": args.gpu_sample_interval_ms,
-        "backends": list(BACKENDS),
+        "backends": list(args.backend_names),
     }
 
 
