@@ -16,7 +16,13 @@ fi
 java_binary="$(readlink -f "$(command -v java)")"
 export JAVA_HOME="$(dirname "$(dirname "$java_binary")")"
 export PATH="$JAVA_HOME/bin:$PATH"
-python -m venv --system-site-packages "$paper_venv"
+if [[ "$paper_venv" != /kaggle/working/* ]]; then
+  echo "AETHER_PAPER_VENV must be under /kaggle/working" >&2
+  exit 1
+fi
+rm -rf "$paper_venv"
+python -m pip install --user virtualenv
+python -m virtualenv --system-site-packages "$paper_venv"
 "$paper_venv/bin/python" -m pip install -r "$repo_root/env/requirements.lock"
 cd "$repo_root"
 chmod +x gradlew
