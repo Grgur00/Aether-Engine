@@ -38,7 +38,9 @@ def build_manifest(args):
     root = Path(args.input_root).resolve()
     if not root.is_dir():
         raise ValueError(f"input-root is not an existing directory: {root}")
-    paths = sorted(path for path in root.rglob("*") if path.is_file() and path.suffix.lower() in IMAGE_EXTENSIONS)
+    candidate_paths = sorted(path for path in root.rglob("*") if path.is_file() and path.suffix.lower() in IMAGE_EXTENSIONS)
+    boundary_tables = [path for path in candidate_paths if is_boundary_table_path(path)]
+    paths = [path for path in candidate_paths if path not in boundary_tables]
     images, masks = partition_images_and_masks(paths)
     image_by_key = group_by_pair_key(images)
     mask_by_key = group_by_pair_key(masks)
@@ -84,7 +86,8 @@ def build_manifest(args):
     summary = {
         "passed": passed,
         "inputRoot": str(root),
-        "totalFiles": len(paths),
+        "totalFiles": len(candidate_paths),
+        "ignoredBoundaryTables": len(boundary_tables),
         "pairedSamples": len(rows),
         "unpairedImages": len(unpaired_images),
         "unpairedMasks": len(unpaired_masks),
@@ -116,6 +119,10 @@ def is_mask_path(path):
 
 def is_rgb_visualization(path):
     return any(part.lower().endswith("_rgb") for part in path.parts)
+
+
+def is_boundary_table_path(path):
+    return any(part.lower().startswith("boundaries") for part in path.parts)
 
 
 def group_by_pair_key(paths):
