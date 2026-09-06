@@ -101,7 +101,8 @@ def partition_images_and_masks(paths):
     masks = []
     for path in paths:
         if is_mask_path(path):
-            masks.append(path)
+            if not is_rgb_visualization(path):
+                masks.append(path)
         else:
             images.append(path)
     return images, masks
@@ -111,6 +112,10 @@ def is_mask_path(path):
     tokens = {token.lower() for part in path.parts for token in re.split(r"[^A-Za-z0-9]+", part) if token}
     stem = path.stem.lower()
     return bool(tokens & MASK_HINTS) or any(stem.endswith(suffix) for suffix in ("_mask", "-mask", "_label", "-label", "_seg", "-seg"))
+
+
+def is_rgb_visualization(path):
+    return any(part.lower().endswith("_rgb") for part in path.parts)
 
 
 def group_by_pair_key(paths):

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from build_oct5k_manifest import pair_key
+from build_oct5k_manifest import is_rgb_visualization, pair_key
 
 
 def test_pair_key_uses_oct5k_grading_relative_path():
@@ -10,3 +10,11 @@ def test_pair_key_uses_oct5k_grading_relative_path():
 
     assert pair_key(boundary) == pair_key(matching_mask)
     assert pair_key(boundary) != pair_key(other_scan)
+
+
+def test_rgb_mask_visualizations_are_not_semantic_masks():
+    semantic = Path("OCT5k/Masks/Masks_Automatic/Grading/AMD Part1/scan/Image 1.PNG")
+    visualization = Path("OCT5k/Masks/Masks_Automatic_RGB/Grading/AMD Part1/scan/Image 1.PNG")
+
+    assert not is_rgb_visualization(semantic)
+    assert is_rgb_visualization(visualization)
