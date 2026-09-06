@@ -121,6 +121,11 @@ def group_by_pair_key(paths):
 
 
 def pair_key(path):
+    parts = path.parts
+    for index, part in enumerate(parts):
+        if part.lower() == "grading":
+            relative = Path(*parts[index:]).with_suffix("")
+            return "/".join(re.sub(r"[^a-z0-9]+", "", value.lower()) for value in relative.parts)
     stem = path.stem.lower()
     stem = re.sub(r"([_-]?(mask|label|annotation|segmentation|seg))+$", "", stem)
     return re.sub(r"[^a-z0-9]+", "", stem)
