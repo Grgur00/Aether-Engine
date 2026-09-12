@@ -78,6 +78,7 @@ class AetherTrainingCache:
             raw.connect(self._unix_socket)
         else:
             raw = socket.create_connection(self._address, self._timeout)
+            raw.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self._connection = (self._ssl_context.wrap_socket(raw, server_hostname=self._address[0])
                             if self._ssl_context else raw)
         self.connections_opened += 1

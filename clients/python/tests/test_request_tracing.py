@@ -31,6 +31,19 @@ def response(value=b"fixture", status=1):
 KEY = CacheKey("test", "sample", TransformationFingerprint.from_descriptor("test"))
 
 
+def test_tcp_connection_disables_nagle(monkeypatch):
+    import aether_training_cache.client as module
+    connection = SimpleNamespace(options=[])
+    connection.setsockopt = lambda *option: connection.options.append(option)
+    monkeypatch.setattr(module.socket, "create_connection", lambda address, timeout: connection)
+
+    client = AetherTrainingCache(host="127.0.0.1", port=9484, timeout=2)
+    client._connect()
+
+    assert connection.options == [(module.socket.IPPROTO_TCP, module.socket.TCP_NODELAY, 1)]
+    assert client._connection is connection
+
+
 def test_server_trace_envelope_preserves_response_and_identity(monkeypatch):
     import aether_training_cache.client as module
     trace_id = "a" * 32
