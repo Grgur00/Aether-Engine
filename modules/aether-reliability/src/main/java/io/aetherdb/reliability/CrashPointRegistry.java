@@ -5,6 +5,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /** Process-local crash-point dispatcher disabled by default. */
 public final class CrashPointRegistry {
+    private static final java.util.regex.Pattern VALID_ID =
+            java.util.regex.Pattern.compile("[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+");
     private static final CrashPoint DISABLED = (ignored, context) -> {};
     private static final AtomicReference<CrashPoint> ACTIVE = new AtomicReference<>(DISABLED);
 
@@ -30,7 +32,7 @@ public final class CrashPointRegistry {
     }
 
     public static String validateId(String id) {
-        if (id == null || !id.matches("[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+"))
+        if (id == null || !VALID_ID.matcher(id).matches())
             throw new IllegalArgumentException("invalid crash point id");
         return id;
     }

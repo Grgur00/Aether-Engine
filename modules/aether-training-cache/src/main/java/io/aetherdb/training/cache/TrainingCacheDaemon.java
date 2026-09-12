@@ -55,7 +55,10 @@ public final class TrainingCacheDaemon implements AutoCloseable {
     }
 
     private void serve(Socket socket) {
-        try (socket) { TrainingCacheProtocol.serve(socket.getInputStream(), socket.getOutputStream(), cache, requestPermits, protocolMetrics); }
+        try (socket) {
+            socket.setTcpNoDelay(true);
+            TrainingCacheProtocol.serve(socket.getInputStream(), socket.getOutputStream(), cache, requestPermits, protocolMetrics);
+        }
         catch (Exception ignored) { }
     }
 

@@ -489,7 +489,7 @@ public final class VersionSet implements AutoCloseable {
     private static void syncDirectory(Path directory) throws IOException {
         try (FileChannel channel = FileChannel.open(directory, StandardOpenOption.READ)) {
             channel.force(true);
-        }
+        } catch (java.nio.file.AccessDeniedException | UnsupportedOperationException ignored) {}
     }
 
     private static void writeFully(FileChannel channel, ByteBuffer bytes) throws IOException {

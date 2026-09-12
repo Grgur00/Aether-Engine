@@ -53,7 +53,8 @@ class PreparedBatchDataset:
         batch, counters = context.batch(self.backend, indices)
         duration = (time.perf_counter() - started) * 1000
         usage = delta(before, snapshot())
-        return indices, epoch, (batch, counters, duration), context.protocol, context.mmap_protocol, context.mmap_store.metrics, usage
+        return (indices, epoch, (batch, counters, duration), context.protocol, context.mmap_protocol,
+                context.mmap_store.metrics, usage, context.store.client.protocol_metrics(), context.store.operation_observations())
 
 
 def worker_batches(context, backend, schedule):
@@ -70,7 +71,7 @@ def worker_batches(context, backend, schedule):
         while True:
             started = time.perf_counter()
             try:
-                indices, epoch, prepared, protocol, mmap_protocol, mmap_metrics, usage = next(iterator)
+                indices, epoch, prepared, protocol, mmap_protocol, mmap_metrics, usage, transport, observations = next(iterator)
             except StopIteration:
                 break
             wait_ms = (time.perf_counter() - started) * 1000
@@ -86,6 +87,16 @@ def worker_batches(context, backend, schedule):
                 for field in ("rssBytesAtEnd", "lifetimePeakRssBytes"):
                     totals[field] = usage[field]
             if backend == "AETHER_CACHE":
+                if not hasattr(context, "worker_aether_transport"):
+                    context.worker_aether_transport = {"connectionsOpened": 0, "requestsSent": 0, "operationCounts": {}}
+                    context.worker_aether_observations = {}
+                for key in ("connectionsOpened", "requestsSent"):
+                    context.worker_aether_transport[key] += transport[key]
+                for key, count in transport["operationCounts"].items():
+                    counts = context.worker_aether_transport["operationCounts"]
+                    counts[key] = counts.get(key, 0) + count
+                for key, values in observations.items():
+                    context.worker_aether_observations.setdefault(key, []).extend(values)
                 for key, value in protocol.items():
                     if key == "connectionsOpened":
                         continue

@@ -1,4 +1,5 @@
 import org.gradle.api.tasks.JavaExec
+import java.security.MessageDigest
 
 plugins { id("aether.java-library") }
 
@@ -12,10 +13,45 @@ tasks.register("paperRuntimeClasspath") {
     group = "verification"
     description = "Builds the Java engine and exports its runtime classpath for paper scripts."
     dependsOn("classes")
+    dependsOn(configurations.runtimeClasspath)
     doLast {
         val output = layout.buildDirectory.file("paper-runtime-classpath.txt").get().asFile
         output.parentFile.mkdirs()
         output.writeText(sourceSets.main.get().runtimeClasspath.asPath)
+        fun digest(file: java.io.File): String {
+            val hash = MessageDigest.getInstance("SHA-256")
+            file.inputStream().use { stream ->
+                val buffer = ByteArray(1024 * 1024)
+                while (true) {
+                    val count = stream.read(buffer)
+                    if (count < 0) break
+                    hash.update(buffer, 0, count)
+                }
+            }
+            return hash.digest().joinToString("") { "%02x".format(it) }
+        }
+        val inputs = rootProject.fileTree(rootProject.projectDir) {
+            include("*.gradle.kts", "gradle.properties", "gradle/**",
+                "modules/*/*.gradle.kts", "modules/*/src/main/**",
+                "build-logic/*.gradle.kts", "build-logic/gradle.properties", "build-logic/src/**")
+        }.files.sortedBy { it.relativeTo(rootProject.projectDir).invariantSeparatorsPath }
+        val sources = inputs.associate { it.relativeTo(rootProject.projectDir).invariantSeparatorsPath to digest(it) }
+        val runtime = sourceSets.main.get().runtimeClasspath.files.associate { entry ->
+            val record = when {
+                entry.isFile -> mapOf("kind" to "file", "sha256" to digest(entry))
+                entry.isDirectory -> mapOf("kind" to "directory", "files" to
+                    entry.walkTopDown().filter { it.isFile }.sortedBy { it.path }.associate {
+                        it.relativeTo(entry).invariantSeparatorsPath to digest(it)
+                    })
+                else -> mapOf("kind" to "absent")
+            }
+            entry.absolutePath to record
+        }
+        val manifest = mapOf("schema" to "aether-java-build-v1", "sources" to sources,
+            "runtime" to runtime, "classpathSha256" to digest(output),
+            "buildJavaVersion" to System.getProperty("java.version"))
+        output.resolveSibling("paper-runtime-build.json").writeText(
+            groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(manifest)))
         println("Paper runtime classpath: $output")
     }
 }

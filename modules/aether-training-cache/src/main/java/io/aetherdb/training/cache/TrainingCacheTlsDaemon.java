@@ -42,6 +42,7 @@ public final class TrainingCacheTlsDaemon implements AutoCloseable {
 
     private void serve(SSLSocket socket) {
         try (socket) {
+            socket.setTcpNoDelay(true);
             socket.startHandshake();
             TrainingCacheProtocol.serve(socket.getInputStream(), socket.getOutputStream(), cache, permits, protocolMetrics);
         } catch (Exception ignored) { }

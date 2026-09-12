@@ -1037,7 +1037,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
                         debt,
                         store.getUsableSpace(),
                         store.getTotalSpace(),
-                        true,
+                        configuration.diskPressureEnabled,
                         false,
                         false);
         return pressureController.evaluate(input);
@@ -1266,6 +1266,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
             long walSegmentBytes,
             int maximumSnapshots,
             boolean compactionEnabled,
+            boolean diskPressureEnabled,
             LevelCompactionConfig compactionConfig,
             WritePressurePolicy writePressurePolicy,
             WriteOptions defaultWriteOptions) {
@@ -1287,6 +1288,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
                     longValue(configuration, "aether.wal.segment_bytes"),
                     intValue(configuration, "aether.snapshots.max_open"),
                     booleanValue(configuration, "aether.compaction.enabled"),
+                    booleanValue(configuration, "aether.storage.disk_pressure.enabled"),
                     LevelCompactionConfig.defaults(),
                     WritePressurePolicy.forImmutableLimit(
                             intValue(configuration, "aether.memtable.immutable_limit")),
@@ -1334,7 +1336,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
     private static void syncDirectory(Path root) throws IOException {
         try (FileChannel channel = FileChannel.open(root, StandardOpenOption.READ)) {
             channel.force(true);
-        }
+        } catch (java.nio.file.AccessDeniedException | UnsupportedOperationException ignored) {}
     }
 
     private static void writeFully(FileChannel channel, ByteBuffer bytes) throws IOException {

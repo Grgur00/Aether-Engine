@@ -4,6 +4,8 @@ import struct
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+import threading
 
 import numpy as np
 
@@ -11,10 +13,17 @@ from aether_training_cache.persistent_mmap import PersistentMmapStore
 from benchmark_gpu_segmentation import (BackendContext, artifact_to_tensor_sample,
     cache_dynamics, effective_measured_steps, load_sources, parse_args,
     preprocess_sample, scheduled_batches, warm_backend)
-from benchmark_gpu_segmentation import pack_payload, unpack_payload
+from benchmark_gpu_segmentation import pack_payload, unpack_payload, prepared_batches
 
 
 class MmapStorageTests(unittest.TestCase):
+    def test_prefetch_thread_stops_when_consumer_closes_early(self):
+        context = SimpleNamespace(args=SimpleNamespace(workers=0, prefetch_batches=1), batch=lambda backend, indices: ({"indices": indices}, {}))
+        iterator = prepared_batches(context, "CANCELLATION_TEST", (([i], 0) for i in range(100)))
+        next(iterator)
+        iterator.close()
+        self.assertFalse(any(thread.name == "cancellation_test-prefetch" and thread.is_alive() for thread in threading.enumerate()))
+
     def test_codec_evolution_changes_bytes_but_preserves_tensor_values(self):
         sample = {"sample_id": "codec-test", "image": np.linspace(0, 1, 256).reshape(1, 16, 16),
                   "mask": np.ones((1, 16, 16))}

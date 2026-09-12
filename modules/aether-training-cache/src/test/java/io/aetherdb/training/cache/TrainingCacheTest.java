@@ -14,6 +14,72 @@ final class TrainingCacheTest {
     @TempDir Path temp;
 
     @Test
+    void immutableBatchConflictHasNoPartialPublication() {
+        var transform = TransformationFingerprint.ofCanonicalDescriptor("immutable-v1");
+        CacheKey first = new CacheKey("immutable", "a", transform);
+        CacheKey second = new CacheKey("immutable", "b", transform);
+        try (TrainingCache cache = TrainingCache.open(temp.resolve("immutable"))) {
+            cache.put(first, new byte[] {1});
+            assertThrows(IllegalArgumentException.class, () -> cache.putMany(java.util.List.of(
+                    new CacheEntry(second, new byte[] {2}), new CacheEntry(first, new byte[] {3}))));
+            assertNull(cache.get(second));
+            assertArrayEquals(new byte[] {1}, cache.get(first));
+            assertEquals(1, cache.metrics().residentEntries());
+        }
+    }
+
+    @Test
+    void idempotentSegmentBatchDoesNotCountOrWriteDuplicates() {
+        CacheKey key = new CacheKey("immutable", "large", TransformationFingerprint.ofCanonicalDescriptor("v1"));
+        byte[] value = new byte[512 * 1024];
+        new java.util.Random(74).nextBytes(value);
+        try (TrainingCache cache = TrainingCache.open(temp.resolve("idempotent"))) {
+            CacheEntry entry = new CacheEntry(key, value);
+            cache.putMany(java.util.List.of(entry, entry));
+            long written = cache.metrics().bytesWritten();
+            long disk = cache.metrics().diskBytes();
+            cache.putMany(java.util.List.of(entry));
+            assertEquals(value.length, written);
+            assertEquals(written, cache.metrics().bytesWritten());
+            assertEquals(disk, cache.metrics().diskBytes());
+            value[0] ^= 1;
+            assertArrayEquals(entry.value(), cache.get(key));
+        }
+    }
+
+    @Test
+    void competingImmutableWritersPublishExactlyOneValue() throws Exception {
+        CacheKey key = new CacheKey("immutable", "race", TransformationFingerprint.ofCanonicalDescriptor("v1"));
+        try (TrainingCache cache = TrainingCache.open(temp.resolve("race")); var executor = Executors.newFixedThreadPool(8)) {
+            var ready = new java.util.concurrent.CountDownLatch(8);
+            var start = new java.util.concurrent.CountDownLatch(1);
+            var tasks = new java.util.ArrayList<java.util.concurrent.Future<Integer>>();
+            for (int i = 0; i < 8; i++) {
+                final int candidate = i;
+                tasks.add(executor.submit(() -> {
+                    ready.countDown();
+                    start.await();
+                    try { cache.put(key, new byte[] {(byte) candidate}); return candidate; }
+                    catch (IllegalArgumentException conflict) { return -1; }
+                }));
+            }
+            boolean allReady;
+            try { allReady = ready.await(10, java.util.concurrent.TimeUnit.SECONDS); }
+            finally { start.countDown(); }
+            assertTrue(allReady);
+            int winner = -1;
+            int accepted = 0;
+            for (var task : tasks) {
+                int result = task.get(10, java.util.concurrent.TimeUnit.SECONDS);
+                if (result >= 0) { accepted++; winner = result; }
+            }
+            assertEquals(1, accepted);
+            assertArrayEquals(new byte[] {(byte) winner}, cache.get(key));
+            assertEquals(1, cache.metrics().residentEntries());
+        }
+    }
+
+    @Test
     void valuesSurviveReopenAndTransformationChangesMiss() {
         CacheKey original = new CacheKey("train", "sample-1", TransformationFingerprint.of(Map.of("maxLength", 128)));
         CacheKey changed = new CacheKey("train", "sample-1", TransformationFingerprint.of(Map.of("maxLength", 256)));
@@ -173,6 +239,29 @@ final class TrainingCacheTest {
             assertNull(cache.getRef(inline));
             assertNotNull(cache.getRef(segmented));
             assertEquals(1, cache.getManyRefs(java.util.List.of(inline, segmented)).size());
+        }
+    }
+
+    @Test
+    void segmentNamesKeepLegacyFormatAndBatchBuffersCannotMutateStoredValues() {
+        var transform = TransformationFingerprint.ofCanonicalDescriptor("hex-compatibility");
+        try (var cache = TrainingCache.open(temp.resolve("hex"), 1_000_000,
+                TrainingCacheDurability.RECOVERABLE, TrainingCacheStoragePolicy.segment(1))) {
+            for (int index = 0; index < 32; index++) {
+                CacheKey key = new CacheKey("hex", "sample-" + index, transform);
+                cache.put(key, new byte[] {(byte) index, 2});
+                var legacy = new StringBuilder();
+                for (byte value : TransformationFingerprint.sha256(key.storageKey()))
+                    legacy.append(String.format("%02x", value));
+                assertEquals(legacy + ".seg", cache.getRef(key).segmentId());
+                var batch = cache.getManyValues(java.util.List.of(key));
+                assertEquals(BatchValueResult.ValueStatus.HIT_SEGMENT, batch.statuses().get(0));
+                assertEquals(2, batch.lengths()[0]);
+                assertThrows(java.nio.ReadOnlyBufferException.class, () -> batch.payload().put(0, (byte) 99));
+                byte[] returned = cache.get(key);
+                returned[0] = 99;
+                assertArrayEquals(new byte[] {(byte) index, 2}, cache.get(key));
+            }
         }
     }
 }

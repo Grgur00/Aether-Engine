@@ -103,7 +103,7 @@ public final class TrainingCache implements AutoCloseable {
         Objects.requireNonNull(key, "key");
         byte[] storageKey = key.storageKey();
         long started = System.nanoTime();
-        LookupResult result = database.get(storageKey);
+        LookupResult result = traceLookup(storageKey);
         getLatency.record(System.nanoTime() - started);
         if (!result.isFound()) { misses.increment(); return null; }
         try {
@@ -124,7 +124,7 @@ public final class TrainingCache implements AutoCloseable {
     public SegmentReference getRef(CacheKey key) {
         Objects.requireNonNull(key, "key");
         byte[] storageKey = key.storageKey();
-        LookupResult result = database.get(storageKey);
+        LookupResult result = traceLookup(storageKey);
         if (!result.isFound()) return null;
         byte[] encoded = result.value();
         if (encoded.length < 8 || ByteBuffer.wrap(encoded).getInt() != SEGMENT_MAGIC) return null;
@@ -162,7 +162,7 @@ public final class TrainingCache implements AutoCloseable {
     public ByteBuffer map(CacheKey key) {
         Objects.requireNonNull(key, "key");
         byte[] storageKey = key.storageKey();
-        LookupResult result = database.get(storageKey);
+        LookupResult result = traceLookup(storageKey);
         if (!result.isFound()) { misses.increment(); return null; }
         try {
             byte[] encoded = result.value();
@@ -197,10 +197,11 @@ public final class TrainingCache implements AutoCloseable {
         int totalBytes = 0;
         for (CacheKey key : keys) {
             byte[] storageKey = key.storageKey();
-            LookupResult lookup = database.get(storageKey);
+            LookupResult lookup = traceLookup(storageKey);
+            byte[] encoded = lookup.isFound() ? lookup.value() : null;
             byte[] value = null;
             if (lookup.isFound()) {
-                try { value = decode(lookup.value(), storageKey); }
+                try { value = decode(encoded, storageKey); }
                 catch (IllegalArgumentException corrupt) {
                     corruptEntries.increment();
                     database.delete(storageKey);
@@ -209,11 +210,9 @@ public final class TrainingCache implements AutoCloseable {
             if (value == null) {
                 statuses.add(BatchValueResult.ValueStatus.MISS);
                 values.add(null);
-            } else if (isSegmentValue(lookup.value())) {
-                statuses.add(BatchValueResult.ValueStatus.HIT_SEGMENT);
-                values.add(null);
             } else {
-                statuses.add(BatchValueResult.ValueStatus.HIT_INLINE);
+                statuses.add(isSegmentValue(encoded) ? BatchValueResult.ValueStatus.HIT_SEGMENT
+                        : BatchValueResult.ValueStatus.HIT_INLINE);
                 values.add(value);
                 totalBytes = Math.addExact(totalBytes, value.length);
             }
@@ -281,45 +280,54 @@ public final class TrainingCache implements AutoCloseable {
 
     public void putMany(Iterable<CacheEntry> values) {
         long started = System.nanoTime();
+        long lockStarted = TrainingCacheRequestTrace.start();
         synchronized (entries) {
+            TrainingCacheRequestTrace.end("publicationLockWait", lockStarted);
             // Serialize publication, including segment creation, and validate the
             // entire batch before modifying files. A derived-artifact key is immutable.
             java.util.LinkedHashMap<CacheKey, byte[]> unique = new java.util.LinkedHashMap<>();
             for (CacheEntry entry : values) {
-                byte[] previous = unique.putIfAbsent(entry.key(), entry.value());
-                if (previous != null && !Arrays.equals(previous, entry.value()))
+                byte[] ownedValue = entry.value();
+                byte[] previous = unique.putIfAbsent(entry.key(), ownedValue);
+                if (previous != null && !Arrays.equals(previous, ownedValue))
                     throw new IllegalArgumentException("conflicting values for an immutable cache key");
             }
-            java.util.ArrayList<CacheEntry> pending = new java.util.ArrayList<>();
+            // Each array was copied by CacheEntry.value() above and is owned by
+            // this call. Retain it internally instead of cloning every time its
+            // length or encoding is needed.
+            java.util.ArrayList<Map.Entry<CacheKey, byte[]>> pending = new java.util.ArrayList<>();
             for (var entry : unique.entrySet()) {
                 byte[] storageKey = entry.getKey().storageKey();
-                LookupResult existing = database.get(storageKey);
+                LookupResult existing = traceLookup(storageKey);
                 if (existing.isFound()) {
                     if (!Arrays.equals(decode(existing.value(), storageKey), entry.getValue()))
                         throw new IllegalArgumentException("cannot overwrite an immutable cache key");
-                } else pending.add(new CacheEntry(entry.getKey(), entry.getValue()));
+                } else pending.add(entry);
             }
             if (pending.isEmpty()) return;
             TrainingCacheFaultHooks.reach("before-data-write");
             java.util.ArrayList<Integer> sizes = new java.util.ArrayList<>();
             try (WriteBatch batch = new WriteBatch()) {
-                for (CacheEntry entry : pending) {
-                    byte[] encoded = encode(entry.value(), entry.key().storageKey());
-                    batch.put(entry.key().storageKey(), encoded);
-                    sizes.add(encoded.length + (storagePolicy.usesSegment(entry.value().length) ? entry.value().length : 0));
+                for (var entry : pending) {
+                    byte[] encoded = encode(entry.getValue(), entry.getKey().storageKey());
+                    batch.put(entry.getKey().storageKey(), encoded);
+                    sizes.add(encoded.length + (storagePolicy.usesSegment(entry.getValue().length) ? entry.getValue().length : 0));
                 }
                 TrainingCacheFaultHooks.reach("before-index-commit");
-                database.write(batch, new WriteOptions(
-                        durability == TrainingCacheDurability.DURABLE ? DurabilityMode.SYNC : DurabilityMode.GROUP_SYNC,
-                        Duration.ofSeconds(30), false));
+                TrainingCacheRequestTrace.measure("databaseWriteAndSync", () -> {
+                    database.write(batch, new WriteOptions(
+                            durability == TrainingCacheDurability.DURABLE ? DurabilityMode.SYNC : DurabilityMode.GROUP_SYNC,
+                            Duration.ofSeconds(30), false));
+                    return null;
+                });
                 TrainingCacheFaultHooks.reach("after-index-commit-before-ack");
             }
             for (int index = 0; index < pending.size(); index++) {
-                CacheEntry entry = pending.get(index);
+                var entry = pending.get(index);
                 int storedBytes = sizes.get(index);
-                entries.put(keyString(entry.key().storageKey()), storedBytes);
+                entries.put(keyString(entry.getKey().storageKey()), storedBytes);
                 diskBytes += storedBytes;
-                bytesWritten.add(entry.value().length);
+                bytesWritten.add(entry.getValue().length);
             }
             evictIfNeeded();
             putLatency.record(System.nanoTime() - started);
@@ -362,7 +370,7 @@ public final class TrainingCache implements AutoCloseable {
 
     /** Metadata-only presence query; payload integrity is still checked on retrieval. */
     public boolean containsKey(CacheKey key) {
-        return database.get(Objects.requireNonNull(key, "key").storageKey()).isFound();
+        return traceLookup(Objects.requireNonNull(key, "key").storageKey()).isFound();
     }
 
     private void loadIndex() {
@@ -435,7 +443,15 @@ public final class TrainingCache implements AutoCloseable {
         return output.array();
     }
 
+    private LookupResult traceLookup(byte[] storageKey) {
+        return TrainingCacheRequestTrace.measure("indexLookup", () -> database.get(storageKey));
+    }
+
     private byte[] decode(byte[] encoded, byte[] storageKey) {
+        return TrainingCacheRequestTrace.measure("valueDecodeAndValidate", () -> decodeValue(encoded, storageKey));
+    }
+
+    private byte[] decodeValue(byte[] encoded, byte[] storageKey) {
         if (encoded.length < HEADER_BYTES + 4) throw new IllegalArgumentException("truncated cache entry");
         ByteBuffer input = ByteBuffer.wrap(encoded).order(ByteOrder.BIG_ENDIAN);
         int magic = input.getInt();
@@ -505,9 +521,7 @@ public final class TrainingCache implements AutoCloseable {
 
     private static String segmentName(byte[] storageKey) {
         byte[] digest = TransformationFingerprint.sha256(storageKey);
-        StringBuilder name = new StringBuilder(68);
-        for (byte value : digest) name.append(String.format("%02x", value));
-        return name.append(".seg").toString();
+        return java.util.HexFormat.of().formatHex(digest) + ".seg";
     }
 
     @Override public void close() { prefetchExecutor.shutdownNow(); database.close(); }

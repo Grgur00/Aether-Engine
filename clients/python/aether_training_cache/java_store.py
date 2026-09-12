@@ -70,11 +70,14 @@ class JavaArtifactStore:
         self.client.requests_sent = 0
         self.client.operation_counts = {}
 
-    def operation_metrics(self):
+    def operation_observations(self):
+        return {key: list(values) for key, values in self._metrics.items()}
+
+    def operation_metrics(self, observations=None):
         return {key: {"count": len(values), "mean": sum(values) / len(values),
                       "p95": sorted(values)[min(len(values)-1, int(len(values)*.95))],
                       "max": max(values), "unit": "ms"}
-                for key, values in self._metrics.items()}
+                for key, values in (self._metrics if observations is None else observations).items() if values}
 
     def close(self):
         self.client.close()

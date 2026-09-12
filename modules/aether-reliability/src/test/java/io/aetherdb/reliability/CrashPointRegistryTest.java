@@ -38,8 +38,10 @@ final class CrashPointRegistryTest {
 
     @Test
     void rejectsInvalidIds() {
-        assertThatThrownBy(() -> CrashPointRegistry.hit("wal"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("invalid");
+        for (String id : new String[] {null, "", "wal", "Wal.write", "wal.", ".wal", "wal..write", "wal.write\n", "wal.wr-ite"}) {
+            assertThatThrownBy(() -> CrashPointRegistry.hit(id))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("invalid");
+        }
     }
 }

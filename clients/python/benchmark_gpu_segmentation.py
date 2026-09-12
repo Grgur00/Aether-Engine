@@ -342,7 +342,7 @@ def run_training_once(args, torch, np, device, run_index):
             "protocol": protocol,
             "cacheDynamics": dynamics,
             "mmapDynamics": context.mmap_dynamics(),
-            "aetherOperationMetrics": context.store.operation_metrics(),
+            "aetherOperationMetrics": context.aether_operation_metrics(),
             "comparisons": compare_backends(results),
             "trainingBreakEvenEpoch": training_break_even_epoch(results),
             "admissionModel": admission_model(results),
@@ -987,8 +987,9 @@ def run_backend(torch, model, optimizer, loss_function, device, backend, context
     training_start = time.perf_counter()
     epoch_start = training_start
     training_ms = None
+    prepared_iterator = prepared_batches(context, backend, scheduled_batches(context.args, measured_steps))
     try:
-        for step_index, scheduled in enumerate(prepared_batches(context, backend, scheduled_batches(context.args, measured_steps))):
+        for step_index, scheduled in enumerate(prepared_iterator):
             batch_indices, epoch, prepared, prefetch_wait_ms = scheduled
             if current_epoch is None:
                 current_epoch = epoch
@@ -1017,10 +1018,13 @@ def run_backend(torch, model, optimizer, loss_function, device, backend, context
         synchronize_device(torch, device)
         training_ms = (time.perf_counter() - training_start) * 1000
     finally:
-        process_end = process_metrics_snapshot()
-        parent_usage = delta(parent_before, snapshot())
-        java_usage = delta(java_before, snapshot(java_pid)) if java_before else None
-        gpu_samples = sampler.stop()
+        try:
+            prepared_iterator.close()
+        finally:
+            process_end = process_metrics_snapshot()
+            parent_usage = delta(parent_before, snapshot())
+            java_usage = delta(java_before, snapshot(java_pid)) if java_before else None
+            gpu_samples = sampler.stop()
     segmentation_metrics = segmentation_sanity_metrics(torch, model, loss_function, device, context)
     report = summarize_backend(
         backend,
@@ -1032,6 +1036,7 @@ def run_backend(torch, model, optimizer, loss_function, device, backend, context
         process_metrics_delta(process_start, process_end, training_ms),
         cold_start_gate,
         segmentation_metrics,
+        device=device,
     )
     state_digest = hashlib.sha256()
     for name, value in sorted(model.state_dict().items()):
@@ -1104,30 +1109,46 @@ def prepared_batches(context, backend, schedule):
             yield batch_indices, epoch, None, 0.0
         return
     work_queue = queue.Queue(maxsize=context.args.prefetch_batches)
+    cancelled = threading.Event()
+
+    def enqueue(value):
+        while not cancelled.is_set():
+            try:
+                work_queue.put(value, timeout=.1)
+                return
+            except queue.Full:
+                continue
 
     def producer():
         for batch_indices, epoch in schedule:
+            if cancelled.is_set():
+                return
             started = time.perf_counter()
             try:
                 batch, counters = context.batch(backend, batch_indices)
-                work_queue.put((batch_indices, epoch, (batch, counters, elapsed_ms(started)), None))
+                enqueue((batch_indices, epoch, (batch, counters, elapsed_ms(started)), None))
             except BaseException as error:
-                work_queue.put((batch_indices, epoch, None, error))
+                enqueue((batch_indices, epoch, None, error))
                 return
 
     thread = threading.Thread(target=producer, name=f"{backend.lower()}-prefetch", daemon=True)
     thread.start()
-    while thread.is_alive() or not work_queue.empty():
-        wait_started = time.perf_counter()
-        try:
-            batch_indices, epoch, prepared, error = work_queue.get(timeout=0.1)
-        except queue.Empty:
-            continue
-        wait_ms = elapsed_ms(wait_started)
-        if error is not None:
-            raise error
-        yield batch_indices, epoch, prepared, wait_ms
-    thread.join()
+    try:
+        while thread.is_alive() or not work_queue.empty():
+            wait_started = time.perf_counter()
+            try:
+                batch_indices, epoch, prepared, error = work_queue.get(timeout=0.1)
+            except queue.Empty:
+                continue
+            wait_ms = elapsed_ms(wait_started)
+            if error is not None:
+                raise error
+            yield batch_indices, epoch, prepared, wait_ms
+    finally:
+        cancelled.set()
+        thread.join(timeout=35)
+        if thread.is_alive():
+            raise RuntimeError("batch producer did not stop after cancellation")
 
 
 def train_step(torch, model, optimizer, loss_function, device, backend, context, batch_indices, step, epoch, *, prepared=None, prefetch_wait_ms=0.0):
@@ -1462,7 +1483,7 @@ def proc_self_io():
         return None
 
 
-def summarize_backend(backend, steps, epoch_walls, training_ms, context, gpu_samples, process_metrics, cold_start_gate=None, segmentation_metrics=None):
+def summarize_backend(backend, steps, epoch_walls, training_ms, context, gpu_samples, process_metrics, cold_start_gate=None, segmentation_metrics=None, *, device=None):
     batch_size = context.args.batch_size
     resize = context.args.resize
     total_samples = sum(step["batchSize"] for step in steps)
@@ -1497,7 +1518,9 @@ def summarize_backend(backend, steps, epoch_walls, training_ms, context, gpu_sam
             "batchPrepareMs", "sourceLoadMs", "preprocessMs", "aetherLookupMs", "aetherPublishMs",
             "mmapReadMs", "tensorBuildMs", "artifactDecodeMs", "randomAugmentationMs", "prefetchWaitMs", "hostToDeviceMs", "forwardMs", "lossMs", "backwardMs", "optimizerMs",
         ]},
-        "transferLabel": "host-to-device CPU->PyTorch cuda device",
+        "transferLabel": ("CPU tensor preparation; no accelerator transfer" if device is not None and device.type == "cpu"
+                          else f"host-to-device CPU->PyTorch {device}" if device is not None
+                          else "device unspecified"),
         "tensorLayout": summarize_tensor_layout(steps),
         "coldStart": cold_start_gate,
         "segmentationMetrics": segmentation_metrics,
@@ -2049,11 +2072,26 @@ class BackendContext:
         protocol["bytesWritten"] = protocol["bytesPublished"]
         protocol["walForceCount"] = None if self.args.aether_engine == "java" else 0
         if self.args.aether_engine == "java":
-            protocol["transport"] = self.store.client.protocol_metrics()
+            transport = self.store.client.protocol_metrics()
+            workers = getattr(self, "worker_aether_transport", {})
+            for key in ("connectionsOpened", "requestsSent"):
+                transport[key] += workers.get(key, 0)
+            for key, count in workers.get("operationCounts", {}).items():
+                transport["operationCounts"][key] = transport["operationCounts"].get(key, 0) + count
+            protocol["transport"] = transport
+            protocol["transportScope"] = "actual parent and loader-worker client requests during measurement"
         protocol["prepopulatedEntries"] = getattr(self, "prepopulated_aether_entries", 0)
         protocol["targetInitialCacheHitRatio"] = getattr(self, "target_initial_cache_hit_ratio", 0.0)
         protocol["initialPresentIndices"] = sorted(getattr(self, "initial_present_indices", set()))
         return protocol
+
+    def aether_operation_metrics(self):
+        if self.args.aether_engine != "java":
+            return self.store.operation_metrics()
+        observations = self.store.operation_observations()
+        for key, values in getattr(self, "worker_aether_observations", {}).items():
+            observations.setdefault(key, []).extend(values)
+        return self.store.operation_metrics(observations)
 
     def mmap_dynamics(self):
         expected = expected_cache_counts(self.args, self.initial_mmap_indices)

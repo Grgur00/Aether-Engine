@@ -28,8 +28,11 @@ final class TrainingCacheSegmentStore {
             try (FileChannel channel = FileChannel.open(temporary,
                     java.nio.file.StandardOpenOption.CREATE_NEW, java.nio.file.StandardOpenOption.WRITE)) {
                 java.nio.ByteBuffer buffer = java.nio.ByteBuffer.wrap(payload);
-                while (buffer.hasRemaining()) channel.write(buffer);
-                if (durable) channel.force(true);
+                TrainingCacheRequestTrace.measureIo("segmentWrite", () -> {
+                    while (buffer.hasRemaining()) channel.write(buffer);
+                    return null;
+                });
+                if (durable) TrainingCacheRequestTrace.measureIo("segmentFileSync", () -> { channel.force(true); return null; });
             }
             TrainingCacheFaultHooks.reach("after-data-fsync");
             try {
@@ -40,7 +43,9 @@ final class TrainingCacheSegmentStore {
             // Directory fsync is supported on the evaluated Linux filesystem.
             // Windows only gets the process-crash contract; report that limit.
             if (durable && !System.getProperty("os.name").toLowerCase().contains("win")) {
-                try (FileChannel channel = FileChannel.open(directory)) { channel.force(true); }
+                try (FileChannel channel = FileChannel.open(directory)) {
+                    TrainingCacheRequestTrace.measureIo("segmentDirectorySync", () -> { channel.force(true); return null; });
+                }
             }
         } catch (IOException failure) {
             try {
@@ -53,7 +58,7 @@ final class TrainingCacheSegmentStore {
 
     byte[] read(String name) {
         try {
-            return Files.readAllBytes(directory.resolve(name));
+            return TrainingCacheRequestTrace.measureIo("segmentRead", () -> Files.readAllBytes(directory.resolve(name)));
         } catch (IOException failure) {
             throw new IllegalArgumentException("cache segment unavailable", failure);
         }

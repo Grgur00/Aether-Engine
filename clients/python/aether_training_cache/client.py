@@ -4,6 +4,9 @@ import ssl
 import struct
 import mmap
 import threading
+import time
+import uuid
+import json
 from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Callable, Iterable
@@ -45,7 +48,10 @@ class SegmentReference:
 
 class AetherTrainingCache:
     def __init__(self, host: str = "127.0.0.1", port: int = 9484, timeout: float = 30.0,
-                 ssl_context: ssl.SSLContext | None = None, unix_socket: str | None = None):
+                 ssl_context: ssl.SSLContext | None = None, unix_socket: str | None = None,
+                 trace_sink: Callable[[dict], None] | None = None, server_trace: bool = False):
+        if server_trace and trace_sink is None:
+            raise ValueError("server tracing requires a trace sink")
         self._address = (host, port)
         self._timeout = timeout
         self._ssl_context = ssl_context
@@ -55,6 +61,9 @@ class AetherTrainingCache:
         self.connections_opened = 0
         self.requests_sent = 0
         self.operation_counts = {}
+        self._trace_sink = trace_sink
+        self._server_trace = server_trace
+        self.trace_errors = 0
 
     def __enter__(self) -> "AetherTrainingCache":
         return self
@@ -74,26 +83,84 @@ class AetherTrainingCache:
         self.connections_opened += 1
 
     def _round_trip(self, body):
+        if self._trace_sink is None:
+            return self._exchange(body)
+        trace_id = uuid.uuid4().hex
+        events = []
+        def mark(stage, **fields):
+            events.append({"stage": stage, "monotonicNs": time.perf_counter_ns(), **fields})
+        mark("start")
+        outcome = "error"
+        error_type = None
+        try:
+            result = self._exchange(body, mark, trace_id if self._server_trace else None)
+            outcome = "complete"
+            return result
+        except Exception as error:
+            error_type = type(error).__name__
+            raise
+        finally:
+            mark("complete")
+            record = {"schema": "aether-client-request-trace-v1", "traceId": trace_id,
+                      "operation": body[1] if len(body) > 1 else -1,
+                      "requestFrameBytes": len(body) + 4 + (16 if self._server_trace else 0), "outcome": outcome, "errorType": error_type,
+                      "durationNs": events[-1]["monotonicNs"] - events[0]["monotonicNs"],
+                      "events": events, "serverCorrelated": any(e["stage"] == "server_trace" for e in events),
+                      "scope": "client round trip including lock and retries; excludes body construction, result decoding, and trace sink"}
+            try:
+                self._trace_sink(record)
+            except Exception:
+                # A failed diagnostic sink must never trigger a write retry.
+                self.trace_errors += 1
+
+    def _exchange(self, body, mark=None, trace_id=None):
         with self._lock:
+            if mark: mark("lock_acquired")
             for attempt in range(2):
+                if mark: mark("attempt_start", attempt=attempt)
                 try:
                     if self._connection is None:
                         self._connect()
-                    self._connection.sendall(struct.pack(">I", len(body)) + body)
+                    if mark: mark("connection_ready")
+                    wire_body = bytes([2, body[1]]) + bytes.fromhex(trace_id) + body[2:] if trace_id else body
+                    frame = struct.pack(">I", len(wire_body)) + wire_body
+                    if mark: mark("frame_ready")
+                    self._connection.sendall(frame)
+                    if mark: mark("send_complete")
                     self.requests_sent += 1
                     operation = body[1] if len(body) > 1 else -1
                     self.operation_counts[operation] = self.operation_counts.get(operation, 0) + 1
                     header = _read_exact(self._connection, 9)
+                    if mark: mark("header_received", responseHeaderBytes=len(header))
                     frame_size, status, value_size = struct.unpack(">IBI", header)
                     if frame_size != 1 + 4 + value_size:
                         raise IOError("invalid daemon response")
+                    if mark: mark("header_validated", status=status, responsePayloadBytes=value_size)
                     response = _read_exact(self._connection, value_size)
+                    if mark: mark("payload_received")
+                    if trace_id:
+                        if len(response) < 4:
+                            raise ValueError("missing server trace envelope")
+                        metadata_size = struct.unpack(">I", response[:4])[0]
+                        if metadata_size > 65536 or metadata_size > len(response) - 4:
+                            raise ValueError("invalid server trace envelope size")
+                        server = json.loads(response[4:4 + metadata_size])
+                        if server.get("traceId") != trace_id:
+                            raise ValueError("server trace ID mismatch")
+                        duration = server.get("serverDurationNs")
+                        stages = server.get("stagesNs")
+                        if (type(duration) is not int or duration < 0 or not isinstance(stages, dict)
+                                or any(type(value) is not int or value < 0 or value > duration for value in stages.values())):
+                            raise ValueError("invalid server trace durations")
+                        if mark: mark("server_trace", server=server)
+                        response = response[4 + metadata_size:]
                     if status == 0:
                         return None
                     if status != 1:
                         raise IOError("training cache daemon rejected request")
                     return response
-                except (ConnectionError, EOFError, OSError):
+                except (ConnectionError, EOFError, OSError) as error:
+                    if mark: mark("attempt_failed", errorType=type(error).__name__)
                     self._close_connection()
                     if attempt == 1:
                         raise
