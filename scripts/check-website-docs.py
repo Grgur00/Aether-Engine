@@ -83,7 +83,7 @@ def public_api_files() -> list[Path]:
 
 def main() -> int:
     errors: list[str] = []
-    pages = [WEBSITE / "index.html", DOCS]
+    pages = sorted(WEBSITE.rglob("*.html"))
     for page in pages:
         errors.extend(audit_page(page))
 

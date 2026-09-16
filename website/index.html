@@ -32,6 +32,7 @@
 
         <nav id="primary-nav" class="primary-nav" aria-label="Primary navigation">
           <a href="#architecture">Architecture</a>
+          <a href="ml/">Machine learning</a>
           <a href="docs/">Documentation</a>
           <a href="#operations">Operations</a>
           <a href="#status">Status</a>
@@ -358,6 +359,18 @@
               </ul>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section class="section-shell architecture section-rule" id="machine-learning">
+        <div class="section-heading">
+          <div><span class="section-index">06 / Machine learning</span><h2>Prepare once.<br>Train again.</h2></div>
+          <p>Reuse deterministic tokenization and image preprocessing across epochs. Aether’s local Java cache serves your Python training pipeline, helping reduce input waiting when preprocessing is the bottleneck.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature"><span class="feature-number">01</span><h3>Run a real example</h3><p>Start the Java daemon and see cache misses become hits with a complete Python image example. No GPU required.</p><a class="text-link" href="ml/">Read the ML guide →</a></article>
+          <article class="feature"><span class="feature-number">02</span><h3>Keep your training loop</h3><p>Connect a PyTorch Dataset, keep random augmentation after cache retrieval, and reuse unchanged samples as your dataset evolves.</p></article>
+          <article class="feature"><span class="feature-number">03</span><h3>Measure GPU waiting</h3><p>Compare full training throughput against raw preprocessing, prepared mmap, and RAM-ready inputs. Benefits depend on the workload.</p></article>
         </div>
       </section>
 

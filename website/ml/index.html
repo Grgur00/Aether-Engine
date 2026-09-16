@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f2f0e9">
+  <meta name="description" content="Use Aether with Python and PyTorch to reuse deterministic ML preprocessing. Start the Java cache, run a complete example, and measure training throughput.">
+  <title>Aether for machine learning — A practical guide</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/docs.js" defer></script>
+</head>
+<body class="docs-body">
+  <a class="skip-link" href="#docs-content">Skip to guide</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../" aria-label="Aether Engine home"><svg class="brand-mark" viewBox="0 0 38 38" aria-hidden="true"><path d="M4 29 16.7 5h4.6L34 29h-6.7l-2.2-4.6H12.9L10.7 29H4Zm11.5-10h7L19 11.6 15.5 19Z"/></svg><span>Aether Engine</span></a>
+      <span class="docs-label">ML guide <b>PYTHON + JAVA</b></span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guide</button>
+      <nav class="docs-top-nav" aria-label="Documentation links"><a href="../docs/">Java API</a><a href="https://github.com/Grgur00/Aether-Engine">GitHub ↗</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Guide navigation">
+      <div class="docs-search"><label for="docs-search">Search guide sections</label><input id="docs-search" type="search" placeholder="Find a section…"><kbd>/</kbd></div>
+      <nav aria-label="ML guide sections">
+        <div class="docs-nav-group"><strong>Get started</strong><a href="#overview">What Aether does</a><a href="#setup">Install &amp; start</a><a href="#first-run">Your first cache hit</a></div>
+        <div class="docs-nav-group"><strong>Build your pipeline</strong><a href="#keys">Keys &amp; invalidation</a><a href="#pytorch">Use with PyTorch</a><a href="#measure">Measure the benefit</a><a href="#operations">Operate the cache</a><a href="#troubleshooting">Troubleshooting</a></div>
+      </nav>
+      <p class="docs-nav-empty" hidden>No matching sections.</p>
+      <div class="docs-sidebar-footer"><a href="ml_cache_example.py" download>Download runnable example ↓</a><a href="../docs/">Java API documentation ↗</a></div>
+    </aside>
+    <main id="docs-content" class="docs-content">
+      <section id="overview" class="docs-section docs-intro" data-doc-title="overview GPU computation caching preprocessing machine learning">
+        <span class="docs-kicker">Aether for machine learning</span>
+        <h1>Prepare once.<br>Train again.</h1>
+        <p class="docs-lede">Reuse deterministic preprocessing across epochs and experiments. Keep your training loop in Python, with derived artifacts stored by the local Java engine.</p>
+        <p>Aether can reduce time spent waiting for input. It does not change the model’s GPU computation. The benefit depends on whether decoding, tokenization or preprocessing is limiting your training throughput.</p>
+        <div class="concept-flow" aria-label="Cache lookup workflow"><div><b>Source + transform</b><span>Content identity</span></div><i aria-hidden="true">→</i><div><b>Aether lookup</b><span>Hit: reuse · miss: compute</span></div><i aria-hidden="true">→</i><div><b>CPU batch</b><span>Augment &amp; collate</span></div><i aria-hidden="true">→</i><div><b>GPU training</b><span>Your existing model</span></div></div>
+        <p>Use it for reusable token IDs, resized images, features, or other reproducible intermediate arrays. Keep random crops, masking and other stochastic augmentation after the cache unless their complete random state is part of the key.</p>
+        <div class="docs-notice"><strong>Start small</strong><p>The example below needs no GPU or dataset download. It exercises the real Java cache using four generated images. It demonstrates reuse, not a speedup claim. The training cache is experimental; retain your authoritative raw data.</p></div>
+      </section>
+
+      <section id="setup" class="docs-section" data-doc-title="setup install Windows PowerShell Linux macOS Java Python daemon port">
+        <header><span class="docs-index">01</span><div><p>Two terminals</p><h2>Start the cache.</h2></div></header>
+        <p>You need Git, JDK 21 and Python 3.10 or newer. The Gradle wrapper builds the Java daemon; the Python client is installed from the same source checkout. Run the commands below from the repository root. Installing PyTorch is only necessary for the later training integration.</p>
+        <div class="code-panel"><div class="code-toolbar"><span>Clone · any terminal</span><button class="copy-button" type="button">Copy</button></div><pre><code>git clone https://github.com/Grgur00/Aether-Engine.git
+cd Aether-Engine</code></pre></div>
+        <h3>Windows PowerShell</h3>
+        <div class="code-panel"><div class="code-toolbar"><span>Terminal 1 · install and start Java</span><button class="copy-button" type="button">Copy</button></div><pre><code>py -3 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e clients/python
+.\gradlew.bat :modules:aether-training-cache:trainingCacheDaemon -PcacheDir=build/ml-cache -Pport=9484 --console=plain</code></pre></div>
+        <h3>Linux / macOS Bash</h3>
+        <div class="code-panel"><div class="code-toolbar"><span>Terminal 1 · install and start Java</span><button class="copy-button" type="button">Copy</button></div><pre><code>python3 -m venv .venv
+.venv/bin/python -m pip install -e clients/python
+./gradlew :modules:aether-training-cache:trainingCacheDaemon -PcacheDir=build/ml-cache -Pport=9484 --console=plain</code></pre></div>
+        <p>Leave this terminal running. Once the daemon prints its listening port, Python can connect at <code>127.0.0.1:9484</code>. The directory belongs to the Java daemon; do not start another daemon against the same directory.</p>
+        <div class="docs-notice"><strong>Choose your shell</strong><p>PowerShell commands use Windows paths. Bash commands use Unix paths. All commands here are single lines; no shell-specific continuation characters are needed. Kaggle’s <code>/kaggle/...</code> paths exist only inside Kaggle.</p></div>
+      </section>
+
+      <section id="first-run" class="docs-section" data-doc-title="example first run hits misses numpy image download verify">
+        <header><span class="docs-index">02</span><div><p>Check reuse before training</p><h2>Your first cache hit.</h2></div></header>
+        <p>The <a href="ml_cache_example.py" download>complete example</a> is included in your checkout at <code>website/ml/ml_cache_example.py</code>. It creates four PNGs, resizes them to 64 × 64 RGB arrays, and makes two passes through Aether.</p>
+        <div class="code-panel"><div class="code-toolbar"><span>Terminal 2 · Windows PowerShell</span><button class="copy-button" type="button">Copy</button></div><pre><code>.\.venv\Scripts\python.exe website/ml/ml_cache_example.py</code></pre></div>
+        <div class="code-panel"><div class="code-toolbar"><span>Terminal 2 · Linux / macOS Bash</span><button class="copy-button" type="button">Copy</button></div><pre><code>.venv/bin/python website/ml/ml_cache_example.py</code></pre></div>
+        <p>With a fresh cache, expect:</p>
+        <div class="code-panel"><div class="code-toolbar"><span>Expected output · fresh cache</span></div><pre><code>epoch 1: hits=0, misses=4, shape=(3, 64, 64)
+epoch 2: hits=4, misses=0, shape=(3, 64, 64)</code></pre></div>
+        <p>Run it again: both passes should hit. Use <code>--image-dir path/to/images</code> to try your own PNG or JPEG directory, or <code>--port 9485</code> to match a different daemon port. For acknowledged writes to survive stopping and restarting the daemon, use the explicit durable launch commands below.</p>
+        <p>The core operation is explicit: a miss computes and stores bytes; a hit reuses those bytes. Aether does not call your preprocessing function automatically.</p>
+        <div class="code-panel"><div class="code-toolbar"><span>Read-through pattern · Python</span><button class="copy-button" type="button">Copy</button></div><pre><code>from aether_training_cache import (
+    AetherTrainingCache, CacheKey, TransformationFingerprint,
+)
+
+transform = TransformationFingerprint.from_mapping({
+    "tokenizer": "example-tokenizer-v1",
+    "max_length": 512,
+    "implementation": "my-preprocessing-v1",
+})
+# source_sha256 must describe the current immutable source content.
+key = CacheKey("my-training-data", source_sha256, transform)
+
+with AetherTrainingCache(port=9484) as cache:
+    payload = cache.get(key)
+    if payload is None:
+        payload = preprocess_and_encode(source_bytes)  # your function
+        cache.put(key, payload)
+    sample = decode(payload)  # your function</code></pre></div>
+        <p>This pattern is illustrative; use the downloadable example for a complete program. It serializes arrays with NumPy, disables pickle loading, and returns owned, writable arrays for subsequent tensor operations.</p>
+      </section>
+
+      <section id="keys" class="docs-section" data-doc-title="keys invalidation content hash fingerprint V1 V2 dataset version source changed">
+        <header><span class="docs-index">03</span><div><p>Correct reuse</p><h2>Make changes visible.</h2></div></header>
+        <p>A cache key combines a namespace, a sample identifier, and a transformation fingerprint. In this guide, the sample identifier is a SHA-256 digest of the source bytes. The fingerprint describes the deterministic preprocessing and its output format.</p>
+        <div class="docs-table-wrap"><table><thead><tr><th>What changes?</th><th>What should happen?</th></tr></thead><tbody>
+          <tr><td>Sample order or epoch</td><td>Keep the same key. Reuse the artifact.</td></tr>
+          <tr><td>Image or text content</td><td>Recompute the source digest. The changed sample gets a new key.</td></tr>
+          <tr><td>Resize, normalization or tokenizer</td><td>Change the fingerprint, including any model/tokenizer revision and vocabulary.</td></tr>
+          <tr><td>Code or encoding changes</td><td>Bump the implementation/output version. Include library versions when they can change results.</td></tr>
+          <tr><td>Dataset V1 → V2</td><td>Keep keys stable for unchanged samples. Only new or changed content needs new artifacts.</td></tr>
+        </tbody></table></div>
+        <p>Hash and validate source files once when building an immutable dataset manifest. The example’s <code>index_images</code> does this outside the epoch loop. Do not edit those files while that index is in use; rebuild it after changes. A cache hit does not re-read the original source to detect an edit.</p>
+        <p>For image/mask pairs, include both hashes in the sample identity. For text, include everything that affects token IDs. Avoid adding a whole-dataset version to every key if you want unchanged samples to survive a dataset update.</p>
+      </section>
+
+      <section id="pytorch" class="docs-section" data-doc-title="PyTorch Dataset DataLoader GPU tensor CUDA workers augmentation training">
+        <header><span class="docs-index">04</span><div><p>Keep your model</p><h2>Connect to PyTorch.</h2></div></header>
+        <p>Install the PyTorch build appropriate for your hardware using <a href="https://pytorch.org/get-started/locally/">PyTorch’s installation instructions</a>. Then use the example’s functions in a Dataset. This starting point uses one loader process; no GPU is required just to iterate it.</p>
+        <div class="code-panel"><div class="code-toolbar"><span>Dataset integration · run from repository root</span><button class="copy-button" type="button">Copy</button></div><pre><code>import sys
+sys.path.insert(0, "website/ml")
+
+import torch
+from torch.utils.data import Dataset, DataLoader
+from aether_training_cache import AetherTrainingCache
+from ml_cache_example import index_images, cached_image
+
+class CachedImages(Dataset):
+    def __init__(self, image_dir):
+        self.samples = index_images(image_dir)
+        self.cache = AetherTrainingCache(port=9484)
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, index):
+        array, _ = cached_image(self.samples[index], self.cache)
+        image = torch.from_numpy(array)
+        # Apply random augmentation here, after cache retrieval.
+        return image
+
+dataset = CachedImages("build/ml-guide-images")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+loader = DataLoader(dataset, batch_size=16, shuffle=True,
+                    num_workers=0, pin_memory=device.type == "cuda")
+try:
+    for epoch in range(2):
+        for images in loader:
+            images = images.to(device, non_blocking=device.type == "cuda")
+            # Feed images and your labels into your existing training step.
+            print(epoch, images.shape, images.device)
+finally:
+    dataset.cache.close()</code></pre></div>
+        <p>The example returns only images. Join labels or masks from your dataset before using it for supervised training. If you enable worker processes, create a separate client lazily inside each worker and use the usual <code>if __name__ == "__main__"</code> guard. Do not share an already-connected client across a fork or pickle it into spawned workers.</p>
+        <p>For higher throughput, investigate <code>get_many</code>, <code>get_many_values</code> and <code>put_many</code> to amortize request overhead. Measure your batch sizes. Advanced segment mapping requires local shared access to segment files and careful view lifetimes; the byte-based example avoids that complexity. CPU mapping does not remove the copy to GPU memory.</p>
+      </section>
+
+      <section id="measure" class="docs-section" data-doc-title="measure benchmark performance GPU utilization throughput raw mmap RAM cold warm">
+        <header><span class="docs-index">05</span><div><p>Measure the complete loop</p><h2>Does the GPU wait less?</h2></div></header>
+        <p>Aether is useful when reusing preprocessing saves more time than lookup, serialization, and cache writes cost. If GPU compute already dominates, input caching may barely change total training time. A low lookup latency alone is not evidence of faster training.</p>
+        <div class="docs-table-wrap"><table><thead><tr><th>Compare against</th><th>Question answered</th></tr></thead><tbody>
+          <tr><td>Raw recomputation</td><td>Does reuse improve training samples per second?</td></tr>
+          <tr><td>Pre-materialized mmap</td><td>What overhead does on-demand admission and retrieval add versus prepared data?</td></tr>
+          <tr><td>RAM-ready inputs</td><td>How close is training to an input-ready reference? GPU compute and run noise can hide differences.</td></tr>
+        </tbody></table></div>
+        <ul class="docs-bullets"><li>Keep the model, batches, precision, sample order and augmentation policy comparable.</li><li>Measure first-pass misses, warm epochs, and a dataset update separately.</li><li>Report total training wall time, samples/second, input waiting, GPU utilization, and cache hit/miss counts.</li><li>Report preparation cost, memory and storage use separately; say clearly which costs the throughput denominator includes.</li><li>Use repeated paired runs and rotate backend order. Preserve failed runs and correctness checks.</li></ul>
+        <p>The four-image walkthrough is not a benchmark. For the repository’s real training harness, inspect <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/benchmark_gpu_segmentation.py">the GPU segmentation runner</a> and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/run_matrix.py">paired campaign driver</a>. No universal GPU speedup is claimed by this guide.</p>
+      </section>
+
+      <section id="operations" class="docs-section" data-doc-title="operations durability persistence cache directory storage cleanup capacity">
+        <header><span class="docs-index">06</span><div><p>Local ownership</p><h2>Keep the cache reusable.</h2></div></header>
+        <ul class="docs-bullets"><li>Keep the same cache directory across epochs and restarts. Store it on local disk with enough free space for artifacts and temporary storage work.</li><li>Keep the Java daemon running while Python workers use it; the client is not the storage engine.</li><li>The Gradle daemon command uses <code>RECOVERABLE</code> mode, which does not force each acknowledged publication to disk. Stopping a process is not a substitute for an explicit durability mode.</li><li>Keep raw data authoritative. Treat derived artifacts as reproducible cache data, and plan disk usage as content and transform versions accumulate.</li><li>Stop all clients and the daemon before retiring a cache directory. Never modify live storage files by hand.</li></ul>
+        <h3>Durable writes across restarts</h3>
+        <p>Stop the earlier daemon before using these commands. This launches a separate cache at <code>build/ml-cache-durable</code> with a 1 GiB cache byte limit and <code>DURABLE</code> publications. Run the example, stop Java, restart this same command and run the example again: unchanged samples should hit. Allow additional disk space for storage overhead and temporary files.</p>
+        <div class="code-panel"><div class="code-toolbar"><span>Windows PowerShell · explicit durable daemon</span><button class="copy-button" type="button">Copy</button></div><pre><code>.\gradlew.bat :modules:aether-training-cache:paperRuntimeClasspath --console=plain
+java --enable-preview -cp (Get-Content modules/aether-training-cache/build/paper-runtime-classpath.txt -Raw).Trim() io.aetherdb.training.cache.TrainingCacheDaemon build/ml-cache-durable 9484 1073741824 DURABLE</code></pre></div>
+        <div class="code-panel"><div class="code-toolbar"><span>Linux / macOS Bash · explicit durable daemon</span><button class="copy-button" type="button">Copy</button></div><pre><code>./gradlew :modules:aether-training-cache:paperRuntimeClasspath --console=plain
+java --enable-preview -cp "$(cat modules/aether-training-cache/build/paper-runtime-classpath.txt)" io.aetherdb.training.cache.TrainingCacheDaemon build/ml-cache-durable 9484 1073741824 DURABLE</code></pre></div>
+        <div class="docs-notice"><strong>Which Python API?</strong><p>This guide uses <code>AetherTrainingCache</code>, which talks to the Java daemon. The repository also includes a Python <code>AetherMLStore</code> prototype. They are different storage implementations; choose the Java client when evaluating Aether Engine.</p></div>
+      </section>
+
+      <section id="troubleshooting" class="docs-section" data-doc-title="troubleshooting connection refused Java preview import module cache misses PowerShell">
+        <header><span class="docs-index">07</span><div><p>Common fixes</p><h2>When something stops.</h2></div></header>
+        <div class="docs-table-wrap"><table><thead><tr><th>Symptom</th><th>Check</th></tr></thead><tbody>
+          <tr><td>Connection refused</td><td>Wait for the daemon’s listening message. Match its port to the Python client. Keep terminal 1 running.</td></tr>
+          <tr><td>Module not found</td><td>Run the pip install command with the same virtual-environment Python used to run the example.</td></tr>
+          <tr><td>Java version or preview error</td><td>Check <code>java -version</code> and <code>JAVA_HOME</code>. Use JDK 21 and the Gradle task, which supplies preview flags.</td></tr>
+          <tr><td>Unexpected misses after restart</td><td>Check the cache path, source hashes, namespace, transformation fingerprint and library versions.</td></tr>
+          <tr><td>Wrong sample after editing input</td><td>Rebuild the content-hash index. Files must stay immutable for the lifetime of an index.</td></tr>
+          <tr><td>No GPU throughput improvement</td><td>Check whether preprocessing was the bottleneck, whether hits occur, and whether request/decoding overhead offsets saved work.</td></tr>
+          <tr><td>PowerShell rejects a command</td><td>Use the Windows command block. Do not paste Bash backslash continuations or Kaggle paths into PowerShell.</td></tr>
+        </tbody></table></div>
+        <div class="docs-end"><p>Start with a correct hit. Then measure a full epoch.</p><a href="ml_cache_example.py" download>Download the example ↓</a></div>
+      </section>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav id="page-toc"></nav><a href="https://github.com/Grgur00/Aether-Engine/issues">Report a docs issue ↗</a></aside>
+  </div>
+</body>
+</html>
