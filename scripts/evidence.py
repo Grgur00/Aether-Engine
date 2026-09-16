@@ -41,6 +41,8 @@ def validate_block(path):
     if digest(env.get("measurementIdentity")) != env_id or env.get("sourceSha256") != protocol.get("sourceSha256"):
         raise ValueError(f"environment or source provenance mismatch: {path}")
     if protocol.get("confirmatory"):
+        from confirmatory import validate_plan
+        validate_plan(protocol)
         status = env["commands"]["gitStatus"]
         archive = env.get("archiveProvenance", {})
         if not ((status.get("returncode") == 0 and status.get("stdout") == "") or
@@ -58,6 +60,9 @@ def validate_block(path):
     if training.get("correctness", {}).get("allChecksumsEqual") is not True or len(training["runs"]) != 1:
         raise ValueError("a paired block needs one fully validated training run")
     run = training["runs"][0]
+    if protocol.get("confirmatory"):
+        from confirmatory import validate_training
+        validate_training(training)
     if run.get("modelParityPassed") is not True or run.get("engineInfo", {}).get("durability") != "DURABLE":
         raise ValueError("model parity or measured Java durability mode is missing")
     for report_key, block_key in (("cacheDynamics", "aetherDynamics"), ("mmapDynamics", "mmapDynamics")):

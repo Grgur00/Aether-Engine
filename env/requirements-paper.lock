@@ -1,0 +1,2 @@
+# Optional PDF inspection dependency; not part of the measured training environment.
+PyMuPDF==1.28.2

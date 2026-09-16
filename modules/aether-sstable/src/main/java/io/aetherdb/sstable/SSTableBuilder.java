@@ -77,22 +77,45 @@ public final class SSTableBuilder {
      * @throws IOException when exclusive file creation or writing fails
      */
     public TableFileMetadata finish() throws IOException {
+        return finish(null);
+    }
+
+    /** Writes identical table bytes with optional internal stage timings. */
+    public TableFileMetadata finish(SSTableFinishTrace trace) throws IOException {
+        if (trace != null) trace.start(entries.size());
+        boolean completed = false;
+        try {
+            TableFileMetadata result = finishBody(trace);
+            completed = true;
+            return result;
+        } finally {
+            if (trace != null) trace.finish(completed);
+        }
+    }
+
+    private TableFileMetadata finishBody(SSTableFinishTrace trace) throws IOException {
         requireOpen();
         if (entries.isEmpty()) throw new IllegalStateException("normal SSTable cannot be empty");
         state = State.FINISHED;
+        SSTableFinishTrace.enter(trace, "dataPartition");
         List<List<Entry>> partitions = partitionDataBlocks();
+        SSTableFinishTrace.enter(trace, "bufferSetup");
         ByteArrayOutputStream body = new ByteArrayOutputStream();
         body.writeBytes(new byte[SSTableHeaderV1.HEADER_REGION_BYTES]);
         List<BlockDescription> dataBlocks = new ArrayList<>();
         for (List<Entry> partition : partitions) {
+            SSTableFinishTrace.enter(trace, "dataBlockEncode");
             byte[] raw = encodeDataBlock(partition);
             dataBlocks.add(
-                    writeBlock(body, raw, BlockKind.DATA, partition.get(partition.size() - 1).key));
+                    writeBlock(body, raw, BlockKind.DATA, partition.get(partition.size() - 1).key, trace));
         }
 
+        SSTableFinishTrace.enter(trace, "filterKeys");
         List<byte[]> userKeys = distinctUserKeys();
+        SSTableFinishTrace.enter(trace, "filterBuild");
         BlockDescription filter =
-                writeBlock(body, BloomFilterV1.build(userKeys), BlockKind.FILTER, null);
+                writeBlock(body, BloomFilterV1.build(userKeys), BlockKind.FILTER, null, trace);
+        SSTableFinishTrace.enter(trace, "metadataPlan");
         Metrics metrics = metrics(partitions.size());
         byte[] propertiesPlaceholder = properties(metrics, 0);
         int propertiesPhysicalLength = propertiesPlaceholder.length + BlockEnvelope.TRAILER_BYTES;
@@ -103,19 +126,24 @@ public final class SSTableBuilder {
         byte[] prospectiveMetaindex = metaindex(filter.handle, prospectiveProperties);
         long indexOffset =
                 metaindexOffset + prospectiveMetaindex.length + BlockEnvelope.TRAILER_BYTES;
+        SSTableFinishTrace.enter(trace, "indexBuild");
         byte[] rawIndex = index(dataBlocks);
+        SSTableFinishTrace.enter(trace, "metadataEncode");
         long footerOffset = indexOffset + rawIndex.length + BlockEnvelope.TRAILER_BYTES;
         long finalSize = footerOffset + SSTableFooterV1.FOOTER_BYTES;
+        if (trace != null) trace.fileBytes(finalSize);
 
         BlockDescription properties =
-                writeBlock(body, properties(metrics, finalSize), BlockKind.PROPERTIES, null);
+                writeBlock(body, properties(metrics, finalSize), BlockKind.PROPERTIES, null, trace);
         BlockDescription metaindex =
                 writeBlock(
                         body,
                         metaindex(filter.handle, properties.handle),
                         BlockKind.METAINDEX,
-                        null);
-        BlockDescription index = writeBlock(body, rawIndex, BlockKind.INDEX, null);
+                        null, trace);
+        SSTableFinishTrace.enter(trace, "indexWrite");
+        BlockDescription index = writeBlock(body, rawIndex, BlockKind.INDEX, null, trace);
+        SSTableFinishTrace.enter(trace, "footerEncode");
         if (body.size() != footerOffset)
             throw new IllegalStateException("SSTable size planning diverged");
         SSTableFooterV1 footer =
@@ -128,7 +156,9 @@ public final class SSTableBuilder {
                         finalSize,
                         databaseId);
         body.writeBytes(footer.encode());
+        SSTableFinishTrace.enter(trace, "tableBufferCopy");
         byte[] table = body.toByteArray();
+        SSTableFinishTrace.enter(trace, "headerEncode");
         SSTableHeaderV1 header =
                 new SSTableHeaderV1(
                         fileNumber,
@@ -140,16 +170,30 @@ public final class SSTableBuilder {
                         creationEpochMillis,
                         table.length);
         System.arraycopy(header.encode(), 0, table, 0, SSTableHeaderV1.HEADER_BYTES);
+        SSTableFinishTrace.enter(trace, "fileOpen");
         try (FileChannel channel =
                 FileChannel.open(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
-            ByteBuffer bytes = ByteBuffer.wrap(table);
-            while (bytes.hasRemaining()) channel.write(bytes);
-            channel.force(true);
+            try {
+                SSTableFinishTrace.enter(trace, "fileWrite");
+                ByteBuffer bytes = ByteBuffer.wrap(table);
+                while (bytes.hasRemaining()) channel.write(bytes);
+                SSTableFinishTrace.enter(trace, "fileForce");
+                channel.force(true);
+            } finally {
+                SSTableFinishTrace.enter(trace, "fileClose");
+            }
         }
+        SSTableFinishTrace.enter(trace, "metadataResult");
         TableFileMetadata metadata = metadata(metrics, dataBlocks.size(), table.length);
+        SSTableFinishTrace.enter(trace, "verificationOpenAndRead");
         try (SSTableReader verified = SSTableReader.open(path, metadata)) {
-            verified.metadata();
+            try {
+                verified.metadata();
+            } finally {
+                SSTableFinishTrace.enter(trace, "verificationClose");
+            }
         }
+        SSTableFinishTrace.enter(trace, "other");
         return metadata;
     }
 
@@ -204,11 +248,17 @@ public final class SSTableBuilder {
     }
 
     private static BlockDescription writeBlock(
-            ByteArrayOutputStream output, byte[] raw, BlockKind kind, byte[] largestKey) {
-        byte[] physical = BlockEnvelope.encode(raw, kind);
-        BlockHandle handle = new BlockHandle(output.size(), physical.length);
-        output.writeBytes(physical);
-        return new BlockDescription(handle, largestKey);
+            ByteArrayOutputStream output, byte[] raw, BlockKind kind, byte[] largestKey,
+            SSTableFinishTrace trace) {
+        byte[] physical = BlockEnvelope.encode(raw, kind, trace);
+        String previousStage = SSTableFinishTrace.enter(trace, "blockBufferAppend");
+        try {
+            BlockHandle handle = new BlockHandle(output.size(), physical.length);
+            output.writeBytes(physical);
+            return new BlockDescription(handle, largestKey);
+        } finally {
+            SSTableFinishTrace.enter(trace, previousStage);
+        }
     }
 
     private byte[] index(List<BlockDescription> blocks) {

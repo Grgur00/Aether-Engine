@@ -2,12 +2,12 @@ import argparse
 import copy
 import csv
 import hashlib
+import itertools
 import json
 import math
 import mmap
 import os
 import platform
-import queue
 import random
 import re
 import shutil
@@ -23,6 +23,7 @@ from pathlib import Path
 from aetherml import AetherMLStore, environment_report
 from aether_training_cache.persistent_mmap import PersistentMmapStore
 from aether_training_cache.java_store import JavaArtifactStore
+from aether_training_cache.prefetch import BoundedPrefetchIterator, PreparedBatch, merge_prefetch_metrics
 from oct_segmentation_workload import discover_input_files, oct_sized_bytes, synthetic_oct_bytes
 
 
@@ -87,6 +88,7 @@ def parse_args(argv=None):
     parser.add_argument("--aether-engine", choices=["python", "java"], default="python")
     parser.add_argument("--cache-durability", choices=["recoverable", "durable"], default="recoverable")
     parser.add_argument("--aether-port", type=int, default=9484)
+    parser.add_argument("--server-trace", action="store_true", help="Collect correlated flush diagnostics; perturbs timing")
     parser.add_argument("--aether-namespace", default="tpds")
     parser.add_argument("--aether-cache-dir")
     parser.add_argument("--aether-cache-mode", choices=["fresh", "reuse"], default="fresh")
@@ -321,6 +323,14 @@ def run_training_once(args, torch, np, device, run_index):
             warm_backend(context, backend)
             run_model_warmup(torch, model, loss_function, optimizer, device, args)
             results[backend] = run_backend(torch, model, optimizer, loss_function, device, backend, context, measured_steps)
+            if backend == "AETHER_CACHE" and args.aether_engine == "java":
+                drain = context.store.drain_background_compaction()
+                results[backend]["backgroundCompactionDrain"] = drain
+                lifecycle = results[backend]["lifecycle"]
+                lifecycle["backgroundDrainMs"] = drain["drainWallMs"]
+                lifecycle["totalWithBackgroundDrainMs"] = lifecycle["totalMs"] + drain["drainWallMs"]
+                if not drain["drained"] or drain["backgroundCompaction"].get("failed", 0):
+                    raise RuntimeError("background compaction did not drain successfully before the next backend")
         model_parity = len({value["modelStateSha256"] for value in results.values()}) == 1
         if not model_parity:
             raise RuntimeError("backend final model states differ under the deterministic protocol")
@@ -352,6 +362,8 @@ def run_training_once(args, torch, np, device, run_index):
             "backendEquivalence": equivalence,
             "modelParityPassed": model_parity,
             "engineInfo": getattr(context, "engine_info", {"engine": "python-prototype"}),
+            "backgroundCompactionAfterTraining": (context.store.engine_info().get("backgroundCompaction", {})
+                                                  if args.aether_engine == "java" else {}),
             "datasetIntegrity": dataset_integrity_summary(args, samples),
         }
     finally:
@@ -454,6 +466,10 @@ def aggregate_runs(runs):
 def aggregate_backend_runs(backend, backend_runs):
     representative = copy.deepcopy(backend_runs[0])
     representative["runs"] = len(backend_runs)
+    prefetch_runs = [run["prefetch"] for run in backend_runs if "prefetch" in run]
+    if prefetch_runs and all(run.get("metricsAvailable", True) for run in prefetch_runs):
+        representative["prefetch"] = merge_prefetch_metrics(prefetch_runs, prefetch_runs[0]["prefetchDepth"])
+        representative["prefetch"]["perRun"] = prefetch_runs
     representative["lifecycle"] = {
         "populateMs": distribution([run["lifecycle"]["populateMs"] for run in backend_runs]),
         "trainingMs": distribution([run["lifecycle"]["trainingMs"] for run in backend_runs]),
@@ -987,7 +1003,9 @@ def run_backend(torch, model, optimizer, loss_function, device, backend, context
     training_start = time.perf_counter()
     epoch_start = training_start
     training_ms = None
-    prepared_iterator = prepared_batches(context, backend, scheduled_batches(context.args, measured_steps))
+    prefetch_metrics = {}
+    prepared_iterator = prepared_batches(context, backend, scheduled_batches(context.args, measured_steps),
+                                         metrics=prefetch_metrics)
     try:
         for step_index, scheduled in enumerate(prepared_iterator):
             batch_indices, epoch, prepared, prefetch_wait_ms = scheduled
@@ -1044,6 +1062,13 @@ def run_backend(torch, model, optimizer, loss_function, device, backend, context
         state_digest.update(value.detach().cpu().contiguous().numpy().tobytes())
     report["modelStateSha256"] = state_digest.hexdigest()
     report["lossTrajectory"] = [step["loss"] for step in steps]
+    if context.args.workers == 0 and context.args.prefetch_batches == 0:
+        # Inline preparation stays in train_step so existing step timing is unchanged.
+        prefetch_metrics["prefetchLookupNs"] = round(sum(
+            step["aetherLookupMs"] + step["mmapReadMs"] for step in steps) * 1e6)
+        prefetch_metrics["prefetchDecodeNs"] = round(sum(step["artifactDecodeMs"] for step in steps) * 1e6)
+        prefetch_metrics["consumerWaitNs"] = round(sum(step["inputWaitMs"] for step in steps) * 1e6)
+    report["prefetch"] = prefetch_metrics
     report["resources"] = {"parent": parent_usage, "java": java_usage,
         "loaderWorkers": context.worker_resources,
         "workerScope": "sum of batch preparation windows per worker; excludes startup, IPC and idle time",
@@ -1099,56 +1124,62 @@ def segmentation_sanity_metrics(torch, model, loss_function, device, context):
     }
 
 
-def prepared_batches(context, backend, schedule):
+def prepared_batches(context, backend, schedule, *, metrics=None):
+    """Keep caller order and close/drain each epoch before starting its successor.
+
+    Depth zero defers preparation to train_step as before. The optional metrics
+    dict accumulates epoch snapshots, including work cancelled on early close.
+    Lookup/decode use the existing backend stage counters; mmap lookup includes
+    mmapReadMs, and artifactDecodeMs excludes later CPU tensor construction.
+    """
+    metrics = metrics if metrics is not None else {}
+    metrics.update(merge_prefetch_metrics([], context.args.prefetch_batches))
     if context.args.workers > 0:
         from aether_training_cache.loader_workers import worker_batches
+        # This is the existing multiprocess DataLoader, outside the single-worker
+        # iterator. Do not report invented zero queue measurements for that path.
+        metrics.clear()
+        metrics.update(prefetchDepth=context.args.prefetch_batches,
+                       metricsAvailable=False, mode="multiprocess-loader")
         yield from worker_batches(context, backend, schedule)
         return
     if context.args.prefetch_batches <= 0:
         for batch_indices, epoch in schedule:
+            metrics["batchesRequested"] += 1
+            metrics["batchesConsumed"] += 1
             yield batch_indices, epoch, None, 0.0
         return
-    work_queue = queue.Queue(maxsize=context.args.prefetch_batches)
-    cancelled = threading.Event()
 
-    def enqueue(value):
-        while not cancelled.is_set():
-            try:
-                work_queue.put(value, timeout=.1)
-                return
-            except queue.Full:
-                continue
+    def prepare(task):
+        batch_indices, _ = task
+        started = time.perf_counter()
+        batch, counters = context.batch(backend, batch_indices)
+        return PreparedBatch(
+            (batch, counters, elapsed_ms(started)),
+            lookup_ns=round((counters.get("aetherLookupMs", 0) + counters.get("mmapReadMs", 0)) * 1e6),
+            decode_ns=round(counters.get("artifactDecodeMs", 0) * 1e6),
+        )
 
-    def producer():
-        for batch_indices, epoch in schedule:
-            if cancelled.is_set():
-                return
-            started = time.perf_counter()
+    cancel_callback = (
+        context.store.client.cancel_pending_requests
+        if backend == "AETHER_CACHE" and getattr(context.args, "aether_engine", None) == "java"
+        else None
+    )
+    # Materialize only schedule metadata, on the training thread. Never let the
+    # producer advance the training schedule or prepare across an epoch boundary.
+    for _, epoch_tasks in itertools.groupby(schedule, key=lambda task: task[1]):
+        epoch_schedule = [(list(indices), epoch) for indices, epoch in epoch_tasks]
+        iterator = BoundedPrefetchIterator(epoch_schedule, prepare, context.args.prefetch_batches,
+                                           cancel_callback=cancel_callback)
+        try:
+            for item in iterator:
+                batch_indices, epoch = item.task
+                yield batch_indices, epoch, item.value, item.consumerWaitNs / 1e6
+        finally:
             try:
-                batch, counters = context.batch(backend, batch_indices)
-                enqueue((batch_indices, epoch, (batch, counters, elapsed_ms(started)), None))
-            except BaseException as error:
-                enqueue((batch_indices, epoch, None, error))
-                return
-
-    thread = threading.Thread(target=producer, name=f"{backend.lower()}-prefetch", daemon=True)
-    thread.start()
-    try:
-        while thread.is_alive() or not work_queue.empty():
-            wait_started = time.perf_counter()
-            try:
-                batch_indices, epoch, prepared, error = work_queue.get(timeout=0.1)
-            except queue.Empty:
-                continue
-            wait_ms = elapsed_ms(wait_started)
-            if error is not None:
-                raise error
-            yield batch_indices, epoch, prepared, wait_ms
-    finally:
-        cancelled.set()
-        thread.join(timeout=35)
-        if thread.is_alive():
-            raise RuntimeError("batch producer did not stop after cancellation")
+                iterator.close()
+            finally:
+                metrics.update(merge_prefetch_metrics([metrics, iterator.metrics], context.args.prefetch_batches))
 
 
 def train_step(torch, model, optimizer, loss_function, device, backend, context, batch_indices, step, epoch, *, prepared=None, prefetch_wait_ms=0.0):
@@ -1199,6 +1230,7 @@ def train_step(torch, model, optimizer, loss_function, device, backend, context,
         "preprocessMs": counters.get("preprocessMs", 0.0),
         "aetherLookupMs": counters.get("aetherLookupMs", 0.0),
         "aetherPublishMs": counters.get("aetherPublishMs", 0.0),
+        **({"aetherRequestTraces": counters["aetherRequestTraces"]} if "aetherRequestTraces" in counters else {}),
         "mmapReadMs": counters.get("mmapReadMs", 0.0),
         "tensorBuildMs": counters.get("tensorBuildMs", 0.0),
         "artifactDecodeMs": counters.get("artifactDecodeMs", 0.0),
@@ -1782,7 +1814,8 @@ class BackendContext:
 
     def _open_store(self, root):
         if self.args.aether_engine == "java":
-            store = JavaArtifactStore(port=self.args.aether_port, namespace=self.args.aether_namespace)
+            store = JavaArtifactStore(port=self.args.aether_port, namespace=self.args.aether_namespace,
+                                      server_trace=getattr(self.args, "server_trace", False))
             info = store.engine_info()
             if info.get("engine") != "java-training-cache" or info.get("durability") != self.args.cache_durability.upper():
                 store.close()
@@ -1945,9 +1978,12 @@ class BackendContext:
         }
 
     def _aether_batch(self, indices):
+        request_traces = getattr(self.store, "request_traces", [])
+        trace_start = len(request_traces)
         lookup_started = time.perf_counter_ns()
         keys = [self.cache_key(index) for index in indices]
-        cached = self.store.load_cached_bytes_many(keys)
+        cached = (self.store.load_cached_views_many(keys) if self.args.aether_engine == "java"
+                  else self.store.load_cached_bytes_many(keys))
         self.protocol["bytesReturned"] += sum(len(payload) for payload in cached.values())
         lookup_nanos = time.perf_counter_ns() - lookup_started
         self.protocol["getManyRequests"] += 1
@@ -2002,6 +2038,7 @@ class BackendContext:
             "preprocessMs": preprocess_ms,
             "aetherLookupMs": lookup_nanos / 1e6,
             "aetherPublishMs": publish_nanos / 1e6,
+            **({"aetherRequestTraces": request_traces[trace_start:]} if getattr(self.args, "server_trace", False) else {}),
             "artifactDecodeMs": decode_ms,
         }
 
@@ -2452,16 +2489,19 @@ def pack_payload(sample):
 def unpack_payload(payload, np):
     if len(payload) < 4:
         raise ValueError("cached payload is too small")
-    header_size = struct.unpack("<I", payload[:4])[0]
+    header_size = struct.unpack_from("<I", payload)[0]
     header_end = 4 + header_size
-    value = json.loads(payload[4:header_end].decode("utf-8"))
+    if header_end > len(payload):
+        raise ValueError("cached payload header is truncated")
+    view = memoryview(payload)
+    value = json.loads(bytes(view[4:header_end]).decode("utf-8"))
     image_count = element_count(value["imageShape"])
     mask_count = element_count(value["maskShape"])
     image_dtype = np.dtype(value.get("imageDtype", "float32"))
     mask_dtype = np.dtype(value.get("maskDtype", "float32"))
     image_bytes = image_count * image_dtype.itemsize
     mask_bytes = mask_count * mask_dtype.itemsize
-    body = memoryview(payload)[header_end:]
+    body = view[header_end:]
     codec = value.get("artifactCodec", "none")
     if codec == "zlib":
         import zlib
@@ -2632,6 +2672,7 @@ def configuration(args):
         "mmapPopulateOnly": args.mmap_populate_only,
         "prepopulatePreviousVersion": args.prepopulate_previous_version,
         "prefetchBatches": args.prefetch_batches,
+        "serverTrace": args.server_trace,
         "augmentationMode": args.augmentation_mode,
         "gpuSampleIntervalMs": args.gpu_sample_interval_ms,
         "backends": list(args.backend_names),

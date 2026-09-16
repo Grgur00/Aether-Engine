@@ -51,11 +51,18 @@ def environment():
     report = {"python": sys.version, "executable": sys.executable,
               "platform": platform.platform(), "cpuCount": os.cpu_count(),
               "capturedAt": time.time(), "commands": {key: capture(value) for key, value in commands.items()}}
+    report["performanceEnvironment"] = {key: os.environ.get(key) for key in (
+        "OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "CUDA_VISIBLE_DEVICES",
+        "CUDA_DEVICE_ORDER", "CUBLAS_WORKSPACE_CONFIG", "NVIDIA_TF32_OVERRIDE", "PYTORCH_CUDA_ALLOC_CONF")}
     files = sorted(set(ROOT.glob("clients/python/**/*.py")) | set(ROOT.glob("scripts/*.py")) |
                    set(ROOT.glob("modules/*/src/main/**/*.java")) | set(ROOT.glob("modules/*/*.gradle.kts")) |
                    set(ROOT.glob("build-logic/src/**/*.kts")) | set(ROOT.glob("*.gradle.kts")) |
                    set(ROOT.glob("configs/paper/*.json")) | set(ROOT.glob("env/*.lock")))
     report["sourceSha256"] = {str(path.relative_to(ROOT)): sha256(path) for path in files}
+    build_manifest = ROOT / "modules/aether-training-cache/build/paper-runtime-build.json"
+    if build_manifest.is_file():
+        report["javaBuild"] = {"manifestSha256": sha256(build_manifest),
+                              "manifest": json.loads(build_manifest.read_text(encoding="utf-8"))}
     archive_path = ROOT / "artifact-provenance.json"
     if archive_path.is_file():
         archive = json.loads(archive_path.read_text(encoding="utf-8"))
@@ -70,18 +77,51 @@ def environment():
     return report
 
 
+def java_build_sources(root):
+    patterns = ("*.gradle.kts", "gradle.properties", "gradle/**/*",
+                "modules/*/*.gradle.kts", "modules/*/src/main/**/*",
+                "build-logic/*.gradle.kts", "build-logic/gradle.properties", "build-logic/src/**/*")
+    files = {path for pattern in patterns for path in root.glob(pattern) if path.is_file()}
+    return {path.relative_to(root).as_posix(): sha256(path) for path in sorted(files)}
+
+
+def java_runtime_record(path):
+    if path.is_file():
+        return {"kind": "file", "sha256": sha256(path)}
+    if path.is_dir():
+        return {"kind": "directory", "files": {
+            item.relative_to(path).as_posix(): sha256(item)
+            for item in sorted(path.rglob("*")) if item.is_file()}}
+    return {"kind": "absent"}
+
+
 def java_classpath():
     path = ROOT / "modules/aether-training-cache/build/paper-runtime-classpath.txt"
-    if not path.is_file():
-        raise RuntimeError("Build Java first: ./gradlew :modules:aether-training-cache:paperRuntimeClasspath")
-    return path.read_text(encoding="utf-8").strip()
+    manifest_path = path.with_name("paper-runtime-build.json")
+    rebuild = "Rebuild Java: ./gradlew :modules:aether-training-cache:paperRuntimeClasspath"
+    if not path.is_file() or not manifest_path.is_file():
+        raise RuntimeError(rebuild)
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        classpath = path.read_text(encoding="utf-8").strip()
+        if (manifest.get("schema") != "aether-java-build-v1"
+                or manifest.get("classpathSha256") != sha256(path)
+                or manifest.get("sources") != java_build_sources(ROOT)):
+            raise ValueError("source or classpath changed since the Java build")
+        runtime = {str(Path(entry).absolute()): java_runtime_record(Path(entry))
+                   for entry in classpath.split(os.pathsep) if entry}
+        if not runtime or runtime != manifest.get("runtime"):
+            raise ValueError("compiled classes, resources or dependency jars changed since the Java build")
+    except (OSError, ValueError, TypeError, AttributeError) as error:
+        raise RuntimeError(f"Java build provenance validation failed: {error}. {rebuild}") from error
+    return classpath
 
 
 @contextlib.contextmanager
-def java_daemon(directory, *, maximum_bytes=1 << 40, durability="DURABLE"):
+def java_daemon(directory, *, maximum_bytes=1 << 40, durability="DURABLE", jvm_options=()):
     directory = Path(directory).resolve()
     directory.mkdir(parents=True, exist_ok=True)
-    command = ["java", "--enable-preview", "-cp", java_classpath(),
+    command = ["java", *jvm_options, "--enable-preview", "-cp", java_classpath(),
                "io.aetherdb.training.cache.TrainingCacheDaemon", str(directory), "0", str(maximum_bytes), durability]
     flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
     log_path = directory.with_name(directory.name + ".stderr.log")
@@ -108,7 +148,23 @@ def java_daemon(directory, *, maximum_bytes=1 << 40, durability="DURABLE"):
                 if line is None:
                     raise RuntimeError(f"Java exited during startup; see {log_path}")
                 if line.isdecimal() and 0 < int(line) < 65536:
-                    yield {"port": int(line), "pid": process.pid, "command": command}
+                    port = int(line)
+                    try:
+                        yield {"port": port, "pid": process.pid, "command": command}
+                    finally:
+                        # Export background work after the measured region and before
+                        # terminating the daemon. A bounded drain prevents hidden debt
+                        # from being discarded between otherwise independent blocks.
+                        from aether_training_cache.client import AetherTrainingCache
+                        with AetherTrainingCache(port=port) as diagnostics_client:
+                            drain = diagnostics_client.wait_for_background_compaction()
+                        diagnostics = drain["backgroundCompaction"]
+                        write_json(directory.with_name(directory.name + f".compaction-{time.time_ns()}.json"),
+                                   drain)
+                        if not drain["drained"]:
+                            raise RuntimeError("background compaction did not drain within 60 seconds")
+                        if diagnostics.get("failed", 0):
+                            raise RuntimeError("background compaction failed: " + diagnostics.get("lastFailure", "see diagnostics"))
                     break
         finally:
             if process.poll() is None:

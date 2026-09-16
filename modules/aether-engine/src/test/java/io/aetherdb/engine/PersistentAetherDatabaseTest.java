@@ -234,8 +234,10 @@ class PersistentAetherDatabaseTest {
                 WriteBatch batch = new WriteBatch().put(b("key"), b("value"))) {
             assertThat(ignored).isNotNull();
             assertThatThrownBy(() -> db.write(batch))
-                    .isInstanceOf(CrashPointException.class)
-                    .hasMessageContaining(CrashPointIds.WAL_AFTER_FORCE_BEFORE_VISIBILITY);
+                    .isInstanceOf(io.aetherdb.api.exceptions.AetherException.class)
+                    .hasMessageContaining("outcome is indeterminate")
+                    .hasCauseInstanceOf(CrashPointException.class)
+                    .hasRootCauseMessage("crash point triggered: " + CrashPointIds.WAL_AFTER_FORCE_BEFORE_VISIBILITY);
             assertThat(batch.state()).isEqualTo(WriteBatch.State.INDETERMINATE);
         }
 
@@ -359,7 +361,7 @@ class PersistentAetherDatabaseTest {
     }
 
     @Test
-    void levelZeroCompactionPublishesReplacementBeforeDeletingInputs() throws IOException {
+    void levelZeroCompactionPublishesReplacementBeforeDeletingInputs() throws Exception {
         Path root = temp.resolve("db");
         for (int cycle = 0; cycle < 4; cycle++) {
             try (AetherDatabase db = Aether.open(root)) {
@@ -371,6 +373,7 @@ class PersistentAetherDatabaseTest {
             for (int cycle = 0; cycle < 4; cycle++)
                 assertThat(text(db.get(b("key-" + cycle)).value())).isEqualTo("value-" + cycle);
             assertThat(text(db.get(b("shared")).value())).isEqualTo("revision-3");
+            ((PersistentAetherDatabase) db).awaitCompactionIdle();
         }
         try (var files = Files.list(root)) {
             assertThat(

@@ -31,6 +31,25 @@ def response(value=b"fixture", status=1):
 KEY = CacheKey("test", "sample", TransformationFingerprint.from_descriptor("test"))
 
 
+def test_background_drain_polls_until_idle_and_preserves_failure_evidence(monkeypatch):
+    import aether_training_cache.client as module
+    states = iter([{"state": "RUNNING"}, {"state": "IDLE", "failed": 1, "lastFailure": "injected"}])
+    client = AetherTrainingCache()
+    monkeypatch.setattr(client, "engine_info", lambda: {"backgroundCompaction": next(states)})
+    monkeypatch.setattr(module.time, "sleep", lambda seconds: None)
+    result = client.wait_for_background_compaction()
+    assert result["drained"]
+    assert result["backgroundCompaction"]["lastFailure"] == "injected"
+    assert result["drainWallMs"] >= 0
+
+
+def test_background_drain_timeout_is_explicit(monkeypatch):
+    client = AetherTrainingCache()
+    monkeypatch.setattr(client, "engine_info", lambda: {"backgroundCompaction": {"state": "RUNNING"}})
+    result = client.wait_for_background_compaction(timeout=0)
+    assert not result["drained"]
+
+
 def test_tcp_connection_disables_nagle(monkeypatch):
     import aether_training_cache.client as module
     connection = SimpleNamespace(options=[])
@@ -49,7 +68,7 @@ def test_server_trace_envelope_preserves_response_and_identity(monkeypatch):
     trace_id = "a" * 32
     monkeypatch.setattr(module.uuid, "uuid4", lambda: SimpleNamespace(hex=trace_id))
     traces = []
-    server = {"traceId": trace_id, "serverDurationNs": 100, "stagesNs": {"indexLookup": 20}}
+    server = {"traceId": trace_id, "serverDurationNs": 100, "stagesNs": {"indexLookup": 20}, "flushes": []}
     metadata = json.dumps(server).encode()
     connection = FragmentedConnection(response(struct.pack(">I", len(metadata)) + metadata + b"fixture"))
     client = AetherTrainingCache(trace_sink=traces.append, server_trace=True)
@@ -61,9 +80,10 @@ def test_server_trace_envelope_preserves_response_and_identity(monkeypatch):
 
 
 @pytest.mark.parametrize("metadata", [
-    {"traceId": "wrong", "serverDurationNs": 1, "stagesNs": {}},
-    {"traceId": "a" * 32, "serverDurationNs": -1, "stagesNs": {}},
-    {"traceId": "a" * 32, "serverDurationNs": 1, "stagesNs": {"indexLookup": 2}},
+    {"traceId": "wrong", "serverDurationNs": 1, "stagesNs": {}, "flushes": []},
+    {"traceId": "a" * 32, "serverDurationNs": -1, "stagesNs": {}, "flushes": []},
+    {"traceId": "a" * 32, "serverDurationNs": 1, "stagesNs": {"indexLookup": 2}, "flushes": []},
+    {"traceId": "a" * 32, "serverDurationNs": 1, "stagesNs": {}, "flushes": [{"cause": "UNKNOWN"}]},
 ])
 def test_invalid_server_trace_does_not_replay_publication(monkeypatch, metadata):
     import aether_training_cache.client as module

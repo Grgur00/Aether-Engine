@@ -77,6 +77,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.locks.LockSupport;
+import io.aetherdb.api.ReadDiagnostics;
 
 /** WAL-first local LSM coordinator using native MemTables, immutable SSTables, and a VersionSet. */
 @SuppressWarnings("preview")
@@ -99,6 +100,16 @@ final class PersistentAetherDatabase implements AetherDatabase {
     private final WritePressureController pressureController;
     private final List<SSTableReader> tables = new ArrayList<>();
     private final CommitCoordinator commits = new CommitCoordinator();
+    private final Object closeMonitor = new Object();
+    private final CompactionCoordinator compactions;
+    private final ArrayDeque<Map<String, Object>> compactionHistory = new ArrayDeque<>();
+    private long compactionsCompleted;
+    private long compactionsFailed;
+    private long flushesStarted;
+    private long flushesCompleted;
+    private long backgroundCompactionsStarted;
+    private long nextTableFileNumber;
+    private boolean closing;
     private NativeSkipListMemTable active;
     private long lastVisibleSequence;
     private long nextSnapshotId = 1;
@@ -107,6 +118,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
     private long memTableNumber;
     private long walForceCount;
     private Throwable backgroundFailure;
+    private Throwable compactionManifestFailure;
     private boolean closed;
 
     /** Opens or creates the process-exclusive local database. */
@@ -222,6 +234,9 @@ final class PersistentAetherDatabase implements AetherDatabase {
         this.walSegmentNumber = walSegmentNumber;
         this.walRecordNumber = records;
         this.memTableNumber = 1;
+        this.nextTableFileNumber = versions.current().nextFileNumber();
+        this.compactions = new CompactionCoordinator(this::runBackgroundCompaction);
+        requestCompaction(-1);
     }
 
     @Override
@@ -262,7 +277,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
                         snapshotIdentity,
                         nextSnapshotId++,
                         lastVisibleSequence,
-                        () -> snapshots.remove(holder[0]));
+                        () -> { synchronized (PersistentAetherDatabase.this) { snapshots.remove(holder[0]); } });
         holder[0] = handle;
         snapshots.add(handle);
         return handle;
@@ -306,12 +321,23 @@ final class PersistentAetherDatabase implements AetherDatabase {
     }
 
     @Override
-    public synchronized void close() {
+    public void close() {
+        synchronized (closeMonitor) {
+            synchronized (this) {
+                if (closed) return;
+                closing = true;
+            }
+            compactions.close();
+            synchronized (this) { closeResources(); }
+        }
+    }
+
+    private void closeResources() {
         if (closed) return;
         Throwable failure = null;
         try {
             forceWal();
-            flushActive();
+            if (compactionManifestFailure == null) flushActive();
         } catch (Throwable exception) {
             failure = exception;
         }
@@ -344,20 +370,26 @@ final class PersistentAetherDatabase implements AetherDatabase {
         } catch (Throwable exception) {
             failure = merge(failure, exception);
         }
+        failure = merge(failure, compactionManifestFailure);
         if (failure != null) throw new AetherException("persistent database close failed", failure);
     }
 
     private LookupResult lookup(byte[] key, long visibleSequence) {
         ensureOpen();
         validateKey(key);
-        MemTableLookupResult memory = active.get(key, visibleSequence);
+        ReadDiagnostics.count("lookups", 1);
+        MemTableLookupResult memory = ReadDiagnostics.measure("memtable", () -> active.get(key, visibleSequence));
         if (memory.kind() == MemTableLookupResult.Kind.VALUE)
             return LookupResult.found(memory.value());
         if (memory.kind() == MemTableLookupResult.Kind.TOMBSTONE) return LookupResult.notFound();
         SSTableLookup best = new SSTableLookup.Absent();
         long bestSequence = -1;
+        long selectionStarted = ReadDiagnostics.start();
         for (SSTableReader table : tables) {
+            ReadDiagnostics.end("tableSelection", selectionStarted);
+            ReadDiagnostics.count("tablesVisited", 1);
             SSTableLookup candidate = table.lookup(key, visibleSequence);
+            selectionStarted = ReadDiagnostics.start();
             long sequence =
                     candidate instanceof SSTableLookup.Found found
                             ? found.sequence()
@@ -369,8 +401,9 @@ final class PersistentAetherDatabase implements AetherDatabase {
                 bestSequence = sequence;
             }
         }
+        ReadDiagnostics.end("tableSelection", selectionStarted);
         return best instanceof SSTableLookup.Found found
-                ? LookupResult.found(found.value())
+                ? found.result()
                 : LookupResult.notFound();
     }
 
@@ -398,10 +431,45 @@ final class PersistentAetherDatabase implements AetherDatabase {
         return new PersistentListCursor(this, rows);
     }
 
+    private enum FlushCause { MEMTABLE_CAPACITY, WAL_SEGMENT, OTHER }
+
     private void flushActive() throws IOException {
+        flushActive(FlushCause.OTHER, 0, -1);
+    }
+
+    private void flushActive(FlushCause cause, long requiredNativeBytes, long logicalWalWriteBytes) throws IOException {
         if (active.entryCount() == 0) return;
+        flushesStarted++;
+        FlushDiagnostics.Event trace = null;
+        if (FlushDiagnostics.current() != null) {
+            long remaining = active.nativeRemainingBytes();
+            trace = FlushDiagnostics.begin(cause.name(), Map.of(
+                    "walPositionBytes", wal.position(),
+                    "walSegmentLimitBytes", configuration.walSegmentBytes(),
+                    "logicalWalWriteBytes", logicalWalWriteBytes,
+                    "memtableEntryCount", active.entryCount(),
+                    "memtableNativeRemainingBytes", remaining,
+                    "memtableNativeLimitBytes", configuration.memtableBytes(),
+                    "memtableNativeUsedBytes", configuration.memtableBytes() - remaining,
+                    "requiredNativeBytes", requiredNativeBytes));
+        }
+        boolean completed = false;
+        try {
+            flushActiveBody(trace);
+            flushesCompleted++;
+            completed = true;
+        } finally {
+            if (trace != null) trace.finish(completed);
+        }
+    }
+
+    private static void flushStage(FlushDiagnostics.Event trace, String stage) {
+        if (trace != null) trace.stage(stage);
+    }
+
+    private void flushActiveBody(FlushDiagnostics.Event trace) throws IOException {
         active.freeze();
-        long fileNumber = versions.current().nextFileNumber();
+        long fileNumber = allocateTableFileNumber();
         String finalName = VersionSet.sstableName(fileNumber);
         Path temporary =
                 root.resolve(finalName + ".tmp-" + UUID.randomUUID().toString().replace("-", ""));
@@ -417,9 +485,13 @@ final class PersistentAetherDatabase implements AetherDatabase {
                                 entry.key(), entry.sequence(), (byte) (entry.tombstone() ? 2 : 1)),
                         entry.value());
             }
-            built = builder.finish();
+            flushStage(trace, "sstableBuild");
+            built = builder.finish(FlushDiagnostics.beginTableFinish(fileNumber, trace, null));
+            flushStage(trace, "sstableFinish");
             Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE);
+            flushStage(trace, "sstableRename");
             syncDirectory(root);
+            flushStage(trace, "directoryFsync1");
             CrashPointRegistry.hit(
                     CrashPointIds.FLUSH_AFTER_SSTABLE_FORCE_BEFORE_MANIFEST,
                     tableCrashContext(fileNumber, 0, built));
@@ -436,6 +508,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
                         built.largestSequence(),
                         built.smallestInternalKey(),
                         built.largestInternalKey());
+        flushStage(trace, "other");
         long replacementWalNumber = Math.addExact(walSegmentNumber, 1);
         Path replacementWalPath = root.resolve(WalFormatV1.fileName(replacementWalNumber));
         FileChannel replacementWal =
@@ -445,11 +518,12 @@ final class PersistentAetherDatabase implements AetherDatabase {
                         replacementWalNumber,
                         walSegmentNumber,
                         Math.addExact(lastVisibleSequence, 1));
+        flushStage(trace, "walCreate");
         ManifestEdit delta =
                 new ManifestEdit(
                         ManifestEdit.Kind.DELTA,
                         versions.current().manifestEditNumber() + 1,
-                        fileNumber + 1,
+                        nextTableFileNumber,
                         lastVisibleSequence,
                         lastVisibleSequence,
                         replacementWalNumber,
@@ -468,6 +542,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
             if (failure instanceof RuntimeException exception) throw exception;
             throw new IOException("WAL rotation publication failed", failure);
         }
+        flushStage(trace, "manifestEdit");
         FileChannel obsoleteWal = wal;
         Path obsoleteWalPath = root.resolve(WalFormatV1.fileName(walSegmentNumber));
         wal = replacementWal;
@@ -475,40 +550,139 @@ final class PersistentAetherDatabase implements AetherDatabase {
         walRecordNumber = 0;
         obsoleteWal.close();
         Files.delete(obsoleteWalPath);
+        flushStage(trace, "walDelete");
         syncDirectory(root);
+        flushStage(trace, "directoryFsync2");
         tables.add(SSTableReader.open(target, databaseId, added));
+        flushStage(trace, "sstableOpen");
         NativeSkipListMemTable previous = active;
         previous.retire();
         active = createMemTable(nativeBudget, configuration.memtableBytes(), databaseId, ++memTableNumber);
-        compactIfNeeded();
+        flushStage(trace, "memtableReplace");
+        requestCompaction(fileNumber);
+        flushStage(trace, "compactionSchedule");
     }
 
-    private void compactIfNeeded() throws IOException {
-        if (!configuration.compactionEnabled()) return;
-        boolean changed;
-        do {
-            changed = false;
-            List<ManifestFileMetadata> levelZero = versions.current().files(0);
-            if (levelZero.size() >= 4) {
-                compactSelection(levelZero, 1);
-                changed = true;
-                continue;
+    private static void compactionStage(FlushDiagnostics.Compaction trace, String stage) {
+        if (trace != null) trace.enter(stage);
+    }
+
+    private synchronized long allocateTableFileNumber() {
+        long result = nextTableFileNumber;
+        nextTableFileNumber = Math.incrementExact(nextTableFileNumber);
+        return result;
+    }
+
+    private boolean needsCompaction() {
+        if (versions.current().files(0).size() >= 4) return true;
+        for (int level = 1; level <= 5; level++)
+            if (levelBytes(level) > configuration.compactionConfig().targetBytes(level)) return true;
+        return false;
+    }
+
+    private long levelBytes(int level) {
+        return versions.current().files(level).stream().mapToLong(ManifestFileMetadata::fileSize).sum();
+    }
+
+    private long compactionDebtBytes() {
+        long debt = versions.current().files(0).size() >= 4 ? levelBytes(0) : 0;
+        for (int level = 1; level <= 5; level++)
+            debt = Math.addExact(debt, Math.max(0, levelBytes(level) - configuration.compactionConfig().targetBytes(level)));
+        return debt;
+    }
+
+    private void requestCompaction(long flushFileNumber) {
+        if (closing || !configuration.compactionEnabled() || backgroundFailure != null || !needsCompaction()) return;
+        var collector = FlushDiagnostics.current();
+        if (compactions.requestCompaction(new CompactionCoordinator.Request(System.nanoTime(), System.currentTimeMillis(),
+                collector == null ? "" : collector.traceId(), flushFileNumber, collector != null)) && collector != null)
+            collector.scheduled(compactionDebtBytes());
+    }
+
+    synchronized Map<String, Object> compactionDiagnostics() {
+        var result = new LinkedHashMap<String, Object>();
+        result.put("enabled", configuration.compactionEnabled());
+        result.put("state", compactions.state());
+        result.put("completed", compactionsCompleted);
+        result.put("failed", compactionsFailed);
+        result.put("flushesStarted", flushesStarted);
+        result.put("flushesCompleted", flushesCompleted);
+        result.put("backgroundCompactionsStarted", backgroundCompactionsStarted);
+        result.put("tableCount", tables.size());
+        result.put("debtBytes", closed ? 0 : compactionDebtBytes());
+        result.put("levelZeroStop", configuration.writePressurePolicy().levelZeroStop());
+        Throwable failure = compactions.backgroundFailure();
+        result.put("lastFailure", failure == null ? "" : failure.toString());
+        result.put("records", List.copyOf(compactionHistory));
+        return result;
+    }
+
+    void awaitCompactionIdle() throws InterruptedException { compactions.awaitIdle(java.time.Duration.ofSeconds(60)); }
+
+    private boolean runBackgroundCompaction(CompactionCoordinator.Request request) throws Exception {
+        long started = System.nanoTime();
+        var collector = request.traced() ? new FlushDiagnostics.Collector(request.traceId()) : null;
+        var previous = FlushDiagnostics.attach(collector);
+        var trace = FlushDiagnostics.beginCompaction(null);
+        CompactionPlan plan = null;
+        boolean completed = false;
+        Throwable failure = null;
+        try {
+            synchronized (this) {
+                backgroundCompactionsStarted++;
+                plan = planCompaction();
             }
-            for (int level = 1; level <= 5; level++) {
-                long levelBytes = 0;
-                for (ManifestFileMetadata file : versions.current().files(level))
-                    levelBytes = Math.addExact(levelBytes, file.fileSize());
-                if (levelBytes > configuration.compactionConfig().targetBytes(level)) {
-                    compactSelection(List.of(versions.current().files(level).get(0)), level + 1);
-                    changed = true;
-                    break;
+            if (plan == null) return false;
+            if (trace != null) trace.selected();
+            executeCompaction(plan, trace);
+            completed = true;
+            return true;
+        } catch (Throwable problem) {
+            failure = problem;
+            throw problem;
+        } finally {
+            if (trace != null) trace.finish(completed);
+            FlushDiagnostics.attach(previous);
+            if (plan != null) {
+                long finished = System.nanoTime();
+                var record = new LinkedHashMap<String, Object>();
+                record.put("requestedEpochMillis", request.requestedEpochMillis());
+                record.put("requestedNs", request.requestedNs());
+                record.put("startedNs", started);
+                record.put("finishedNs", finished);
+                record.put("queueDelayNs", started - request.requestedNs());
+                record.put("totalNs", finished - started);
+                record.put("reason", plan.outputLevel == 1 ? "LEVEL_ZERO_FILES" : "LEVEL_BYTES");
+                record.put("originTraceId", request.traceId());
+                record.put("originFlushFileNumber", request.flushFileNumber());
+                record.put("inputTableCount", plan.inputs.size());
+                record.put("inputBytes", plan.inputs.stream().mapToLong(ManifestFileMetadata::fileSize).sum());
+                record.put("outputTableCount", plan.outputCount);
+                record.put("outputBytes", plan.outputBytes);
+                record.put("manifestPublished", plan.published);
+                record.put("completed", completed);
+                record.put("failure", failure == null ? "" : failure.toString());
+                if (collector != null) record.put("timings", collector.backgroundTimings());
+                synchronized (this) {
+                    if (completed) compactionsCompleted++; else compactionsFailed++;
+                    if (compactionHistory.size() == 64) compactionHistory.removeFirst();
+                    compactionHistory.addLast(Map.copyOf(record));
                 }
             }
-        } while (changed);
+        }
     }
 
-    private void compactSelection(List<ManifestFileMetadata> primaryInputs, int outputLevel)
-            throws IOException {
+    private CompactionPlan planCompaction() {
+        if (closing || backgroundFailure != null) return null;
+        List<ManifestFileMetadata> levelZero = versions.current().files(0);
+        if (levelZero.size() >= 4) return selectCompaction(levelZero, 1);
+        for (int level = 1; level <= 5; level++)
+            if (levelBytes(level) > configuration.compactionConfig().targetBytes(level))
+                return selectCompaction(List.of(versions.current().files(level).getFirst()), level + 1);
+        return null;
+    }
+
+    private CompactionPlan selectCompaction(List<ManifestFileMetadata> primaryInputs, int outputLevel) {
         int inputLevel = outputLevel - 1;
         List<ManifestFileMetadata> selectedPrimary = new ArrayList<>(primaryInputs);
         List<ManifestFileMetadata> outputInputs = new ArrayList<>();
@@ -543,10 +717,17 @@ final class PersistentAetherDatabase implements AetherDatabase {
         inputs.addAll(outputInputs);
         Set<Long> inputNumbers = new java.util.HashSet<>();
         for (ManifestFileMetadata input : inputs) inputNumbers.add(input.fileNumber());
+        return new CompactionPlan(List.copyOf(inputs), tables.stream()
+                .filter(table -> inputNumbers.contains(table.metadata().fileNumber())).toList(),
+                versions.current(), snapshots.stream().mapToLong(SnapshotHandle::retainedSequence).min().orElse(lastVisibleSequence), outputLevel);
+    }
 
+    private void executeCompaction(CompactionPlan plan, FlushDiagnostics.Compaction trace) throws IOException {
+        var inputs = plan.inputs;
+        int outputLevel = plan.outputLevel;
+        compactionStage(trace, "inputRead");
         List<InternalEntry> merged = new ArrayList<>();
-        for (SSTableReader table : tables)
-            if (inputNumbers.contains(table.metadata().fileNumber())) {
+        for (SSTableReader table : plan.readers) {
                 for (SSTableEntry entry : table.entries()) {
                     InternalKey key = entry.key();
                     merged.add(
@@ -556,31 +737,34 @@ final class PersistentAetherDatabase implements AetherDatabase {
                                             key.userKey(), key.sequence(), entry.value()));
                 }
             }
+        compactionStage(trace, "mergeSort");
         merged.sort(InternalEntry::compareTo);
+        compactionStage(trace, "mergeDeduplicate");
         merged = deduplicateInternalEntries(merged);
-        long oldestSnapshot =
-                snapshots.stream()
-                        .mapToLong(SnapshotHandle::sequence)
-                        .min()
-                        .orElse(lastVisibleSequence);
+        compactionStage(trace, "mergeRetention");
+        long oldestSnapshot = plan.oldestSnapshot;
         List<InternalEntry> retained = new ArrayList<>();
         try (CompactionDroppingIterator dropping =
                 new CompactionDroppingIterator(
                         new ListInternalIterator(merged),
                         oldestSnapshot,
-                        key -> isBaseLevelForKey(key, outputLevel))) {
+                        key -> isBaseLevelForKey(key, outputLevel, plan.version))) {
             while (dropping.next()) retained.add(dropping.current());
         }
 
+        compactionStage(trace, "outputPartition");
         List<List<InternalEntry>> partitions =
                 partitionCompactionOutput(
                         retained, configuration.compactionConfig().targetOutputFileBytes(outputLevel));
         List<ManifestFileMetadata> additions = new ArrayList<>();
         List<Path> created = new ArrayList<>();
-        long nextFile = versions.current().nextFileNumber();
+        List<SSTableReader> replacements = new ArrayList<>();
+        boolean publicationAttempted = false;
+        boolean installed = false;
         try {
             for (List<InternalEntry> partition : partitions) {
-                long fileNumber = nextFile++;
+                compactionStage(trace, "outputBuild");
+                long fileNumber = allocateTableFileNumber();
                 String name = VersionSet.sstableName(fileNumber);
                 Path temporary =
                         root.resolve(
@@ -602,8 +786,11 @@ final class PersistentAetherDatabase implements AetherDatabase {
                                 entry.type() == InternalEntry.Type.TOMBSTONE
                                         ? new byte[0]
                                         : entry.value());
-                    TableFileMetadata built = builder.finish();
+                    compactionStage(trace, "outputFinish");
+                    TableFileMetadata built = builder.finish(FlushDiagnostics.beginTableFinish(fileNumber, null, trace));
+                    compactionStage(trace, "outputRename");
                     Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE);
+                    compactionStage(trace, "other");
                     created.add(target);
                     additions.add(
                             new ManifestFileMetadata(
@@ -616,10 +803,20 @@ final class PersistentAetherDatabase implements AetherDatabase {
                                     built.smallestInternalKey(),
                                     built.largestInternalKey()));
                 } finally {
+                    compactionStage(trace, "cleanup");
                     Files.deleteIfExists(temporary);
                 }
             }
+            compactionStage(trace, "directoryFsync1");
             if (!created.isEmpty()) syncDirectory(root);
+            compactionStage(trace, "outputVerification");
+            // Preserve both manifest inventory verification and install-reader verification,
+            // while keeping their full-file I/O outside the database state monitor.
+            VersionSet.VerifiedAdditions verified = versions.verifyAdditions(additions);
+            for (ManifestFileMetadata addition : additions)
+                replacements.add(SSTableReader.open(root.resolve(VersionSet.sstableName(addition.fileNumber())), databaseId, addition));
+            plan.outputCount = additions.size();
+            plan.outputBytes = additions.stream().mapToLong(ManifestFileMetadata::fileSize).sum();
             CrashPointRegistry.hit(
                     CrashPointIds.COMPACTION_AFTER_OUTPUT_FORCE_BEFORE_MANIFEST,
                     compactionCrashContext(outputLevel, additions.size(), inputs.size()));
@@ -630,22 +827,50 @@ final class PersistentAetherDatabase implements AetherDatabase {
                                             new io.aetherdb.sstable.manifest.ManifestDeletion(
                                                     file.fileNumber(), file.level()))
                             .toList();
-            ManifestEdit edit =
+            compactionStage(trace, "installLockWait");
+            synchronized (this) {
+                compactionStage(trace, "manifestEdit");
+                if (backgroundFailure != null || !tables.containsAll(plan.readers))
+                    throw new IOException("compaction inputs are no longer current or the writer is fenced");
+                for (ManifestFileMetadata input : inputs)
+                    if (!versions.current().files(input.level()).contains(input))
+                        throw new IOException("compaction input was removed from the manifest");
+                ManifestEdit edit =
                     new ManifestEdit(
                             ManifestEdit.Kind.DELTA,
                             versions.current().manifestEditNumber() + 1,
-                            nextFile,
+                            nextTableFileNumber,
                             lastVisibleSequence,
                             versions.current().persistedSequenceWatermark(),
                             walSegmentNumber,
                             additions,
                             deletions);
-            versions.logAndApply(edit);
+                publicationAttempted = true;
+                try {
+                    versions.logAndApply(edit, verified);
+                } catch (Throwable problem) {
+                    // The append may have reached storage. Keep both file sets and fence
+                    // further writes until recovery establishes the authoritative version.
+                    backgroundFailure = problem;
+                    compactionManifestFailure = problem;
+                    throw problem;
+                }
+                plan.published = true;
+                compactionStage(trace, "reopenInstall");
+                // All public table reads/scans finish under this monitor; cursors own
+                // materialized rows. No foreground reader can retain an obsolete channel.
+                tables.removeAll(plan.readers);
+                tables.addAll(replacements);
+                installed = true;
+            }
+            compactionStage(trace, "other");
             CrashPointRegistry.hit(
                     CrashPointIds.COMPACTION_AFTER_MANIFEST_BEFORE_DELETE,
                     compactionCrashContext(outputLevel, additions.size(), deletions.size()));
         } catch (Throwable failure) {
-            for (Path path : created)
+            compactionStage(trace, "cleanup");
+            if (!installed) for (SSTableReader reader : replacements) closeSuppressed(reader, failure);
+            if (!publicationAttempted) for (Path path : created)
                 try {
                     Files.deleteIfExists(path);
                 } catch (IOException cleanup) {
@@ -654,30 +879,33 @@ final class PersistentAetherDatabase implements AetherDatabase {
             if (failure instanceof IOException exception) throw exception;
             if (failure instanceof RuntimeException exception) throw exception;
             throw new IOException("compaction output failed", failure);
+        } finally {
+            // After publication these inputs are no longer in the visible table set.
+            // Close even when a post-commit fault hook interrupts physical deletion.
+            if (installed) {
+                compactionStage(trace, "obsoleteTableClose");
+                IOException closeFailure = null;
+                for (SSTableReader reader : plan.readers) {
+                    try { reader.close(); }
+                    catch (IOException problem) {
+                        if (closeFailure == null) closeFailure = problem; else closeFailure.addSuppressed(problem);
+                    }
+                }
+                if (closeFailure != null) throw closeFailure;
+            }
         }
 
-        List<SSTableReader> replacements = new ArrayList<>();
-        for (ManifestFileMetadata addition : additions)
-            replacements.add(
-                    SSTableReader.open(
-                            root.resolve(VersionSet.sstableName(addition.fileNumber())),
-                            databaseId,
-                            addition));
-        List<SSTableReader> obsolete =
-                tables.stream()
-                        .filter(table -> inputNumbers.contains(table.metadata().fileNumber()))
-                        .toList();
-        tables.removeAll(obsolete);
-        tables.addAll(replacements);
-        for (SSTableReader table : obsolete) table.close();
+        compactionStage(trace, "obsoleteTableDelete");
         for (ManifestFileMetadata input : inputs)
             Files.delete(root.resolve(VersionSet.sstableName(input.fileNumber())));
+        compactionStage(trace, "directoryFsync2");
         syncDirectory(root);
+        compactionStage(trace, "other");
     }
 
-    private boolean isBaseLevelForKey(byte[] key, int outputLevel) {
+    private static boolean isBaseLevelForKey(byte[] key, int outputLevel, io.aetherdb.sstable.manifest.Version version) {
         for (int level = outputLevel + 1; level <= 6; level++)
-            for (ManifestFileMetadata file : versions.current().files(level)) {
+            for (ManifestFileMetadata file : version.files(level)) {
                 if (BYTE_ORDER.compare(file.smallestUserKey(), key) <= 0
                         && BYTE_ORDER.compare(key, file.largestUserKey()) <= 0) return false;
             }
@@ -731,15 +959,17 @@ final class PersistentAetherDatabase implements AetherDatabase {
         return List.copyOf(result);
     }
 
-    private static long requiredNativeBytes(WriteBatch batch) {
+    private static long requiredNativeBytes(WriteBatch batch, long[] logicalBytes) {
         long bytes = 0;
         for (WriteBatch.Mutation mutation : batch.mutations()) {
             int valueBytes = mutation instanceof WriteBatch.Put put ? put.value().length : 0;
+            int keyBytes = mutation.key().length;
+            if (logicalBytes != null) logicalBytes[0] += WalFormatV1.OPERATION_HEADER_BYTES + (long) keyBytes + valueBytes;
             bytes =
                     Math.addExact(
                             bytes,
                             NativeSkipListMemTable.maximumInsertionBytes(
-                                    mutation.key().length, valueBytes));
+                                    keyBytes, valueBytes));
         }
         return bytes;
     }
@@ -755,6 +985,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
                                 "write subsystem previously failed", backgroundFailure));
                 continue;
             }
+            FlushDiagnostics.Collector previousTrace = FlushDiagnostics.attach(request.flushTrace);
             try {
                 ensureOpen();
                 CrashPointRegistry.hit(
@@ -769,18 +1000,20 @@ final class PersistentAetherDatabase implements AetherDatabase {
                             new WriteResult(0, 0, 0, request.options.durabilityMode(), false);
                     continue;
                 }
-                long required = requiredNativeBytes(request.batch);
+                long[] logicalBytes = FlushDiagnostics.current() == null ? null : new long[] {WalFormatV1.GROUP_HEADER_BYTES};
+                long required = requiredNativeBytes(request.batch, logicalBytes);
                 if (required > configuration.memtableBytes() - 256)
                     throw new IllegalArgumentException("batch cannot fit in one MemTable");
-                admitWrite(required, request.options);
+                admitWrite(required, request.options, logicalBytes == null ? -1 : logicalBytes[0]);
                 long first = Math.addExact(lastVisibleSequence, 1);
                 long last = Math.addExact(first, request.batch.operationCount() - 1L);
                 CrashPointRegistry.hit(
                         CrashPointIds.WRITE_AFTER_SEQUENCE_ALLOCATED,
                         writeSequenceCrashContext(first, last, request.batch.operationCount()));
                 byte[] logical = WalLogicalGroupCodec.encode(request.batch, first, last);
-                if (WalFormatV1.estimateEndOffset(wal.position(), logical.length)
-                        > configuration.walSegmentBytes()) flushActive();
+                long estimatedEnd = WalFormatV1.estimateEndOffset(wal.position(), logical.length);
+                if (estimatedEnd > configuration.walSegmentBytes())
+                    flushActive(FlushCause.WAL_SEGMENT, required, logical.length);
                 int recordNumber = Math.incrementExact(walRecordNumber);
                 long walStartOffset = wal.position();
                 byte[] physical = WalFragmentCodec.fragment(logical, walStartOffset, recordNumber);
@@ -810,6 +1043,8 @@ final class PersistentAetherDatabase implements AetherDatabase {
                     backgroundFailure = failure;
                     break;
                 }
+            } finally {
+                FlushDiagnostics.attach(previousTrace);
             }
         }
         boolean forced = false;
@@ -959,10 +1194,10 @@ final class PersistentAetherDatabase implements AetherDatabase {
         return RuntimeConfiguration.from(configuration).defaultWriteOptions().durabilityMode();
     }
 
-    private void admitWrite(long requiredNativeBytes, WriteOptions options) throws IOException {
+    private void admitWrite(long requiredNativeBytes, WriteOptions options, long logicalWalWriteBytes) throws IOException {
         if (requiredNativeBytes > active.nativeRemainingBytes() && active.entryCount() > 0)
-            flushActive();
-        compactIfNeeded();
+            flushActive(FlushCause.MEMTABLE_CAPACITY, requiredNativeBytes, logicalWalWriteBytes);
+        requestCompaction(-1);
         WritePressureSnapshot pressure = pressure(requiredNativeBytes);
         AdmissionDecision decision = writeAdmissionDecision(pressure);
         if (decision.accepted()) return;
@@ -1244,7 +1479,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
     }
 
     private void ensureOpen() {
-        if (closed) throw new AetherClosedException("database is closed");
+        if (closed || closing) throw new AetherClosedException("database is closed or closing");
     }
 
     private static void validateKey(byte[] key) {
@@ -1359,6 +1594,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
     }
 
     private static Throwable merge(Throwable first, Throwable next) {
+        if (next == null || first == next) return first;
         if (first == null) return next;
         first.addSuppressed(next);
         return first;
@@ -1429,6 +1665,7 @@ final class PersistentAetherDatabase implements AetherDatabase {
     }
 
     private static final class CommitRequest {
+        private final FlushDiagnostics.Collector flushTrace = FlushDiagnostics.current();
         private final WriteBatch batch;
         private final WriteOptions options;
         private WriteResult result;
@@ -1442,6 +1679,25 @@ final class PersistentAetherDatabase implements AetherDatabase {
     }
 
     private record WalRecovery(long validEnd, int records, long lastSequence) {}
+
+    private static final class CompactionPlan {
+        final List<ManifestFileMetadata> inputs;
+        final List<SSTableReader> readers;
+        final io.aetherdb.sstable.manifest.Version version;
+        final long oldestSnapshot;
+        final int outputLevel;
+        int outputCount;
+        long outputBytes;
+        boolean published;
+        CompactionPlan(List<ManifestFileMetadata> inputs, List<SSTableReader> readers,
+                io.aetherdb.sstable.manifest.Version version, long oldestSnapshot, int outputLevel) {
+            this.inputs = inputs;
+            this.readers = readers;
+            this.version = version;
+            this.oldestSnapshot = oldestSnapshot;
+            this.outputLevel = outputLevel;
+        }
+    }
 
     private record PreparedCommit(CommitRequest request, long firstSequence, long lastSequence) {}
 

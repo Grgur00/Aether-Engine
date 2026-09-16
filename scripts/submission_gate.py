@@ -7,10 +7,16 @@ from pathlib import Path
 from analyze import load_blocks, analyze_blocks
 from paper_common import write_json, sha256
 from fault_injection import POINTS
+from system_campaign import load_campaign, load_result
+from concurrency_matrix import validated_concurrency
 
 
 def validated_faults(root):
     root = Path(root)
+    metadata = load_campaign(root)
+    protocol = metadata["protocol"]
+    if protocol["kind"] != "process-crash":
+        raise ValueError("wrong durability campaign protocol")
     trials = json.loads((root / "summary.json").read_text())["trials"]
     seen = set()
     for trial in trials:
@@ -21,7 +27,7 @@ def validated_faults(root):
         path = root / identity / "result.json"
         if sha256(path) != trial["resultSha256"]:
             raise ValueError("missing or altered individual fault result")
-        saved = json.loads(path.read_text())
+        saved = load_result(path, metadata)
         if saved != {k: v for k, v in trial.items() if k != "resultSha256"}:
             raise ValueError("fault summary differs from individual trial")
         if not (trial.get("passed") is True and trial.get("boundaryReached") is True and
@@ -30,6 +36,11 @@ def validated_faults(root):
             raise ValueError("fault recovery contract failed")
         if trial["writeMode"] == "batch" and trial.get("targetCount", 0) < 2:
             raise ValueError("batch fault probe needs multiple artifacts")
+        index = int(identity.rsplit("-", 1)[1])
+        if (trial["faultPoint"] not in protocol["points"] or trial["writeMode"] not in protocol["modes"]
+                or not 0 <= index < protocol["trialsPerPoint"]
+                or identity != f"{trial['faultPoint']}-{trial['writeMode']}-{index:04d}"):
+            raise ValueError("fault trial is outside its frozen protocol")
     return trials
 
 
@@ -38,12 +49,12 @@ def audit(root):
     checks = {}
     try:
         blocks = load_blocks(root / "primary")
-        groups = analyze_blocks(blocks)["groups"]
+        protocol = json.loads((root / "primary/protocol.json").read_text())
+        groups = analyze_blocks(blocks, confirmatory=protocol.get("confirmatory") is True)["groups"]
         checks["primary24PairedJavaRuns"] = bool(groups) and all(group["aetherOverRaw"]["n"] >= 24 for group in groups)
         checks["primaryExpectedEvolution"] = all(block["initialReusableEntries"] == 1003 and block["condition"]["samples"] == 1505 for block in blocks)
-        checks["rawSuperiorityAfterHolm"] = all(group["aetherOverRaw"]["superiorAfterHolm"] for group in groups)
-        checks["mmapEquivalenceAfterHolm"] = all(group["aetherOverMmap"]["equivalentAfterHolm"] for group in groups)
-        protocol = json.loads((root / "primary/protocol.json").read_text())
+        checks["secondaryRawSuperiority"] = all(group["aetherOverRaw"].get("secondarySuperior", False) for group in groups)
+        checks["primaryMmapEquivalence"] = all(group["aetherOverMmap"].get("primaryEquivalent", False) for group in groups)
         checks["confirmatoryProtocol"] = protocol.get("confirmatory") is True
     except (ValueError, KeyError, OSError) as error:
         checks["primary24PairedJavaRuns"] = False
@@ -75,10 +86,7 @@ def audit(root):
         checks["durability100PerPointAndMode"] = False
     concurrent = []
     try:
-        for path in (root / "concurrency").glob("*.json"):
-            value = json.loads(path.read_text())
-            if "clients" in value:
-                concurrent.append(value)
+        concurrent = validated_concurrency(root / "concurrency")
         identities = [(v["backend"], v["clients"], v["workerProcessesPerClient"], v["repeat"]) for v in concurrent]
         if len(set(identities)) != len(identities):
             raise ValueError("duplicate concurrency trial")
@@ -122,9 +130,12 @@ def audit(root):
         checks["optimizedDaliComparison12"] = {"coco / DALI", "imagenet / DALI"} <= represented
     except (ValueError, KeyError, OSError):
         checks["optimizedDaliComparison12"] = False
-    checks["independentCleanRoomReproduction"] = False
-    scientific = all(value is True for value in checks.values())
-    return {"schema": "aether-submission-gate-v1", "scientificEvidenceReady": scientific, "checks": checks,
+    claims = {key: checks.pop(key, False) for key in ("secondaryRawSuperiority", "primaryMmapEquivalence")}
+    coverage = all(value is True for value in checks.values())
+    supported = claims["primaryMmapEquivalence"]
+    return {"schema": "aether-submission-gate-v2", "scientificEvidenceReady": coverage and supported,
+            "automatedCoverageComplete": coverage, "plannedClaimsSupported": supported,
+            "claims": claims, "checks": checks,
             "submissionReady": False,
             "humanReviewRemaining": ["author names and ORCID", "current journal-specific submission limit",
                 "citation verification and manuscript review", "dataset licensing", "AI disclosure reflecting actual usage",

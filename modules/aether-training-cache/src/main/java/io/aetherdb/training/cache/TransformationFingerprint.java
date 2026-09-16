@@ -60,6 +60,16 @@ public final class TransformationFingerprint {
         catch (NoSuchAlgorithmException exception) { throw new IllegalStateException("SHA-256 is unavailable", exception); }
     }
 
+    static byte[] sha256(byte[] input, int offset, int length) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            digest.update(input, offset, length);
+            return digest.digest();
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("SHA-256 is unavailable", exception);
+        }
+    }
+
     static byte[] keyBytes(String namespace, String sampleId, TransformationFingerprint transform) {
         byte[] namespaceBytes = namespace.getBytes(StandardCharsets.UTF_8);
         byte[] sampleBytes = sampleId.getBytes(StandardCharsets.UTF_8);

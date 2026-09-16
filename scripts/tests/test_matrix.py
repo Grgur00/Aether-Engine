@@ -13,7 +13,9 @@ def test_successive_workflow_restarts_java_and_accumulates_real_report_fields(tm
     config = tmp_path / "datasets.json"
     write_json(config, {"oct5k": {"manifestV1": str(v1), "manifestV2": str(v2), "samplesV1": 1,
                                 "samplesV2": 2, "expectedReusable": 1, "imageSize": 8}})
-    args = run_matrix.parser().parse_args(["--config", str(config), "--repeats", "1", "--workflow-experiments", "2"])
+    scratch = tmp_path / "separate-scratch"
+    args = run_matrix.parser().parse_args(["--config", str(config), "--repeats", "1", "--workflow-experiments", "2",
+                                          "--scratch-root", str(scratch)])
     plan = run_matrix.build_plan(args)
     plan["sourceSha256"] = {"fixture": "not-research-evidence"}
     env = {"measurementIdentity": {"fixture": True}, "sourceSha256": plan["sourceSha256"]}
@@ -47,6 +49,10 @@ def test_successive_workflow_restarts_java_and_accumulates_real_report_fields(tm
     point = plan["conditions"][0]
     block = run_matrix.run_block(plan, point, 0, root / point["conditionId"] / "block-0000", env_id, protocol_hash)
     assert len(starts) == 3  # V1 population, then two independently restarted V2 processes.
+    assert all(path.is_relative_to(scratch) for path in starts)
+    assert all(next(value for i, value in enumerate(command) if command[i - 1] == "--mmap-cache-dir").startswith(str(scratch))
+               for command in training_commands)
+    assert not list(scratch.glob("aether-store-*"))
     assert all("--aether-cache-mode" in command and "reuse" in command for command in training_commands)
     assert block["workflowCostMs"] == {"raw": 3000, "aether": 3010, "mmap": 3020, "ram": 3000}
     assert block["workflow"][0]["initialReusableEntries"] == 1

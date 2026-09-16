@@ -87,6 +87,41 @@ final class TrainingCacheTraceTest {
         }
     }
 
+    @Test void flushEvidenceTravelsWithPublishResponseAndClearsBeforeLegacyRequest() throws Exception {
+        var config = new io.aetherdb.config.AetherConfiguration(java.util.Map.of(
+                "aether.security.profile", "development", "aether.storage.disk_pressure.enabled", "false",
+                "aether.memtable.native_bytes", "1048576"));
+        byte[] payload = new byte[196849];
+        var transform = TransformationFingerprint.ofCanonicalDescriptor("v1");
+        try (var cache = new TrainingCache(io.aetherdb.engine.Aether.open(temp.resolve("flush-wire"), config),
+                TrainingCache.DEFAULT_MAX_BYTES, TrainingCacheDurability.DURABLE)) {
+            for (int i = 0; i < 5; i++) cache.put(new CacheKey("tracing", "s" + i, transform), payload);
+            var frames = new ByteArrayOutputStream();
+            frames.write(request(2, 6, "s5", payload));
+            frames.write(request(1, 1, "s5", null));
+            var output = new ByteArrayOutputStream();
+            TrainingCacheProtocol.serve(new ByteArrayInputStream(frames.toByteArray()), output,
+                    cache, new Semaphore(1), new TrainingCacheProtocolMetrics());
+            var input = new DataInputStream(new ByteArrayInputStream(output.toByteArray()));
+            int frameLength = input.readInt();
+            assertEquals(1, input.readUnsignedByte());
+            int bodyLength = input.readInt();
+            assertEquals(bodyLength + 5, frameLength);
+            int metadataLength = input.readInt();
+            assertEquals(bodyLength - 4, metadataLength);
+            String json = new String(input.readNBytes(metadataLength), StandardCharsets.UTF_8);
+            assertTrue(json.contains("\"traceId\":\"00000000000000000000000000000000\""), json);
+            assertTrue(json.contains("\"flushes\":[{\"cause\":\"MEMTABLE_CAPACITY\",\"completed\":true"), json);
+            assertTrue(json.contains("\"memtableEntryCount\":5"), json);
+            assertTrue(json.contains("\"memtableNativeLimitBytes\":1048576"), json);
+            assertTrue(json.contains("\"directoryFsync1\":"), json);
+            assertTrue(json.contains("\"compactionSchedule\":"), json);
+            assertArrayEquals(payload, readResponse(input, 1, false, null));
+            assertEquals(0, input.available());
+            assertNull(io.aetherdb.engine.FlushDiagnostics.current());
+        }
+    }
+
     @Test void mixedBatchesPreserveSegmentsDuplicatesMissesAndWireOffsets() throws Exception {
         var transform = TransformationFingerprint.ofCanonicalDescriptor("v1");
         byte[] inline = {7, 8, 9};

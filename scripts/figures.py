@@ -16,12 +16,12 @@ from analyze import load_blocks, analyze_blocks
 from paper_common import write_json
 
 
-def geometric_ci(values):
+def geometric_ci(values, confidence=.95):
     logs = np.log(np.asarray(values, dtype=float))
     if len(logs) < 2 or not np.all(np.isfinite(logs)):
         raise ValueError("figures require at least two valid independent measurements per point")
     center = float(np.mean(logs))
-    radius = float(stats.t.ppf(.975, len(logs) - 1) * stats.sem(logs))
+    radius = float(stats.t.ppf((1 + confidence) / 2, len(logs) - 1) * stats.sem(logs))
     return math.exp(center), math.exp(center - radius), math.exp(center + radius)
 
 
@@ -32,7 +32,8 @@ def save(figure, output, name):
     plt.close(figure)
 
 
-def generate(blocks, output, *, raw_label="raw"):
+def generate(blocks, output, *, raw_label="raw", confirmatory=False):
+    analysis = analyze_blocks(blocks, confirmatory=confirmatory)
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     groups = collections.defaultdict(list)
@@ -50,13 +51,14 @@ def generate(blocks, output, *, raw_label="raw"):
         spec = runs[0]["condition"]
         axis.set_title(f"{spec['dataset']} · n={len(runs)} paired blocks")
         save(fig, output, f"throughput-{protocol[:10]}-{env[:10]}-{condition}")
-        paired = geometric_ci([run["throughput"]["aether"] / run["throughput"]["mmap"] for run in runs])
+        paired = geometric_ci([run["throughput"]["aether"] / run["throughput"]["mmap"] for run in runs],
+                              .90 if confirmatory else .95)
         fig, axis = plt.subplots(figsize=(5.2, 2.2))
         axis.axvspan(.97, 1.03, color="#3c9d75", alpha=.18, label="Predeclared equivalence bounds")
         axis.axvline(1, color="#555555", linewidth=.8)
         axis.errorbar([paired[0]], [0], xerr=[[paired[0] - paired[1]], [paired[2] - paired[0]]], fmt="o", capsize=4)
         axis.set_yticks([0], [spec["dataset"]])
-        axis.set_xlabel("Paired Aether/mmap ratio (geometric mean, 95% CI)")
+        axis.set_xlabel(f"Paired Aether/mmap ratio (geometric mean, {90 if confirmatory else 95}% CI)")
         axis.set_xlim(min(.95, paired[1] * .99), max(1.05, paired[2] * 1.01))
         axis.legend(fontsize=7)
         save(fig, output, f"ratio-{protocol[:10]}-{env[:10]}-{condition}")
@@ -80,12 +82,13 @@ def generate(blocks, output, *, raw_label="raw"):
         writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
-    analysis = analyze_blocks(blocks)
     write_json(output / "analysis.json", analysis)
-    latex = [r"\begin{tabular}{lrrrr}", r"Condition & $n$ & A/R & A/M & TOST Holm $p$ \\", r"\hline"]
+    label = "TOST" if confirmatory else "TOST Holm"
+    latex = [r"\begin{tabular}{lrrrr}", f"Condition & $n$ & A/R & A/M & {label} $p$ " + r"\\", r"\hline"]
     for group in analysis["groups"]:
         a, m = group["aetherOverRaw"], group["aetherOverMmap"]
-        latex.append(f"{group['conditionId']} & {a['n']} & {a['geometricMeanRatio']:.4f} & {m['geometricMeanRatio']:.4f} & {m['holmP']:.4g} " + r"\\")
+        p = m["tost"]["p"] if confirmatory else m["holmP"]
+        latex.append(f"{group['conditionId']} & {a['n']} & {a['geometricMeanRatio']:.4f} & {m['geometricMeanRatio']:.4f} & {p:.4g} " + r"\\")
     latex.append(r"\end{tabular}")
     (output / "primary-table.tex").write_text("\n".join(latex) + "\n", encoding="utf-8")
     # Facet sweeps by every other experimental dimension and environment.
@@ -127,4 +130,5 @@ if __name__ == "__main__":
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path, default=Path("figures"))
     args = parser.parse_args()
-    generate(load_blocks(args.input), args.output)
+    protocol = json.loads((args.input / "protocol.json").read_text(encoding="utf-8"))
+    generate(load_blocks(args.input), args.output, confirmatory=protocol.get("confirmatory") is True)

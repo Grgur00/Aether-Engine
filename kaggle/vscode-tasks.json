@@ -1,0 +1,250 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Kaggle: Install CLI",
+      "type": "process",
+      "command": "python",
+      "args": [
+        "${workspaceFolder}/scripts/kaggle_remote.py",
+        "setup"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Kaggle: Login",
+      "type": "process",
+      "command": "${workspaceFolder}/build/kaggle-venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}/build/kaggle-venv/Scripts/python.exe"
+      },
+      "args": [
+        "${workspaceFolder}/scripts/kaggle_remote.py",
+        "login"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    },
+    {
+      "label": "Kaggle: Check connection",
+      "type": "process",
+      "command": "${workspaceFolder}/build/kaggle-venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}/build/kaggle-venv/Scripts/python.exe"
+      },
+      "args": [
+        "${workspaceFolder}/scripts/kaggle_remote.py",
+        "check"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false
+      }
+    },
+    {
+      "label": "Kaggle: Prepare source",
+      "type": "process",
+      "command": "${workspaceFolder}/build/kaggle-venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}/build/kaggle-venv/Scripts/python.exe"
+      },
+      "args": [
+        "${workspaceFolder}/scripts/kaggle_remote.py",
+        "prepare"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false
+      }
+    },
+    {
+      "label": "Kaggle: Upload source (first time)",
+      "type": "process",
+      "command": "${workspaceFolder}/build/kaggle-venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}/build/kaggle-venv/Scripts/python.exe"
+      },
+      "args": [
+        "${workspaceFolder}/scripts/kaggle_remote.py",
+        "upload-source"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false
+      }
+    },
+    {
+      "label": "Kaggle: Update source",
+      "type": "process",
+      "command": "${workspaceFolder}/build/kaggle-venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}/build/kaggle-venv/Scripts/python.exe"
+      },
+      "args": [
+        "${workspaceFolder}/scripts/kaggle_remote.py",
+        "upload-source",
+        "--update"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false
+      }
+    },
+    {
+      "label": "Kaggle: Source status",
+      "type": "process",
+      "command": "${workspaceFolder}/build/kaggle-venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}/build/kaggle-venv/Scripts/python.exe"
+      },
+      "args": [
+        "${workspaceFolder}/scripts/kaggle_remote.py",
+        "source-status"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false
+      }
+    },
+    {
+      "label": "Kaggle: Run notebook",
+      "type": "process",
+      "command": "${workspaceFolder}/build/kaggle-venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}/build/kaggle-venv/Scripts/python.exe"
+      },
+      "args": [
+        "${workspaceFolder}/scripts/kaggle_remote.py",
+        "run"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false
+      }
+    },
+    {
+      "label": "Kaggle: Notebook status",
+      "type": "process",
+      "command": "${workspaceFolder}/build/kaggle-venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}/build/kaggle-venv/Scripts/python.exe"
+      },
+      "args": [
+        "${workspaceFolder}/scripts/kaggle_remote.py",
+        "status"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false
+      }
+    },
+    {
+      "label": "Kaggle: Notebook logs",
+      "type": "process",
+      "command": "${workspaceFolder}/build/kaggle-venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}/build/kaggle-venv/Scripts/python.exe"
+      },
+      "args": [
+        "${workspaceFolder}/scripts/kaggle_remote.py",
+        "logs"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false
+      }
+    },
+    {
+      "label": "Kaggle: Download outputs",
+      "type": "process",
+      "command": "${workspaceFolder}/build/kaggle-venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}/build/kaggle-venv/Scripts/python.exe"
+      },
+      "args": [
+        "${workspaceFolder}/scripts/kaggle_remote.py",
+        "outputs"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false
+      }
+    },
+    {
+      "label": "Kaggle: Doctor",
+      "type": "process",
+      "command": "${workspaceFolder}/build/kaggle-venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}/build/kaggle-venv/Scripts/python.exe"
+      },
+      "args": [
+        "${workspaceFolder}/scripts/kaggle_remote.py",
+        "doctor"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false
+      }
+    }
+  ]
+}

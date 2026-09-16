@@ -1,6 +1,7 @@
 """Predeclared paired log-ratio analysis. Input is validated matrix block JSON."""
 import argparse
 import collections
+import json
 import math
 from pathlib import Path
 
@@ -61,6 +62,7 @@ def paired_analysis(aether, baseline, *, margin=.03, alpha=.05, resamples=10000,
     return {"n": n, "geometricMeanRatio": math.exp(center), "pairedLogSd": sd,
             "ratioCI95": [math.exp(center - ci95), math.exp(center + ci95)],
             "pairedTTestTwoSidedP": p_two,
+            "pairedTTestGreaterP": float(stats.t.sf(center / se, n - 1)),
             "tost": {"lowerRatio": 1 - margin, "upperRatio": 1 + margin,
                      "pLower": p_low, "pUpper": p_high, "p": max(p_low, p_high),
                      "equivalentUnadjusted": max(p_low, p_high) < alpha,
@@ -105,7 +107,9 @@ def load_blocks(directory):
     return blocks
 
 
-def analyze_blocks(blocks, **options):
+def analyze_blocks(blocks, *, confirmatory=False, **options):
+    if confirmatory and (options.get("alpha", .05) != .05 or options.get("margin", .03) != .03):
+        raise ValueError("confirmatory alpha and equivalence margin are frozen at .05 and .03")
     groups = collections.defaultdict(list)
     seen = set()
     for block in blocks:
@@ -115,6 +119,9 @@ def analyze_blocks(blocks, **options):
         seen.add(identity)
         groups[(block["protocolHash"], block["conditionId"], block["environmentId"])].append(block)
     reports = []
+    if confirmatory and (len(groups) != 1 or len(blocks) != 24 or
+                         {b["blockIndex"] for b in blocks} != set(range(24))):
+        raise ValueError("confirmatory analysis requires exactly 24 fresh paired blocks in one protocol/environment")
     for (protocol, condition, environment), group in sorted(groups.items()):
         aether = [b["throughput"]["aether"] for b in group]
         raw = paired_analysis(aether, [b["throughput"]["raw"] for b in group], **options)
@@ -124,11 +131,41 @@ def analyze_blocks(blocks, **options):
         raw["superiorAfterHolm"] = adjusted[0] < options.get("alpha", .05) and raw["geometricMeanRatio"] > 1
         mmap["holmP"] = adjusted[1]
         mmap["equivalentAfterHolm"] = adjusted[1] < options.get("alpha", .05)
+        if confirmatory:
+            # The raw comparison is secondary and does not alter the primary TOST.
+            for report in (raw, mmap):
+                report.pop("holmP")
+            raw.pop("superiorAfterHolm")
+            mmap.pop("equivalentAfterHolm")
+            raw["secondarySuperior"] = raw["pairedTTestGreaterP"] < .05
+            mmap["primaryEquivalent"] = mmap["tost"]["equivalentUnadjusted"]
         reports.append({"protocolHash": protocol, "conditionId": condition, "environmentId": environment,
                         "aetherOverRaw": raw, "aetherOverMmap": mmap,
                         "confirmatorySampleCountReached": len(group) >= 24})
     return {"schema": "aether-paper-analysis-v1", "groups": reports,
-            "family": "two primary comparisons per predeclared condition; secondary conditions exploratory"}
+            "family": ("single primary Aether/mmap TOST; raw one-sided secondary, RAM descriptive"
+                       if confirmatory else "two primary comparisons per predeclared condition; secondary conditions exploratory")}
+
+
+def amortization(directory):
+    """Descriptive paired curves, derived only from already validated blocks."""
+    from run_matrix import BACKEND_IDS
+    runs = [json.loads(path.with_name("training.json").read_text(encoding="utf-8"))["runs"][0]
+            for path in sorted(Path(directory).glob("*/block-*/block.json"))]
+    curves = []
+    for epoch in range(1, 11):
+        training, lifecycle = [], []
+        for run in runs:
+            a, m = (run["backends"][BACKEND_IDS[key]] for key in ("aether", "mmap"))
+            a_wall, m_wall = sum(a["epochWallMs"][:epoch]), sum(m["epochWallMs"][:epoch])
+            training.append(m_wall / a_wall)
+            lifecycle.append((m_wall + m["lifecycle"]["populateMs"]) /
+                             (a_wall + a["lifecycle"]["populateMs"]))
+        curves.append({"epochs": epoch,
+                       "trainingRatioGeometricMean": float(np.exp(np.mean(np.log(training)))),
+                       "includingV2PreparationRatioGeometricMean": float(np.exp(np.mean(np.log(lifecycle))))})
+    return {"scope": "secondary descriptive; cumulative epoch walls, optionally plus V2 preparation; excludes V1 population and inter-epoch overhead; not the primary effective-throughput endpoint",
+            "curves": curves}
 
 
 def main(argv=None):
@@ -138,14 +175,23 @@ def main(argv=None):
     parser.add_argument("--alpha", type=float, default=.05)
     parser.add_argument("--bootstrap-resamples", type=int, default=10000)
     parser.add_argument("--equivalence-margin", type=float, default=.03)
-    parser.add_argument("--holm", action="store_true", help="Always applied to the two primary comparisons")
+    parser.add_argument("--holm", action="store_true", help="Legacy exploratory two-comparison family; rejected for the frozen confirmatory design")
     parser.add_argument("--seed", type=int, default=20260904)
     parser.add_argument("--mixed-effects", action="store_true", help="Fit predeclared secondary model on a sufficiently varied matrix")
     parser.add_argument("--pilot", action="store_true", help="Label a separate >=10-block pilot; never confirmatory evidence")
     args = parser.parse_args(argv)
+    protocol_path = args.input / "protocol.json"
+    protocol = json.loads(protocol_path.read_text(encoding="utf-8")) if protocol_path.exists() else {}
+    confirmatory = protocol.get("confirmatory") is True
+    if confirmatory and (args.pilot or args.holm or args.mixed_effects):
+        raise ValueError("confirmatory analysis uses the frozen single-primary design, without pilot/Holm/mixed-effects overrides")
     blocks = load_blocks(args.input)
-    report = analyze_blocks(blocks, alpha=args.alpha, margin=args.equivalence_margin,
+    report = analyze_blocks(blocks, confirmatory=confirmatory, alpha=args.alpha, margin=args.equivalence_margin,
                             resamples=args.bootstrap_resamples, seed=args.seed)
+    if confirmatory:
+        report["measurementRole"] = "confirmatory; fixed 24 blocks and 10-epoch endpoint"
+        report["confirmatoryDesign"] = protocol["confirmatoryDesign"]
+        report["secondaryAmortization"] = amortization(args.input)
     if args.pilot:
         if any(group["aetherOverMmap"]["n"] < 10 for group in report["groups"]):
             raise ValueError("pilot recalculation requires at least 10 complete paired blocks per condition")

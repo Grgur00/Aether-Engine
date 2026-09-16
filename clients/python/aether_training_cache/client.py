@@ -46,6 +46,60 @@ class SegmentReference:
     checksum: bytes
 
 
+class _BatchRequestTrace:
+    """Request-local timing; phase totals include failed attempts and retries."""
+
+    def __init__(self):
+        self.trace_id = uuid.uuid4().hex
+        self.events = []
+        self.timings = dict.fromkeys((
+            "requestBodyEncodeNs", "requestFrameEncodeNs", "socketSendNs",
+            "socketWaitReceiveNs", "responseHeaderDecodeNs",
+            "responseEnvelopeDecodeNs", "responseBatchDecodeNs"), 0)
+        self.active_phase = None
+        self.request_frame_bytes = 0
+        self.mark("start")
+
+    def mark(self, stage, **fields):
+        self.events.append({"stage": stage, "monotonicNs": time.perf_counter_ns(), **fields})
+
+    def begin(self, phase):
+        self.active_phase = phase
+        self.phase_started = time.perf_counter_ns()
+
+    def end(self):
+        if self.active_phase is not None:
+            elapsed = time.perf_counter_ns() - self.phase_started
+            self.timings[self.active_phase] += elapsed
+            self.active_phase = None
+
+    def finish(self, client, error_type):
+        self.end()
+        self.mark("complete")
+        timings = self.timings
+        record = {
+            "schema": "aether-client-request-trace-v1", "traceId": self.trace_id,
+            "operation": 5, "requestFrameBytes": self.request_frame_bytes,
+            "outcome": "complete" if error_type is None else "error", "errorType": error_type,
+            "durationNs": self.events[-1]["monotonicNs"] - self.events[0]["monotonicNs"],
+            "events": self.events,
+            "serverCorrelated": any(e["stage"] == "server_trace" for e in self.events),
+            **timings,
+            "requestEncodeNs": timings["requestBodyEncodeNs"] + timings["requestFrameEncodeNs"],
+            "responseDecodeNs": (timings["responseHeaderDecodeNs"]
+                                 + timings["responseEnvelopeDecodeNs"]
+                                 + timings["responseBatchDecodeNs"]),
+            "scope": "get_many_values body construction through packed batch decoding; includes lock and retries; "
+                     "excludes key iterable materialization, artifact decoding, tensor materialization, and trace sink",
+            "timingScope": "phase totals across all attempts; receive includes header and payload reads; "
+                           "phase totals exclude connection setup, lock wait, and diagnostic bookkeeping",
+        }
+        try:
+            client._trace_sink(record)
+        except Exception:
+            client.trace_errors += 1
+
+
 class AetherTrainingCache:
     def __init__(self, host: str = "127.0.0.1", port: int = 9484, timeout: float = 30.0,
                  ssl_context: ssl.SSLContext | None = None, unix_socket: str | None = None,
@@ -58,6 +112,7 @@ class AetherTrainingCache:
         self._unix_socket = unix_socket
         self._connection = None
         self._lock = threading.RLock()
+        self._requests_cancelled = threading.Event()
         self.connections_opened = 0
         self.requests_sent = 0
         self.operation_counts = {}
@@ -72,18 +127,60 @@ class AetherTrainingCache:
         self.close()
 
     def _connect(self):
-        if self._unix_socket:
-            raw = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            raw.settimeout(self._timeout)
-            raw.connect(self._unix_socket)
-        else:
-            raw = socket.create_connection(self._address, self._timeout)
-            raw.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-        self._connection = (self._ssl_context.wrap_socket(raw, server_hostname=self._address[0])
-                            if self._ssl_context else raw)
-        self.connections_opened += 1
+        self._raise_if_cancelled()
+        raw = None
+        try:
+            if self._unix_socket:
+                raw = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                raw.settimeout(self._timeout)
+                raw.connect(self._unix_socket)
+            else:
+                raw = socket.create_connection(self._address, self._timeout)
+                raw.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+            # Cancellation during connect must not start a TLS handshake or retry.
+            self._raise_if_cancelled()
+            self._connection = (self._ssl_context.wrap_socket(raw, server_hostname=self._address[0])
+                                if self._ssl_context else raw)
+            self.connections_opened += 1
+            # Publish before checking: cancellation either sees this socket or
+            # this check closes a connection established after cancellation.
+            self._raise_if_cancelled()
+        except BaseException:
+            if self._requests_cancelled.is_set():
+                self._close_connection()
+                if raw is not None:
+                    raw.close()
+            raise
 
-    def _round_trip(self, body):
+    def _raise_if_cancelled(self):
+        if self._requests_cancelled.is_set():
+            raise RuntimeError("training cache client requests have been cancelled")
+
+    def cancel_pending_requests(self) -> None:
+        """Irreversibly abort this client, for early prefetch shutdown.
+
+        Interrupt socket I/O without waiting for the request lock. An in-progress
+        connect/TLS handshake may still take the configured socket timeout (30s
+        by default), but cancellation prevents retries and future requests.
+        Call before joining an aborted worker, then close its owned store.
+        Normal epoch completion should retain the persistent connection instead.
+        """
+        self._requests_cancelled.set()
+        connection = self._connection
+        if connection is not None:
+            try:
+                connection.shutdown(socket.SHUT_RDWR)
+            except OSError:
+                # The request thread or normal close may already have closed it.
+                pass
+
+    def _round_trip(self, body, *, _deferred_trace=None):
+        if _deferred_trace is not None:
+            # The caller owns completion, including failures after the exchange.
+            trace = _deferred_trace
+            trace.request_frame_bytes = len(body) + 4 + (16 if self._server_trace else 0)
+            return self._exchange(body, trace.mark,
+                                  trace.trace_id if self._server_trace else None, timing=trace)
         if self._trace_sink is None:
             return self._exchange(body)
         trace_id = uuid.uuid4().hex
@@ -114,31 +211,46 @@ class AetherTrainingCache:
                 # A failed diagnostic sink must never trigger a write retry.
                 self.trace_errors += 1
 
-    def _exchange(self, body, mark=None, trace_id=None):
+    def _exchange(self, body, mark=None, trace_id=None, timing=None):
+        self._raise_if_cancelled()
         with self._lock:
             if mark: mark("lock_acquired")
             for attempt in range(2):
+                self._raise_if_cancelled()
                 if mark: mark("attempt_start", attempt=attempt)
                 try:
                     if self._connection is None:
                         self._connect()
+                    self._raise_if_cancelled()
                     if mark: mark("connection_ready")
+                    if timing: timing.begin("requestFrameEncodeNs")
                     wire_body = bytes([2, body[1]]) + bytes.fromhex(trace_id) + body[2:] if trace_id else body
                     frame = struct.pack(">I", len(wire_body)) + wire_body
+                    if timing: timing.end()
                     if mark: mark("frame_ready")
+                    self._raise_if_cancelled()
+                    if timing: timing.begin("socketSendNs")
                     self._connection.sendall(frame)
+                    if timing: timing.end()
                     if mark: mark("send_complete")
                     self.requests_sent += 1
                     operation = body[1] if len(body) > 1 else -1
                     self.operation_counts[operation] = self.operation_counts.get(operation, 0) + 1
+                    if timing: timing.begin("socketWaitReceiveNs")
                     header = _read_exact(self._connection, 9)
+                    if timing: timing.end()
                     if mark: mark("header_received", responseHeaderBytes=len(header))
+                    if timing: timing.begin("responseHeaderDecodeNs")
                     frame_size, status, value_size = struct.unpack(">IBI", header)
                     if frame_size != 1 + 4 + value_size:
                         raise IOError("invalid daemon response")
+                    if timing: timing.end()
                     if mark: mark("header_validated", status=status, responsePayloadBytes=value_size)
+                    if timing: timing.begin("socketWaitReceiveNs")
                     response = _read_exact(self._connection, value_size)
+                    if timing: timing.end()
                     if mark: mark("payload_received")
+                    if timing: timing.begin("responseEnvelopeDecodeNs")
                     if trace_id:
                         if len(response) < 4:
                             raise ValueError("missing server trace envelope")
@@ -153,18 +265,45 @@ class AetherTrainingCache:
                         if (type(duration) is not int or duration < 0 or not isinstance(stages, dict)
                                 or any(type(value) is not int or value < 0 or value > duration for value in stages.values())):
                             raise ValueError("invalid server trace durations")
-                        if mark: mark("server_trace", server=server)
+                        flushes = server.get("flushes")
+                        counters = ("walPositionBytes", "walSegmentLimitBytes", "logicalWalWriteBytes",
+                                    "memtableEntryCount", "memtableNativeRemainingBytes",
+                                    "memtableNativeLimitBytes", "memtableNativeUsedBytes", "requiredNativeBytes")
+                        if (not isinstance(flushes, list)
+                                or any(not isinstance(flush, dict)
+                                    or flush.get("cause") not in {"MEMTABLE_CAPACITY", "WAL_SEGMENT", "OTHER"}
+                                    or type(flush.get("completed")) is not bool
+                                    or type(flush.get("totalNs")) is not int
+                                    or not 0 <= flush["totalNs"] <= duration
+                                    or not isinstance(flush.get("stagesNs"), dict)
+                                    or any(type(value) is not int or value < 0 or value > flush["totalNs"]
+                                        for value in flush["stagesNs"].values())
+                                    or any(type(flush.get(counter)) is not int
+                                        or flush[counter] < (-1 if counter == "logicalWalWriteBytes" else 0)
+                                        for counter in counters)
+                                    for flush in flushes)):
+                            raise ValueError("invalid server flush diagnostics")
                         response = response[4 + metadata_size:]
+                        if timing: timing.end()
+                        if mark: mark("server_trace", server=server)
+                        if timing: timing.begin("responseEnvelopeDecodeNs")
+                    self._raise_if_cancelled()
                     if status == 0:
                         return None
                     if status != 1:
                         raise IOError("training cache daemon rejected request")
                     return response
                 except (ConnectionError, EOFError, OSError) as error:
+                    if timing: timing.end()
                     if mark: mark("attempt_failed", errorType=type(error).__name__)
                     self._close_connection()
+                    self._raise_if_cancelled()
                     if attempt == 1:
                         raise
+                finally:
+                    if timing: timing.end()
+                    if self._requests_cancelled.is_set():
+                        self._close_connection()
             raise ConnectionError("cache request failed")
 
     def _close_connection(self):
@@ -242,7 +381,7 @@ class AetherTrainingCache:
         response = self._round_trip(body)
         if response is None:
             raise IOError("invalid batch reference response")
-        count = struct.unpack(">I", response[:4])[0]
+        count = struct.unpack_from(">I", response)[0]
         if count != len(keys):
             raise IOError("batch reference count mismatch")
         cursor = 4
@@ -304,6 +443,29 @@ class AetherTrainingCache:
         view = mapped_segments.cache_view(self.get_ref(key))
         return torch_tensor(view, dtype=dtype, shape=shape), view
 
+    def engine_info(self) -> dict:
+        """Read engine identity and background-compaction diagnostics outside measured work."""
+        return json.loads(self._round_trip(bytes([1, 7])))
+
+    def drain_completed_server_traces(self) -> dict:
+        """Drain completed server timing JSON (opcode 9) outside measured work.
+
+        Returns {"records": [{"traceId": ..., "stagesNs": ..., "totalServerNs": ...}],
+        "dropped": ...} unchanged for traceId reconciliation.
+        """
+        return json.loads(self._round_trip(bytes([1, 9])))
+
+    def wait_for_background_compaction(self, timeout=60.0) -> dict:
+        """Drain background work between measured regions; report the additional wall time."""
+        started = time.monotonic()
+        while True:
+            diagnostics = self.engine_info().get("backgroundCompaction", {})
+            drained = diagnostics.get("state") not in {"RUNNING", "STOPPING"}
+            if drained or time.monotonic() - started >= timeout:
+                return {"drainWallMs": (time.monotonic() - started) * 1000,
+                        "drained": drained, "backgroundCompaction": diagnostics}
+            time.sleep(.1)
+
     def put(self, key: CacheKey, value: bytes) -> None:
         self._request(2, key, bytes(value))
 
@@ -332,34 +494,58 @@ class AetherTrainingCache:
             if (value := packed.value(index)) is not None}
 
     def get_many_values(self, keys: Iterable[CacheKey]):
+        """Fetch packed views; an optional trace sink fires after batch decoding.
+
+        requestEncodeNs sums requestBodyEncodeNs (key body) and
+        requestFrameEncodeNs (wire framing, including any server trace ID).
+        responseDecodeNs sums header, trace envelope, and packed batch parsing.
+        Timings accumulate retries and exclude artifact/tensor reconstruction.
+        """
         from .batch_values import InlineValueBatch
         keys = list(keys)
         if not keys:
             return InlineValueBatch(memoryview(b""), [], [], [])
         if len(keys) > 4096:
             raise ValueError("byte batch is limited to 4096 keys")
-        body = bytes([1, 5]) + struct.pack(">I", len(keys))
-        for key in keys:
-            namespace = key.namespace.encode("utf-8")
-            sample = key.sample_id.encode("utf-8")
-            body += struct.pack(">I", len(namespace)) + namespace
-            body += struct.pack(">I", len(sample)) + sample + key.transform.digest
-        response = self._round_trip(body)
-        if response is None:
-            raise IOError("invalid packed value response")
-        count = struct.unpack(">I", response[:4])[0]
-        if count != len(keys):
-            raise IOError("packed value count mismatch")
-        cursor = 4
-        status_codes = response[cursor:cursor + count]
-        cursor += count
-        offsets = list(struct.unpack(f">{count}I", response[cursor:cursor + count * 4]))
-        cursor += count * 4
-        lengths = list(struct.unpack(f">{count}I", response[cursor:cursor + count * 4]))
-        cursor += count * 4
-        buffer = memoryview(response[cursor:])
-        statuses = ["HIT_INLINE" if code == 1 else "MISS" for code in status_codes]
-        return InlineValueBatch(buffer, offsets, lengths, statuses)
+        trace = _BatchRequestTrace() if self._trace_sink is not None else None
+        error_type = None
+        try:
+            if trace: trace.begin("requestBodyEncodeNs")
+            body = bytes([1, 5]) + struct.pack(">I", len(keys))
+            for key in keys:
+                namespace = key.namespace.encode("utf-8")
+                sample = key.sample_id.encode("utf-8")
+                body += struct.pack(">I", len(namespace)) + namespace
+                body += struct.pack(">I", len(sample)) + sample + key.transform.digest
+            if trace:
+                trace.end()
+                response = self._round_trip(body, _deferred_trace=trace)
+                trace.begin("responseBatchDecodeNs")
+            else:
+                response = self._round_trip(body)
+            if response is None:
+                raise IOError("invalid packed value response")
+            count = struct.unpack_from(">I", response)[0]
+            if count != len(keys):
+                raise IOError("packed value count mismatch")
+            cursor = 4
+            status_codes = response[cursor:cursor + count]
+            cursor += count
+            offsets = list(struct.unpack_from(f">{count}I", response, cursor))
+            cursor += count * 4
+            lengths = list(struct.unpack_from(f">{count}I", response, cursor))
+            cursor += count * 4
+            buffer = memoryview(response)[cursor:]
+            statuses = ["HIT_INLINE" if code == 1 else "MISS" for code in status_codes]
+            result = InlineValueBatch(buffer, offsets, lengths, statuses)
+            if trace: trace.end()
+            return result
+        except BaseException as error:
+            if trace: trace.end()
+            error_type = type(error).__name__
+            raise
+        finally:
+            if trace: trace.finish(self, error_type)
 
     def get_or_compute(self, key: CacheKey, compute: Callable[[], bytes]) -> bytes:
         value = self.get(key)

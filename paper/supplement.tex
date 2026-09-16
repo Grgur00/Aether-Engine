@@ -1,0 +1,46 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{longtable,booktabs,url}
+\title{Aether Artifact and Supplementary Evaluation Protocol}
+\author{Author details pending}
+\begin{document}
+\maketitle
+\section{Artifact status}
+This supplement describes the executable protocol. Completed remote performance measurements and independent reproduction are pending. The source package includes Java and Python code, manifests/configuration templates, tests, statistical analysis and figure generation. Source datasets are acquired separately under their licenses.
+
+\section{Reproduction entry points}
+Use \texttt{make artifact-smoke}, \texttt{make reproduce-primary}, and \texttt{make reproduce-all}, or the equivalent \texttt{scripts/reproduce.py} commands. The smoke target is a CPU correctness campaign through the real Java engine. The primary target requires CUDA and verified OCT manifests. Detailed Kaggle setup and data paths are in \texttt{kaggle/README.md}.
+
+\section{Campaign matrix}
+\begin{longtable}{p{.34\linewidth}p{.40\linewidth}r}
+\toprule Campaign & Points & Repeats\\\midrule
+OCT V1 to V2 & 1170 to 1505; 1003 expected reuse & 24\\
+Cross dataset & OCT, COCO, ImageNet & 12 lifecycle / 24 window\\
+Reuse & 0, 25, 50, 66.6445, 75, 90, 100\% & 10\\
+Size & 1505, 5000, 10000, 25000, 50000, 100000, feasible full size & 10\\
+Preprocess cost & 1, 2, 4, 8 passes & 10\\
+Loader workers & 0, 2, 4, 8 & 10\\
+Concurrent clients & 1, 2, 4; storage workers 0, 2, 4, 8 & 10\\
+GPU scaling & 1 and 2 visible GPUs & 10\\
+Process failures & 5 publication boundaries, single/batch & 100 each\\
+Transform evolution & Source, normalization, resize, version, codec, unchanged control & 10\\
+Workflow & Five successive V2 experiments per paired block & 10\\
+Canonical DALI & COCO and ImageNet, three backends & 12\\
+\bottomrule
+\end{longtable}
+The machine-readable configuration is \texttt{configs/paper/evaluation.json}. Unsupported cardinalities or hardware points must be documented before final analysis. Replicated copies of small datasets cannot establish dataset generality.
+
+\section{Evidence files}
+Each paired block retains V1/V2 manifests, population and training reports, command logs, protocol and environment identity, checksums and validated cache counters. Generated cache directories may be removed after successful evidence capture to bound disk use. Interrupted blocks are retained separately and rerun in full. The analysis does not treat a changed environment as the same replica series.
+
+Generated Java and mmap stores can use a separately configured scratch filesystem. Reports remain under the saved output directory. A payload lower-bound capacity check precedes measurement, while metadata and temporary writes may require additional space. The runner records the scratch location, preserves failed attempts, and removes only its own completed store directory. Output locks prevent two GPU runners from owning the same campaign. Resume verifies the frozen protocol, source and environment before reusing completed observations.
+
+\section{Failure semantics}
+The controller waits for a marker written by the Java writer at the requested publication boundary before sending SIGKILL on POSIX or TerminateProcess on Windows. An application-side witness records returned API calls. Verification reopens the same engine and checks all expected visible artifacts and every acknowledged write. Orphans are measured separately. These experiments do not simulate loss of device power, storage-controller cache failure or malicious corruption.
+
+\section{Statistical details}
+The frozen primary endpoint is effective throughput across ten V2 training epochs in exactly 24 fresh paired OCT5K blocks. The sole primary test is TOST on log Aether/mmap ratios at $\alpha=0.05$, with ratio equivalence bounds 0.97 and 1.03. The exponentiated 90\% Student-$t$ interval must lie strictly within these bounds. RAW superiority is a secondary one-sided paired log-ratio test at $\alpha=0.05$; no Holm adjustment couples it to the primary decision. RAM is descriptive. Keep all pilot measurements separate and report every exclusion and failed run with its reason. Cumulative epoch 1--10 curves use the same blocks and remain secondary. The detailed timing scope and immutable settings are specified in \texttt{kaggle/CONFIRMATORY.md}. Bootstrap resampling preserves complete pairs; any mixed-effects analysis belongs to separate exploratory matrix campaigns.
+
+\section{Pending tables}
+Full per-point timing distributions, resource usage, recovery summaries, implementation provenance, independent reproduction records and claim-to-evidence links will be imported after the remote campaigns complete. No numerical stand-ins are supplied here.
+\end{document}

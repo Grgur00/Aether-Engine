@@ -1,12 +1,14 @@
 """Small CPU correctness campaign against the real Java engine; not paper timings."""
 import argparse
-import tempfile
 from pathlib import Path
 
 from paper_common import environment, java_daemon, write_json
+from cache_workspace import cache_workspace
 
 
-def smoke(output, workers=(0, 2)):
+def smoke(output, workers=(0, 2), scratch_root=None, training_epochs=1):
+    if training_epochs < 1:
+        raise ValueError("training_epochs must be positive")
     import numpy as np
     from benchmark_gpu_segmentation import (BackendContext, BACKENDS, artifact_to_tensor_sample,
         batch_checksums, cache_dynamics, effective_measured_steps, load_sources,
@@ -15,13 +17,14 @@ def smoke(output, workers=(0, 2)):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     cases = []
-    with tempfile.TemporaryDirectory(prefix="artifact-smoke-", dir=output) as temporary:
+    with cache_workspace(output, scratch_root=scratch_root) as temporary:
         with java_daemon(Path(temporary) / "java") as daemon:
             for worker_count in workers:
                 args = parse_args(["--samples", "12", "--height", "8", "--width", "8",
                     "--resize", "8", "--batch-size", "4", "--epochs", "2", "--workers", str(worker_count),
                     "--aether-engine", "java", "--cache-durability", "durable", "--aether-port", str(daemon["port"]),
-                    "--aether-namespace", f"smoke-w{worker_count}", "--initial-cache-hit-ratio", "50"])
+                    "--aether-namespace", f"smoke-w{worker_count}", "--initial-cache-hit-ratio", "50",
+                    "--mmap-cache-dir", str(temporary / f"mmap-w{worker_count}")])
                 sources = load_sources(args)
                 reference = [artifact_to_tensor_sample(preprocess_sample(s, args, np), np) for s in sources]
                 context = BackendContext(args, reference, sources, np)
@@ -40,8 +43,13 @@ def smoke(output, workers=(0, 2)):
                     mmap = context.mmap_dynamics()
                     if not aether["invariants"]["passed"] or not mmap["invariants"]["passed"]:
                         raise AssertionError(f"cache accounting mismatch: {aether}, {mmap}")
+                    transport = context.protocol_counters()["transport"]
+                    operations = context.aether_operation_metrics()
+                    if worker_count and (transport["requestsSent"] == 0 or operations.get("lookup", {}).get("count", 0) == 0):
+                        raise AssertionError("worker transport and lookup observations were not collected")
                     cases.append({"workers": worker_count, "tensorParity": True,
-                                  "aetherDynamics": aether, "mmapDynamics": mmap})
+                                  "aetherDynamics": aether, "mmapDynamics": mmap,
+                                  "aetherTransport": transport, "aetherOperationMetrics": operations})
                     print(f"Java/mmap/RAW/RAM parity and accounting passed: workers={worker_count}", flush=True)
                 finally:
                     context.close()
@@ -51,8 +59,9 @@ def smoke(output, workers=(0, 2)):
             from benchmark_gpu_segmentation import run_training_once
             torch.set_num_threads(1)
             args = parse_args(["--samples", "4", "--height", "8", "--width", "8", "--resize", "8",
-                "--batch-size", "2", "--epochs", "1", "--warmup-steps", "0", "--gpu-sample-interval-ms", "0",
-                "--aether-engine", "java", "--cache-durability", "durable", "--aether-port", str(daemon["port"]), "--aether-namespace", "smoke-training"])
+                "--batch-size", "2", "--epochs", str(training_epochs), "--warmup-steps", "0", "--gpu-sample-interval-ms", "0",
+                "--aether-engine", "java", "--cache-durability", "durable", "--aether-port", str(daemon["port"]), "--aether-namespace", "smoke-training",
+                "--mmap-cache-dir", str(temporary / "mmap-training")])
             cpu_training = run_training_once(args, torch, np, torch.device("cpu"), 0)
             write_json(output / "cpu-training-correctness.json", {"measurementRole": "CPU correctness only", "run": cpu_training})
             print("CPU optimizer/final-model parity passed through all four backends", flush=True)
@@ -77,16 +86,17 @@ def smoke(output, workers=(0, 2)):
                 prepare(kind, fixtures, manifest, annotations)
                 vision_args = parse_args(["--dataset-kind", kind, "--dataset-manifest", str(manifest),
                     "--num-classes", "2", "--samples", "4", "--resize", "8", "--batch-size", "2",
-                    "--epochs", "1", "--warmup-steps", "0", "--gpu-sample-interval-ms", "0",
+                    "--epochs", str(training_epochs), "--warmup-steps", "0", "--gpu-sample-interval-ms", "0",
                     "--aether-engine", "java", "--cache-durability", "durable", "--aether-port", str(daemon["port"]),
-                    "--aether-namespace", f"smoke-{kind}", "--backends", "raw,aether,mmap"])
+                    "--aether-namespace", f"smoke-{kind}", "--backends", "raw,aether,mmap",
+                    "--mmap-cache-dir", str(temporary / f"mmap-{kind}")])
                 if kind == "coco":
                     vision_args.artifact_codec = "zlib"
                 result = run_training_once(vision_args, torch, np, torch.device("cpu"), 0)
                 write_json(output / f"cpu-{kind}-correctness.json", {"measurementRole": "CPU correctness with generated tiny RGB fixtures; not dataset evaluation", "run": result})
                 print(f"CPU {kind} optimization and bounded-reference parity passed", flush=True)
     report = {"schema": "aether-artifact-smoke-v1", "measurementRole": "CPU correctness only",
-              "allPassed": True, "cases": cases, "environment": environment()}
+              "trainingEpochs": training_epochs, "allPassed": True, "cases": cases, "environment": environment()}
     write_json(output / "smoke.json", report)
     return report
 
@@ -95,8 +105,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", default="build/artifact-smoke")
     parser.add_argument("--workers", default="0,2")
+    parser.add_argument("--scratch-root", type=Path)
+    parser.add_argument("--training-epochs", type=int, default=1)
     args = parser.parse_args()
-    smoke(args.output, tuple(int(value) for value in args.workers.split(",")))
+    smoke(args.output, tuple(int(value) for value in args.workers.split(",")), args.scratch_root, args.training_epochs)
 
 
 if __name__ == "__main__":

@@ -32,6 +32,7 @@
 
         <nav id="primary-nav" class="primary-nav" aria-label="Primary navigation">
           <a href="#architecture">Architecture</a>
+          <a href="#ai-training">AI training</a>
           <a href="docs/">Documentation</a>
           <a href="#operations">Operations</a>
           <a href="#status">Status</a>
@@ -357,6 +358,85 @@
                 <li>Dynamic membership orchestration</li>
               </ul>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="ai-training" class="ai-training section-rule">
+        <div class="section-shell">
+          <div class="section-heading ai-training-heading">
+            <div>
+              <span class="section-index">06 / AI training data</span>
+              <h2>Keep deterministic<br>preprocessing close.</h2>
+            </div>
+            <p>
+              Aether stores reusable tokenization and preprocessing results on local NVMe. A
+              training worker resolves a deterministic sample key, receives a validated segment
+              reference, maps the immutable payload, and turns it into a NumPy or PyTorch view.
+            </p>
+          </div>
+
+          <div class="ai-flow" aria-label="Aether AI training data path">
+            <div><span>01</span><strong>Raw dataset</strong><small>authoritative source</small></div>
+            <i></i>
+            <div><span>02</span><strong>Transform</strong><small>tokenize + pack</small></div>
+            <i></i>
+            <div><span>03</span><strong>Aether key</strong><small>sample + fingerprint</small></div>
+            <i></i>
+            <div><span>04</span><strong>Segment reference</strong><small>offset + checksum</small></div>
+            <i></i>
+            <div><span>05</span><strong>Tensor view</strong><small>NumPy + PyTorch</small></div>
+          </div>
+
+          <div class="ai-evidence-grid">
+            <article>
+              <span class="ai-card-label">Measured / 128 × 1 MiB</span>
+              <strong>1.90×</strong>
+              <p>Mapped full-byte reduction throughput compared with materialized Python bytes.</p>
+              <small>162.291 MB/s mapped · 85.461 MB/s materialized</small>
+            </article>
+            <article>
+              <span class="ai-card-label">Batch metadata</span>
+              <strong>19,576</strong>
+              <p>Validated segment references per second through one GET_MANY_REFS request.</p>
+              <small>128 references · 6.54 ms measured request</small>
+            </article>
+            <article>
+              <span class="ai-card-label">Integrity</span>
+              <strong>3 = 3</strong>
+              <p>Materialized, mapped, and NumPy full reductions produced the same checksum.</p>
+              <small>checksum 4,227,858,432 · zero corrupt values returned</small>
+            </article>
+          </div>
+
+          <div class="ai-implementation">
+            <div>
+              <span class="ai-card-label">Training worker sequence</span>
+              <h3>One batch, one metadata request.</h3>
+              <ol>
+                <li>Build keys from sample identity and transformation fingerprint.</li>
+                <li>Resolve the batch with <code>get_many_refs(keys)</code>.</li>
+                <li>Reuse mappings through <code>MappedSegmentRegistry</code>.</li>
+                <li>Create read-only NumPy views and CPU tensors.</li>
+                <li>Stage pinned batches when asynchronous GPU transfer improves step time.</li>
+              </ol>
+            </div>
+            <div class="code-panel ai-code-panel">
+              <div class="code-toolbar"><span>training_batch.py</span><button class="copy-button" type="button">Copy</button></div>
+              <pre><code><span class="tok-key">with</span> AetherTrainingCache(port=<span class="tok-num">9484</span>) <span class="tok-key">as</span> cache:
+    refs = cache.get_many_refs(batch_keys)
+    <span class="tok-key">with</span> MappedSegmentRegistry(segment_root) <span class="tok-key">as</span> segments:
+        views = [segments.view(refs[key]) <span class="tok-key">for</span> key <span class="tok-key">in</span> batch_keys]
+        arrays = [numpy_view(view, dtype=<span class="tok-str">"int32"</span>) <span class="tok-key">for</span> view <span class="tok-key">in</span> views]
+        tensors = [torch_view(view) <span class="tok-key">for</span> view <span class="tok-key">in</span> views]
+        train_step(tensors)</code></pre>
+            </div>
+          </div>
+
+          <div class="ai-results-link">
+            <span>Reproducible evidence</span>
+            <p>Run the Java cache benchmark and Python pipeline benchmark to produce machine-readable JSON for payload size, full consumption, latency, checksums, and tensor stages.</p>
+            <code>./gradlew :modules:aether-training-cache:trainingCacheBenchmark -Psamples=1000 -PpayloadBytes=matrix</code>
           </div>
         </div>
       </section>

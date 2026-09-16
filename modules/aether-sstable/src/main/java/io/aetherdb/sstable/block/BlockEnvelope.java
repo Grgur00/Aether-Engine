@@ -1,7 +1,9 @@
 package io.aetherdb.sstable.block;
 
 import io.aetherdb.format.checksum.MaskedCrc32c;
+import io.aetherdb.api.ReadDiagnostics;
 import io.aetherdb.sstable.SSTableCorruptionException;
+import io.aetherdb.sstable.SSTableFinishTrace;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -22,6 +24,20 @@ public final class BlockEnvelope {
      * @return physical block bytes including trailer
      */
     public static byte[] encode(byte[] raw, BlockKind kind) {
+        return encode(raw, kind, null);
+    }
+
+    /** Encodes the same bytes while optionally separating copy and checksum time. */
+    public static byte[] encode(byte[] raw, BlockKind kind, SSTableFinishTrace trace) {
+        String previousStage = SSTableFinishTrace.enter(trace, "blockCopy");
+        try {
+            return encodeTraced(raw, kind, trace);
+        } finally {
+            SSTableFinishTrace.enter(trace, previousStage);
+        }
+    }
+
+    private static byte[] encodeTraced(byte[] raw, BlockKind kind, SSTableFinishTrace trace) {
         if (raw == null || kind == null)
             throw new IllegalArgumentException("raw block and kind are required");
         byte[] physical = Arrays.copyOf(raw, Math.addExact(raw.length, TRAILER_BYTES));
@@ -30,6 +46,7 @@ public final class BlockEnvelope {
         physical[trailer + 1] = (byte) kind.code();
         physical[trailer + 2] = 1;
         physical[trailer + 3] = 0;
+        SSTableFinishTrace.enter(trace, "blockChecksum");
         ByteBuffer.wrap(physical)
                 .order(ByteOrder.LITTLE_ENDIAN)
                 .putInt(trailer + 4, MaskedCrc32c.masked(physical, 0, raw.length + 4));
@@ -55,9 +72,16 @@ public final class BlockEnvelope {
             throw corrupt("invalid block trailer metadata");
         }
         int stored = ByteBuffer.wrap(physical).order(ByteOrder.LITTLE_ENDIAN).getInt(trailer + 4);
-        if (stored != MaskedCrc32c.masked(physical, 0, trailer + 4))
-            throw corrupt("block checksum mismatch");
-        return Arrays.copyOf(physical, trailer);
+        long checksumStarted = ReadDiagnostics.start();
+        try {
+            if (stored != MaskedCrc32c.masked(physical, 0, trailer + 4))
+                throw corrupt("block checksum mismatch");
+        } finally { ReadDiagnostics.end("checksum", checksumStarted); }
+        long copyStarted = ReadDiagnostics.start();
+        try {
+            ReadDiagnostics.count("copiedBytes", trailer);
+            return Arrays.copyOf(physical, trailer);
+        } finally { ReadDiagnostics.end("copy", copyStarted); }
     }
 
     private static SSTableCorruptionException corrupt(String message) {

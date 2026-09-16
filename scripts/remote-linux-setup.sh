@@ -4,7 +4,7 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 venv="${AETHER_PAPER_VENV:-$repo_root/.venv-paper}"
 with_dali=false
-torch_index="${AETHER_TORCH_INDEX:-https://download.pytorch.org/whl/cu121}"
+torch_index="${AETHER_TORCH_INDEX:-https://download.pytorch.org/whl/cu126}"
 
 for argument in "$@"; do
   case "$argument" in

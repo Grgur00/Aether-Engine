@@ -40,6 +40,17 @@ public final class Aether {
         return PersistentAetherDatabase.open(directory, configuration);
     }
 
+    /** Returns bounded background-compaction diagnostics for a persistent database. */
+    public static java.util.Map<String, Object> compactionDiagnostics(AetherDatabase database) {
+        return database instanceof PersistentAetherDatabase persistent
+                ? persistent.compactionDiagnostics() : java.util.Map.of("state", "UNAVAILABLE");
+    }
+
+    /** Waits for scheduled work without changing compaction policy. */
+    public static void awaitCompactionIdle(AetherDatabase database) throws InterruptedException {
+        if (database instanceof PersistentAetherDatabase persistent) persistent.awaitCompactionIdle();
+    }
+
     /**
      * Creates an ephemeral database with operation latency and throughput metrics.
      *

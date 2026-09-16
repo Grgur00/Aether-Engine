@@ -4,13 +4,15 @@ import csv
 import hashlib
 import itertools
 import json
+import os
 import subprocess
-import shutil
 import sys
 import time
 from pathlib import Path
 
 from evidence import validate_block
+from cache_workspace import cache_workspace, payload_floor
+from experiment_output import exclusive_output, freeze_metadata
 from paper_common import ROOT, PYTHON_CLIENT, capture, environment, java_daemon, sha256, write_json
 
 BACKEND_IDS = {"raw": "RAW_RECOMPUTE", "aether": "AETHER_CACHE",
@@ -37,6 +39,12 @@ def parser():
     result.add_argument("--preprocess-passes", default="4")
     result.add_argument("--gpu-counts", default="1")
     result.add_argument("--epochs", type=int, default=5)
+    result.add_argument("--server-trace", action="store_true", help="Diagnostic correlated flush timings; changes protocol identity")
+    result.add_argument("--hit-path-profile", action="store_true", help="Separate prepopulated, read-only input diagnostic; no training or inference")
+    result.add_argument("--request-sizes", default="1,4,8,16,32,64", help="Hit diagnostic bytes-only request sweep")
+    result.add_argument("--prefetch-depths", default="0,1,2,4,8", help="Hit diagnostic full-input sweep; training batch size stays fixed")
+    result.add_argument("--hit-warmup-epochs", type=int, default=1, help="Untimed read epochs before each hit diagnostic trial")
+    result.add_argument("--prefetch-depth", type=int, default=1, help="Single-worker lookahead depth for normal training blocks (0 is synchronous)")
     result.add_argument("--batch-size", type=int, default=16)
     result.add_argument("--max-reference-bytes", type=int, default=16 * 1024 ** 3)
     result.add_argument("--measured-steps", type=int, default=0)
@@ -44,15 +52,20 @@ def parser():
     result.add_argument("--seed-base", type=int, default=20260904)
     result.add_argument("--randomize-backend-order", action="store_true", help="Always enabled")
     result.add_argument("--paired-blocks", action="store_true", help="Always enabled")
-    result.add_argument("--confirmatory", action="store_true", help="Require clean source and >=24 paired primary blocks")
+    result.add_argument("--confirmatory", action="store_true", help="Require clean source and the frozen 24-block, 10-epoch OCT5K protocol")
     result.add_argument("--plan-only", action="store_true")
     result.add_argument("--resume", action="store_true", help="Skip only complete blocks with matching protocol and environment")
     result.add_argument("--retain-stores", action="store_true", help="Retain per-block generated caches (can require substantial disk space)")
+    result.add_argument("--scratch-root", type=Path, help="Filesystem for generated Java/mmap stores; reports remain under --output")
     result.add_argument("--output", type=Path, default=ROOT / "results/raw")
     return result
 
 
 def build_plan(args):
+    if args.prefetch_depth < 0:
+        raise ValueError("prefetch-depth must be non-negative")
+    if args.prefetch_depth != 1 and args.workers != "0":
+        raise ValueError("the controlled prefetch-depth experiment requires --workers 0")
     selected = args.backends.split(",")
     if not {"raw", "aether", "mmap"} <= set(selected) or not set(selected) <= set(BACKEND_IDS):
         raise ValueError("paired blocks require raw,aether,mmap and optionally ram")
@@ -84,9 +97,20 @@ def build_plan(args):
             "alpha": .05, "equivalenceMargin": .03,
             "primaryFamily": "paired Aether/RAW two-sided t-test and Aether/mmap TOST; Holm",
             "bootstrapResamples": 10000, "confirmatory": args.confirmatory}
+    plan["scratchRoot"] = str(args.scratch_root.resolve()) if args.scratch_root else None
+    plan["retainStores"] = args.retain_stores
+    plan["serverTrace"] = args.server_trace
+    plan["prefetchDepth"] = args.prefetch_depth
+    if args.confirmatory and args.server_trace:
+        raise ValueError("server tracing is diagnostic, not confirmatory")
     if args.confirmatory and (args.repeats < 24 or args.datasets != "oct5k" or len(conditions) != 1
                              or args.reuse_ratios is not None or args.measured_steps or args.workflow_experiments != 1):
         raise ValueError("confirmatory mode requires >=24 OCT5K V1/V2 primary blocks with no sweeps")
+    if args.confirmatory:
+        from confirmatory import DESIGN, validate_plan
+        plan["confirmatoryDesign"] = DESIGN
+        plan["primaryFamily"] = "single primary Aether/mmap TOST; Aether/raw secondary one-sided superiority"
+        validate_plan(plan)
     return plan
 
 
@@ -127,6 +151,17 @@ def invoke(command, output):
 def run_block(plan, point, index, directory, environment_id, protocol_hash):
     directory.mkdir(parents=True, exist_ok=False)
     spec = point["specification"]
+    v1_count = spec["samplesV1"] if point["reusePercent"] is None else round(point["samples"] * point["reusePercent"] / 100)
+    reusable = spec.get("expectedReusable") if point["reusePercent"] is None else v1_count
+    union_count = v1_count + point["samples"] - reusable if reusable is not None else max(v1_count, point["samples"])
+    required = payload_floor(point["dataset"], union_count, spec.get("imageSize", 256), spec.get("numClasses", 1000))
+    with cache_workspace(directory, scratch_root=plan.get("scratchRoot"), retain=plan.get("retainStores", False),
+                         payload_bytes=required) as stores:
+        return measure_block(plan, point, index, directory, environment_id, protocol_hash, stores)
+
+
+def measure_block(plan, point, index, directory, environment_id, protocol_hash, stores):
+    spec = point["specification"]
     split = spec.get("split", "train")
     v2 = directory / "v2.csv"
     subset_manifest(spec["manifestV2"], v2, point["samples"], split)
@@ -141,25 +176,27 @@ def run_block(plan, point, index, directory, environment_id, protocol_hash):
         "--preprocess-passes", str(point["preprocessPasses"]), "--batch-size", str(plan["batchSize"]),
         "--backends", ",".join(plan["backends"]), "--max-reference-bytes", str(plan["maxReferenceBytes"]),
         "--seed", str(seed), "--aether-engine", "java", "--cache-durability", "durable", "--aether-namespace", "paired-main",
-        "--mmap-cache-dir", str(directory / "mmap"), "--warmup-steps", "0"]
+        "--mmap-cache-dir", str(stores / "mmap"), "--warmup-steps", "0"]
     population, population_wall = None, 0.0
+    if plan.get("serverTrace"):
+        common.append("--server-trace")
     # A separate process lifetime gives V1 -> restart -> V2 persistence evidence.
     if count_v1:
-        with java_daemon(directory / "java") as daemon:
+        with java_daemon(stores / "java") as daemon:
             output = directory / "population.json"
             population, population_wall = invoke(common + ["--aether-port", str(daemon["port"]),
                 "--dataset-manifest", str(v1), "--samples", str(count_v1), "--epochs", "1",
                 "--aether-populate-only", "--mmap-populate-only", "--output", str(output)], output)
     workflow = []
     for experiment in range(plan["workflowExperiments"]):
-        with java_daemon(directory / "java") as daemon:
+        with java_daemon(stores / "java") as daemon:
             output = directory / ("training.json" if experiment == 0 else f"training-workflow-{experiment + 1:03d}.json")
             report, command_wall = invoke(common + ["--aether-port", str(daemon["port"]),
                 "--dataset-manifest", str(v2), "--samples", str(point["samples"]),
                 "--aether-cache-mode", "reuse", "--mmap-cache-mode", "reuse",
                 "--workers", str(point["workers"]), "--gpu-count", str(point["gpuCount"]),
                 "--epochs", str(plan["epochs"]), "--measured-steps", str(plan["measuredSteps"]),
-                "--prefetch-batches", "1", "--accelerator-backend", "cuda", "--output", str(output)], output)
+                "--prefetch-batches", str(plan.get("prefetchDepth", 1)), "--accelerator-backend", "cuda", "--output", str(output)], output)
         run_report = report["runs"][0]
         if experiment == 0:
             training, training_wall = report, command_wall
@@ -170,6 +207,9 @@ def run_block(plan, point, index, directory, environment_id, protocol_hash):
             "lifecycleMs": {name: run_report["backends"][backend]["lifecycle"]["totalMs"] for name, backend in plan["backends"].items()}})
     output = directory / "training.json"
     run = training["runs"][0]
+    if plan.get("confirmatory"):
+        from confirmatory import validate_training
+        validate_training(training)
     throughput = {name: run["backends"][backend]["steadyState"]["effectiveSamplesPerSecond"] for name, backend in plan["backends"].items()}
     initial = run["cacheDynamics"]["prepopulatedEntries"]
     expected = spec.get("expectedReusable") if point["reusePercent"] is None else count_v1
@@ -202,6 +242,9 @@ def run_block(plan, point, index, directory, environment_id, protocol_hash):
 
 def main(argv=None):
     args = parser().parse_args(argv)
+    if args.hit_path_profile:
+        from hit_path_profile import run
+        return run(args)
     plan = build_plan(args)
     args.output = args.output.resolve()
     args.output.mkdir(parents=True, exist_ok=True)
@@ -209,6 +252,12 @@ def main(argv=None):
         write_json(args.output / "plan.json", plan)
         print(f"Planned {len(plan['conditions']) * args.repeats} paired blocks; no experiments executed")
         return
+    with exclusive_output(args.output):
+        execute(args, plan)
+
+
+def execute(args, plan):
+    os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
     provenance = environment()
     status = provenance["commands"]["gitStatus"]
     clean_git = status.get("returncode") == 0 and not status.get("stdout")
@@ -219,6 +268,11 @@ def main(argv=None):
     manifest_hashes = {}
     for point in plan["conditions"]:
         spec = point["specification"]
+        if args.confirmatory:
+            for version in ("V1", "V2"):
+                _, rows = manifest_rows(spec["manifest" + version], spec.get("split", "train"))
+                if len(rows) != spec["samples" + version] or len({r["sample_id"] for r in rows}) != len(rows):
+                    raise ValueError("confirmatory manifests require exact cardinalities and unique sample IDs")
         for key in ("manifestV1", "manifestV2"):
             manifest_hashes[spec[key]] = sha256(spec[key])
     plan["manifestSha256"] = manifest_hashes
@@ -226,13 +280,9 @@ def main(argv=None):
     protocol_hash = digest(plan)
     stable_gpu = capture(["nvidia-smi", "--query-gpu=name,uuid,driver_version,memory.total,pci.bus_id", "--format=csv,noheader"])
     stable_cpu = capture(["lscpu", "-J", "-e=CPU,CORE,SOCKET,NODE"])
-    provenance["measurementIdentity"] = {key: provenance["commands"][key] for key in ("java", "packages")} | {"platform": provenance["platform"], "gpu": stable_gpu, "cpu": stable_cpu}
+    provenance["measurementIdentity"] = {key: provenance["commands"][key] for key in ("java", "packages")} | {"platform": provenance["platform"], "gpu": stable_gpu, "cpu": stable_cpu, "performanceEnvironment": provenance["performanceEnvironment"]}
     environment_id = digest(provenance["measurementIdentity"])
-    protocol_path = args.output / "protocol.json"
-    if protocol_path.exists() and json.loads(protocol_path.read_text()) != plan:
-        raise RuntimeError("output contains a different frozen protocol; choose a new directory")
-    write_json(protocol_path, plan)
-    write_json(args.output / f"environment-{environment_id}.json", provenance)
+    freeze_metadata(args.output, plan, environment_id, provenance, args.resume)
     for point in plan["conditions"]:
         for index in range(args.repeats):
             directory = args.output / point["conditionId"] / f"block-{index:04d}"
@@ -250,13 +300,6 @@ def main(argv=None):
             directory.parent.mkdir(parents=True, exist_ok=True)
             print(f"{point['dataset']} {point['conditionId']} block {index + 1}/{args.repeats}", flush=True)
             run_block(plan, point, index, directory, environment_id, protocol_hash)
-            if not args.retain_stores:
-                for name in ("java", "mmap"):
-                    generated = directory / name
-                    if generated.exists():
-                        if generated.is_symlink() or not generated.resolve().is_relative_to(directory.resolve()):
-                            raise ValueError("generated store path escapes its owned block directory")
-                        shutil.rmtree(generated)
 
 
 if __name__ == "__main__":

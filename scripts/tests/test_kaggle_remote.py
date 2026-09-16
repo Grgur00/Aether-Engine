@@ -41,7 +41,7 @@ def prepared(tmp_path, monkeypatch):
     def package(path):
         path.parent.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(path, "w") as archive:
-            archive.writestr("artifact-provenance.json", '{"files": {"fixture": "test"}}')
+            archive.writestr("artifact-provenance.json", '{"files": {"fixture": "test"}, "sourceClean": true}')
         path.with_suffix(".zip.sha256").write_text(hashlib.sha256(path.read_bytes()).hexdigest())
     monkeypatch.setattr(package_artifact, "package", package)
     remote.prepare(SimpleNamespace(user="Grgur321", mode=None, training_epochs=None, dataset_config=None,
@@ -106,6 +106,55 @@ def test_pilot_mode_requires_kaggle_dataset_config(prepared, monkeypatch):
         remote.main()
 
 
+def test_primary_resets_saved_pilot_settings_and_freezes_notebook(prepared, monkeypatch):
+    value = remote.config()
+    value.update(mode="pilot", epochs=5, prefetchDepth=2, serverTrace=True,
+                 datasetConfig="/kaggle/input/fixture/config.json")
+    remote.write(prepared / "config.json", value)
+    monkeypatch.setattr(sys, "argv", ["kaggle_remote.py", "prepare", "--mode", "primary"])
+    remote.main()
+    value = remote.config()
+    assert (value["epochs"], value["prefetchDepth"], value["serverTrace"]) == (10, 0, False)
+    remote.validate_prepared(value)
+
+
+def test_primary_rejects_dirty_snapshot(prepared, monkeypatch):
+    def dirty_package(path):
+        with zipfile.ZipFile(path, "w") as archive:
+            archive.writestr("artifact-provenance.json", '{"sourceClean": false}')
+    monkeypatch.setattr(package_artifact, "package", dirty_package)
+    monkeypatch.setattr(sys, "argv", ["kaggle_remote.py", "prepare", "--mode", "primary",
+                                      "--dataset-config", "fixture.json"])
+    with pytest.raises(ValueError, match="clean committed"):
+        remote.main()
+
+
+def test_prepared_diagnostic_pilot_forwards_trace_and_single_block(prepared, monkeypatch):
+    monkeypatch.setattr(sys, "argv", [
+        "kaggle_remote.py", "prepare", "--mode", "pilot",
+        "--dataset-config", "/kaggle/input/aether-oct5k-pilot/aether-datasets.json",
+        "--dataset-source", "grgur321/aether-oct5k-pilot",
+        "--server-trace", "--pilot-repeats", "1",
+    ])
+    remote.main()
+    value = remote.config()
+    assert value["serverTrace"] is True
+    assert value["pilotRepeats"] == 1
+    assert value["datasetSources"] == ["grgur321/aether-oct5k-pilot"]
+    notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
+    runner = "".join(notebook["cells"][1]["source"])
+    assert 'command += ["--server-trace"]' in runner
+    assert 'command += ["--pilot-repeats", str(REMOTE_CONFIG.get("pilotRepeats", 10))]' in runner
+
+
+def test_run_rejects_ignored_configuration_overrides(prepared, monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", ["kaggle_remote.py", "run", "--server-trace", "--pilot-repeats", "1"])
+    with pytest.raises(SystemExit) as error:
+        remote.main()
+    assert error.value.code == 2
+    assert "configuration options apply to prepare" in capsys.readouterr().err
+
+
 def test_pilot_orchestrator_runs_ten_oct5k_blocks_and_pilot_analysis(tmp_path, monkeypatch):
     import reproduce
     calls = []
@@ -115,7 +164,7 @@ def test_pilot_orchestrator_runs_ten_oct5k_blocks_and_pilot_analysis(tmp_path, m
     reproduce.main()
     matrix, analysis, figures = calls[-3:]
     assert matrix == [sys.executable, "scripts/run_matrix.py", "--config", "remote-oct5k.json", "--datasets", "oct5k",
-                      "--repeats", "10", "--resume", "--output", output]
+                      "--repeats", "10", "--prefetch-depth", "1", "--resume", "--output", output]
     assert analysis == [sys.executable, "scripts/analyze.py", "--input", output, "--output", output + "/pilot-analysis", "--pilot"]
     assert figures == [sys.executable, "scripts/figures.py", "--input", output, "--output", output + "/pilot-figures"]
 
@@ -158,11 +207,29 @@ def test_upload_failure_does_not_record_success(prepared, monkeypatch):
 
 def test_outputs_downloads_only_verified_results_archive(prepared, monkeypatch):
     calls = []
-    monkeypatch.setattr(remote, "cli", lambda *args, **kwargs: calls.append(args))
+    monkeypatch.setattr(remote, "ROOT", prepared)
+    def download(*args, **kwargs):
+        calls.append(args)
+        with zipfile.ZipFile(args[4] / "aether-results-only.zip", "w") as archive:
+            archive.writestr("report.json", '{"fixture": true}')
+        (args[4] / (args[2].split("/")[1] + ".log")).write_text("platform log")
+    monkeypatch.setattr(remote, "cli", download)
     monkeypatch.setattr(sys, "argv", ["kaggle_remote.py", "outputs"])
     remote.main()
     assert calls[0][:2] == ("kernels", "output")
     assert calls[0][-2:] == ("--file-pattern", "aether-results-only\\.zip")
+    destination = calls[0][4]
+    assert [path.name for path in destination.iterdir()] == ["aether-results-only.zip"]
+    with zipfile.ZipFile(destination / "aether-results-only.zip") as archive:
+        assert archive.read("kaggle-notebook.log") == b"platform log"
+
+
+def test_outputs_rejects_missing_archive(prepared, monkeypatch):
+    monkeypatch.setattr(remote, "ROOT", prepared)
+    monkeypatch.setattr(remote, "cli", lambda *args, **kwargs: None)
+    monkeypatch.setattr(sys, "argv", ["kaggle_remote.py", "outputs"])
+    with pytest.raises(RuntimeError, match="No results ZIP"):
+        remote.main()
 
 
 def test_run_requires_matching_source_receipt(prepared, monkeypatch):

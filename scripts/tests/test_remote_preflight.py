@@ -36,3 +36,18 @@ def test_manifest_preflight_rejects_missing_image(tmp_path):
 
     with pytest.raises(ValueError, match="image paths do not exist"):
         rows_for(manifest, "train")
+
+
+def test_evolution_preflight_requires_exact_reusable_membership(tmp_path):
+    image = tmp_path / "image.bin"
+    image.write_bytes(b"fixture")
+    v1, v2 = tmp_path / "v1.csv", tmp_path / "v2.csv"
+    write_manifest(v1, image)
+    write_manifest(v2, image)
+    config = tmp_path / "datasets.json"
+    config.write_text(json.dumps({"oct5k": {"manifestV1": str(v1), "manifestV2": str(v2),
+                                             "samplesV1": 1, "samplesV2": 1,
+                                             "expectedReusable": 0, "split": "train"}}))
+
+    with pytest.raises(ValueError, match="1 reusable samples, expected exactly 0"):
+        main(["--config", str(config), "--datasets", "oct5k"])

@@ -1,0 +1,3 @@
+JDK 21 with --enable-preview is required by the repository.
+Local validation: Microsoft OpenJDK 21.0.10.7-hotspot, Windows x64.
+Record java -version for every measurement environment.

@@ -24,7 +24,7 @@ def rows_for(path, split):
     missing_images = [row["image_path"] for row in rows if not Path(row["image_path"]).is_file()]
     if missing_images:
         raise ValueError(f"{path}: {len(missing_images)} image paths do not exist (first: {missing_images[0]})")
-    return len(rows)
+    return set(identifiers)
 
 
 def main(argv=None):
@@ -39,15 +39,25 @@ def main(argv=None):
         spec = config[name]
         split = spec.get("split", "train")
         report[name] = {}
+        identifiers = {}
         for version in ("V1", "V2"):
             path = Path(spec[f"manifest{version}"])
             if not path.is_file():
                 raise ValueError(f"{name} {version}: manifest does not exist: {path}")
-            actual = rows_for(path, split)
+            identifiers[version] = rows_for(path, split)
+            actual = len(identifiers[version])
             required = spec[f"samples{version}"]
-            if actual < required:
+            if "expectedReusable" in spec and actual != required:
+                raise ValueError(f"{name} {version}: {actual} rows available, expected exactly {required}")
+            if "expectedReusable" not in spec and actual < required:
                 raise ValueError(f"{name} {version}: {actual} rows available, but {required} required")
             report[name][version] = {"manifest": str(path), "availableRows": actual, "requiredRows": required}
+        if "expectedReusable" in spec:
+            reusable = len(identifiers["V1"] & identifiers["V2"])
+            if reusable != spec["expectedReusable"]:
+                raise ValueError(f"{name}: {reusable} reusable samples, expected exactly {spec['expectedReusable']}")
+            report[name]["reusableSamples"] = reusable
+            report[name]["expectedReusable"] = spec["expectedReusable"]
     print(json.dumps(report, indent=2))
 
 

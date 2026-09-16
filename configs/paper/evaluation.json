@@ -8,7 +8,9 @@
         "oct5k",
         "--repeats",
         "24",
-        "--confirmatory"
+        "--confirmatory",
+        "--epochs", "10",
+        "--prefetch-depth", "0"
       ]
     },
     {

@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: "Please cite the frozen Aether artifact release used in your experiments. Publication metadata is pending."
+title: "Aether: Transformation-Aware Persistent Derived-Data Cache Research Artifact"
+type: software
+authors:
+  - name: "Aether Engine contributors"
+license: Apache-2.0
+abstract: "A research artifact for Java-engine derived-data reuse, paired GPU workloads, concurrent storage access, and process-crash recovery."

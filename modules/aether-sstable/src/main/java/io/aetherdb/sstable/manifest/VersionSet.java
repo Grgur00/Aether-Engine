@@ -328,6 +328,35 @@ public final class VersionSet implements AutoCloseable {
         ensureOpen();
         Version candidate = current.apply(delta);
         verifyInventory(root, databaseId, delta.additions());
+        return appendAndPublish(delta, candidate);
+    }
+
+    /** An owner-bound proof of full verification of immutable, unpublished output files. */
+    public static final class VerifiedAdditions {
+        private final VersionSet owner;
+        private final java.util.List<ManifestFileMetadata> files;
+        private VerifiedAdditions(VersionSet owner, java.util.List<ManifestFileMetadata> files) {
+            this.owner = owner;
+            this.files = java.util.List.copyOf(files);
+        }
+    }
+
+    /** Performs the existing full inventory validation outside the publication lock. */
+    public VerifiedAdditions verifyAdditions(java.util.List<ManifestFileMetadata> files) throws IOException {
+        var frozen = java.util.List.copyOf(files);
+        verifyInventory(root, databaseId, frozen);
+        return new VerifiedAdditions(this, frozen);
+    }
+
+    /** Publishes already verified outputs, whose immutable files must remain exclusively owned. */
+    public synchronized Version logAndApply(ManifestEdit delta, VerifiedAdditions verified) throws IOException {
+        ensureOpen();
+        if (verified == null || verified.owner != this || !verified.files.equals(delta.additions()))
+            throw new IllegalArgumentException("verified additions do not match this manifest edit");
+        return appendAndPublish(delta, current.apply(delta));
+    }
+
+    private Version appendAndPublish(ManifestEdit delta, Version candidate) throws IOException {
         byte[] record = ManifestCodecV1.encodeRecord(delta);
         writeFully(writer, ByteBuffer.wrap(record));
         writer.force(true);
@@ -412,7 +441,8 @@ public final class VersionSet implements AutoCloseable {
         try (var entries = Files.list(root)) {
             for (Path entry : entries.toList()) {
                 String name = entry.getFileName().toString();
-                if (name.matches("SST-[0-9]{20}\\.aess") && !live.contains(name)) {
+                if ((name.matches("SST-[0-9]{20}\\.aess") && !live.contains(name))
+                        || name.matches("SST-[0-9]{20}\\.aess\\.tmp-[0-9a-f]{32}")) {
                     if (Files.isSymbolicLink(entry) || !Files.isRegularFile(entry)) {
                         throw new IOException("unsafe obsolete SSTable path: " + name);
                     }

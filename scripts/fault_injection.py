@@ -4,15 +4,17 @@ import json
 import os
 import subprocess
 import time
+import uuid
 from pathlib import Path
 
-from paper_common import environment, java_classpath, sha256, write_json
+from paper_common import java_classpath, sha256, write_json
+from system_campaign import campaign, load_result, save_result
 
 POINTS = ("before-data-write", "after-data-fsync", "before-index-commit",
           "after-index-commit-before-ack", "after-ack")
 
 
-def run_trial(root, point, mode, timeout=60):
+def run_trial(root, point, mode, timeout=60, metadata=None):
     root = Path(root).resolve()
     root.mkdir(parents=True, exist_ok=False)
     base = ["java", "--enable-preview", "-cp", java_classpath(),
@@ -46,7 +48,10 @@ def run_trial(root, point, mode, timeout=60):
                   trialId=root.name,
                   killMechanism="TerminateProcess" if os.name == "nt" else "SIGKILL",
                   contract="process-crash; not power-loss", writerExitCode=process.returncode)
-    write_json(root / "result.json", report)
+    if metadata is None:
+        write_json(root / "result.json", report)
+    else:
+        report = save_result(root / "result.json", report, metadata)
     return {**report, "resultSha256": sha256(root / "result.json")}
 
 
@@ -59,17 +64,36 @@ def main(argv=None):
     parser.add_argument("--verify-checksum", action="store_true", help="Always enabled")
     parser.add_argument("--verify-acknowledged-writes", action="store_true", help="Always enabled")
     parser.add_argument("--output", type=Path, default=Path("results/durability"))
+    parser.add_argument("--resume", action="store_true")
     args = parser.parse_args(argv)
     points, modes = args.fault_points.split(","), args.write_modes.split(",")
-    if args.trials_per_point < 1 or not set(points) <= set(POINTS) or not set(modes) <= {"single", "batch"}:
+    if (args.trials_per_point < 1 or not set(points) <= set(POINTS) or not set(modes) <= {"single", "batch"}
+            or len(set(points)) != len(points) or len(set(modes)) != len(modes)):
         parser.error("positive trial count and supported fault points/write modes required")
-    args.output.mkdir(parents=True, exist_ok=True)
-    write_json(args.output / "environment.json", environment())
+    protocol = {"kind": "process-crash", "points": points, "modes": modes, "trialsPerPoint": args.trials_per_point}
+    with campaign(args.output, protocol, args.resume) as metadata:
+        run_campaign(args, points, modes, metadata)
+
+
+def run_campaign(args, points, modes, metadata):
     results = []
     for point in points:
         for mode in modes:
             for trial in range(args.trials_per_point):
-                result = run_trial(args.output / f"{point}-{mode}-{trial:04d}", point, mode)
+                root = args.output / f"{point}-{mode}-{trial:04d}"
+                result_path = root / "result.json"
+                if result_path.with_suffix(".receipt.json").exists():
+                    result = load_result(result_path, metadata)
+                    if (result.get("trialId") != root.name or result.get("faultPoint") != point
+                            or result.get("writeMode") != mode):
+                        raise ValueError("fault result does not match its trial")
+                    result = {**result, "resultSha256": sha256(result_path)}
+                else:
+                    if root.exists():
+                        attempts = args.output / "interrupted-attempts"
+                        attempts.mkdir(exist_ok=True)
+                        root.rename(attempts / (root.name + "-" + uuid.uuid4().hex))
+                    result = run_trial(root, point, mode, metadata=metadata)
                 results.append(result)
                 write_json(args.output / "summary.json", {"trials": results, "allPassed": all(r["passed"] for r in results)})
                 print(f"{point} {mode} {trial + 1}/{args.trials_per_point}: {result['passed']}", flush=True)

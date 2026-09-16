@@ -5,13 +5,14 @@ import json
 import math
 import os
 import random
-import tempfile
 import time
 from pathlib import Path
 from types import SimpleNamespace
 
 from paper_common import ROOT, environment, capture, java_daemon, sha256, write_json
 from evidence import digest
+from cache_workspace import cache_workspace, payload_floor
+from experiment_output import exclusive_output, freeze_metadata
 from aether_training_cache.dali_workload import DaliBatches, artifact_key, descriptor, payloads, targets
 from aether_training_cache.java_store import JavaArtifactStore
 from aether_training_cache.persistent_mmap import PersistentMmapStore
@@ -169,6 +170,13 @@ def train(args, sources, keys, expected, initial, backend, root, port, np, torch
 
 
 def run_block(args, point, index, output, protocol, env_id):
+    required = payload_floor(point["dataset_kind"], point["samples"], point["resize"], point["num_classes"])
+    with cache_workspace(output.parent, scratch_root=getattr(args, "scratch_root", None), payload_bytes=required,
+                         name="cache-workspace-" + output.stem) as stores:
+        return measure_block(args, point, index, output, protocol, env_id, stores)
+
+
+def measure_block(args, point, index, output, protocol, env_id, root):
     import numpy as np
     import torch
     work = SimpleNamespace(**(vars(args) | point))
@@ -181,13 +189,11 @@ def run_block(args, point, index, output, protocol, env_id):
     order = ["raw", "aether", "mmap"]
     random.Random(work.seed).shuffle(order)
     population = {}
-    with tempfile.TemporaryDirectory(prefix="dali-store-", dir=output.parent) as temporary:
-        root = Path(temporary)
-        with java_daemon(root / "java") as daemon:
-            for backend in (name for name in order if name != "raw"):
-                population[backend] = populate(work, sources, keys, expected, initial, backend, root, daemon["port"], np)
-        with java_daemon(root / "java") as daemon:
-            measured = {backend: train(work, sources, keys, expected, initial, backend, root, daemon["port"], np, torch) for backend in order}
+    with java_daemon(root / "java") as daemon:
+        for backend in (name for name in order if name != "raw"):
+            population[backend] = populate(work, sources, keys, expected, initial, backend, root, daemon["port"], np)
+    with java_daemon(root / "java") as daemon:
+        measured = {backend: train(work, sources, keys, expected, initial, backend, root, daemon["port"], np, torch) for backend in order}
     if len({report["modelStateSha256"] for report in measured.values()}) != 1:
         raise ValueError("DALI-direct and cached artifacts produced different final models")
     report = {"schema": "aether-dali-block-v1", "status": "PASSED", "modelParityPassed": True,
@@ -232,7 +238,8 @@ def validated_report(path, protocol, env_id):
         if backend != "raw" and (value["initialReusableEntries"] != initial or value["lookups"] != total or
                 value["misses"] != condition["samples"] - initial or value["hits"] != total - value["misses"] or value["publishedEntries"] != value["misses"]):
             raise ValueError("DALI cache counts violate the frozen lifecycle")
-    if report["backends"]["aether"].get("engineInfo", {}).get("durability") != "DURABLE":
+    engine = report["backends"]["aether"].get("engineInfo") or {}
+    if engine.get("durability") != "DURABLE" or engine.get("engine") != "java-training-cache":
         raise ValueError("missing Java engine durability evidence")
     return report
 
@@ -253,6 +260,7 @@ def main(argv=None):
     parser.add_argument("--plan-only", action="store_true")
     parser.add_argument("--fixture-smoke", action="store_true", help="Label generated-fixture CUDA correctness; excluded from research analysis")
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--scratch-root", type=Path, help="Filesystem for generated stores; reports stay under --output")
     parser.add_argument("--output", type=Path, default=ROOT / "results/dali")
     args = parser.parse_args(argv)
     if min(args.repeats, args.epochs, args.batch_size, args.dali_threads, args.dali_prefetch) < 1 or not 0 <= args.reuse_percent <= 100:
@@ -277,13 +285,18 @@ def main(argv=None):
         "statistics": {"alpha": .05, "equivalenceMargin": .03, "bootstrapResamples": 10000,
                        "family": "secondary paired log-ratio RAW t-test and mmap TOST with Holm"},
         "canonicalWorkload": "DALI mixed RGB decode, bilinear antialiased resize, divide by 255, CHW fp16; consumed as fp32",
-        "primaryEquivalent": False}
+        "primaryEquivalent": False, "scratchRoot": str(args.scratch_root.resolve()) if args.scratch_root else None}
     args.output = args.output.resolve()
     args.output.mkdir(parents=True, exist_ok=True)
     if args.plan_only:
         write_json(args.output / "plan.json", plan)
         print("DALI comparison planned; CUDA experiments have not run")
         return
+    with exclusive_output(args.output):
+        execute(args, points, plan)
+
+
+def execute(args, points, plan):
     os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
     import torch
     if not torch.cuda.is_available() or not torch.version.cuda:
@@ -293,16 +306,13 @@ def main(argv=None):
     provenance["accelerator"] = {"backend": "cuda", "torchVersion": torch.__version__, "cudaVersion": torch.version.cuda,
                                  "selectedDevice": 0, "deviceName": torch.cuda.get_device_name(0)}
     identity = {"gpu": capture(["nvidia-smi", "--query-gpu=name,uuid,driver_version,memory.total", "--format=csv,noheader"]),
-                "java": provenance["commands"]["java"], "packages": provenance["commands"]["packages"], "platform": provenance["platform"]}
+                "java": provenance["commands"]["java"], "packages": provenance["commands"]["packages"], "platform": provenance["platform"],
+                "performanceEnvironment": provenance["performanceEnvironment"]}
     env_id = digest(identity)
     provenance["measurementIdentity"] = identity
     plan.update(sourceSha256=provenance["sourceSha256"], manifestSha256={p["dataset_manifest"]: sha256(p["dataset_manifest"]) for p in points},
                 pipelineParameters={p["dataset_kind"]: descriptor(SimpleNamespace(**p), nvidia.dali.__version__) for p in points})
-    protocol_path = args.output / "protocol.json"
-    if protocol_path.exists() and json.loads(protocol_path.read_text()) != plan:
-        raise ValueError("different frozen DALI protocol; use a new output directory")
-    write_json(protocol_path, plan)
-    write_json(args.output / f"environment-{env_id}.json", provenance)
+    freeze_metadata(args.output, plan, env_id, provenance, args.resume)
     reports = []
     for point in points:
         for index in range(args.repeats):

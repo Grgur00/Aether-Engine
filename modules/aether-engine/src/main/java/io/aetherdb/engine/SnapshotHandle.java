@@ -22,6 +22,9 @@ final class SnapshotHandle implements Snapshot {
         return identity;
     }
 
+    // Closed snapshots awaiting removal may conservatively retain history during planning.
+    long retainedSequence() { return sequence; }
+
     void ensureOpen() {
         if (closed) {
             throw new SnapshotException("snapshot is closed");

@@ -92,7 +92,7 @@ def test_dali_orchestration_cpu_test_doubles_preserve_models_and_partial_batch_c
             pass
     values = {}
     class FakeJava:
-        measured_engine_info = {"engine": "TEST DOUBLE", "durability": "DURABLE"}
+        measured_engine_info = {"engine": "java-training-cache", "durability": "DURABLE", "testDouble": True}
         def cached_artifact_ids(self, keys):
             return {key: key for key in keys if key in values}
         def commit_bytes_many(self, entries):
@@ -130,6 +130,7 @@ def test_dali_orchestration_cpu_test_doubles_preserve_models_and_partial_batch_c
         measured = report["backends"][backend]
         assert (measured["lookups"], measured["hits"], measured["misses"], measured["publishedEntries"]) == (10, 7, 3, 3)
     driver.validated_report(output, protocol, "test-environment")
+    assert {path.name for path in tmp_path.glob("block-*.json")} == {"block-0000.json", "block-0000.receipt.json"}
     write_json(tmp_path / "protocol.json", protocol)
     with pytest.raises(ValueError, match="fixture smoke"):
         load_dali_blocks(tmp_path)

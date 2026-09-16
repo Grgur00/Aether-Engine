@@ -9,6 +9,7 @@ from analyze import load_blocks
 from figures import geometric_ci, save, plt
 from paper_common import write_json
 from submission_gate import validated_faults
+from concurrency_matrix import validated_concurrency
 
 
 def csv_table(path, rows):
@@ -76,10 +77,7 @@ def durability_figures(root, output):
 
 def concurrency_figures(root, output):
     groups, seen = defaultdict(list), set()
-    for path in sorted(root.glob("*.json")):
-        report = json.loads(path.read_text())
-        if "clients" not in report:
-            continue
+    for report in validated_concurrency(root):
         identity = (report["backend"], report["clients"], report["workerProcessesPerClient"], report["repeat"])
         if identity in seen or report.get("allPassed") is not True or not all(w.get("passed") is True for w in report["workers"]):
             raise ValueError("duplicate or failed concurrency measurement")

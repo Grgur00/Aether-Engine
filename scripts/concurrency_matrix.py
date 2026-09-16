@@ -9,7 +9,8 @@ import tempfile
 import time
 from pathlib import Path
 
-from paper_common import environment, java_daemon, write_json
+from paper_common import java_daemon, write_json
+from system_campaign import campaign, load_result, save_result
 from aether_training_cache.java_store import JavaArtifactStore
 from aether_training_cache.persistent_mmap import PersistentMmapStore
 
@@ -21,9 +22,11 @@ def payload(index, size):
 
 def worker(backend, root, port, indices, epochs, size, ready, start, results):
     store = None
+    announced = False
     try:
         store = JavaArtifactStore(port=port, namespace="concurrency") if backend == "aether" else PersistentMmapStore(root, shared=True, durable=True)
         ready.put(True)
+        announced = True
         if not start.wait(120):
             raise TimeoutError("client start barrier timed out")
         started = time.perf_counter()
@@ -53,6 +56,8 @@ def worker(backend, root, port, indices, epochs, size, ready, start, results):
                      "wallSeconds": time.perf_counter() - started, "hits": hits, "misses": misses,
                      "publishAttempts": attempts, "bytesRead": read_bytes})
     except BaseException as error:
+        if not announced:
+            ready.put({"error": repr(error)})
         results.put({"passed": False, "error": repr(error)})
     finally:
         if store is not None:
@@ -72,7 +77,9 @@ def run_clients(backend, root, port, *, clients, workers, samples, epochs, size)
         for process in processes:
             process.start()
         for _ in processes:
-            ready.get(timeout=120)
+            status = ready.get(timeout=120)
+            if status is not True:
+                raise RuntimeError(f"client failed before start barrier: {status}")
         started = time.perf_counter()
         start.set()
         reports = [results.get(timeout=300) for _ in processes]
@@ -108,12 +115,22 @@ def main(argv=None):
     parser.add_argument("--reuse-percent", type=float, default=66.6445)
     parser.add_argument("--seed", type=int, default=20260904)
     parser.add_argument("--output", type=Path, default=Path("results/concurrency"))
+    parser.add_argument("--resume", action="store_true")
     args = parser.parse_args(argv)
     backends, client_counts, worker_counts = args.backends.split(","), [int(x) for x in args.clients.split(",")], [int(x) for x in args.workers.split(",")]
     if not set(backends) <= {"aether", "mmap"} or min(client_counts) < 1 or min(worker_counts) < 0 or min(args.repeats, args.samples, args.epochs, args.payload_bytes) < 1 or not 0 <= args.reuse_percent <= 100:
         parser.error("invalid concurrency matrix")
-    args.output.mkdir(parents=True, exist_ok=True)
-    write_json(args.output / "environment.json", environment())
+    if any(len(set(values)) != len(values) for values in (backends, client_counts, worker_counts)):
+        parser.error("duplicate matrix values")
+    protocol = {"kind": "storage-concurrency", "backends": backends, "clients": client_counts,
+                "workers": worker_counts, "repeats": args.repeats, "samples": args.samples,
+                "epochs": args.epochs, "payloadBytes": args.payload_bytes,
+                "reusePercent": args.reuse_percent, "seed": args.seed}
+    with campaign(args.output, protocol, args.resume) as metadata:
+        run_campaign(args, backends, client_counts, worker_counts, metadata)
+
+
+def run_campaign(args, backends, client_counts, worker_counts, metadata):
     for clients in client_counts:
         for workers in worker_counts:
             for repeat in range(args.repeats):
@@ -122,7 +139,13 @@ def main(argv=None):
                 for backend in order:
                     result_path = args.output / f"{backend}-c{clients}-w{workers}-r{repeat}.json"
                     if result_path.exists():
-                        raise FileExistsError(result_path)
+                        report = load_result(result_path, metadata)
+                        validate_report(report, metadata)
+                        expected = (backend, clients, workers, repeat)
+                        if tuple(report[key] for key in ("backend", "clients", "workerProcessesPerClient", "repeat")) != expected:
+                            raise ValueError("concurrency result does not match its trial")
+                        print(f"{result_path.name}: verified existing result", flush=True)
+                        continue
                     with tempfile.TemporaryDirectory(prefix="concurrent-", dir=args.output) as temporary:
                         root = Path(temporary)
                         with java_daemon(root / "java") as daemon:
@@ -149,8 +172,54 @@ def main(argv=None):
                                 initialReusableEntries=initial, uniqueFinalKeysVerified=args.samples,
                                 duplicateComputeAllowed=True, publicationMetric="client attempts, not unique engine commits",
                                 pageCacheProtocol="uncontrolled", backendOrder=order)
-                            write_json(result_path, report)
+                            validate_report(report, metadata)
+                            save_result(result_path, report, metadata)
                             print(f"{backend} clients={clients} workers={workers} repeat={repeat}: passed", flush=True)
+
+
+def validate_report(report, metadata):
+    import math
+    protocol = metadata["protocol"]
+    clients, workers, repeat = (report[key] for key in ("clients", "workerProcessesPerClient", "repeat"))
+    backend = report["backend"]
+    expected_processes = clients * max(1, workers)
+    expected_samples = clients * protocol["samples"] * protocol["epochs"]
+    elapsed = report["synchronizedWallSeconds"]
+    order = list(protocol["backends"])
+    random.Random(protocol["seed"] + repeat).shuffle(order)
+    if (protocol["kind"] != "storage-concurrency" or backend not in protocol["backends"]
+            or clients not in protocol["clients"] or workers not in protocol["workers"]
+            or not 0 <= repeat < protocol["repeats"] or report["backendOrder"] != order
+            or report.get("allPassed") is not True or report["actualProcesses"] != expected_processes
+            or len(report["workers"]) != expected_processes
+            or report.get("uniqueFinalKeysVerified") != protocol["samples"]
+            or report.get("initialReusableEntries") != round(protocol["samples"] * protocol["reusePercent"] / 100)
+            or not math.isfinite(elapsed) or elapsed <= 0
+            or not math.isclose(report["aggregateSamplesPerSecond"], expected_samples / elapsed, rel_tol=1e-12)
+            or sum(worker["samples"] for worker in report["workers"]) != expected_samples
+            or not all(worker.get("passed") is True and worker["hits"] + worker["misses"] == worker["samples"]
+                       for worker in report["workers"])):
+        raise ValueError("incomplete, failed or inconsistent concurrency measurement")
+
+
+def validated_concurrency(root):
+    from system_campaign import load_campaign
+    root = Path(root)
+    metadata = load_campaign(root)
+    reports, seen = [], set()
+    for path in sorted(root.glob("*-c*-w*-r*.json")):
+        if path.name.endswith(".receipt.json"):
+            continue
+        report = load_result(path, metadata)
+        validate_report(report, metadata)
+        identity = tuple(report[key] for key in ("backend", "clients", "workerProcessesPerClient", "repeat"))
+        if identity in seen:
+            raise ValueError("duplicate concurrency measurement")
+        seen.add(identity)
+        reports.append(report)
+    if not reports:
+        raise ValueError("no concurrency measurements")
+    return reports
 
 
 if __name__ == "__main__":

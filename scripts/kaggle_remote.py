@@ -82,24 +82,68 @@ def prepare(args):
     from package_artifact import package
     previous = json.loads((WORK / "config.json").read_text()) if (WORK / "config.json").is_file() else {}
     user = (args.user or previous.get("user", "")).lower()
+    mode = args.mode or previous.get("mode", "smoke")
+    # Hit-path options belong to profile mode. Do not carry a saved diagnostic
+    # flag or sweep into a newly selected pilot/primary/smoke campaign.
+    previous_profile = previous if mode == "profile" and previous.get("mode") == "profile" else {}
+    hit_path_profile = getattr(args, "hit_path_profile", False)
+    request_sizes = getattr(args, "request_sizes", None)
+    prefetch_depths = getattr(args, "prefetch_depths", None)
+    prefetch_depth = getattr(args, "prefetch_depth", None)
+    epochs = getattr(args, "epochs", None)
+    previous_epochs = previous.get("epochs") if mode in {"pilot", "primary"} and previous.get("mode") in {"pilot", "primary"} else None
+    hit_warmup_epochs = getattr(args, "hit_warmup_epochs", None)
     if not re.fullmatch(r"[a-z0-9_-]+", user):
         raise ValueError("provide a valid Kaggle username with --user")
     value = {"user": user, "notebook": user + "/aether-engine-vs-code",
              "sourceDataset": user + "/aether-engine-source", "accelerator": "NvidiaTeslaT4",
-             "mode": args.mode or previous.get("mode", "smoke"),
+             "mode": mode,
+             "serverTrace": getattr(args, "server_trace", None) if getattr(args, "server_trace", None) is not None else previous.get("serverTrace", False),
+             "pilotRepeats": getattr(args, "pilot_repeats", None) if getattr(args, "pilot_repeats", None) is not None else previous.get("pilotRepeats", 10),
+             "prefetchDepth": prefetch_depth if prefetch_depth is not None else previous.get("prefetchDepth"),
+             "epochs": epochs if epochs is not None else previous_epochs,
              "trainingEpochs": args.training_epochs if args.training_epochs is not None else previous.get("trainingEpochs", 1),
+             "hitPathProfile": hit_path_profile or previous_profile.get("hitPathProfile", False),
+             "requestSizes": request_sizes if request_sizes is not None else previous_profile.get("requestSizes"),
+             "prefetchDepths": prefetch_depths if prefetch_depths is not None else previous_profile.get("prefetchDepths"),
+             "hitWarmupEpochs": hit_warmup_epochs if hit_warmup_epochs is not None else previous_profile.get("hitWarmupEpochs"),
              "datasetConfig": args.dataset_config or previous.get("datasetConfig"),
              "scratchRoot": args.scratch_root or previous.get("scratchRoot"),
              "datasetSources": args.dataset_source if args.dataset_source is not None else previous.get("datasetSources", [])}
+    if mode == "primary":
+        if epochs not in (None, 10) or prefetch_depth not in (None, 0) or getattr(args, "server_trace", None) is True:
+            raise ValueError("primary is frozen at 10 epochs, prefetch depth 0, server tracing off")
+        value.update(epochs=10, prefetchDepth=0, serverTrace=False)
     if value["mode"] in {"pilot", "primary", "all"} and not value["datasetConfig"]:
         raise ValueError("pilot/primary/all require --dataset-config with its path inside Kaggle")
     if value["trainingEpochs"] < 1:
         raise ValueError("--training-epochs must be positive")
+    if value["epochs"] is not None:
+        if value["epochs"] < 1:
+            raise ValueError("--epochs must be positive")
+        if mode not in {"pilot", "primary"}:
+            raise ValueError("--epochs applies to pilot/primary runs")
+    if value["pilotRepeats"] < 1:
+        raise ValueError("--pilot-repeats must be positive")
+    if value["prefetchDepth"] is not None and (
+            value["prefetchDepth"] < 0 or (value["mode"] not in {"pilot", "primary"} and value["prefetchDepth"] != 1)):
+        raise ValueError("custom --prefetch-depth is available only for pilot/primary and must be non-negative")
+    if value["mode"] == "pilot" and value["pilotRepeats"] != 10 and not value["serverTrace"]:
+        raise ValueError("custom pilot repeats require --server-trace")
+    if value["serverTrace"] and value["mode"] not in {"pilot", "profile"}:
+        raise ValueError("--server-trace requires pilot/profile mode; use --no-server-trace for other modes")
+    if hit_path_profile and value["mode"] != "profile":
+        raise ValueError("--hit-path-profile requires profile mode")
+    if any(value[key] is not None for key in ("requestSizes", "prefetchDepths", "hitWarmupEpochs")) and not value["hitPathProfile"]:
+        raise ValueError("hit-path sweep options require --hit-path-profile")
     if args.training_epochs is not None and value["mode"] != "smoke":
         raise ValueError("--training-epochs applies only to smoke mode")
     source_dir, notebook_dir = WORK / "source", WORK / "notebook"
     package(source_dir / "aether-paper-artifact.zip")
     with zipfile.ZipFile(source_dir / "aether-paper-artifact.zip") as archive:
+        provenance = json.loads(archive.read("artifact-provenance.json"))
+        if mode == "primary" and provenance.get("sourceClean") is not True:
+            raise ValueError("prepare primary requires a clean committed source snapshot")
         value["sourceManifestSha256"] = hashlib.sha256(archive.read("artifact-provenance.json")).hexdigest()
     write(source_dir / "dataset-metadata.json", {"id": value["sourceDataset"], "title": "Aether Engine Source",
           "licenses": [{"name": "apache-2.0"}]})
@@ -109,7 +153,9 @@ def prepare(args):
           "dataset_sources": [value["sourceDataset"], *value["datasetSources"]],
           "competition_sources": [], "kernel_sources": []})
     parameters = "import json\nREMOTE_CONFIG = json.loads(" + repr(json.dumps(value)) + ")\n"
-    body = (ROOT / "kaggle/vscode_run.py").read_text(encoding="utf-8")
+    # Embed finalization before setup: it must work even if source/setup fails.
+    body = (ROOT / "scripts/kaggle_results.py").read_text(encoding="utf-8") + "\n\n"
+    body += (ROOT / "kaggle/vscode_run.py").read_text(encoding="utf-8")
     cells = [{"cell_type": "code", "id": identity, "metadata": {"id": identity, "language": "python"}, "execution_count": None,
               "outputs": [], "source": text.splitlines(keepends=True)}
              for identity, text in (("configuration", parameters), ("run-aether", body))]
@@ -128,11 +174,31 @@ def main():
     parser.add_argument("--user")
     parser.add_argument("--mode", choices=["smoke", "profile", "pilot", "primary", "all"])
     parser.add_argument("--training-epochs", type=int, help="Epochs per CPU training fixture in smoke mode")
+    parser.add_argument("--epochs", type=int, default=None, help="Epochs per training block for pilot/primary runs")
+    parser.add_argument("--server-trace", action=argparse.BooleanOptionalAction, default=None, help="Enable diagnostic pilot flush tracing")
+    parser.add_argument("--pilot-repeats", type=int, help="Pilot block count; 1 with --server-trace for a diagnostic")
+    parser.add_argument("--prefetch-depth", type=int, default=None, help="Lookahead depth; primary is frozen at 0")
+    parser.add_argument("--hit-path-profile", action="store_true")
+    parser.add_argument("--request-sizes")
+    parser.add_argument("--prefetch-depths")
+    parser.add_argument("--hit-warmup-epochs", type=int)
     parser.add_argument("--dataset-config")
     parser.add_argument("--dataset-source", action="append")
     parser.add_argument("--scratch-root")
     parser.add_argument("--update", action="store_true", help="Publish a new version of an existing private source dataset")
     args = parser.parse_args()
+    prepare_options_used = any((
+        args.user is not None, args.mode is not None, args.training_epochs is not None,
+        args.server_trace is not None, args.pilot_repeats is not None, args.hit_path_profile,
+        args.prefetch_depth is not None, args.epochs is not None,
+        args.request_sizes is not None, args.prefetch_depths is not None,
+        args.hit_warmup_epochs is not None, args.dataset_config is not None,
+        args.dataset_source is not None, args.scratch_root is not None,
+    ))
+    if prepare_options_used and args.action != "prepare":
+        parser.error("configuration options apply to prepare; prepare, upload/update source, then run")
+    if args.update and args.action != "upload-source":
+        parser.error("--update applies only to upload-source")
     if args.action == "setup":
         if not executable("python").is_file():
             subprocess.run([sys.executable, "-m", "venv", str(VENV)], check=True)
@@ -181,7 +247,15 @@ def main():
         destination = ROOT / "results/kaggle" / str(time.time_ns())
         destination.mkdir(parents=True, exist_ok=False)
         cli("kernels", "output", value["notebook"], "-p", destination, "--file-pattern", "aether-results-only\\.zip")
-        print("Downloaded results:", destination)
+        archive_path = destination / "aether-results-only.zip"
+        if not archive_path.is_file():
+            raise RuntimeError("No results ZIP was downloaded. Run the newly prepared notebook version, then retry outputs.")
+        with zipfile.ZipFile(archive_path) as archive:
+            if not archive.namelist() or archive.testzip() is not None:
+                raise RuntimeError("Downloaded results ZIP is empty or corrupt")
+        from kaggle_results import include_notebook_log
+        include_notebook_log(archive_path, destination / (value["notebook"].split("/")[1] + ".log"))
+        print("Downloaded results ZIP:", archive_path)
     elif args.action == "logs":
         cli("kernels", "logs", value["notebook"])
 

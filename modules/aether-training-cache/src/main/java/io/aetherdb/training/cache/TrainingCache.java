@@ -17,6 +17,7 @@ import java.util.Base64;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -37,6 +38,9 @@ public final class TrainingCache implements AutoCloseable {
     private static final int MAGIC = 0xAE7CA001;
     private static final int SEGMENT_MAGIC = 0xAE7CA002;
     private static final int SEGMENT_METADATA_BYTES = 4 + 4 + 4 + TransformationFingerprint.BYTES + 68 + 4;
+    // Private identity prevents another validator from granting this format's trust.
+    // The successful marker belongs to an immutable LookupResult, never a cache key.
+    private static final Object INLINE_INTEGRITY = new Object();
     private final AetherDatabase database;
     private final long maximumBytes;
     private final TrainingCacheDurability durability;
@@ -54,6 +58,34 @@ public final class TrainingCache implements AutoCloseable {
     private final TrainingCacheLatency getLatency = new TrainingCacheLatency();
     private final TrainingCacheLatency putLatency = new TrainingCacheLatency();
     private long diskBytes;
+    private static final int COMPLETED_TRACE_CAPACITY = 16384;
+    private final java.util.ArrayDeque<Map<String, Object>> completedTraces = new java.util.ArrayDeque<>();
+    private long droppedTraces;
+
+    /** Completed request diagnostics; oldest records are dropped on overflow. */
+    synchronized void recordCompletedTrace(Map<String, Object> record) {
+        if (record == null) return;
+        if (completedTraces.size() == COMPLETED_TRACE_CAPACITY) {
+            completedTraces.removeFirst();
+            droppedTraces++;
+        }
+        completedTraces.addLast(record);
+    }
+
+    /** Atomically drains records and the drop count since the preceding drain. */
+    public synchronized Map<String, Object> drainCompletedTraces() {
+        Map<String, Object> result = Map.of("records", List.copyOf(completedTraces), "dropped", droppedTraces);
+        completedTraces.clear();
+        droppedTraces = 0;
+        return result;
+    }
+
+    /** Metadata index count, maintained by normal cache publication and eviction. */
+    public long cacheEntries() { synchronized (entries) { return entries.size(); } }
+
+    // Layer-one benchmark deliberately uses the raw database get loop.
+    AetherDatabase benchmarkDatabase() { return database; }
+    void awaitCompactionIdle() throws InterruptedException { Aether.awaitCompactionIdle(database); }
 
     public static TrainingCache open(Path directory) { return open(directory, DEFAULT_MAX_BYTES, TrainingCacheDurability.RECOVERABLE, TrainingCacheStoragePolicy.auto()); }
 
@@ -107,7 +139,7 @@ public final class TrainingCache implements AutoCloseable {
         getLatency.record(System.nanoTime() - started);
         if (!result.isFound()) { misses.increment(); return null; }
         try {
-            byte[] payload = decode(result.value(), storageKey);
+            byte[] payload = copyPayload(decodeView(result, storageKey));
             hits.increment();
             bytesServed.add(payload.length);
             synchronized (entries) { entries.get(keyString(storageKey)); }
@@ -169,7 +201,7 @@ public final class TrainingCache implements AutoCloseable {
             ByteBuffer mapped;
             if (encoded.length >= 8 && ByteBuffer.wrap(encoded).getInt() == SEGMENT_MAGIC)
                 mapped = validateMappedSegment(encoded, storageKey);
-            else mapped = ByteBuffer.wrap(decode(encoded, storageKey)).asReadOnlyBuffer();
+            else mapped = decodeView(result, storageKey);
             hits.increment();
             bytesServed.add(mapped.remaining());
             return mapped;
@@ -192,16 +224,59 @@ public final class TrainingCache implements AutoCloseable {
     }
 
     public BatchValueResult getManyValues(Iterable<CacheKey> keys) {
+        ValueParts parts = collectValueParts(keys);
+        return TrainingCacheRequestTrace.measure("batchPack", () -> {
+            ByteBuffer payload = ByteBuffer.allocate(parts.totalBytes());
+            int[] offsets = new int[parts.values().size()];
+            int[] lengths = new int[offsets.length];
+            for (int index = 0; index < offsets.length; index++) {
+                ByteBuffer value = parts.values().get(index);
+                offsets[index] = payload.position();
+                if (value != null) { lengths[index] = value.remaining(); payload.put(value); }
+            }
+            payload.flip();
+            return new BatchValueResult(parts.statuses(), offsets, lengths, payload);
+        });
+    }
+
+    /** Packs validated private value views directly into the existing RPC body. */
+    byte[] getManyValuesWire(Iterable<CacheKey> keys) {
+        ValueParts parts = collectValueParts(keys);
+        long encodeStarted = TrainingCacheRequestTrace.start();
+        try {
+        return TrainingCacheRequestTrace.measure("batchPack", () -> {
+            int count = parts.values().size();
+            ByteBuffer result = ByteBuffer.allocate(Math.addExact(Math.addExact(4, Math.multiplyExact(9, count)), parts.totalBytes()));
+            result.putInt(count);
+            for (BatchValueResult.ValueStatus status : parts.statuses())
+                result.put((byte) (status == BatchValueResult.ValueStatus.MISS ? 0 : 1));
+            int offset = 0;
+            for (ByteBuffer value : parts.values()) {
+                result.putInt(offset);
+                if (value != null) offset = Math.addExact(offset, value.remaining());
+            }
+            for (ByteBuffer value : parts.values()) result.putInt(value == null ? 0 : value.remaining());
+            long copyStarted = TrainingCacheRequestTrace.start();
+            try {
+                for (ByteBuffer value : parts.values()) if (value != null) result.put(value);
+            } finally { TrainingCacheRequestTrace.end("artifactCopy", copyStarted); }
+            return result.array();
+        });
+        } finally { TrainingCacheRequestTrace.end("responseEncode", encodeStarted); }
+    }
+
+    private record ValueParts(List<BatchValueResult.ValueStatus> statuses, List<ByteBuffer> values, int totalBytes) {}
+
+    private ValueParts collectValueParts(Iterable<CacheKey> keys) {
         java.util.ArrayList<BatchValueResult.ValueStatus> statuses = new java.util.ArrayList<>();
-        java.util.ArrayList<byte[]> values = new java.util.ArrayList<>();
+        java.util.ArrayList<ByteBuffer> values = new java.util.ArrayList<>();
         int totalBytes = 0;
         for (CacheKey key : keys) {
             byte[] storageKey = key.storageKey();
             LookupResult lookup = traceLookup(storageKey);
-            byte[] encoded = lookup.isFound() ? lookup.value() : null;
-            byte[] value = null;
+            ByteBuffer value = null;
             if (lookup.isFound()) {
-                try { value = decode(encoded, storageKey); }
+                try { value = decodeView(lookup, storageKey); }
                 catch (IllegalArgumentException corrupt) {
                     corruptEntries.increment();
                     database.delete(storageKey);
@@ -211,22 +286,14 @@ public final class TrainingCache implements AutoCloseable {
                 statuses.add(BatchValueResult.ValueStatus.MISS);
                 values.add(null);
             } else {
-                statuses.add(isSegmentValue(encoded) ? BatchValueResult.ValueStatus.HIT_SEGMENT
+                ByteBuffer encoded = lookup.readOnlyValue();
+                statuses.add(encoded.remaining() >= 8 && encoded.getInt(0) == SEGMENT_MAGIC ? BatchValueResult.ValueStatus.HIT_SEGMENT
                         : BatchValueResult.ValueStatus.HIT_INLINE);
                 values.add(value);
-                totalBytes = Math.addExact(totalBytes, value.length);
+                totalBytes = Math.addExact(totalBytes, value.remaining());
             }
         }
-        ByteBuffer payload = ByteBuffer.allocate(totalBytes);
-        int[] offsets = new int[values.size()];
-        int[] lengths = new int[values.size()];
-        for (int index = 0; index < values.size(); index++) {
-            byte[] value = values.get(index);
-            offsets[index] = payload.position();
-            if (value != null) { lengths[index] = value.length; payload.put(value); }
-        }
-        payload.flip();
-        return new BatchValueResult(statuses, offsets, lengths, payload);
+        return new ValueParts(statuses, values, totalBytes);
     }
 
     private static boolean isSegmentValue(byte[] encoded) {
@@ -300,7 +367,7 @@ public final class TrainingCache implements AutoCloseable {
                 byte[] storageKey = entry.getKey().storageKey();
                 LookupResult existing = traceLookup(storageKey);
                 if (existing.isFound()) {
-                    if (!Arrays.equals(decode(existing.value(), storageKey), entry.getValue()))
+                    if (!Arrays.equals(copyPayload(decodeView(existing, storageKey)), entry.getValue()))
                         throw new IllegalArgumentException("cannot overwrite an immutable cache key");
                 } else pending.add(entry);
             }
@@ -367,6 +434,16 @@ public final class TrainingCache implements AutoCloseable {
     }
 
     public TrainingCacheDurability durability() { return durability; }
+
+    public Map<String, String> integrityPolicy() {
+        return Map.of("version", "immutable-inline-admission-v1",
+                "inlineSSTable", "CRC32C and SHA-256 once per resident immutable value; reload revalidates",
+                "nativeMemtable", "CRC32C and SHA-256 on each materialized lookup value",
+                "segment", "metadata CRC32C and payload SHA-256 on each storage read",
+                "writes", "content SHA-256 and encoded CRC32C retained");
+    }
+
+    public Map<String, Object> compactionDiagnostics() { return Aether.compactionDiagnostics(database); }
 
     /** Metadata-only presence query; payload integrity is still checked on retrieval. */
     public boolean containsKey(CacheKey key) {
@@ -444,7 +521,9 @@ public final class TrainingCache implements AutoCloseable {
     }
 
     private LookupResult traceLookup(byte[] storageKey) {
-        return TrainingCacheRequestTrace.measure("indexLookup", () -> database.get(storageKey));
+        // Preserve the legacy inclusive name while adding the accurate API boundary.
+        return TrainingCacheRequestTrace.measure("databaseLookup",
+                () -> TrainingCacheRequestTrace.measure("indexLookup", () -> database.get(storageKey)));
     }
 
     private byte[] decode(byte[] encoded, byte[] storageKey) {
@@ -452,6 +531,63 @@ public final class TrainingCache implements AutoCloseable {
     }
 
     private byte[] decodeValue(byte[] encoded, byte[] storageKey) {
+        return copyPayload(decodeValueView(encoded, storageKey));
+    }
+
+    private static byte[] copyPayload(ByteBuffer view) {
+        // A segment read already owns a standalone payload array; transfer that
+        // ownership to the byte[] caller instead of introducing another copy.
+        if (view.hasArray() && view.arrayOffset() == 0 && view.remaining() == view.array().length)
+            return view.array();
+        long copyStarted = TrainingCacheRequestTrace.start();
+        try {
+            byte[] payload = new byte[view.remaining()];
+            view.get(payload);
+            return payload;
+        } finally { TrainingCacheRequestTrace.end("artifactCopy", copyStarted); }
+    }
+
+    /**
+     * First access validates application integrity on the immutable storage value.
+     * Cached SSTable lookups retain that exact value; new blocks/versions do not
+     * inherit its marker. Nonresident/native lookup copies still validate on each
+     * admission. Segment reads are fresh I/O and retain full per-read validation.
+     */
+    private ByteBuffer decodeView(LookupResult result, byte[] storageKey) {
+        return TrainingCacheRequestTrace.measure("valueDecodeAndValidate", () -> {
+            ByteBuffer encoded = result.readOnlyValue();
+            if (encoded.remaining() < 4 || encoded.getInt(0) != MAGIC)
+                return decodeValueView(result.value(), storageKey);
+            boolean admitted = result.validateOnce(INLINE_INTEGRITY, TrainingCache::validateInlineIntegrity);
+            io.aetherdb.api.ReadDiagnostics.count(admitted ? "artifactValidationAdmissions" : "artifactValidationReuses", 1);
+            // Length and header are immutable and were checked by the validator.
+            int length = encoded.getInt(8);
+            return encoded.slice(HEADER_BYTES, length).asReadOnlyBuffer();
+        });
+    }
+
+    private static void validateInlineIntegrity(ByteBuffer encoded) {
+        int size = encoded.remaining();
+        if (size < HEADER_BYTES + 4) throw new IllegalArgumentException("truncated cache entry");
+        if (encoded.getInt(0) != MAGIC || encoded.getInt(4) != 1)
+            throw new IllegalArgumentException("unknown cache entry");
+        int length = encoded.getInt(8);
+        if (length < 0 || length != size - HEADER_BYTES - 4)
+            throw new IllegalArgumentException("invalid payload length");
+        byte[] expectedDigest = new byte[TransformationFingerprint.BYTES];
+        encoded.duplicate().position(12).get(expectedDigest);
+        long checksumStarted = TrainingCacheRequestTrace.start();
+        try {
+            CRC32C crc = new CRC32C();
+            crc.update(encoded.duplicate().limit(size - 4));
+            if ((int) crc.getValue() != encoded.getInt(size - 4)
+                    || !Arrays.equals(expectedDigest, digest(encoded.slice(HEADER_BYTES, length))))
+                throw new IllegalArgumentException("cache checksum mismatch");
+        } finally { TrainingCacheRequestTrace.end("cacheChecksum", checksumStarted); }
+    }
+
+    /** Views only privately owned lookup/segment arrays; validates before exposing payload bytes. */
+    private ByteBuffer decodeValueView(byte[] encoded, byte[] storageKey) {
         if (encoded.length < HEADER_BYTES + 4) throw new IllegalArgumentException("truncated cache entry");
         ByteBuffer input = ByteBuffer.wrap(encoded).order(ByteOrder.BIG_ENDIAN);
         int magic = input.getInt();
@@ -465,24 +601,35 @@ public final class TrainingCache implements AutoCloseable {
             byte[] nameBytes = new byte[68];
             input.get(nameBytes);
             int expectedCrc = input.getInt();
+            long metadataChecksumStarted = TrainingCacheRequestTrace.start();
+            String name;
+            try {
             CRC32C crc = new CRC32C();
             crc.update(encoded, 0, encoded.length - 4);
-            String name = new String(nameBytes, StandardCharsets.US_ASCII);
+            name = new String(nameBytes, StandardCharsets.US_ASCII);
             if ((int) crc.getValue() != expectedCrc || !name.equals(segmentName(storageKey)))
                 throw new IllegalArgumentException("invalid segment reference");
+            } finally { TrainingCacheRequestTrace.end("cacheChecksum", metadataChecksumStarted); }
             byte[] payload = segmentStore.read(name);
+            long checksumStarted = TrainingCacheRequestTrace.start();
+            try {
             if (payload.length != length || !Arrays.equals(digest, TransformationFingerprint.sha256(payload)))
                 throw new IllegalArgumentException("cache segment checksum mismatch");
-            return payload;
+            } finally { TrainingCacheRequestTrace.end("cacheChecksum", checksumStarted); }
+            return ByteBuffer.wrap(payload);
         }
         if (magic != MAGIC || version != 1) throw new IllegalArgumentException("unknown cache entry");
         int length = input.getInt();
         if (length < 0 || length != encoded.length - HEADER_BYTES - 4) throw new IllegalArgumentException("invalid payload length");
         byte[] digest = new byte[TransformationFingerprint.BYTES]; input.get(digest);
-        byte[] payload = new byte[length]; input.get(payload); int expectedCrc = input.getInt();
+        ByteBuffer payload = ByteBuffer.wrap(encoded, HEADER_BYTES, length).slice().asReadOnlyBuffer();
+        int expectedCrc = input.getInt(encoded.length - 4);
+        long checksumStarted = TrainingCacheRequestTrace.start();
+        try {
         CRC32C crc = new CRC32C(); crc.update(encoded, 0, encoded.length - 4);
-        if ((int) crc.getValue() != expectedCrc || !Arrays.equals(digest, TransformationFingerprint.sha256(payload)))
+        if ((int) crc.getValue() != expectedCrc || !Arrays.equals(digest, TransformationFingerprint.sha256(encoded, HEADER_BYTES, length)))
             throw new IllegalArgumentException("cache checksum mismatch");
+        } finally { TrainingCacheRequestTrace.end("cacheChecksum", checksumStarted); }
         return payload;
     }
 

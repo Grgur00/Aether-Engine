@@ -1,6 +1,7 @@
 package io.aetherdb.sstable;
 
 import io.aetherdb.sstable.block.BlockEnvelope;
+import io.aetherdb.api.ReadDiagnostics;
 import io.aetherdb.sstable.block.BlockHandle;
 import io.aetherdb.sstable.block.BlockKind;
 import io.aetherdb.sstable.block.RestartBlock;
@@ -244,13 +245,16 @@ public final class SSTableReader implements AutoCloseable {
         Objects.requireNonNull(userKey, "userKey");
         if (visibleSequence < 0)
             throw new IllegalArgumentException("visible sequence must be nonnegative");
-        if (!filter.mayContain(userKey)) return new SSTableLookup.Absent();
-        int blockIndex = findCandidateBlock(userKey);
+        if (!ReadDiagnostics.measure("filter", () -> filter.mayContain(userKey))) {
+            ReadDiagnostics.count("filterNegatives", 1);
+            return new SSTableLookup.Absent();
+        }
+        int blockIndex = ReadDiagnostics.measure("index", () -> findCandidateBlock(userKey));
         if (blockIndex < 0) return new SSTableLookup.Absent();
         DataBlock block = dataBlocks.get(blockIndex);
         try {
             List<DataBlockEntry> entries = block.loadEntries(channel, fileSize);
-            int start = binarySearch(entries, userKey);
+            int start = ReadDiagnostics.measure("dataBlockLookup", () -> binarySearch(entries, userKey));
             if (start < 0 || start >= entries.size()) return new SSTableLookup.Absent();
             while (start > 0 && sameUserKey(entries.get(start - 1).encodedKey(), userKey)) start--;
             for (int index = start;
@@ -258,9 +262,7 @@ public final class SSTableReader implements AutoCloseable {
                     index++) {
                 long sequence = sequence(entries.get(index).encodedKey());
                 if (sequence <= visibleSequence) {
-                    return entries.get(index).value().length == 0
-                            ? new SSTableLookup.Tombstone(sequence)
-                            : new SSTableLookup.Found(sequence, entries.get(index).value());
+                    return entries.get(index).lookup();
                 }
             }
         } catch (IOException failure) {
@@ -440,7 +442,12 @@ public final class SSTableReader implements AutoCloseable {
         } catch (ArithmeticException failure) {
             throw corrupt("block offset exceeds addressable file");
         }
-        byte[] block = readRange(channel, start, handle.length());
+        long readStarted = ReadDiagnostics.start();
+        byte[] block;
+        try {
+            block = readRange(channel, start, handle.length());
+            ReadDiagnostics.count("blockBytesRead", block.length);
+        } finally { ReadDiagnostics.end("blockRead", readStarted); }
         return BlockEnvelope.decode(block, kind);
     }
 
@@ -539,10 +546,13 @@ public final class SSTableReader implements AutoCloseable {
 
         private List<DataBlockEntry> loadEntries(FileChannel channel, long fileSize)
                 throws IOException {
+            ReadDiagnostics.count(entries == null ? "blockCacheMisses" : "blockCacheHits", 1);
             if (entries == null) {
                 synchronized (this) {
                     if (entries == null) {
                         byte[] rawBlock = raw(channel, handle, BlockKind.DATA, fileSize);
+                        long decodeStarted = ReadDiagnostics.start();
+                        try {
                         List<RestartBlock.Entry> decoded =
                                 RestartBlock.decode(rawBlock, INTERNAL_ORDER);
                         List<DataBlockEntry> converted = new ArrayList<>(decoded.size());
@@ -553,6 +563,7 @@ public final class SSTableReader implements AutoCloseable {
                             converted.add(new DataBlockEntry(entry.key(), entry.value()));
                         }
                         entries = List.copyOf(converted);
+                        } finally { ReadDiagnostics.end("decode", decodeStarted); }
                     }
                 }
             }
@@ -572,5 +583,22 @@ public final class SSTableReader implements AutoCloseable {
         }
     }
 
-    private record DataBlockEntry(byte[] encodedKey, byte[] value) {}
+    /** The block cache owns each immutable result and its validation lifetime. */
+    private static final class DataBlockEntry {
+        private final byte[] encodedKey;
+        private final SSTableLookup lookup;
+
+        private DataBlockEntry(byte[] encodedKey, byte[] value) {
+            this.encodedKey = encodedKey;
+            long sequence = sequence(encodedKey);
+            this.lookup = value.length == 0 ? new SSTableLookup.Tombstone(sequence)
+                    : new SSTableLookup.Found(sequence, value);
+        }
+
+        private byte[] encodedKey() { return encodedKey; }
+        private SSTableLookup lookup() { return lookup; }
+        private byte[] value() {
+            return lookup instanceof SSTableLookup.Found found ? found.value() : new byte[0];
+        }
+    }
 }

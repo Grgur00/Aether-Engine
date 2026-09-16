@@ -14,14 +14,17 @@ public sealed interface SSTableLookup
      * Visible value result.
      *
      * @param sequence selected sequence
-     * @param value raw user value
+     * @param result privately owned immutable user value
      */
-    record Found(long sequence, byte[] value) implements SSTableLookup {
-        /** Validates sequence and copies value bytes. */
+    record Found(long sequence, io.aetherdb.api.result.LookupResult result) implements SSTableLookup {
+        /** Validates sequence and immutable result ownership. */
         public Found {
-            if (sequence <= 0 || value == null)
+            if (sequence <= 0 || result == null || !result.isFound())
                 throw new IllegalArgumentException("invalid found result");
-            value = value.clone();
+        }
+
+        public Found(long sequence, byte[] value) {
+            this(sequence, io.aetherdb.api.result.LookupResult.found(value));
         }
 
         /**
@@ -29,9 +32,8 @@ public sealed interface SSTableLookup
          *
          * @return defensive value copy
          */
-        @Override
         public byte[] value() {
-            return value.clone();
+            return result.value();
         }
     }
 

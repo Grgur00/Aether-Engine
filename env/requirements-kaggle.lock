@@ -1,0 +1,2 @@
+# Local remote-job tooling, isolated from the measured training environment.
+kaggle==2.2.4
