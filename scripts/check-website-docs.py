@@ -55,8 +55,9 @@ def audit_page(path: Path) -> list[str]:
         if not urlparse(reference).scheme and not reference.startswith("#")
     ]
     for reference in local:
-        target = (path.parent / reference).resolve()
-        if reference.endswith("/"):
+        resource_path = urlparse(reference).path
+        target = (path.parent / resource_path).resolve()
+        if resource_path.endswith("/"):
             target /= "index.html"
         if reference and not target.exists():
             errors.append(f"{path.relative_to(ROOT)}: missing local resource {reference}")
