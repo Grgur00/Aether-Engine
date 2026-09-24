@@ -114,7 +114,8 @@ def test_primary_resets_saved_pilot_settings_and_freezes_notebook(prepared, monk
     monkeypatch.setattr(sys, "argv", ["kaggle_remote.py", "prepare", "--mode", "primary"])
     remote.main()
     value = remote.config()
-    assert (value["epochs"], value["prefetchDepth"], value["serverTrace"]) == (10, 0, False)
+    assert (value["epochs"], value["prefetchDepth"], value["serverTrace"]) == (20, 0, False)
+    assert value["datasetConfig"] == "configs/paper/oct5k-confirmatory-v2.json"
     remote.validate_prepared(value)
 
 

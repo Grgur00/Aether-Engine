@@ -52,7 +52,7 @@ def parser():
     result.add_argument("--seed-base", type=int, default=20260904)
     result.add_argument("--randomize-backend-order", action="store_true", help="Always enabled")
     result.add_argument("--paired-blocks", action="store_true", help="Always enabled")
-    result.add_argument("--confirmatory", action="store_true", help="Require clean source and the frozen 24-block, 10-epoch OCT5K protocol")
+    result.add_argument("--confirmatory", action="store_true", help="Require clean source and the frozen 24-block, 20-epoch OCT5K superiority protocol")
     result.add_argument("--plan-only", action="store_true")
     result.add_argument("--resume", action="store_true", help="Skip only complete blocks with matching protocol and environment")
     result.add_argument("--retain-stores", action="store_true", help="Retain per-block generated caches (can require substantial disk space)")
@@ -109,7 +109,7 @@ def build_plan(args):
     if args.confirmatory:
         from confirmatory import DESIGN, validate_plan
         plan["confirmatoryDesign"] = DESIGN
-        plan["primaryFamily"] = "single primary Aether/mmap TOST; Aether/raw secondary one-sided superiority"
+        plan["primaryFamily"] = "single primary Aether/incremental mmap one-sided superiority; equivalence and raw secondary"
         validate_plan(plan)
     return plan
 
@@ -209,7 +209,7 @@ def measure_block(plan, point, index, directory, environment_id, protocol_hash, 
     run = training["runs"][0]
     if plan.get("confirmatory"):
         from confirmatory import validate_training
-        validate_training(training)
+        validate_training(training, plan["confirmatoryDesign"])
     throughput = {name: run["backends"][backend]["steadyState"]["effectiveSamplesPerSecond"] for name, backend in plan["backends"].items()}
     initial = run["cacheDynamics"]["prepopulatedEntries"]
     expected = spec.get("expectedReusable") if point["reusePercent"] is None else count_v1
@@ -276,6 +276,9 @@ def execute(args, plan):
         for key in ("manifestV1", "manifestV2"):
             manifest_hashes[spec[key]] = sha256(spec[key])
     plan["manifestSha256"] = manifest_hashes
+    if args.confirmatory:
+        from confirmatory import validate_plan
+        validate_plan(plan)
     plan["sourceSha256"] = provenance["sourceSha256"]
     protocol_hash = digest(plan)
     stable_gpu = capture(["nvidia-smi", "--query-gpu=name,uuid,driver_version,memory.total,pci.bus_id", "--format=csv,noheader"])

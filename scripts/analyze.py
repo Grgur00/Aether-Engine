@@ -1,6 +1,7 @@
 """Predeclared paired log-ratio analysis. Input is validated matrix block JSON."""
 import argparse
 import collections
+import csv
 import json
 import math
 from pathlib import Path
@@ -63,6 +64,7 @@ def paired_analysis(aether, baseline, *, margin=.03, alpha=.05, resamples=10000,
             "ratioCI95": [math.exp(center - ci95), math.exp(center + ci95)],
             "pairedTTestTwoSidedP": p_two,
             "pairedTTestGreaterP": float(stats.t.sf(center / se, n - 1)),
+            "ratioLowerOneSided95": math.exp(center - stats.t.ppf(.95, n - 1) * se),
             "tost": {"lowerRatio": 1 - margin, "upperRatio": 1 + margin,
                      "pLower": p_low, "pUpper": p_high, "p": max(p_low, p_high),
                      "equivalentUnadjusted": max(p_low, p_high) < alpha,
@@ -107,7 +109,11 @@ def load_blocks(directory):
     return blocks
 
 
-def analyze_blocks(blocks, *, confirmatory=False, **options):
+def analyze_blocks(blocks, *, confirmatory=False, confirmatory_design=None, **options):
+    from confirmatory import DESIGN, known_design
+    superiority = False
+    if confirmatory:
+        superiority = known_design(DESIGN if confirmatory_design is None else confirmatory_design) == DESIGN
     if confirmatory and (options.get("alpha", .05) != .05 or options.get("margin", .03) != .03):
         raise ValueError("confirmatory alpha and equivalence margin are frozen at .05 and .03")
     groups = collections.defaultdict(list)
@@ -132,28 +138,59 @@ def analyze_blocks(blocks, *, confirmatory=False, **options):
         mmap["holmP"] = adjusted[1]
         mmap["equivalentAfterHolm"] = adjusted[1] < options.get("alpha", .05)
         if confirmatory:
-            # The raw comparison is secondary and does not alter the primary TOST.
+            # Secondary results never change the single predeclared primary test.
             for report in (raw, mmap):
                 report.pop("holmP")
             raw.pop("superiorAfterHolm")
             mmap.pop("equivalentAfterHolm")
             raw["secondarySuperior"] = raw["pairedTTestGreaterP"] < .05
-            mmap["primaryEquivalent"] = mmap["tost"]["equivalentUnadjusted"]
+            if superiority:
+                mmap["primarySuperior"] = mmap["pairedTTestGreaterP"] < .05
+                mmap["secondaryEquivalent"] = mmap["tost"]["equivalentUnadjusted"]
+            else:
+                mmap["primaryEquivalent"] = mmap["tost"]["equivalentUnadjusted"]
         reports.append({"protocolHash": protocol, "conditionId": condition, "environmentId": environment,
                         "aetherOverRaw": raw, "aetherOverMmap": mmap,
                         "confirmatorySampleCountReached": len(group) >= 24})
     return {"schema": "aether-paper-analysis-v1", "groups": reports,
-            "family": ("single primary Aether/mmap TOST; raw one-sided secondary, RAM descriptive"
+            "family": ("single primary Aether/incremental mmap one-sided superiority; equivalence and raw nominal secondary, RAM descriptive"
+                       if superiority else "single primary Aether/mmap TOST; raw one-sided secondary, RAM descriptive"
                        if confirmatory else "two primary comparisons per predeclared condition; secondary conditions exploratory")}
 
 
-def amortization(directory):
+def amortization(directory, *, identities=None):
     """Descriptive paired curves, derived only from already validated blocks."""
     from run_matrix import BACKEND_IDS
-    runs = [json.loads(path.with_name("training.json").read_text(encoding="utf-8"))["runs"][0]
-            for path in sorted(Path(directory).glob("*/block-*/block.json"))]
+    runs = []
+    for path in sorted(Path(directory).glob("*/block-*/block.json")):
+        if identities is not None:
+            block = json.loads(path.read_text(encoding="utf-8"))
+            if (block["protocolHash"], block["conditionId"], block["environmentId"]) not in identities:
+                continue
+        runs.append(json.loads(path.with_name("training.json").read_text(encoding="utf-8"))["runs"][0])
+    if not runs:
+        raise ValueError("amortization requires completed paired blocks")
+    lengths = set()
+    for run in runs:
+        for key in ("aether", "mmap"):
+            backend = run["backends"][BACKEND_IDS[key]]
+            walls = backend["epochWallMs"]
+            lengths.add(len(walls))
+            if not walls or any(not math.isfinite(wall) or wall <= 0 for wall in walls):
+                raise ValueError("amortization requires positive finite epoch walls")
+            setup = backend["lifecycle"]["populateMs"]
+            if not math.isfinite(setup) or setup < 0:
+                raise ValueError("amortization requires finite nonnegative preparation costs")
+    if len(lengths) != 1:
+        raise ValueError("amortization requires matching complete epoch counts")
+    epochs = lengths.pop()
+    protocol_path = Path(directory) / "protocol.json"
+    if protocol_path.exists():
+        protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
+        if protocol.get("measuredSteps", 0) or protocol["epochs"] != epochs:
+            raise ValueError("amortization requires full lifecycle epochs matching the protocol")
     curves = []
-    for epoch in range(1, 11):
+    for epoch in range(1, epochs + 1):
         training, lifecycle = [], []
         for run in runs:
             a, m = (run["backends"][BACKEND_IDS[key]] for key in ("aether", "mmap"))
@@ -162,10 +199,41 @@ def amortization(directory):
             lifecycle.append((m_wall + m["lifecycle"]["populateMs"]) /
                              (a_wall + a["lifecycle"]["populateMs"]))
         curves.append({"epochs": epoch,
+                       "n": len(runs), "pairedTrainingRatios": training,
                        "trainingRatioGeometricMean": float(np.exp(np.mean(np.log(training)))),
                        "includingV2PreparationRatioGeometricMean": float(np.exp(np.mean(np.log(lifecycle))))})
+        if len(training) >= 2:
+            logs = np.log(training)
+            radius = stats.t.ppf(.95, len(training) - 1) * stats.sem(logs)
+            curves[-1]["trainingRatioCI90"] = np.exp([np.mean(logs) - radius, np.mean(logs) + radius]).tolist()
     return {"scope": "secondary descriptive; cumulative epoch walls, optionally plus V2 preparation; excludes V1 population and inter-epoch overhead; not the primary effective-throughput endpoint",
-            "curves": curves}
+            "curves": curves,
+            "checkpoints": [row for row in curves if row["epochs"] in (1, 5, 10, 20)]}
+
+
+def pilot_update_costs(directory, identities):
+    """First-pass input timings include reuse checks; not isolated update latency."""
+    from run_matrix import BACKEND_IDS
+    costs = []
+    for path in sorted(Path(directory).glob("*/block-*/block.json")):
+        block = json.loads(path.read_text(encoding="utf-8"))
+        if (block["protocolHash"], block["conditionId"], block["environmentId"]) not in identities:
+            continue
+        run = json.loads(path.with_name("training.json").read_text(encoding="utf-8"))["runs"][0]
+        row = {"blockIndex": block["blockIndex"], "backends": {}}
+        for name in ("aether", "mmap"):
+            backend = run["backends"][BACKEND_IDS[name]]
+            steps = [step for step in backend["steps"] if step["epoch"] == 0]
+            row["backends"][name] = {
+                "firstEpochWallMs": backend["epochWallMs"][0],
+                "inputPreparationMs": sum(step["batchPrepareMs"] for step in steps),
+                "sourceAndPreprocessMs": sum(step["sourceLoadMs"] + step["preprocessMs"] for step in steps),
+                "initialReusableEntries": (run["cacheDynamics"]["prepopulatedEntries"] if name == "aether"
+                                           else run["mmapDynamics"]["initialReusableEntries"]),
+            }
+        costs.append(row)
+    return {"scope": "first-epoch input preparation includes lookup, reads, preprocessing and publication for incremental reuse; excludes GPU training, V1 population, preflight and post-training compaction drain; not standalone total dataset-update latency; sourceAndPreprocessMs is a component, not additive to inputPreparationMs",
+            "blocks": costs}
 
 
 def main(argv=None):
@@ -186,19 +254,40 @@ def main(argv=None):
     if confirmatory and (args.pilot or args.holm or args.mixed_effects):
         raise ValueError("confirmatory analysis uses the frozen single-primary design, without pilot/Holm/mixed-effects overrides")
     blocks = load_blocks(args.input)
-    report = analyze_blocks(blocks, confirmatory=confirmatory, alpha=args.alpha, margin=args.equivalence_margin,
+    report = analyze_blocks(blocks, confirmatory=confirmatory, confirmatory_design=protocol.get("confirmatoryDesign"),
+                            alpha=args.alpha, margin=args.equivalence_margin,
                             resamples=args.bootstrap_resamples, seed=args.seed)
     if confirmatory:
-        report["measurementRole"] = "confirmatory; fixed 24 blocks and 10-epoch endpoint"
+        report["measurementRole"] = f"confirmatory; fixed 24 blocks and {protocol['epochs']}-epoch endpoint"
         report["confirmatoryDesign"] = protocol["confirmatoryDesign"]
         report["secondaryAmortization"] = amortization(args.input)
+        report["groups"][0]["secondaryAmortization"] = report["secondaryAmortization"]
     if args.pilot:
         if any(group["aetherOverMmap"]["n"] < 10 for group in report["groups"]):
             raise ValueError("pilot recalculation requires at least 10 complete paired blocks per condition")
         report["measurementRole"] = "separate pilot; freeze revised confirmatory n before new measurement"
+        report["family"] = "exploratory pilot Aether/mmap and Aether/raw comparisons; no confirmatory claim"
+        if protocol.get("epochs") and not protocol.get("measuredSteps", 0):
+            report["mainEndpoint"] = f"effective throughput over all {protocol['epochs']} V2 training epochs"
+            for group in report["groups"]:
+                identities = {(group["protocolHash"], group["conditionId"], group["environmentId"])}
+                group["secondaryAmortization"] = amortization(args.input, identities=identities)
+                group["secondaryUpdateCosts"] = pilot_update_costs(args.input, identities)
     if args.mixed_effects:
         report["mixedEffects"] = mixed_effects(blocks)
     write_json(args.output / "analysis.json", report)
+    if any("secondaryAmortization" in group for group in report["groups"]):
+        for name, key in (("amortization.csv", "curves"), ("checkpoints.csv", "checkpoints")):
+            rows = []
+            for group in report["groups"]:
+                for point in group["secondaryAmortization"][key]:
+                    rows.append({field: group[field] for field in ("protocolHash", "conditionId", "environmentId")} |
+                                {field: value for field, value in point.items() if field not in {"pairedTrainingRatios", "trainingRatioCI90"}} |
+                                dict(ci90Low=point["trainingRatioCI90"][0], ci90High=point["trainingRatioCI90"][1]))
+            with (args.output / name).open("w", newline="", encoding="utf-8") as stream:
+                writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+                writer.writeheader()
+                writer.writerows(rows)
     print(f"Analyzed {len(report['groups'])} protocol/environment/condition groups")
 
 

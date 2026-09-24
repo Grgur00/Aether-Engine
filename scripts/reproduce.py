@@ -12,7 +12,7 @@ from paper_common import ROOT
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("target", choices=["smoke", "test", "profile", "pilot", "primary", "all"])
-    parser.add_argument("--config", default="configs/paper/datasets.json")
+    parser.add_argument("--config", default=None)
     parser.add_argument("--output", default="results")
     parser.add_argument("--scratch-root", type=Path, help="Generated training stores on a separate filesystem")
     parser.add_argument("--server-trace", action="store_true", help="Enable pilot flush diagnostics")
@@ -25,12 +25,14 @@ def main():
     parser.add_argument("--hit-warmup-epochs", type=int, default=None, help="Untimed warmup epochs for hit-path diagnostic")
     parser.add_argument("--training-epochs", type=int, default=1, help="Epochs per CPU training fixture in smoke mode")
     args = parser.parse_args()
+    from confirmatory import PRIMARY_CONFIG, SEED_BASE
+    args.config = args.config or (PRIMARY_CONFIG if args.target == "primary" else "configs/paper/datasets.json")
     if args.prefetch_depth is None:
         args.prefetch_depth = 0 if args.target == "primary" else 1
     if args.target == "primary":
-        if args.epochs not in (None, 10) or args.prefetch_depth != 0:
-            parser.error("primary is frozen at --epochs 10 --prefetch-depth 0")
-        args.epochs = 10
+        if args.epochs not in (None, 20) or args.prefetch_depth != 0:
+            parser.error("primary is frozen at --epochs 20 --prefetch-depth 0")
+        args.epochs = 20
     if args.epochs is not None:
         if args.epochs < 1:
             parser.error("--epochs must be positive")
@@ -103,6 +105,7 @@ def main():
         scratch = ["--scratch-root", str(args.scratch_root.resolve())] if args.scratch_root else []
         command = [sys.executable, "scripts/run_matrix.py", "--config", args.config,
                    "--confirmatory", "--repeats", "24", "--batch-size", "16",
+                   "--seed-base", str(SEED_BASE),
                    "--prefetch-depth", "0", "--resume", "--output", output, *scratch]
         if args.epochs is not None:
             command += ["--epochs", str(args.epochs)]
@@ -117,7 +120,7 @@ def main():
                 run([sys.executable, "scripts/validate_gpu.py", "--require-dali"])
             command = [sys.executable, "scripts/" + campaign["driver"], *campaign["arguments"], "--output", destination]
             if campaign["driver"] in {"run_matrix.py", "dali_comparison.py"}:
-                command += ["--config", args.config, "--resume"]
+                command += ["--config", PRIMARY_CONFIG if "--confirmatory" in campaign["arguments"] else args.config, "--resume"]
                 if args.scratch_root:
                     command += ["--scratch-root", str(args.scratch_root.resolve())]
             elif campaign["driver"] in {"fault_injection.py", "concurrency_matrix.py"}:

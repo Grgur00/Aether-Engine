@@ -50,11 +50,16 @@ def audit(root):
     try:
         blocks = load_blocks(root / "primary")
         protocol = json.loads((root / "primary/protocol.json").read_text())
-        groups = analyze_blocks(blocks, confirmatory=protocol.get("confirmatory") is True)["groups"]
+        from confirmatory import DESIGN
+        current = protocol.get("confirmatoryDesign") == DESIGN
+        groups = analyze_blocks(blocks, confirmatory=protocol.get("confirmatory") is True,
+                                confirmatory_design=protocol.get("confirmatoryDesign"))["groups"]
         checks["primary24PairedJavaRuns"] = bool(groups) and all(group["aetherOverRaw"]["n"] >= 24 for group in groups)
-        checks["primaryExpectedEvolution"] = all(block["initialReusableEntries"] == 1003 and block["condition"]["samples"] == 1505 for block in blocks)
+        checks["primaryExpectedEvolution"] = all(block["initialReusableEntries"] == (1430 if current else 1003) and block["condition"]["samples"] == 1505 for block in blocks)
         checks["secondaryRawSuperiority"] = all(group["aetherOverRaw"].get("secondarySuperior", False) for group in groups)
         checks["primaryMmapEquivalence"] = all(group["aetherOverMmap"].get("primaryEquivalent", False) for group in groups)
+        checks["primaryMmapSuperiority"] = all(group["aetherOverMmap"].get("primarySuperior", False) for group in groups)
+        checks["secondaryMmapEquivalence"] = all(group["aetherOverMmap"].get("secondaryEquivalent", False) for group in groups)
         checks["confirmatoryProtocol"] = protocol.get("confirmatory") is True
     except (ValueError, KeyError, OSError) as error:
         checks["primary24PairedJavaRuns"] = False
@@ -130,9 +135,10 @@ def audit(root):
         checks["optimizedDaliComparison12"] = {"coco / DALI", "imagenet / DALI"} <= represented
     except (ValueError, KeyError, OSError):
         checks["optimizedDaliComparison12"] = False
-    claims = {key: checks.pop(key, False) for key in ("secondaryRawSuperiority", "primaryMmapEquivalence")}
+    claims = {key: checks.pop(key, False) for key in ("secondaryRawSuperiority", "primaryMmapEquivalence",
+                                                    "primaryMmapSuperiority", "secondaryMmapEquivalence")}
     coverage = all(value is True for value in checks.values())
-    supported = claims["primaryMmapEquivalence"]
+    supported = claims["primaryMmapSuperiority"] or claims["primaryMmapEquivalence"]
     return {"schema": "aether-submission-gate-v2", "scientificEvidenceReady": coverage and supported,
             "automatedCoverageComplete": coverage, "plannedClaimsSupported": supported,
             "claims": claims, "checks": checks,
@@ -140,7 +146,7 @@ def audit(root):
             "humanReviewRemaining": ["author names and ORCID", "current journal-specific submission limit",
                 "citation verification and manuscript review", "dataset licensing", "AI disclosure reflecting actual usage",
                 "independent reproduction attestation", "author approval and journal submission"],
-            "note": "Failed equivalence is a scientific result; never tune or discard runs to force this planned claim."}
+            "note": "A failed primary test is a scientific result; never tune, add blocks or discard runs to force the planned claim."}
 
 
 if __name__ == "__main__":

@@ -64,6 +64,11 @@ COCO uses multi-label object-category presence; ImageNet uses single-label class
 
 ## Pilot and primary runs
 
+The completed [20-epoch pilot](PILOT-20EPOCH.md) is separate from the current
+[24-pair superiority campaign](CONFIRMATORY.md). The primary endpoint is now
+Aether versus incremental mmap at 20 epochs with 1430 reusable and 75 new samples.
+The pilot commands below retain the earlier workload for replication.
+
 ```python
 def run(script, *args):
     subprocess.run([PY, str(REPO / 'scripts' / script), *map(str, args)], cwd=REPO, check=True)
@@ -74,15 +79,15 @@ run('analyze.py', '--input', '/kaggle/working/aether-results/pilot', '--pilot',
     '--output', '/kaggle/working/aether-results/pilot-analysis')
 
 # After the clean commit/tag and protocol freeze; a fresh output is mandatory:
-run('reproduce.py', 'primary', '--config', CONFIG, '--epochs', 10, '--prefetch-depth', 0,
+run('reproduce.py', 'primary', '--config', REPO / 'configs/paper/oct5k-confirmatory-v2.json', '--epochs', 20, '--prefetch-depth', 0,
     '--output', '/kaggle/working/aether-results/primary')
 ```
 
 The matrix creates a fresh Java/mmap pair per block, populates V1, restarts Java, measures V2 in seeded random backend order, then retains raw reports and removes generated stores to bound disk usage. `--retain-stores` keeps caches. `--resume` skips only valid completed blocks from the same protocol and environment. An interrupted block is preserved and restarted in full; an observation timeout alone must not trigger a second runner. A changed GPU or software environment requires a separate output campaign.
 
-The final primary design fixes exactly 24 blocks and ten epochs. See
-[the frozen confirmatory protocol](CONFIRMATORY.md) for the single primary mmap
-TOST, secondary raw superiority test, timing scope and source-freeze procedure.
+The primary design fixes exactly 24 fresh blocks and twenty epochs. See
+[the confirmatory protocol](CONFIRMATORY.md) for the primary mmap superiority
+test, secondary equivalence analysis, manifest preparation and source freeze.
 Do not change the sample count after inspecting confirmatory results.
 
 ## Scaling and failure campaigns

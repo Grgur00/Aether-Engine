@@ -104,6 +104,9 @@ final class TrainingCacheProtocol {
                     DiagnosticJson.encode(java.util.Map.of("engine", "java-training-cache",
                             "durability", cache.durability().name(), "pid", ProcessHandle.current().pid(),
                             "cacheEntries", cache.cacheEntries(), "integrityPolicy", cache.integrityPolicy(),
+                            "protocol", VERSION,
+                            "features", java.util.List.of("get-many", "put-many", "contains-many",
+                                "immutable-inline-admission-v1"),
                             "backgroundCompaction", cache.compactionDiagnostics()))
                             .getBytes(StandardCharsets.UTF_8)));
             case DRAIN_TRACES -> new Response(HIT,

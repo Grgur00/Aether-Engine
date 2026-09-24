@@ -62,7 +62,13 @@ def validate_block(path):
     run = training["runs"][0]
     if protocol.get("confirmatory"):
         from confirmatory import validate_training
-        validate_training(training)
+        validate_training(training, protocol["confirmatoryDesign"])
+        from confirmatory import DESIGN, MANIFEST_HASHES
+        if protocol["confirmatoryDesign"] == DESIGN:
+            if any(block[version.lower() + "ManifestSha256"] != expected for version, expected in MANIFEST_HASHES.items()):
+                raise ValueError("block manifests differ from the frozen append-only membership")
+            if training["configuration"]["seed"] != block["seed"]:
+                raise ValueError("training seed differs from the frozen fresh block seed")
     if run.get("modelParityPassed") is not True or run.get("engineInfo", {}).get("durability") != "DURABLE":
         raise ValueError("model parity or measured Java durability mode is missing")
     for report_key, block_key in (("cacheDynamics", "aetherDynamics"), ("mmapDynamics", "mmapDynamics")):

@@ -26,6 +26,24 @@ def run_logged(command, *, cwd):
             raise subprocess.CalledProcessError(code, command)
 
 
+def prepare_evolution_data(python, config_path):
+    configuration = json.loads(config_path.read_text(encoding="utf-8"))
+    for name, spec in configuration.items():
+        if not spec.get("evolutionSourceManifest"):
+            continue
+        v1, v2 = Path(spec["manifestV1"]), Path(spec["manifestV2"])
+        if v1.name != "v1.csv" or v2.name != "v2.csv" or v1.parent != v2.parent:
+            raise ValueError("generated evolution manifests require v1.csv and v2.csv in one directory")
+        run_logged([python, "scripts/prepare_evolution.py", "--manifest", spec["evolutionSourceManifest"],
+                    "--output", str(v1.parent), "--v1-size", str(spec["samplesV1"]),
+                    "--v2-size", str(spec["samplesV2"]), "--reusable", str(spec["expectedReusable"]),
+                    "--split", spec.get("split", "train"), "--seed", str(spec["evolutionSeed"])], cwd=repo)
+        receipt_dir = results / "data-preparation" / name
+        receipt_dir.mkdir(parents=True, exist_ok=False)
+        shutil.copy2(v1.parent / "evolution.json", receipt_dir / "evolution.json")
+    run_logged([python, "scripts/validate_manifests.py", "--config", str(config_path)], cwd=repo)
+
+
 results = Path("/kaggle/working/aether-results")
 repo = Path("/kaggle/working/Aether-Engine")
 venv = Path("/kaggle/working/aether-paper-venv")
@@ -71,6 +89,8 @@ try:
     if REMOTE_CONFIG["mode"] == "all":
         run_logged([python, "-m", "pip", "install", "-r", "env/requirements-dali.lock"], cwd=repo)
     run_logged([python, "scripts/validate_gpu.py"], cwd=repo)
+    if REMOTE_CONFIG["mode"] in {"pilot", "primary"} and REMOTE_CONFIG.get("datasetConfig"):
+        prepare_evolution_data(python, repo / REMOTE_CONFIG["datasetConfig"])
     command = [python, "scripts/reproduce.py", REMOTE_CONFIG["mode"], "--output", str(results)]
     if REMOTE_CONFIG["mode"] == "smoke":
         command += ["--training-epochs", str(REMOTE_CONFIG.get("trainingEpochs", 1))]

@@ -111,9 +111,11 @@ def prepare(args):
              "scratchRoot": args.scratch_root or previous.get("scratchRoot"),
              "datasetSources": args.dataset_source if args.dataset_source is not None else previous.get("datasetSources", [])}
     if mode == "primary":
-        if epochs not in (None, 10) or prefetch_depth not in (None, 0) or getattr(args, "server_trace", None) is True:
-            raise ValueError("primary is frozen at 10 epochs, prefetch depth 0, server tracing off")
-        value.update(epochs=10, prefetchDepth=0, serverTrace=False)
+        if epochs not in (None, 20) or prefetch_depth not in (None, 0) or getattr(args, "server_trace", None) is True:
+            raise ValueError("primary is frozen at 20 epochs, prefetch depth 0, server tracing off")
+        from confirmatory import PRIMARY_CONFIG
+        value.update(epochs=20, prefetchDepth=0, serverTrace=False)
+        value["datasetConfig"] = args.dataset_config or PRIMARY_CONFIG
     if value["mode"] in {"pilot", "primary", "all"} and not value["datasetConfig"]:
         raise ValueError("pilot/primary/all require --dataset-config with its path inside Kaggle")
     if value["trainingEpochs"] < 1:

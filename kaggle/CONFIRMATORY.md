@@ -1,87 +1,128 @@
-# Frozen OCT5K confirmatory campaign
+# Frozen 20-epoch append-only superiority campaign
 
-This protocol is separate from every pilot, including the previous ten-repeat
-campaigns. No confirmatory measurements were collected while preparing it.
+Protocol ID: `oct5k-20epoch-append75-superiority-v2`.
+This specification is fixed before any confirmatory block is collected.
+The completed [10-pair pilot](PILOT-20EPOCH.md) is planning evidence only.
+The [earlier equivalence protocol](CONFIRMATORY-V1.md) is a separate design.
 
-The sole primary claim is throughput equivalence of Aether and pre-materialized
-mmap over ten V2 training epochs following V1 population and restart. Each block
-uses OCT5K V1=1170, V2=1505, reusable=1003 and new/changed=502. Collect exactly
-24 fresh paired blocks, with seeded randomized order of raw, Aether, mmap and RAM
-within each block. Hold batch size at 16, epochs at 10, prefetch depth at 0,
-server tracing off, asynchronous compaction on, and checksum policy at
-`immutable-inline-admission-v1`. The established controls remain workers=0,
-preprocessing passes=4, image size=256, train split and one CUDA GPU.
+## Primary question
 
-`scripts/confirmatory.py` is the machine-readable specification. Changes to the
-implementation or protocol require a new campaign; never tune after inspecting
-confirmatory results. Exactly 24 complete blocks are required before the primary
-analysis runs. A failed equivalence test is a reportable result, not a reason to
-collect more blocks. Preserve interrupted evidence; the runner restarts an
-interrupted paired block in full. Resume only the same frozen protocol and
-environment. Never import pilot blocks, even if their settings match.
+Under an append-only update from 1430 to 1505 OCT5K samples, is Aether's
+20-epoch V2 training throughput greater than the incremental mmap baseline?
 
-## Endpoint and analysis
+For each of exactly **24 fresh paired blocks**, compute
+`log(Aether effective throughput / mmap effective throughput)`.
+Test H0: mean log ratio <= 0 against H1: mean log ratio > 0 with a one-sided
+paired t-test at alpha=0.05 (23 degrees of freedom). Success requires
+`p < 0.05`, equivalently a one-sided 95% lower confidence bound above 1.
+Report the geometric mean ratio, percentage difference, paired log SD,
+one-sided p-value and lower bound, and a two-sided 95% CI.
 
-For each paired block use the existing `steadyState.effectiveSamplesPerSecond`
-field: 15050 processed samples divided by total ten-epoch V2 training wall time.
-The field name does not mean that the first epoch is discarded. Aether's inline
-admission of 502 new/changed samples is included. V1 population, mmap
-pre-materialization, reference/checksum validation, daemon startup and the
-post-training background-compaction drain are excluded. This claim compares
-training throughput against pre-materialized mmap; it is not equivalence of
-total setup-plus-training cost. Report the saved lifecycle costs separately.
+This is the only primary hypothesis. Freeze N=24 without interim inference,
+optional stopping, additional blocks after failure, or post-hoc endpoint
+selection. A failed primary test remains a reportable result. Preserve
+interrupted evidence and restart an interrupted paired block in full; never
+drop a completed block because its timings are unfavorable.
 
-Analyze paired `log(Aether/mmap)` using a t-based TOST at alpha=0.05 against
-`log(0.97)` and `log(1.03)`. Pass only if the exponentiated 90% CI is strictly
-inside 0.97–1.03. There is one primary hypothesis; no Holm adjustment with the
-secondary result. The secondary Aether/raw test is a one-sided paired log-ratio
-t-test of H0: mean log ratio <= 0 against H1: mean log ratio > 0 at alpha=0.05.
-RAM is descriptive, with no hypothesis of outperforming it.
+## Fixed configuration
 
-The analyzer also derives descriptive cumulative epoch 1 through 10 curves from
-these same blocks, both with and without V2 preparation cost. Summed epoch walls
-exclude inter-epoch overhead, so these curves are explicitly distinct from the
-primary total-training-wall endpoint. No epoch is selected after seeing results.
+| Setting | Frozen value |
+| --- | --- |
+| Dataset | OCT5K, additive V1 -> V2 update |
+| V1 / V2 | 1430 / 1505 samples |
+| Reusable / new / removed or changed | 1430 / 75 / 0 |
+| Reuse | 95.0166% (approximately 95%) |
+| Epochs / paired blocks | 20 / 24 |
+| Batch / workers / prefetch | 16 / 0 / 0 |
+| Server trace / asynchronous compaction | OFF / ON |
+| Integrity policy / durability | `immutable-inline-admission-v1` / DURABLE |
+| Preprocessing / image size / split | 4 passes / 256 / train |
+| Model / augmentation / pipeline | small / light / `paper-v1` |
+| Normalization / OCT transform | scale 1, offset 0 / `oct5k-v1` |
+| Hardware | one CUDA GPU per backend, same environment for all blocks |
+| Backends | raw, Aether, incremental mmap, RAM-ready |
+| Backend order | unchanged seeded random permutation within each block |
+| Fresh block seeds | 20260924 through 20260947 inclusive |
 
-## Local source freeze and notebook preparation
+The pilot used seeds 20260904 through 20260913. Its measurements are never
+imported, pooled or relabeled. Each confirmatory block starts with new stores,
+populates V1, restarts Java, then trains on V2 with all four backends paired
+on the same dataset, model seed and configuration. The engine, model and
+preprocessing implementation must match the pilot snapshot.
 
-Preserve generated pilot outputs under ignored `build/` or `results/` before
-cleaning the source tree. Run Python orchestration/statistics tests and the
-engine, SSTable and training-cache Java tests. Commit the final implementation,
-tag it `aether-paper-v1`, and record `git rev-parse HEAD`. Require an empty
-`git status --porcelain`. Do not reuse a tag for revised source.
+Use the pilot's exact membership and unchanged source contents. The frozen
+config is `configs/paper/oct5k-confirmatory-v2.json`; generation uses the same
+V2 source manifest and membership seed 20260924 as the pilot. The runner
+rejects different manifest bytes before collecting blocks:
 
-Prepare the notebook from that clean commit (PowerShell, repository root):
+| Manifest | SHA-256 |
+| --- | --- |
+| V1 | `ca84f70fac9c253c612fd09b69fb6640e1788131f58470a44daecbe7f8d00979` |
+| V2 | `892141e67b567f3443f4397a55e4a95b6d3fde53e8814baad4dbfd8bb1d09dc5` |
+
+## Timing boundary
+
+The primary endpoint is `steadyState.effectiveSamplesPerSecond`: 30100
+processed samples divided by total 20-epoch V2 training wall time. Epoch 1,
+inline admission of the 75 new artifacts, input loading, accelerator transfer
+and model training are included for both backends. The mmap store is
+incremental; it also reuses 1430 artifacts and appends only 75.
+
+V1 population, daemon startup, reference/checksum validation and the final
+background-compaction drain are excluded. The reported result is therefore
+end-to-end **V2 training throughput within this timing boundary**, not total
+deployment, data-preparation or update-only latency. Preserve lifecycle and
+compaction reports separately. No timing instrumentation changes from pilot.
+
+All 1505 samples are consumed every epoch. Only the newly added 75 require
+deterministic preprocessing and publication, in both Aether and mmap.
+
+## Secondary analyses
+
+- Aether/mmap equivalence: paired log-ratio TOST with bounds log(0.97) and
+  log(1.03), nominal alpha=0.05; report the two-sided 90% CI and whether it
+  is strictly within 0.97-1.03. This cannot substitute for primary superiority.
+- Aether/raw one-sided paired log-ratio superiority at nominal alpha=0.05.
+- Cumulative epochs 1, 5, 10 and 20, and all epoch timings, descriptive only.
+- RAM-ready is a descriptive reference, with no hypothesis of outperforming it.
+
+Secondary p-values are nominal and exploratory, with no familywise claim.
+They do not change the sole primary test or receive a Holm adjustment with it.
+Cumulative curves sum epoch walls, excluding inter-epoch overhead; their
+epoch-20 ratio can differ slightly from the primary total-wall ratio.
+
+## Source freeze and launch
+
+Test the protocol guards and analysis, then commit and tag the exact source
+snapshot `aether-paper-20ep-superiority-v1`. Use an isolated clean checkout
+when the main working tree contains unrelated work. Record the commit SHA,
+tag, archive hash, notebook hash and pilot provenance before submission.
+Regenerate `artifact-provenance.json` from the clean committed source.
+Do not tune the engine, model, transforms or configuration after inspecting
+confirmatory data. Any change requires a separately identified campaign.
+
+Prepare from that frozen checkout (PowerShell):
 
 ```powershell
-build\kaggle-venv\Scripts\python.exe scripts\kaggle_remote.py prepare --mode primary --epochs 10 --prefetch-depth 0 --no-server-trace
+build\kaggle-venv\Scripts\python.exe scripts\kaggle_remote.py prepare --mode primary --epochs 20 --prefetch-depth 0 --no-server-trace --dataset-config configs/paper/oct5k-confirmatory-v2.json --dataset-source grgur321/aether-oct5k-pilot
 ```
 
-This uses the existing local Kaggle username and attached-data configuration.
-Preparation creates `build/kaggle/source/aether-paper-artifact.zip` with a fresh
-`artifact-provenance.json`, records the commit and every packaged source hash,
-and creates `build/kaggle/notebook/aether.ipynb`. `prepared.json` binds the notebook
-and source archive together. Preparation is local and uploads nothing.
+The remote runner prepares the exact membership before collection, verifies
+the clean source archive and manifest hashes, and writes fresh evidence.
+Upload that archive and launch the prepared private notebook. Stop monitoring
+after Kaggle reports it running; do not inspect partial effect estimates.
 
-After reviewing the prepared files, upload that exact archive and run that exact
-notebook. Keep source unchanged. The prepared runner verifies source hashes and
-requires clean source provenance before collecting confirmatory evidence.
-
-## Equivalent Kaggle command
-
-From the extracted, verified source root after running `kaggle/setup.sh`:
+Equivalent command after setup and manifest preparation in Kaggle:
 
 ```bash
 /kaggle/working/aether-paper-venv/bin/python scripts/reproduce.py primary \
-  --config /kaggle/input/aether-oct5k-pilot/aether-datasets.json \
-  --epochs 10 --prefetch-depth 0 \
-  --output /kaggle/working/aether-results/confirmatory-v1
+  --config configs/paper/oct5k-confirmatory-v2.json \
+  --epochs 20 --prefetch-depth 0 \
+  --output /kaggle/working/aether-results/confirmatory-20ep-append75-v2
 ```
 
-The input dataset slug contains `pilot`; it supplies manifests and source data,
-not measurements. Use the same validated manifests. The output must be a fresh
-campaign directory. `primary` fixes N=24 and enables `--confirmatory`; no repeat
-flag is needed. It runs the analysis and figures after all blocks complete.
-Configuration, source, manifest hashes and environment are frozen into evidence.
-Preserve all raw reports and the final results ZIP, whether the claim passes or
-fails. Local validation does not establish a throughput result.
+`primary` fixes exactly 24 fresh blocks and the new seed range. Resume only
+an interrupted campaign with unchanged source, protocol and environment.
+Analyze only after all 24 complete blocks validate. Preserve the results ZIP
+whether the primary hypothesis succeeds or fails. No CV performance claim
+is upgraded on the basis of the pilot.
