@@ -1,0 +1,30 @@
+{
+  "schema": "aether-nested-manifests-v1",
+  "seed": 20260926,
+  "sourceManifestSha256": "c8ccea26b7f1bdbb07e273279fe0b7b1f432982496146e8fefb86d4956e5f3a7",
+  "sourceSamples": 1505,
+  "counts": [
+    1200,
+    1260,
+    1323,
+    1389,
+    1458
+  ],
+  "newCounts": [
+    1200,
+    60,
+    63,
+    66,
+    69
+  ],
+  "removed": 0,
+  "modified": 0,
+  "unused": 47,
+  "manifestSha256": [
+    "0e014d0600c77ccfdd6c22905e1a7bf06e5652147bdc0228c493acbff4d3e4e1",
+    "d044ddf39d3b0af803b5c6ff04a8cf3171969662a7fb46ee8024268109d7a168",
+    "03cbe47ca3ace8d548481b7866feee1bf5c132ab7d5e950a3e316155a3988fca",
+    "f0c7ed7cca2c56cda4991398c01833f963c1fff399877322f670bf4ec4da560c",
+    "3a62882bf1bab34a515f69f8616f3d1b099e4e73e3ad65c2744603c4cabac7c2"
+  ]
+}

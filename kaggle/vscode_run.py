@@ -88,7 +88,7 @@ try:
     python = "/kaggle/working/aether-paper-venv/bin/python"
     if REMOTE_CONFIG["mode"] == "all":
         run_logged([python, "-m", "pip", "install", "-r", "env/requirements-dali.lock"], cwd=repo)
-    if REMOTE_CONFIG["mode"] == "monai":
+    if REMOTE_CONFIG["mode"] in {"monai", "longitudinal"}:
         run_logged([python, "-m", "pip", "install", "--no-deps", "-r", "env/requirements-monai.lock"], cwd=repo)
     run_logged([python, "scripts/validate_gpu.py"], cwd=repo)
     if REMOTE_CONFIG["mode"] in {"pilot", "primary", "monai"} and REMOTE_CONFIG.get("datasetConfig"):
@@ -96,6 +96,13 @@ try:
     command = [python, "scripts/reproduce.py", REMOTE_CONFIG["mode"], "--output", str(results)]
     if REMOTE_CONFIG["mode"] == "monai":
         command = [python, "scripts/monai_comparison.py", "--output", str(results / "monai-pilot")]
+    if REMOTE_CONFIG["mode"] == "longitudinal":
+        # Separate smoke stores/results; a failure prevents all pilot measurements.
+        smoke = [python, "scripts/longitudinal_comparison.py", "--smoke",
+                 "--config", REMOTE_CONFIG["datasetConfig"], "--output", str(results / "longitudinal-smoke"),
+                 "--scratch-root", REMOTE_CONFIG["scratchRoot"]]
+        run_logged(smoke, cwd=repo)
+        command = [python, "scripts/longitudinal_comparison.py", "--output", str(results / "longitudinal-pilot")]
     if REMOTE_CONFIG["mode"] == "smoke":
         command += ["--training-epochs", str(REMOTE_CONFIG.get("trainingEpochs", 1))]
     if REMOTE_CONFIG.get("datasetConfig"):
@@ -114,9 +121,9 @@ try:
         command += ["--hit-warmup-epochs", str(REMOTE_CONFIG["hitWarmupEpochs"])]
     if REMOTE_CONFIG["mode"] in {"pilot", "monai"}:
         command += ["--pilot-repeats", str(REMOTE_CONFIG.get("pilotRepeats", 10))]
-    if REMOTE_CONFIG.get("prefetchDepth") is not None:
+    if REMOTE_CONFIG.get("prefetchDepth") is not None and REMOTE_CONFIG["mode"] != "longitudinal":
         command += ["--prefetch-depth", str(REMOTE_CONFIG["prefetchDepth"])]
-    if REMOTE_CONFIG.get("epochs") is not None:
+    if REMOTE_CONFIG.get("epochs") is not None and REMOTE_CONFIG["mode"] != "longitudinal":
         command += ["--epochs", str(REMOTE_CONFIG["epochs"])]
     run_logged(command, cwd=repo)
     status["status"] = "passed"

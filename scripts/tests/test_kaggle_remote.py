@@ -81,6 +81,22 @@ def test_monai_pilot_is_separate_and_fixed(prepared):
     remote.validate_prepared(value)
 
 
+def test_longitudinal_preparation(prepared):
+    remote.prepare(SimpleNamespace(user=None, mode="longitudinal", training_epochs=None, dataset_config=None,
+                                   scratch_root=None, dataset_source=None))
+    value = remote.config()
+    assert value["mode"] == "longitudinal"
+    assert value["epochs"] == 20 and value["pilotRepeats"] == 5 and value["prefetchDepth"] == 0
+    assert len(value["longitudinalManifestSha256"]) == 5
+    assert value["scratchRoot"] == "/kaggle/working/aether-longitudinal-stores"
+    notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
+    runner = "".join(notebook["cells"][1]["source"])
+    assert '"longitudinal-smoke"' in runner and '"longitudinal-pilot"' in runner
+    assert runner.index("run_logged(smoke") < runner.index('command = [python, "scripts/longitudinal_comparison.py"')
+    compile(runner, "notebook", "exec")
+    remote.validate_prepared(value)
+
+
 @pytest.mark.parametrize("changed", [{"epochs": 10}, {"prefetch_depth": 1},
                                     {"pilot_repeats": 10}, {"server_trace": True}])
 def test_monai_pilot_rejects_setting_drift(prepared, changed):
