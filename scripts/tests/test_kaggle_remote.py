@@ -68,6 +68,28 @@ def test_prepared_notebook_private_and_executable(prepared):
     assert "shutil.rmtree(results)" in runner
 
 
+def test_monai_pilot_is_separate_and_fixed(prepared):
+    remote.prepare(SimpleNamespace(user=None, mode="monai", training_epochs=None, dataset_config=None,
+                                   scratch_root=None, dataset_source=None, epochs=20, prefetch_depth=0))
+    value = remote.config()
+    assert (value["mode"], value["epochs"], value["pilotRepeats"], value["prefetchDepth"], value["serverTrace"]) == (
+        "monai", 20, 5, 0, False)
+    notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
+    runner = "".join(notebook["cells"][1]["source"])
+    assert '"scripts/monai_comparison.py"' in runner
+    assert '"--no-deps", "-r", "env/requirements-monai.lock"' in runner
+    remote.validate_prepared(value)
+
+
+@pytest.mark.parametrize("changed", [{"epochs": 10}, {"prefetch_depth": 1},
+                                    {"pilot_repeats": 10}, {"server_trace": True}])
+def test_monai_pilot_rejects_setting_drift(prepared, changed):
+    values = dict(user=None, mode="monai", training_epochs=None, dataset_config=None,
+                  scratch_root=None, dataset_source=None)
+    with pytest.raises(ValueError, match="MONAI pilot"):
+        remote.prepare(SimpleNamespace(**values, **changed))
+
+
 def test_five_epochs_persist_in_prepared_notebook(prepared, monkeypatch):
     monkeypatch.setattr(sys, "argv", ["kaggle_remote.py", "prepare", "--training-epochs", "5"])
     remote.main()

@@ -88,10 +88,14 @@ try:
     python = "/kaggle/working/aether-paper-venv/bin/python"
     if REMOTE_CONFIG["mode"] == "all":
         run_logged([python, "-m", "pip", "install", "-r", "env/requirements-dali.lock"], cwd=repo)
+    if REMOTE_CONFIG["mode"] == "monai":
+        run_logged([python, "-m", "pip", "install", "--no-deps", "-r", "env/requirements-monai.lock"], cwd=repo)
     run_logged([python, "scripts/validate_gpu.py"], cwd=repo)
-    if REMOTE_CONFIG["mode"] in {"pilot", "primary"} and REMOTE_CONFIG.get("datasetConfig"):
+    if REMOTE_CONFIG["mode"] in {"pilot", "primary", "monai"} and REMOTE_CONFIG.get("datasetConfig"):
         prepare_evolution_data(python, repo / REMOTE_CONFIG["datasetConfig"])
     command = [python, "scripts/reproduce.py", REMOTE_CONFIG["mode"], "--output", str(results)]
+    if REMOTE_CONFIG["mode"] == "monai":
+        command = [python, "scripts/monai_comparison.py", "--output", str(results / "monai-pilot")]
     if REMOTE_CONFIG["mode"] == "smoke":
         command += ["--training-epochs", str(REMOTE_CONFIG.get("trainingEpochs", 1))]
     if REMOTE_CONFIG.get("datasetConfig"):
@@ -108,7 +112,7 @@ try:
         command += ["--prefetch-depths", REMOTE_CONFIG["prefetchDepths"]]
     if REMOTE_CONFIG.get("hitWarmupEpochs") is not None:
         command += ["--hit-warmup-epochs", str(REMOTE_CONFIG["hitWarmupEpochs"])]
-    if REMOTE_CONFIG["mode"] == "pilot":
+    if REMOTE_CONFIG["mode"] in {"pilot", "monai"}:
         command += ["--pilot-repeats", str(REMOTE_CONFIG.get("pilotRepeats", 10))]
     if REMOTE_CONFIG.get("prefetchDepth") is not None:
         command += ["--prefetch-depth", str(REMOTE_CONFIG["prefetchDepth"])]

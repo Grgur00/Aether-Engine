@@ -1,0 +1,96 @@
+{
+  "schema": "aether-preserved-campaign-v1",
+  "resultsArchiveSha256": "822da02f34e927a985eb0966220356b6c71ae258297fe7b0eded11bf34c065c5",
+  "sourceArchiveSha256": "c4b537c4d238a587bd4d4dddb0e4f9cb14b0ef50611e538193fea0853f423fc2",
+  "sourceManifestSha256": "1d45fd546f4f0034624ca81465a5e490f86f16b15ed6d3f1e2f79ae0aa490646",
+  "sourceCommit": "ee42867cf37299662894223be5a3635d003a833c",
+  "sourceClean": true,
+  "confirmatory": true,
+  "validatedBlocks": 24,
+  "resultsFilesVerified": 281,
+  "localPreservationDirectory": "C:\\Users\\Korisnik\\Desktop\\Projects\\Aether-Engine\\build\\preserved-campaigns\\20ep-superiority-v1",
+  "analysis": [
+    {
+      "protocolHash": "b43b97c8be96e0eb78e2505a2f2c013c53d30c38537481dd26634e931a3cbdd9",
+      "conditionId": "6a089ede62530673",
+      "environmentId": "c2228d6297651a3a4bb4e0881d987c88ac0873d5c7332c7fddf826536f419d69",
+      "aetherOverMmap": {
+        "n": 24,
+        "geometricMeanRatio": 1.026913575577621,
+        "pairedLogSd": 0.01664925731486842,
+        "ratioCI95": [
+          1.01971931730176,
+          1.0341585903227
+        ],
+        "pairedTTestTwoSidedP": 6.399202271241484e-08,
+        "pairedTTestGreaterP": 3.199601135620742e-08,
+        "ratioLowerOneSided95": 1.0209495813051574,
+        "tost": {
+          "lowerRatio": 0.97,
+          "upperRatio": 1.03,
+          "pLower": 1.071779078429526e-14,
+          "pUpper": 0.19317558518734335,
+          "p": 0.19317558518734335,
+          "equivalentUnadjusted": false,
+          "ciLevel": 0.9,
+          "ratioCI": [
+            1.0209495813051574,
+            1.0329124092078092
+          ]
+        },
+        "bootstrap": {
+          "resamples": 10000,
+          "seed": 20260904,
+          "pairedRatioCI95": [
+            1.0206491173707704,
+            1.034070015569759
+          ]
+        },
+        "wilcoxonSensitivityP": 3.5762786865234375e-07,
+        "superiorityPlanningN": 3,
+        "equivalencePlanningN": 6,
+        "planningNote": "Separate-pilot planning only. TOST approximation assumes true log ratio zero, observed SD fixed, t critical value and conservative alpha/2; not guaranteed power.",
+        "primarySuperior": true,
+        "secondaryEquivalent": false
+      },
+      "aetherOverRaw": {
+        "n": 24,
+        "geometricMeanRatio": 2.302378848123733,
+        "pairedLogSd": 0.015946392546676246,
+        "ratioCI95": [
+          2.286927695727632,
+          2.3179343930245966
+        ],
+        "pairedTTestTwoSidedP": 3.0006792793120894e-41,
+        "pairedTTestGreaterP": 1.5003396396560447e-41,
+        "ratioLowerOneSided95": 2.2895702665444633,
+        "tost": {
+          "lowerRatio": 0.97,
+          "upperRatio": 1.03,
+          "pLower": 6.576234815567552e-42,
+          "pUpper": 1.0,
+          "p": 1.0,
+          "equivalentUnadjusted": false,
+          "ciLevel": 0.9,
+          "ratioCI": [
+            2.2895702665444633,
+            2.3152590849670798
+          ]
+        },
+        "bootstrap": {
+          "resamples": 10000,
+          "seed": 20260904,
+          "pairedRatioCI95": [
+            2.2885683319236634,
+            2.317049015584111
+          ]
+        },
+        "wilcoxonSensitivityP": 1.1920928955078125e-07,
+        "superiorityPlanningN": 3,
+        "equivalencePlanningN": 5,
+        "planningNote": "Separate-pilot planning only. TOST approximation assumes true log ratio zero, observed SD fixed, t critical value and conservative alpha/2; not guaranteed power.",
+        "secondarySuperior": true
+      }
+    }
+  ]
+}

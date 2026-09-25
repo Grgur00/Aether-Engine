@@ -1,0 +1,14 @@
+{
+  "schema": "aether-protocol-evidence-status-v1",
+  "sourceCommit": "d0db18b49c6adbd531409b6f5f46ca83972071a7",
+  "tag": "aether-paper-v1",
+  "protocolDocument": "kaggle/CONFIRMATORY-V1.md",
+  "freezeReceipt": "build/kaggle/freeze-receipt.json",
+  "recordedSourceArchiveSha256": "f6fead0d291756393bbc0199c52bad0e8153a99561a1cf2603d5bb34bf263a5b",
+  "epochs": 10,
+  "pairedBlocksPlanned": 24,
+  "uploadedAccordingToReceipt": false,
+  "campaignLaunchedAccordingToReceipt": false,
+  "completedResultsVerified": false,
+  "status": "Frozen protocol preserved; completed confirmatory results not located. No confirmatory finding asserted."
+}

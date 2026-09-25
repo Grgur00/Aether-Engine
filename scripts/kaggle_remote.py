@@ -116,19 +116,26 @@ def prepare(args):
         from confirmatory import PRIMARY_CONFIG
         value.update(epochs=20, prefetchDepth=0, serverTrace=False)
         value["datasetConfig"] = args.dataset_config or PRIMARY_CONFIG
-    if value["mode"] in {"pilot", "primary", "all"} and not value["datasetConfig"]:
+    if mode == "monai":
+        if epochs not in (None, 20) or prefetch_depth not in (None, 0) or getattr(args, "server_trace", None) is True:
+            raise ValueError("MONAI pilot is fixed at 20 epochs, prefetch depth 0, server tracing off")
+        if getattr(args, "pilot_repeats", None) not in (None, 5):
+            raise ValueError("MONAI pilot requires 5 fresh paired blocks")
+        value.update(epochs=20, prefetchDepth=0, serverTrace=False, pilotRepeats=5)
+        value["datasetConfig"] = args.dataset_config or "configs/paper/oct5k-pilot-20ep.json"
+    if value["mode"] in {"pilot", "primary", "all", "monai"} and not value["datasetConfig"]:
         raise ValueError("pilot/primary/all require --dataset-config with its path inside Kaggle")
     if value["trainingEpochs"] < 1:
         raise ValueError("--training-epochs must be positive")
     if value["epochs"] is not None:
         if value["epochs"] < 1:
             raise ValueError("--epochs must be positive")
-        if mode not in {"pilot", "primary"}:
+        if mode not in {"pilot", "primary", "monai"}:
             raise ValueError("--epochs applies to pilot/primary runs")
     if value["pilotRepeats"] < 1:
         raise ValueError("--pilot-repeats must be positive")
     if value["prefetchDepth"] is not None and (
-            value["prefetchDepth"] < 0 or (value["mode"] not in {"pilot", "primary"} and value["prefetchDepth"] != 1)):
+            value["prefetchDepth"] < 0 or (value["mode"] not in {"pilot", "primary", "monai"} and value["prefetchDepth"] != 1)):
         raise ValueError("custom --prefetch-depth is available only for pilot/primary and must be non-negative")
     if value["mode"] == "pilot" and value["pilotRepeats"] != 10 and not value["serverTrace"]:
         raise ValueError("custom pilot repeats require --server-trace")
@@ -144,8 +151,8 @@ def prepare(args):
     package(source_dir / "aether-paper-artifact.zip")
     with zipfile.ZipFile(source_dir / "aether-paper-artifact.zip") as archive:
         provenance = json.loads(archive.read("artifact-provenance.json"))
-        if mode == "primary" and provenance.get("sourceClean") is not True:
-            raise ValueError("prepare primary requires a clean committed source snapshot")
+        if mode in {"primary", "monai"} and provenance.get("sourceClean") is not True:
+            raise ValueError(f"prepare {mode} requires a clean committed source snapshot")
         value["sourceManifestSha256"] = hashlib.sha256(archive.read("artifact-provenance.json")).hexdigest()
     write(source_dir / "dataset-metadata.json", {"id": value["sourceDataset"], "title": "Aether Engine Source",
           "licenses": [{"name": "apache-2.0"}]})
@@ -174,7 +181,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=["setup", "prepare", "login", "check", "doctor", "upload-source", "source-status", "run", "status", "outputs", "logs"])
     parser.add_argument("--user")
-    parser.add_argument("--mode", choices=["smoke", "profile", "pilot", "primary", "all"])
+    parser.add_argument("--mode", choices=["smoke", "profile", "pilot", "primary", "all", "monai"])
     parser.add_argument("--training-epochs", type=int, help="Epochs per CPU training fixture in smoke mode")
     parser.add_argument("--epochs", type=int, default=None, help="Epochs per training block for pilot/primary runs")
     parser.add_argument("--server-trace", action=argparse.BooleanOptionalAction, default=None, help="Enable diagnostic pilot flush tracing")
