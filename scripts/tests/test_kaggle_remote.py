@@ -109,6 +109,46 @@ def test_persistent_longitudinal_is_a_separate_protocol(prepared):
             training_epochs=None, dataset_config=value["datasetConfig"], scratch_root=None, dataset_source=None))
 
 
+@pytest.mark.parametrize("test_fails", [False, True])
+def test_restart_gate_creates_basetemp_parent_in_clean_checkout(prepared, monkeypatch, test_fails):
+    import ast
+    import os
+    import subprocess
+    from pathlib import Path
+
+    notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
+    tree = ast.parse("".join(notebook["cells"][1]["source"]))
+    gate = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
+                and node.name == "run_restart_correctness")
+    repo, results = prepared / "checkout", prepared / "results"
+    repo.mkdir()
+    results.mkdir()
+    assert not (repo / "build").exists()
+    calls = []
+
+    def run_logged(command, *, cwd):
+        calls.append(command)
+        assert cwd == repo and os.environ["AETHER_JAVA_TEST"] == "1"
+        basetemp = Path(command[command.index("--basetemp") + 1])
+        assert basetemp == repo / "build/restart-correctness"
+        basetemp.mkdir()  # pytest creates this directory without parents=True.
+        assert command[command.index("--junitxml") + 1] == str(results / "restart-correctness.xml")
+        if test_fails:
+            raise subprocess.CalledProcessError(1, command)
+
+    monkeypatch.setenv("AETHER_JAVA_TEST", "0")
+    namespace = dict(os=os, repo=repo, results=results, run_logged=run_logged)
+    exec(compile(ast.Module(body=[gate], type_ignores=[]), "notebook-gate", "exec"), namespace)
+    if test_fails:
+        with pytest.raises(subprocess.CalledProcessError):
+            namespace["run_restart_correctness"]("python")
+    else:
+        namespace["run_restart_correctness"]("python")
+    assert len(calls) == 1
+    assert calls[0][1:4] == ["-m", "pytest",
+        "scripts/tests/test_longitudinal_comparison.py::test_real_five_version_process_restart"]
+
+
 @pytest.mark.parametrize("changed", [{"epochs": 10}, {"prefetch_depth": 1},
                                     {"pilot_repeats": 10}, {"server_trace": True}])
 def test_monai_pilot_rejects_setting_drift(prepared, changed):

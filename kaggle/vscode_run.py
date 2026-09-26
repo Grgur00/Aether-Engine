@@ -26,6 +26,16 @@ def run_logged(command, *, cwd):
             raise subprocess.CalledProcessError(code, command)
 
 
+def run_restart_correctness(python):
+    os.environ["AETHER_JAVA_TEST"] = "1"
+    basetemp = repo / "build/restart-correctness"
+    basetemp.parent.mkdir(parents=True, exist_ok=True)
+    run_logged([python, "-m", "pytest",
+                "scripts/tests/test_longitudinal_comparison.py::test_real_five_version_process_restart",
+                "-q", "--basetemp", str(basetemp),
+                "--junitxml", str(results / "restart-correctness.xml")], cwd=repo)
+
+
 def prepare_evolution_data(python, config_path):
     configuration = json.loads(config_path.read_text(encoding="utf-8"))
     for name, spec in configuration.items():
@@ -99,11 +109,7 @@ try:
     if REMOTE_CONFIG["mode"] in {"longitudinal", "longitudinal-persistent"}:
         # Separate smoke stores/results; a failure prevents all pilot measurements.
         if REMOTE_CONFIG["mode"] == "longitudinal-persistent":
-            os.environ["AETHER_JAVA_TEST"] = "1"
-            run_logged([python, "-m", "pytest",
-                        "scripts/tests/test_longitudinal_comparison.py::test_real_five_version_process_restart",
-                        "-q", "--basetemp", str(repo / "build/restart-correctness"),
-                        "--junitxml", str(results / "restart-correctness.xml")], cwd=repo)
+            run_restart_correctness(python)
         smoke_name = "longitudinal-persistent-smoke" if REMOTE_CONFIG["mode"] == "longitudinal-persistent" else "longitudinal-smoke"
         pilot_name = "longitudinal-persistent-pilot" if REMOTE_CONFIG["mode"] == "longitudinal-persistent" else "longitudinal-pilot"
         smoke = [python, "scripts/longitudinal_comparison.py", "--smoke",
