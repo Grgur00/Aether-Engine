@@ -86,7 +86,13 @@ def execute(request):
     transform = base.CanonicalTransform(args)
     indices = base.batches(count, args.batch_size)
     timings = dict(startup=0., modelSetup=0., scanAdmission=0., training=0., drain=0., close=0.)
-    manager = base.java_daemon(directory) if backend == "aether" else contextlib.nullcontext(None)
+    external = request.get("service")
+    if external and (backend != "aether" or config.get("serviceLifecycle") != "persistent-per-block"):
+        raise ValueError("external service requires the separate persistent-service protocol")
+    if backend == "aether" and config.get("serviceLifecycle") == "persistent-per-block" and not external:
+        raise ValueError("persistent-service worker cannot start a replacement daemon")
+    manager = (contextlib.nullcontext(external) if external else
+               (base.java_daemon(directory) if backend == "aether" else contextlib.nullcontext(None)))
     disk_sampler = DiskSampler(directory)
     gpu_sampler = workload.GpuUtilizationSampler(250 if device.type == "cuda" and stage else 0)
     disk_sampler.start()
@@ -100,13 +106,15 @@ def execute(request):
         entered = True
         if request.get("lease"):
             write_json(request["lease"], {"pids": [os.getpid()] + ([daemon["pid"]] if daemon else [])})
-        timings["startup"] = (time.perf_counter() - start) * 1000
+        timings["startup"] = 0. if external else (time.perf_counter() - start) * 1000
         port = daemon["port"] if daemon else None
         java_before = base.snapshot(daemon["pid"]) if daemon else None
         info = None
         if daemon:
             with base.AetherTrainingCache(port=port) as client:
                 info = client.engine_info()
+            if external and info["pid"] != external["pid"]:
+                raise RuntimeError("external service identity changed")
             if (info["durability"] != "DURABLE" or not info["backgroundCompaction"]["enabled"]
                     or info["integrityPolicy"]["version"] != "immutable-inline-admission-v1"):
                 raise RuntimeError("engine settings changed")

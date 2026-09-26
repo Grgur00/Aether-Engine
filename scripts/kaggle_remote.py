@@ -123,35 +123,42 @@ def prepare(args):
             raise ValueError("MONAI pilot requires 5 fresh paired blocks")
         value.update(epochs=20, prefetchDepth=0, serverTrace=False, pilotRepeats=5)
         value["datasetConfig"] = args.dataset_config or "configs/paper/oct5k-pilot-20ep.json"
-    if mode == "longitudinal":
+    if mode in {"longitudinal", "longitudinal-persistent"}:
         if epochs not in (None, 20) or prefetch_depth not in (None, 0) or getattr(args, "server_trace", None) is True:
             raise ValueError("longitudinal pilot requires 20 epochs/update, prefetch 0 and tracing off")
         if getattr(args, "pilot_repeats", None) not in (None, 5):
             raise ValueError("longitudinal pilot requires five fresh paired blocks")
         value.update(epochs=20, prefetchDepth=0, serverTrace=False, pilotRepeats=5)
-        value["datasetConfig"] = args.dataset_config or "configs/paper/oct5k-longitudinal-pilot.json"
+        value["datasetConfig"] = args.dataset_config or (
+            "configs/paper/oct5k-longitudinal-persistent-pilot.json" if mode == "longitudinal-persistent" else
+            "configs/paper/oct5k-longitudinal-pilot.json")
         value["scratchRoot"] = args.scratch_root or "/kaggle/working/aether-longitudinal-stores"
         from longitudinal_comparison import validate_config
         from longitudinal_manifests import verify
         specification = json.loads((ROOT / value["datasetConfig"]).read_text())
         validate_config(specification)
+        expected_lifecycle = "persistent-per-block" if mode == "longitudinal-persistent" else "restart-per-version"
+        if specification.get("serviceLifecycle", "restart-per-version") != expected_lifecycle:
+            raise ValueError("selected Kaggle mode and service lifecycle differ")
+        if mode == "longitudinal-persistent":
+            value["serviceLifecycle"] = expected_lifecycle
         receipt, _ = verify(ROOT / specification["manifestDirectory"])
         if receipt["counts"] != specification["versions"] or receipt["seed"] != specification["seed"]:
             raise ValueError("longitudinal manifests differ from the frozen configuration")
         value["longitudinalManifestSha256"] = receipt["manifestSha256"]
-    if value["mode"] in {"pilot", "primary", "all", "monai", "longitudinal"} and not value["datasetConfig"]:
+    if value["mode"] in {"pilot", "primary", "all", "monai", "longitudinal", "longitudinal-persistent"} and not value["datasetConfig"]:
         raise ValueError("pilot/primary/all require --dataset-config with its path inside Kaggle")
     if value["trainingEpochs"] < 1:
         raise ValueError("--training-epochs must be positive")
     if value["epochs"] is not None:
         if value["epochs"] < 1:
             raise ValueError("--epochs must be positive")
-        if mode not in {"pilot", "primary", "monai", "longitudinal"}:
+        if mode not in {"pilot", "primary", "monai", "longitudinal", "longitudinal-persistent"}:
             raise ValueError("--epochs applies to pilot/primary runs")
     if value["pilotRepeats"] < 1:
         raise ValueError("--pilot-repeats must be positive")
     if value["prefetchDepth"] is not None and (
-            value["prefetchDepth"] < 0 or (value["mode"] not in {"pilot", "primary", "monai", "longitudinal"} and value["prefetchDepth"] != 1)):
+            value["prefetchDepth"] < 0 or (value["mode"] not in {"pilot", "primary", "monai", "longitudinal", "longitudinal-persistent"} and value["prefetchDepth"] != 1)):
         raise ValueError("custom --prefetch-depth is available only for pilot/primary and must be non-negative")
     if value["mode"] == "pilot" and value["pilotRepeats"] != 10 and not value["serverTrace"]:
         raise ValueError("custom pilot repeats require --server-trace")
@@ -167,7 +174,7 @@ def prepare(args):
     package(source_dir / "aether-paper-artifact.zip")
     with zipfile.ZipFile(source_dir / "aether-paper-artifact.zip") as archive:
         provenance = json.loads(archive.read("artifact-provenance.json"))
-        if mode in {"primary", "monai", "longitudinal"} and provenance.get("sourceClean") is not True:
+        if mode in {"primary", "monai", "longitudinal", "longitudinal-persistent"} and provenance.get("sourceClean") is not True:
             raise ValueError(f"prepare {mode} requires a clean committed source snapshot")
         value["sourceManifestSha256"] = hashlib.sha256(archive.read("artifact-provenance.json")).hexdigest()
     write(source_dir / "dataset-metadata.json", {"id": value["sourceDataset"], "title": "Aether Engine Source",
@@ -197,7 +204,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=["setup", "prepare", "login", "check", "doctor", "upload-source", "source-status", "run", "status", "outputs", "logs"])
     parser.add_argument("--user")
-    parser.add_argument("--mode", choices=["smoke", "profile", "pilot", "primary", "all", "monai", "longitudinal"])
+    parser.add_argument("--mode", choices=["smoke", "profile", "pilot", "primary", "all", "monai", "longitudinal", "longitudinal-persistent"])
     parser.add_argument("--training-epochs", type=int, help="Epochs per CPU training fixture in smoke mode")
     parser.add_argument("--epochs", type=int, default=None, help="Epochs per training block for pilot/primary runs")
     parser.add_argument("--server-trace", action=argparse.BooleanOptionalAction, default=None, help="Enable diagnostic pilot flush tracing")

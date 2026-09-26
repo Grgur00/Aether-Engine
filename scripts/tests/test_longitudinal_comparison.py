@@ -160,6 +160,10 @@ def test_training_request_accounting_rejects_missing_sample():
 
 @pytest.mark.skipif(os.environ.get("AETHER_JAVA_TEST") != "1", reason="opt-in 20-process real cache lifecycle")
 def test_real_five_version_process_restart(tmp_path):
+    exercise_real_campaign(tmp_path)
+
+
+def exercise_real_campaign(tmp_path, service_lifecycle=None):
     pytest.importorskip("monai")
     from test_monai_comparison import fixture_data
     from longitudinal_comparison import main
@@ -171,6 +175,8 @@ def test_real_five_version_process_restart(tmp_path):
               "sourceSamples": 5, "versions": [1, 2, 3, 4, 5], "seed": 20260926,
               "pairedBlocks": 1, "epochs": 1, "batchSize": 16, "imageSize": 16,
               "prefetchDepth": 0, "serverTrace": False, "confirmatory": False}
+    if service_lifecycle:
+        config["serviceLifecycle"] = service_lifecycle
     path = tmp_path / "config.json"
     path.write_text(json.dumps(config))
     command = ["--config", str(path), "--output", str(tmp_path / "run"),
@@ -183,6 +189,9 @@ def test_real_five_version_process_restart(tmp_path):
         assert [s["reusedSamples"] for s in result["stages"]] == [0, 1, 2, 3, 4]
         assert sum(s["trainingSampleRequests"] for s in result["stages"]) == 14
         if name == "aether":
-            assert len({s["engineInfo"]["pid"] for s in result["stages"]}) == 5
+            assert len({s["engineInfo"]["pid"] for s in result["stages"]}) == (1 if service_lifecycle else 5)
+            if service_lifecycle:
+                from persistent_service import validate_service_stages
+                validate_service_stages(result["stages"])
     main(command + ["--resume"])
     assert (tmp_path / "run/figures/cumulative.png").stat().st_size > 1000

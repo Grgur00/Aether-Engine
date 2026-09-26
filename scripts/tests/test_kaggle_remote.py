@@ -97,6 +97,18 @@ def test_longitudinal_preparation(prepared):
     remote.validate_prepared(value)
 
 
+def test_persistent_longitudinal_is_a_separate_protocol(prepared):
+    remote.prepare(SimpleNamespace(user=None, mode="longitudinal-persistent", training_epochs=None,
+                                   dataset_config=None, scratch_root=None, dataset_source=None))
+    value = remote.config()
+    assert value["serviceLifecycle"] == "persistent-per-block"
+    assert value["pilotRepeats"] == 5 and value["epochs"] == 20
+    assert value["datasetConfig"] == "configs/paper/oct5k-longitudinal-persistent-pilot.json"
+    with pytest.raises(ValueError, match="lifecycle differ"):
+        remote.prepare(SimpleNamespace(user=None, mode="longitudinal",
+            training_epochs=None, dataset_config=value["datasetConfig"], scratch_root=None, dataset_source=None))
+
+
 @pytest.mark.parametrize("changed", [{"epochs": 10}, {"prefetch_depth": 1},
                                     {"pilot_repeats": 10}, {"server_trace": True}])
 def test_monai_pilot_rejects_setting_drift(prepared, changed):

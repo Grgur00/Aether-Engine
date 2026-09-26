@@ -28,6 +28,8 @@ def bundle_checkpoint(output, destination):
 
 
 def validate_config(config, fixture=False, smoke=False):
+    if config.get("serviceLifecycle", "restart-per-version") not in {"restart-per-version", "persistent-per-block"}:
+        raise ValueError("unknown service lifecycle")
     if (len(config["versions"]) != 5 or config["versions"] != sorted(set(config["versions"]))
             or config["versions"][0] < 1 or config["prefetchDepth"] != 0 or config["serverTrace"]
             or config["confirmatory"] or config["batchSize"] != 16):
@@ -91,6 +93,18 @@ def validate_stage(report, config, stage):
 
 
 def run_block(index, output, scratch, meta, config, paths, reference, worker=None):
+    if config.get("serviceLifecycle") != "persistent-per-block":
+        return _run_block(index, output, scratch, meta, config, paths, reference, worker)
+    from persistent_service import PersistentService
+    reports = output / "blocks" / f"{index:02d}"
+    identity = {"protocolHash": meta["protocolHash"], "sourceHash": digest(meta["sourceSha256"]),
+                "sourceManifestSha256": meta["protocol"]["sourceManifestSha256"],
+                "environmentId": meta["environmentId"], "blockIndex": index}
+    with PersistentService(scratch, reports, identity, completed=(reports / "paired.json").exists()) as service:
+        return _run_block(index, output, scratch, meta, config, paths, reference, worker, service)
+
+
+def _run_block(index, output, scratch, meta, config, paths, reference, worker=None, service=None):
     reports = output / "blocks" / f"{index:02d}"
     reports.mkdir(parents=True, exist_ok=True)
     identity = {"protocolHash": meta["protocolHash"], "sourceHash": digest(meta["sourceSha256"]),
@@ -110,6 +124,9 @@ def run_block(index, output, scratch, meta, config, paths, reference, worker=Non
             weekly = load_receipt(reports / f"v{stage}-paired.json", {**identity, "version": stage})
             if weekly["stageHashes"] != hashes:
                 raise ValueError("weekly paired receipt differs from stage evidence")
+        if service is not None:
+            from persistent_service import validate_service_stages
+            validate_service_stages(block["backendResults"]["aether"]["stages"])
         return block
     def subprocess_worker(backend, stage, live):
         request_path = reports / f"v{stage}-{backend}.request.json"
@@ -118,6 +135,8 @@ def run_block(index, output, scratch, meta, config, paths, reference, worker=Non
             manifest=str(paths[stage]), modelSeed=config["seed"] + index + stage,
             referenceHash=reference["referenceHashes"][stage], cpuFixture=meta["protocol"]["cpuFixture"],
             lease=str(reports / f"v{stage}-{backend}.lease.json"))
+        if service is not None and backend == "aether":
+            request["service"] = service.daemon
         write_json(request_path, request)
         start = time.perf_counter()
         with (reports / f"v{stage}-{backend}.log").open("a", encoding="utf-8") as log:
@@ -139,7 +158,8 @@ def run_block(index, output, scratch, meta, config, paths, reference, worker=Non
         orders[f"V{stage}"] = order
         for backend in order:
             print(f"Block {index + 1}/{config['pairedBlocks']} V{stage}: {backend}", flush=True)
-            value = execute_stage(scratch, reports, backend, stage, identity, worker or subprocess_worker)
+            value = (service.run_stage(backend, stage, worker or subprocess_worker) if service is not None else
+                     execute_stage(scratch, reports, backend, stage, identity, worker or subprocess_worker))
             validate_stage(value, config, stage)
             if value["tensorSha256"] != reference["referenceHashes"][stage]:
                 raise ValueError("reference checksum differs")
@@ -158,6 +178,9 @@ def run_block(index, output, scratch, meta, config, paths, reference, worker=Non
             save_receipt(weekly_path, {"stageHashes": hashes}, {**identity, "version": stage})
     backend_results = {name: {"stages": values, "initial": values[0], "updates": values[1:],
                              "cumulativeMs": cumulative(values)} for name, values in stages.items()}
+    if service is not None:
+        from persistent_service import validate_service_stages
+        validate_service_stages(stages["aether"])
     return save_receipt(complete, {"backendOrderByStage": orders, "backendResults": backend_results}, identity)
 
 
@@ -201,6 +224,16 @@ def main(argv=None):
         "pageCache": "uncontrolled; process restart is not a cold OS page cache",
         "resume": "same source/protocol/host; closed-store hashed checkpoints; interrupted live stores discarded and restored",
         "checkpointOverhead": "reported separately; excluded from commercial endpoint; file-copy reads warm OS page cache"}
+    if config.get("serviceLifecycle") == "persistent-per-block":
+        protocol.update(schema="aether-longitudinal-persistent-campaign-v1",
+            serviceLifecycle="persistent-per-block",
+            serviceAccounting="one Aether start charged to V0; one shutdown charged to V4; client/native dataset open/close every job",
+            primaryPilotEndpoint="persistent-service cumulative lifecycle through V4, including V0 and single service start/stop",
+            resume="validated complete blocks only; an interrupted persistent block requires a fresh campaign output",
+            checkpointOverhead="no live cache copies or store hashing between versions, for any backend",
+            serviceResidence="reported separately, includes interleaved baseline jobs; excluded from operational phase sum",
+            pageCache="uncontrolled; Aether service remains resident while baselines run; clients are fresh processes",
+            restartCorrectness="separate CPU process-restart test, excluded from commercial pilot endpoint")
     scratch_base = (opts.scratch_root or ROOT / "build/longitudinal-stores").resolve()
     scratch_base.mkdir(parents=True, exist_ok=True)
     required = capacity_required(config["versions"][-1], config["imageSize"])

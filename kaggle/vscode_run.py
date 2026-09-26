@@ -88,7 +88,7 @@ try:
     python = "/kaggle/working/aether-paper-venv/bin/python"
     if REMOTE_CONFIG["mode"] == "all":
         run_logged([python, "-m", "pip", "install", "-r", "env/requirements-dali.lock"], cwd=repo)
-    if REMOTE_CONFIG["mode"] in {"monai", "longitudinal"}:
+    if REMOTE_CONFIG["mode"] in {"monai", "longitudinal", "longitudinal-persistent"}:
         run_logged([python, "-m", "pip", "install", "--no-deps", "-r", "env/requirements-monai.lock"], cwd=repo)
     run_logged([python, "scripts/validate_gpu.py"], cwd=repo)
     if REMOTE_CONFIG["mode"] in {"pilot", "primary", "monai"} and REMOTE_CONFIG.get("datasetConfig"):
@@ -96,13 +96,21 @@ try:
     command = [python, "scripts/reproduce.py", REMOTE_CONFIG["mode"], "--output", str(results)]
     if REMOTE_CONFIG["mode"] == "monai":
         command = [python, "scripts/monai_comparison.py", "--output", str(results / "monai-pilot")]
-    if REMOTE_CONFIG["mode"] == "longitudinal":
+    if REMOTE_CONFIG["mode"] in {"longitudinal", "longitudinal-persistent"}:
         # Separate smoke stores/results; a failure prevents all pilot measurements.
+        if REMOTE_CONFIG["mode"] == "longitudinal-persistent":
+            os.environ["AETHER_JAVA_TEST"] = "1"
+            run_logged([python, "-m", "pytest",
+                        "scripts/tests/test_longitudinal_comparison.py::test_real_five_version_process_restart",
+                        "-q", "--basetemp", str(repo / "build/restart-correctness"),
+                        "--junitxml", str(results / "restart-correctness.xml")], cwd=repo)
+        smoke_name = "longitudinal-persistent-smoke" if REMOTE_CONFIG["mode"] == "longitudinal-persistent" else "longitudinal-smoke"
+        pilot_name = "longitudinal-persistent-pilot" if REMOTE_CONFIG["mode"] == "longitudinal-persistent" else "longitudinal-pilot"
         smoke = [python, "scripts/longitudinal_comparison.py", "--smoke",
-                 "--config", REMOTE_CONFIG["datasetConfig"], "--output", str(results / "longitudinal-smoke"),
+                 "--config", REMOTE_CONFIG["datasetConfig"], "--output", str(results / smoke_name),
                  "--scratch-root", REMOTE_CONFIG["scratchRoot"]]
         run_logged(smoke, cwd=repo)
-        command = [python, "scripts/longitudinal_comparison.py", "--output", str(results / "longitudinal-pilot")]
+        command = [python, "scripts/longitudinal_comparison.py", "--output", str(results / pilot_name)]
     if REMOTE_CONFIG["mode"] == "smoke":
         command += ["--training-epochs", str(REMOTE_CONFIG.get("trainingEpochs", 1))]
     if REMOTE_CONFIG.get("datasetConfig"):
@@ -121,9 +129,9 @@ try:
         command += ["--hit-warmup-epochs", str(REMOTE_CONFIG["hitWarmupEpochs"])]
     if REMOTE_CONFIG["mode"] in {"pilot", "monai"}:
         command += ["--pilot-repeats", str(REMOTE_CONFIG.get("pilotRepeats", 10))]
-    if REMOTE_CONFIG.get("prefetchDepth") is not None and REMOTE_CONFIG["mode"] != "longitudinal":
+    if REMOTE_CONFIG.get("prefetchDepth") is not None and REMOTE_CONFIG["mode"] not in {"longitudinal", "longitudinal-persistent"}:
         command += ["--prefetch-depth", str(REMOTE_CONFIG["prefetchDepth"])]
-    if REMOTE_CONFIG.get("epochs") is not None and REMOTE_CONFIG["mode"] != "longitudinal":
+    if REMOTE_CONFIG.get("epochs") is not None and REMOTE_CONFIG["mode"] not in {"longitudinal", "longitudinal-persistent"}:
         command += ["--epochs", str(REMOTE_CONFIG["epochs"])]
     run_logged(command, cwd=repo)
     status["status"] = "passed"
