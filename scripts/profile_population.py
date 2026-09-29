@@ -21,6 +21,11 @@ import monai_comparison as base
 SIZES = (1, 4, 8, 16, 32, 64)
 
 
+def layout_cases():
+    return [dict(name=f"aether-bulk-{size}mib", backend="aether_bulk", lookupBatch=16,
+                 putBatch=16, trace=False, targetSstableBytes=size * 1024 ** 2) for size in (32, 64, 128)]
+
+
 def cases(include_bulk=False):
     sweep = [dict(name=f"aether-put-{size:02d}", backend="aether", lookupBatch=64,
                   putBatch=size, trace=True) for size in SIZES]
@@ -275,7 +280,7 @@ def run_case(request):
 def summarize(reports):
     import statistics
     result = {}
-    for case in cases(include_bulk=True):
+    for case in cases(include_bulk=True) + layout_cases():
         rows = [r for r in reports if r["case"]["name"] == case["name"]]
         if rows:
             result[case["name"]] = {"n": len(rows), "populationMs": [r["timingsMs"]["population"] for r in rows],
@@ -296,6 +301,22 @@ def summarize(reports):
                     for key in sorted(keys)}
                 result[case["name"]]["medianBodyConstructionMs"] = statistics.median(
                     sum(p["bodyConstructionNs"] for p in r["publicationRequests"]) / 1e6 for r in rows)
+            if rows[0].get("layoutRegression"):
+                result[case["name"]].update(
+                    medianWarmSamplesPerSecond=statistics.median(r["layoutRegression"]["warm"]["samplesPerSecond"] for r in rows),
+                    medianIncrementalMs=statistics.median(r["layoutRegression"]["incremental"]["admissionMs"] +
+                        r["layoutRegression"]["incremental"]["drainMs"] for r in rows),
+                    tableCounts=[r["bulkCommit"]["storage"]["tables"] for r in rows],
+                    sampledPeakRssBytes=[r["populationMemory"]["combinedPeakRssBytes"] for r in rows])
+    if "aether-bulk-32mib" in result:
+        baseline = {r["blockIndex"]: r for r in reports if r["case"]["name"] == "aether-bulk-32mib"}
+        for case in layout_cases():
+            paired = [r["layoutRegression"]["warm"]["samplesPerSecond"] /
+                      baseline[r["blockIndex"]]["layoutRegression"]["warm"]["samplesPerSecond"]
+                      for r in reports if r["case"]["name"] == case["name"] and r["blockIndex"] in baseline]
+            if paired:
+                result[case["name"]]["pairedWarmRatioVs32"] = paired
+                result[case["name"]]["medianWarmRatioVs32"] = statistics.median(paired)
     return {"measurementRole": "population-only diagnostic; no confirmatory claim", "cases": result}
 
 
@@ -312,20 +333,26 @@ def plot(reports, output):
             writer.writerow([report["case"]["name"], *(report["timingsMs"][key] for key in
                              ("population", "startup", "quiescence", "close")), report["sourceLoadAndPreprocessMs"]])
     fig, axes = plt.subplots(1, 2, figsize=(13, 5))
-    names = [c["name"] for c in cases(include_bulk=True) if any(r["case"]["name"] == c["name"] for r in reports)]
+    names = [c["name"] for c in cases(include_bulk=True) + layout_cases() if any(r["case"]["name"] == c["name"] for r in reports)]
     axes[0].barh(names, [statistics.median(r["timingsMs"]["population"] / 1000 for r in reports
                                        if r["case"]["name"] == name) for name in names])
     axes[0].set_xlabel("Population seconds (median); diagnostics only")
     axes[0].tick_params(axis="y", labelsize=8)
-    for label, getter in (
+    for label, getter in (() if reports[0].get("layoutRegression") else (
         ("Python body construction", lambda r: r["traceSummary"]["bodyConstructionNs"]),
         ("Server DB write + sync (inclusive)", lambda r: r["traceSummary"]["serverPublicationStagesNs"]["databaseWriteAndSync"]),
-        ("WAL force (nested in DB write)", lambda r: r["traceSummary"]["serverWriteStagesNs"].get("walForce", 0))):
+        ("WAL force (nested in DB write)", lambda r: r["traceSummary"]["serverWriteStagesNs"].get("walForce", 0)))):
         axes[1].plot([str(s) for s in SIZES], [statistics.median(getter(r) / 1e9 for r in reports
                          if r["case"]["name"] == f"aether-put-{size:02d}") for size in SIZES], marker="o", label=label)
     axes[1].set_xlabel("Artifacts per putMany; lookup group fixed at 64")
     axes[1].set_ylabel("Seconds (median); overlapping stages")
-    axes[1].legend(fontsize=8)
+    if reports[0].get("layoutRegression"):
+        axes[1].barh(names, [statistics.median(r["layoutRegression"]["warm"]["samplesPerSecond"]
+                         for r in reports if r["case"]["name"] == name) for name in names])
+        axes[1].set_xlabel("Warm byte lookup samples/s; median of paired trials")
+        axes[1].set_ylabel("")
+    else:
+        axes[1].legend(fontsize=8)
     fig.tight_layout()
     fig.savefig(output / "population.png", dpi=160)
     plt.close(fig)
@@ -338,7 +365,10 @@ def main(argv=None):
     parser.add_argument("--scratch-root", type=Path)
     parser.add_argument("--smoke", action="store_true")
     parser.add_argument("--include-bulk", action="store_true")
+    parser.add_argument("--bulk-layout", action="store_true")
     opts = parser.parse_args(argv)
+    if opts.include_bulk and opts.bulk_layout:
+        parser.error("choose the original bulk comparison or the isolated layout sweep")
     if opts.request:
         write_json(opts.output, run_case(json.loads(opts.request.read_text())))
         return
@@ -355,6 +385,12 @@ def main(argv=None):
     args = workload_args(paths[0], count, 256)
     sources = base.workload.load_sources(args)
     reference = base.tensor_digest(base.CanonicalTransform(args)(item) for item in sources)
+    update_count = 68 if opts.smoke else 1260
+    update_reference = None
+    if opts.bulk_layout:
+        update_args = workload_args(paths[1], update_count, 256)
+        update_sources = base.workload.load_sources(update_args)
+        update_reference = base.tensor_digest(base.CanonicalTransform(update_args)(item) for item in update_sources)
     preflight_ms = (time.perf_counter() - started) * 1000
     order = []
     for block in range(repeats):
@@ -362,6 +398,9 @@ def main(argv=None):
         random.Random(20260929 + block).shuffle(row)
         if opts.include_bulk:
             row.insert((block * 5) % 12, cases(include_bulk=True)[-1])
+        if opts.bulk_layout:
+            row = layout_cases()
+            row = row[block % 3:] + row[:block % 3]
         order.append(row)
     source_manifest = ROOT / "artifact-provenance.json"
     protocol = {"schema": "aether-population-diagnostic-v1", "confirmatory": False, "samples": count,
@@ -380,6 +419,19 @@ def main(argv=None):
             bulkScope="offline empty-store, inline-only, bounded sort; commit is durable, stage acknowledgements are volatile",
             bulkOrder="original eleven-arm relative order retained; bulk inserted at (block*5)%12",
             bulkValidation="new ordinary daemon after offline writer stops, full tensor checksum, excluded from population timer")
+    if opts.bulk_layout:
+        protocol.update(schema="aether-bulk-layout-diagnostic-v1", evolution=True,
+            sweep="only bulk SSTable target varies; publication batch remains 16",
+            traceCaveat="bulk stage instrumentation enabled equally for all sizes; online request tracing off",
+            evolutionScope="post-population regression only; never included in V0 timing",
+            targetSstableBytes=[32 * 1024 ** 2, 64 * 1024 ** 2, 128 * 1024 ** 2],
+            partitioning="unchanged v1 threshold, no balancing yet", verification="unchanged serial, both existing validations retained",
+            admission="unchanged v1", framing="unchanged v1 batch 16",
+            orderDesign="cyclic balanced order, one position per size in three repetitions",
+            updateManifestSha256=manifests["manifestSha256"][1], updateReferenceHash=update_reference,
+            updateSamples=update_count, warmupPasses=2, measuredHitPasses=5,
+            selection="descriptive paired warm ratio vs 32; investigate >=2% loss or elevated update/compaction cost; no automatic winner",
+            nextGate="inspect layout results before balancing, verification pipeline, admission, framing, or longitudinal pilot")
     output = opts.output.resolve()
     scratch_base = (opts.scratch_root or ROOT / "build/population-stores").resolve()
     scratch_base.mkdir(parents=True, exist_ok=True)
@@ -395,6 +447,9 @@ def main(argv=None):
                 scratch = Path(tempfile.mkdtemp(prefix="population-", dir=scratch_base))
                 request = {"case": case, "store": str(scratch / "store"), "manifest": str(paths[0]),
                            "samples": count, "imageSize": 256, "referenceHash": reference}
+                if opts.bulk_layout:
+                    request.update(layoutRegression=True, updateManifest=str(paths[1]), updateSamples=update_count,
+                                   updateReferenceHash=update_reference)
                 write_json(location / "request.json", request)
                 print(f"Population {block + 1}/{repeats}: {case['name']}", flush=True)
                 try:
@@ -402,6 +457,7 @@ def main(argv=None):
                         subprocess.run([sys.executable, str(Path(__file__).resolve()), "--request", str(location / "request.json"),
                             "--output", str(location / "worker.json")], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True)
                     report = json.loads((location / "worker.json").read_text())
+                    report["blockIndex"] = block
                     save_result(location / "result.json", report, meta)
                     reports.append(report)
                     write_json(output / "summary.json", summarize(reports))

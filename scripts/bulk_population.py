@@ -13,9 +13,10 @@ from profile_population import PublicationClient
 
 
 class BulkPipeWriter:
-    def __init__(self, store, *, crash_point=None, timeout=120):
+    def __init__(self, store, *, crash_point=None, timeout=120, target_bytes=32 * 1024 ** 2):
         self.store, self.timeout = Path(store), timeout
         self.crash_point = crash_point
+        self.target_bytes = target_bytes
         self.process = None
         self.committed = False
         self.closed = False
@@ -32,7 +33,8 @@ class BulkPipeWriter:
             options = ["-Dbulk.test.crash=" + self.crash_point]
         self.errors = self.store.with_name(self.store.name + ".bulk.stderr.log").open("wb")
         try:
-            self.process = subprocess.Popen(["java", *options, "--enable-preview", "-cp", classpath, main, str(self.store)],
+            self.process = subprocess.Popen(["java", *options, "--enable-preview", "-cp", classpath, main,
+                str(self.store), str(self.target_bytes)],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self.errors,
                 creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
             def reader():
@@ -139,13 +141,19 @@ def run_bulk_case(request):
     sampler = DiskSampler(store)
     sampler.start()
     before = base.snapshot()
-    manager, entered = BulkPipeWriter(store), False
+    target_bytes = request["case"].get("targetSstableBytes", 32 * 1024 ** 2)
+    manager, entered = BulkPipeWriter(store, target_bytes=target_bytes), False
+    memory = None
     base.workload.preprocess_sample_with_timing = capture
     try:
         started = time.perf_counter()
         writer = manager.__enter__()
         entered = True
         startup_ms = (time.perf_counter() - started) * 1000
+        if request.get("layoutRegression"):
+            from bulk_layout import MemorySampler
+            memory = MemorySampler(writer.process.pid)
+            memory.start()
         client = BulkPublicationClient(writer, request["case"]["putBatch"])
         started = time.perf_counter()
         for batch in base.batches(len(sources), 16):
@@ -153,12 +161,17 @@ def run_bulk_case(request):
                               codec.encode(transform(sources[i]))) for i in batch])
         commit = writer.finish()
         population_ms = (time.perf_counter() - started) * 1000
-        if commit["artifacts"] != len(sources) or commit["storage"]["entries"] != len(sources):
+        population_preprocessing = dict(preprocessing)
+        if (commit["artifacts"] != len(sources) or commit["storage"]["entries"] != len(sources)
+                or commit["sha256Calls"] != len(sources) or transform.calls != len(sources)
+                or commit["storage"]["walPayloadBytes"] != 0 or commit["storage"]["memtableInsertions"] != 0):
             raise RuntimeError("bulk commit cardinality mismatch")
         started = time.perf_counter()
         manager.__exit__(None, None, None)
         entered = False
         close_ms = (time.perf_counter() - started) * 1000
+        memory_report = memory.stop() if memory else None
+        population_disk = {**base.disk_usage(store), **sampler.stop()}
         # A genuinely new JVM validates every artifact using the ordinary cache reader.
         started = time.perf_counter()
         with base.java_daemon(store) as daemon:
@@ -173,6 +186,10 @@ def run_bulk_case(request):
                 drain = strict_drain(daemon["port"])
                 if info["cacheEntries"] != len(sources):
                     raise RuntimeError("bulk restart artifact count mismatch")
+                regression = None
+                if request.get("layoutRegression"):
+                    from bulk_layout import regressions
+                    regression = regressions(request, sources, transform.identity, daemon, store)
             finally:
                 base.close(ds)
         validation_ms = (time.perf_counter() - started) * 1000
@@ -180,20 +197,23 @@ def run_bulk_case(request):
             "uniqueArtifacts": info["cacheEntries"], "tensorSha256": actual, "trainingSampleRequests": 0, "model": None,
             "timingsMs": {"startup": startup_ms, "population": population_ms, "quiescence": 0., "close": close_ms},
             "totalMs": startup_ms + population_ms + close_ms, "validationMs": validation_ms,
-            "sourceLoadAndPreprocessMs": transform.elapsed_ns / 1e6, "preprocessingBreakdownMs": dict(preprocessing),
+            "sourceLoadAndPreprocessMs": transform.elapsed_ns / 1e6, "preprocessingBreakdownMs": population_preprocessing,
             "codec": {"encodeNs": codec.encode_ns, "decodeNs": 0, "encodedBytes": codec.bytes},
             "traceSummary": None, "bulkCommit": commit, "publicationRequests": client.publications,
+            "layoutRegression": regression, "populationMemory": memory_report,
             "protocolMetrics": client.protocol_metrics(), "engineInfo": info,
             "restartValidation": {"passed": True, "expectedEntries": len(sources), "observedEntries": info["cacheEntries"],
                                   "tensorSha256": actual, "drain": drain},
-            "disk": {**base.disk_usage(store), **sampler.stop()},
+            "disk": population_disk,
             "processUsage": {"python": base.delta(before, base.snapshot()), "java": None},
             "quiescenceScope": "synchronous offline writer: all table/WAL-header/manifest forces included in population; no queued work",
             "timingExclusions": "restart correctness JVM and readback; no inference about a future persistent-service lifecycle",
             "prototypeLimits": {"inlineOnly": True, "maxBufferedBytes": 512 * 1024 ** 2, "maxEntries": 100000,
-                                "sortedTableTargetBytes": 32 * 1024 ** 2}}
+                                "sortedTableTargetBytes": target_bytes}}
     finally:
         base.workload.preprocess_sample_with_timing = original
         sampler.stop()
+        if memory:
+            memory.stop()
         if entered:
             manager.__exit__(RuntimeError, None, None)

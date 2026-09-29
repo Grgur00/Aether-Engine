@@ -18,8 +18,13 @@ public final class BulkArtifactWriter implements AutoCloseable {
     private boolean failed;
 
     public BulkArtifactWriter(Path directory) throws IOException {
+        this(directory, EmptyStoreBulkLoader.DEFAULT_TABLE_BYTES);
+    }
+
+    public BulkArtifactWriter(Path directory, long targetSstableBytes) throws IOException {
         loader = new EmptyStoreBulkLoader(directory, new AetherConfiguration(Map.of(
-                "aether.security.profile", "development", "aether.storage.disk_pressure.enabled", "false")));
+                "aether.security.profile", "development", "aether.storage.disk_pressure.enabled", "false")),
+                EmptyStoreBulkLoader.DEFAULT_MAX_BUFFER_BYTES, targetSstableBytes);
     }
 
     public synchronized void addAll(Iterable<CacheEntry> entries) {
@@ -63,8 +68,10 @@ public final class BulkArtifactWriter implements AutoCloseable {
 
     /** Local pipe protocol only, not an online daemon opcode. EOF aborts; zero-length frame commits. */
     public static void main(String[] args) throws Exception {
-        if (args.length != 1) throw new IllegalArgumentException("usage: BulkArtifactWriter EMPTY_STORE");
-        try (var writer = new BulkArtifactWriter(Path.of(args[0]));
+        if (args.length < 1 || args.length > 2)
+            throw new IllegalArgumentException("usage: BulkArtifactWriter EMPTY_STORE [TARGET_SSTABLE_BYTES]");
+        long target = args.length == 2 ? Long.parseLong(args[1]) : EmptyStoreBulkLoader.DEFAULT_TABLE_BYTES;
+        try (var writer = new BulkArtifactWriter(Path.of(args[0]), target);
                 var input = new DataInputStream(System.in)) {
             System.out.println("READY");
             while (true) {

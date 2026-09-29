@@ -81,7 +81,7 @@ def test_monai_pilot_is_separate_and_fixed(prepared):
     remote.validate_prepared(value)
 
 
-@pytest.mark.parametrize("mode", ["population", "population-bulk"])
+@pytest.mark.parametrize("mode", ["population", "population-bulk", "population-layout"])
 def test_population_diagnostic_has_no_training_and_separate_smoke(prepared, mode):
     remote.prepare(SimpleNamespace(user=None, mode=mode, training_epochs=None, dataset_config=None,
                                    scratch_root=None, dataset_source=None))

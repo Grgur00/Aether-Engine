@@ -331,6 +331,35 @@ public final class VersionSet implements AutoCloseable {
         return appendAndPublish(delta, candidate);
     }
 
+    /** Bulk-only diagnostics of the unchanged append/force publication protocol. */
+    public synchronized Version logAndApplyMeasured(ManifestEdit delta, java.util.Map<String, Long> timings)
+            throws IOException {
+        ensureOpen();
+        long started = System.nanoTime();
+        Version candidate = current.apply(delta);
+        timings.put("candidateNs", System.nanoTime() - started);
+        started = System.nanoTime();
+        verifyInventory(root, databaseId, delta.additions());
+        timings.put("inventoryVerificationNs", System.nanoTime() - started);
+        started = System.nanoTime();
+        byte[] record = ManifestCodecV1.encodeRecord(delta);
+        timings.put("encodeNs", System.nanoTime() - started);
+        started = System.nanoTime();
+        writeFully(writer, ByteBuffer.wrap(record));
+        timings.put("writeNs", System.nanoTime() - started);
+        CrashPointRegistry.hit("bulk.manifest.after_append");
+        started = System.nanoTime();
+        writer.force(true);
+        timings.put("forceNs", System.nanoTime() - started);
+        CrashPointRegistry.hit("bulk.manifest.after_force");
+        CrashPointRegistry.hit(
+                CrashPointIds.MANIFEST_AFTER_APPEND_BEFORE_CURRENT, manifestContext(delta));
+        started = System.nanoTime();
+        current = candidate;
+        timings.put("installNs", System.nanoTime() - started);
+        return candidate;
+    }
+
     /** An owner-bound proof of full verification of immutable, unpublished output files. */
     public static final class VerifiedAdditions {
         private final VersionSet owner;

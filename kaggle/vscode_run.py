@@ -98,19 +98,21 @@ try:
     python = "/kaggle/working/aether-paper-venv/bin/python"
     if REMOTE_CONFIG["mode"] == "all":
         run_logged([python, "-m", "pip", "install", "-r", "env/requirements-dali.lock"], cwd=repo)
-    if REMOTE_CONFIG["mode"] in {"monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk"}:
+    if REMOTE_CONFIG["mode"] in {"monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout"}:
         run_logged([python, "-m", "pip", "install", "--no-deps", "-r", "env/requirements-monai.lock"], cwd=repo)
-    if REMOTE_CONFIG["mode"] not in {"population", "population-bulk"}:
+    if REMOTE_CONFIG["mode"] not in {"population", "population-bulk", "population-layout"}:
         run_logged([python, "scripts/validate_gpu.py"], cwd=repo)
     if REMOTE_CONFIG["mode"] in {"pilot", "primary", "monai"} and REMOTE_CONFIG.get("datasetConfig"):
         prepare_evolution_data(python, repo / REMOTE_CONFIG["datasetConfig"])
     command = [python, "scripts/reproduce.py", REMOTE_CONFIG["mode"], "--output", str(results)]
     if REMOTE_CONFIG["mode"] == "monai":
         command = [python, "scripts/monai_comparison.py", "--output", str(results / "monai-pilot")]
-    if REMOTE_CONFIG["mode"] in {"population", "population-bulk"}:
+    if REMOTE_CONFIG["mode"] in {"population", "population-bulk", "population-layout"}:
         bulk = REMOTE_CONFIG["mode"] == "population-bulk"
         extra = ["--include-bulk"] if bulk else []
         prefix = "population-bulk" if bulk else "population"
+        if REMOTE_CONFIG["mode"] == "population-layout":
+            extra, prefix = ["--bulk-layout"], "population-layout"
         run_logged([python, "scripts/profile_population.py", "--smoke",
                     "--output", str(results / (prefix + "-smoke")),
                     "--scratch-root", REMOTE_CONFIG["scratchRoot"]] + extra, cwd=repo)

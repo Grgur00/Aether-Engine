@@ -82,4 +82,39 @@ class EmptyStoreBulkLoaderTest {
         Files.write(table, bytes);
         assertThrows(Exception.class, () -> Aether.open(temp, config));
     }
+
+    @Test void bulkTargetsDoNotChangeTheOrdinaryWritePath() throws Exception {
+        for (long target : new long[] {8, 16, 32}) {
+            Path root = temp.resolve("target-" + target);
+            try (var bulk = new EmptyStoreBulkLoader(root, config, 1024, target)) {
+                for (int i = 0; i < 32; i++) bulk.add(new byte[] {(byte) i}, new byte[] {(byte) i});
+                var result = bulk.finish();
+                assertEquals((int) (64 / target), result.get("tables"));
+                assertEquals(target, result.get("targetSstableBytes"));
+                assertTrue(((Map<?, ?>) result.get("manifest")).containsKey("inventoryVerificationNs"));
+            }
+            try (var db = Aether.open(root, config)) {
+                for (int i = 0; i < 32; i++) assertArrayEquals(new byte[] {(byte) i}, db.get(new byte[] {(byte) i}).value());
+                db.put(new byte[] {99}, new byte[] {100});
+            }
+            try (var db = Aether.open(root, config)) { assertArrayEquals(new byte[] {100}, db.get(new byte[] {99}).value()); }
+        }
+    }
+
+    @Test void verificationFailureNeverPublishesInventory() throws Exception {
+        try (var bulk = new EmptyStoreBulkLoader(temp, config)) {
+            bulk.add(new byte[] {1}, new byte[] {2});
+            try (var fault = CrashPointRegistry.install((id, context) -> {
+                if (id.equals("bulk.before_verification")) {
+                    try (var files = Files.list(temp)) {
+                        Path table = files.filter(p -> p.toString().endsWith(".aess")).findFirst().orElseThrow();
+                        byte[] bytes = Files.readAllBytes(table);
+                        bytes[bytes.length / 2] ^= 1;
+                        Files.write(table, bytes);
+                    } catch (java.io.IOException error) { throw new RuntimeException(error); }
+                }
+            })) { assertThrows(java.io.IOException.class, bulk::finish); }
+        }
+        try (var db = Aether.open(temp, config)) { assertFalse(db.get(new byte[] {1}).isFound()); }
+    }
 }

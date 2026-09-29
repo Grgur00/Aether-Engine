@@ -104,6 +104,7 @@ public final class EmptyStoreBulkLoader implements AutoCloseable {
         var timings = new LinkedHashMap<String, Long>();
         var tableTimings = new ArrayList<Map<String, Object>>();
         var additions = new ArrayList<ManifestFileMetadata>();
+        var manifestTimings = new LinkedHashMap<String, Long>();
         long started = System.nanoTime();
         long nextFile = versions.current().nextFileNumber();
         long sequence = 0;
@@ -123,10 +124,16 @@ public final class EmptyStoreBulkLoader implements AutoCloseable {
                 } while (iterator.hasNext() && bytes < tableBytes);
                 var trace = new SSTableFinishTrace();
                 var built = builder.finish(trace);
+                CrashPointRegistry.hit("bulk.after_table_force");
                 Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE);
+                CrashPointRegistry.hit("bulk.after_table_rename");
                 var metadata = new ManifestFileMetadata(file, 1, built.fileSize(), built.entryCount(),
                         built.smallestSequence(), built.largestSequence(), built.smallestInternalKey(), built.largestInternalKey());
+                long verificationStarted = System.nanoTime();
+                CrashPointRegistry.hit("bulk.before_verification");
                 SSTableReader.open(target, databaseId, metadata).close();
+                timings.merge("verificationNs", System.nanoTime() - verificationStarted, Long::sum);
+                CrashPointRegistry.hit("bulk.after_verification");
                 additions.add(metadata);
                 tableTimings.add(Map.of("file", file, "bytes", built.fileSize(), "entries", built.entryCount(),
                         "totalNs", trace.totalNs(), "stagesNs", trace.stagesNs()));
@@ -147,18 +154,24 @@ public final class EmptyStoreBulkLoader implements AutoCloseable {
             timings.put("emptyWalHeaderAndDirectoryForce", System.nanoTime() - started);
             CrashPointRegistry.hit("bulk.before_manifest");
             started = System.nanoTime();
-            versions.logAndApply(new ManifestEdit(ManifestEdit.Kind.DELTA,
+            versions.logAndApplyMeasured(new ManifestEdit(ManifestEdit.Kind.DELTA,
                     versions.current().manifestEditNumber() + 1, nextFile, sequence, sequence, newWal,
-                    additions, List.of()));
+                    additions, List.of()), manifestTimings);
             timings.put("atomicManifestPublication", System.nanoTime() - started);
             CrashPointRegistry.hit("bulk.after_manifest");
             started = System.nanoTime();
             Files.delete(root.resolve(WalFormatV1.fileName(oldWal)));
             syncDirectory(root);
             timings.put("obsoleteWalCleanup", System.nanoTime() - started);
-            return Map.of("entries", sequence, "tables", additions.size(), "bufferedBytes", bufferedBytes,
+            var result = new LinkedHashMap<String, Object>();
+            result.putAll(Map.of("entries", sequence, "tables", additions.size(), "bufferedBytes", bufferedBytes,
                     "timingsNs", timings, "sstableFinishes", tableTimings,
-                    "walPayloadBytes", 0, "memtableInsertions", 0, "level", 1);
+                    "walPayloadBytes", 0, "memtableInsertions", 0, "level", 1));
+            result.put("targetSstableBytes", tableBytes);
+            result.put("peakBufferedBytes", bufferedBytes);
+            result.put("manifest", manifestTimings);
+            result.put("manifestProtocol", "existing append-only forced record; temp write/rename/directory force not applicable to this edit; directory barriers recorded separately");
+            return result;
         } catch (Throwable error) {
             failed = true;
             // Never remove possible manifest dependencies after an indeterminate publication.
