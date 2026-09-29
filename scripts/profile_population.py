@@ -21,13 +21,16 @@ import monai_comparison as base
 SIZES = (1, 4, 8, 16, 32, 64)
 
 
-def cases():
+def cases(include_bulk=False):
     sweep = [dict(name=f"aether-put-{size:02d}", backend="aether", lookupBatch=64,
                   putBatch=size, trace=True) for size in SIZES]
     controls = [dict(name="aether-pilot16-" + name, backend="aether", lookupBatch=16,
                      putBatch=16, trace=traced) for name, traced in (("traced", True), ("untraced", False))]
-    return sweep + controls + [dict(name=name, backend=name, lookupBatch=16, putBatch=None, trace=False)
-                              for name in base.BACKENDS[1:]]
+    result = sweep + controls + [dict(name=name, backend=name, lookupBatch=16, putBatch=None, trace=False)
+                                for name in base.BACKENDS[1:]]
+    if include_bulk:
+        result.append(dict(name="aether-bulk16", backend="aether_bulk", lookupBatch=16, putBatch=16, trace=False))
+    return result
 
 
 def expected_puts(count, lookup_batch, put_batch):
@@ -144,6 +147,9 @@ def workload_args(manifest, count, size, trusted=False):
 
 
 def run_case(request):
+    if request["case"]["backend"] == "aether_bulk":
+        from bulk_population import run_bulk_case
+        return run_bulk_case(request)
     case, store = request["case"], Path(request["store"])
     if store.exists():
         raise FileExistsError("population requires a fresh empty cache")
@@ -269,7 +275,7 @@ def run_case(request):
 def summarize(reports):
     import statistics
     result = {}
-    for case in cases():
+    for case in cases(include_bulk=True):
         rows = [r for r in reports if r["case"]["name"] == case["name"]]
         if rows:
             result[case["name"]] = {"n": len(rows), "populationMs": [r["timingsMs"]["population"] for r in rows],
@@ -283,6 +289,13 @@ def summarize(reports):
                         key: statistics.median(r["traceSummary"][group].get(key, 0) for r in rows) for key in sorted(keys)}
                 result[case["name"]]["medianBodyConstructionMs"] = statistics.median(
                     r["traceSummary"]["bodyConstructionNs"] / 1e6 for r in rows)
+            if case["backend"] == "aether_bulk":
+                keys = set().union(*(r["bulkCommit"]["storage"]["timingsNs"] for r in rows))
+                result[case["name"]]["medianStorageStagesNs"] = {
+                    key: statistics.median(r["bulkCommit"]["storage"]["timingsNs"].get(key, 0) for r in rows)
+                    for key in sorted(keys)}
+                result[case["name"]]["medianBodyConstructionMs"] = statistics.median(
+                    sum(p["bodyConstructionNs"] for p in r["publicationRequests"]) / 1e6 for r in rows)
     return {"measurementRole": "population-only diagnostic; no confirmatory claim", "cases": result}
 
 
@@ -299,7 +312,7 @@ def plot(reports, output):
             writer.writerow([report["case"]["name"], *(report["timingsMs"][key] for key in
                              ("population", "startup", "quiescence", "close")), report["sourceLoadAndPreprocessMs"]])
     fig, axes = plt.subplots(1, 2, figsize=(13, 5))
-    names = [c["name"] for c in cases()]
+    names = [c["name"] for c in cases(include_bulk=True) if any(r["case"]["name"] == c["name"] for r in reports)]
     axes[0].barh(names, [statistics.median(r["timingsMs"]["population"] / 1000 for r in reports
                                        if r["case"]["name"] == name) for name in names])
     axes[0].set_xlabel("Population seconds (median); diagnostics only")
@@ -324,6 +337,7 @@ def main(argv=None):
     parser.add_argument("--request", type=Path)
     parser.add_argument("--scratch-root", type=Path)
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--include-bulk", action="store_true")
     opts = parser.parse_args(argv)
     if opts.request:
         write_json(opts.output, run_case(json.loads(opts.request.read_text())))
@@ -346,6 +360,8 @@ def main(argv=None):
     for block in range(repeats):
         row = cases()
         random.Random(20260929 + block).shuffle(row)
+        if opts.include_bulk:
+            row.insert((block * 5) % 12, cases(include_bulk=True)[-1])
         order.append(row)
     source_manifest = ROOT / "artifact-provenance.json"
     protocol = {"schema": "aether-population-diagnostic-v1", "confirmatory": False, "samples": count,
@@ -359,6 +375,11 @@ def main(argv=None):
         "scope": "startup + adapter open/scan/populate + quiescence + close; excludes source integrity/reference/readback",
         "traceCaveat": "traced arms are diagnostics, not performance claims; untraced pilot16 control estimates instrumentation impact",
         "pageCache": "uncontrolled; common integrity/reference preflight warms source data; fresh stores/processes each arm"}
+    if opts.include_bulk:
+        protocol.update(schema="aether-population-bulk-diagnostic-v1", bulkPrototype=True,
+            bulkScope="offline empty-store, inline-only, bounded sort; commit is durable, stage acknowledgements are volatile",
+            bulkOrder="original eleven-arm relative order retained; bulk inserted at (block*5)%12",
+            bulkValidation="new ordinary daemon after offline writer stops, full tensor checksum, excluded from population timer")
     output = opts.output.resolve()
     scratch_base = (opts.scratch_root or ROOT / "build/population-stores").resolve()
     scratch_base.mkdir(parents=True, exist_ok=True)

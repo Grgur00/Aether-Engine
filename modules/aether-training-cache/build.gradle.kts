@@ -7,6 +7,7 @@ dependencies {
     implementation(project(":modules:aether-api"))
     implementation(project(":modules:aether-config"))
     implementation(project(":modules:aether-engine"))
+    testImplementation(project(":modules:aether-reliability"))
 }
 
 tasks.register("paperRuntimeClasspath") {

@@ -81,8 +81,9 @@ def test_monai_pilot_is_separate_and_fixed(prepared):
     remote.validate_prepared(value)
 
 
-def test_population_diagnostic_has_no_training_and_separate_smoke(prepared):
-    remote.prepare(SimpleNamespace(user=None, mode="population", training_epochs=None, dataset_config=None,
+@pytest.mark.parametrize("mode", ["population", "population-bulk"])
+def test_population_diagnostic_has_no_training_and_separate_smoke(prepared, mode):
+    remote.prepare(SimpleNamespace(user=None, mode=mode, training_epochs=None, dataset_config=None,
                                    scratch_root=None, dataset_source=None))
     value = remote.config()
     assert value["epochs"] is None and value["datasetConfig"] is None
@@ -90,7 +91,8 @@ def test_population_diagnostic_has_no_training_and_separate_smoke(prepared):
     notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
     runner = "".join(notebook["cells"][1]["source"])
     assert '"scripts/profile_population.py", "--smoke"' in runner
-    assert '"population-diagnostic"' in runner
+    assert 'prefix + "-diagnostic"' in runner
+    assert '"--include-bulk"' in runner
     compile(runner, "notebook", "exec")
     remote.validate_prepared(value)
 

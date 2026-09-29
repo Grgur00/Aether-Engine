@@ -524,6 +524,10 @@ public final class TrainingCache implements AutoCloseable {
             TrainingCacheRequestTrace.end("admissionCrc32c", crcStarted);
             return metadata.array();
         }
+        return inlineEnvelope(payload, digest);
+    }
+
+    static byte[] inlineEnvelope(byte[] payload, byte[] digest) {
         ByteBuffer output = ByteBuffer.allocate(HEADER_BYTES + payload.length + 4).order(ByteOrder.BIG_ENDIAN);
         output.putInt(MAGIC).putInt(1).putInt(payload.length).put(digest).put(payload);
         long crcStarted = TrainingCacheRequestTrace.start();
