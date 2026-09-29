@@ -9,6 +9,7 @@ import io.aetherdb.sstable.InternalKey;
 import io.aetherdb.sstable.SSTableBuilder;
 import io.aetherdb.sstable.SSTableFinishTrace;
 import io.aetherdb.sstable.SSTableReader;
+import io.aetherdb.sstable.jfr.BulkPhaseEvent;
 import io.aetherdb.sstable.manifest.ManifestEdit;
 import io.aetherdb.sstable.manifest.ManifestFileMetadata;
 import io.aetherdb.sstable.manifest.VersionSet;
@@ -30,6 +31,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 /** Experimental offline, empty-store-only loader. Staging is not a durable acknowledgement. */
+@SuppressWarnings("try")
 public final class EmptyStoreBulkLoader implements AutoCloseable {
     public static final long DEFAULT_MAX_BUFFER_BYTES = 512L * 1024 * 1024;
     public static final long DEFAULT_TABLE_BYTES = 32L * 1024 * 1024;
@@ -117,21 +119,31 @@ public final class EmptyStoreBulkLoader implements AutoCloseable {
                 Path target = root.resolve(name);
                 SSTableBuilder builder = new SSTableBuilder(temporary, file, databaseId, System.currentTimeMillis());
                 long bytes = 0;
-                do {
-                    var entry = iterator.next();
-                    builder.add(new InternalKey(entry.getKey(), ++sequence, (byte) 1), entry.getValue());
-                    bytes += entry.getKey().length + entry.getValue().length;
-                } while (iterator.hasNext() && bytes < tableBytes);
-                var trace = new SSTableFinishTrace();
-                var built = builder.finish(trace);
+                try (var phase = BulkPhaseEvent.start("SORT_OR_PARTITION", 0, 0, additions.size())) {
+                    do {
+                        var entry = iterator.next();
+                        builder.add(new InternalKey(entry.getKey(), ++sequence, (byte) 1), entry.getValue());
+                        bytes += entry.getKey().length + entry.getValue().length;
+                    } while (iterator.hasNext() && bytes < tableBytes);
+                    if (phase != null) phase.bytes = bytes;
+                }
+                var trace = new SSTableFinishTrace(true);
+                io.aetherdb.sstable.TableFileMetadata built;
+                try (var phase = BulkPhaseEvent.start("SSTABLE_BUILD", 0, bytes, additions.size())) {
+                    built = builder.finish(trace);
+                }
                 CrashPointRegistry.hit("bulk.after_table_force");
-                Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE);
+                try (var phase = BulkPhaseEvent.start("SSTABLE_RENAME", built.entryCount(), built.fileSize(), additions.size())) {
+                    Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE);
+                }
                 CrashPointRegistry.hit("bulk.after_table_rename");
                 var metadata = new ManifestFileMetadata(file, 1, built.fileSize(), built.entryCount(),
                         built.smallestSequence(), built.largestSequence(), built.smallestInternalKey(), built.largestInternalKey());
                 long verificationStarted = System.nanoTime();
                 CrashPointRegistry.hit("bulk.before_verification");
-                SSTableReader.open(target, databaseId, metadata).close();
+                try (var phase = BulkPhaseEvent.start("SSTABLE_VERIFY", built.entryCount(), built.fileSize(), additions.size())) {
+                    SSTableReader.open(target, databaseId, metadata).close();
+                }
                 timings.merge("verificationNs", System.nanoTime() - verificationStarted, Long::sum);
                 CrashPointRegistry.hit("bulk.after_verification");
                 additions.add(metadata);
@@ -160,8 +172,10 @@ public final class EmptyStoreBulkLoader implements AutoCloseable {
             timings.put("atomicManifestPublication", System.nanoTime() - started);
             CrashPointRegistry.hit("bulk.after_manifest");
             started = System.nanoTime();
-            Files.delete(root.resolve(WalFormatV1.fileName(oldWal)));
-            syncDirectory(root);
+            try (var phase = BulkPhaseEvent.start("QUIESCE", sequence, bufferedBytes, -1)) {
+                Files.delete(root.resolve(WalFormatV1.fileName(oldWal)));
+                syncDirectory(root);
+            }
             timings.put("obsoleteWalCleanup", System.nanoTime() - started);
             var result = new LinkedHashMap<String, Object>();
             result.putAll(Map.of("entries", sequence, "tables", additions.size(), "bufferedBytes", bufferedBytes,

@@ -5,6 +5,7 @@ import io.aetherdb.reliability.CrashContext;
 import io.aetherdb.reliability.CrashPointIds;
 import io.aetherdb.reliability.CrashPointRegistry;
 import io.aetherdb.sstable.SSTableReader;
+import io.aetherdb.sstable.jfr.BulkPhaseEvent;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -332,6 +333,7 @@ public final class VersionSet implements AutoCloseable {
     }
 
     /** Bulk-only diagnostics of the unchanged append/force publication protocol. */
+    @SuppressWarnings("try")
     public synchronized Version logAndApplyMeasured(ManifestEdit delta, java.util.Map<String, Long> timings)
             throws IOException {
         ensureOpen();
@@ -339,23 +341,34 @@ public final class VersionSet implements AutoCloseable {
         Version candidate = current.apply(delta);
         timings.put("candidateNs", System.nanoTime() - started);
         started = System.nanoTime();
-        verifyInventory(root, databaseId, delta.additions());
+        try (var phase = BulkPhaseEvent.start("SSTABLE_VERIFY", 0, 0, -1)) {
+            verifyInventory(root, databaseId, delta.additions());
+        }
         timings.put("inventoryVerificationNs", System.nanoTime() - started);
         started = System.nanoTime();
-        byte[] record = ManifestCodecV1.encodeRecord(delta);
+        byte[] record;
+        try (var phase = BulkPhaseEvent.start("MANIFEST_BUILD", 0, 0, -1)) {
+            record = ManifestCodecV1.encodeRecord(delta);
+        }
         timings.put("encodeNs", System.nanoTime() - started);
         started = System.nanoTime();
-        writeFully(writer, ByteBuffer.wrap(record));
+        try (var phase = BulkPhaseEvent.start("MANIFEST_WRITE", 0, record.length, -1)) {
+            writeFully(writer, ByteBuffer.wrap(record));
+        }
         timings.put("writeNs", System.nanoTime() - started);
         CrashPointRegistry.hit("bulk.manifest.after_append");
         started = System.nanoTime();
-        writer.force(true);
+        try (var phase = BulkPhaseEvent.start("MANIFEST_FORCE", 0, record.length, -1)) {
+            writer.force(true);
+        }
         timings.put("forceNs", System.nanoTime() - started);
         CrashPointRegistry.hit("bulk.manifest.after_force");
         CrashPointRegistry.hit(
                 CrashPointIds.MANIFEST_AFTER_APPEND_BEFORE_CURRENT, manifestContext(delta));
         started = System.nanoTime();
-        current = candidate;
+        try (var phase = BulkPhaseEvent.start("MANIFEST_INSTALL", 0, record.length, -1)) {
+            current = candidate;
+        }
         timings.put("installNs", System.nanoTime() - started);
         return candidate;
     }

@@ -113,6 +113,18 @@ def test_longitudinal_preparation(prepared):
     remote.validate_prepared(value)
 
 
+def test_bulk_jfr_preparation_is_one_fixed_sequence_without_layout_sweep(prepared):
+    remote.prepare(SimpleNamespace(user=None, mode="population-jfr", training_epochs=None,
+        dataset_config=None, scratch_root=None, dataset_source=None))
+    value = remote.config()
+    assert value["epochs"] is None and not value["serverTrace"]
+    notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
+    runner = "".join(notebook["cells"][1]["source"])
+    assert '"scripts/profile_bulk_jfr.py"' in runner
+    compile(runner, "notebook", "exec")
+    remote.validate_prepared(value)
+
+
 def test_persistent_longitudinal_is_a_separate_protocol(prepared):
     remote.prepare(SimpleNamespace(user=None, mode="longitudinal-persistent", training_epochs=None,
                                    dataset_config=None, scratch_root=None, dataset_source=None))

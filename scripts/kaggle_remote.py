@@ -123,7 +123,7 @@ def prepare(args):
             raise ValueError("MONAI pilot requires 5 fresh paired blocks")
         value.update(epochs=20, prefetchDepth=0, serverTrace=False, pilotRepeats=5)
         value["datasetConfig"] = args.dataset_config or "configs/paper/oct5k-pilot-20ep.json"
-    if mode in {"population", "population-bulk", "population-layout"}:
+    if mode in {"population", "population-bulk", "population-layout", "population-jfr"}:
         if epochs is not None or getattr(args, "pilot_repeats", None) not in (None, 3):
             raise ValueError("population diagnostic has no training epochs and requires three repetitions")
         if args.dataset_config is not None or prefetch_depth not in (None, 0):
@@ -184,7 +184,7 @@ def prepare(args):
     package(source_dir / "aether-paper-artifact.zip")
     with zipfile.ZipFile(source_dir / "aether-paper-artifact.zip") as archive:
         provenance = json.loads(archive.read("artifact-provenance.json"))
-        if mode in {"primary", "monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout"} and provenance.get("sourceClean") is not True:
+        if mode in {"primary", "monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout", "population-jfr"} and provenance.get("sourceClean") is not True:
             raise ValueError(f"prepare {mode} requires a clean committed source snapshot")
         value["sourceManifestSha256"] = hashlib.sha256(archive.read("artifact-provenance.json")).hexdigest()
     write(source_dir / "dataset-metadata.json", {"id": value["sourceDataset"], "title": "Aether Engine Source",
@@ -214,7 +214,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=["setup", "prepare", "login", "check", "doctor", "upload-source", "source-status", "run", "status", "outputs", "logs"])
     parser.add_argument("--user")
-    parser.add_argument("--mode", choices=["smoke", "profile", "pilot", "primary", "all", "monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout"])
+    parser.add_argument("--mode", choices=["smoke", "profile", "pilot", "primary", "all", "monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout", "population-jfr"])
     parser.add_argument("--training-epochs", type=int, help="Epochs per CPU training fixture in smoke mode")
     parser.add_argument("--epochs", type=int, default=None, help="Epochs per training block for pilot/primary runs")
     parser.add_argument("--server-trace", action=argparse.BooleanOptionalAction, default=None, help="Enable diagnostic pilot flush tracing")

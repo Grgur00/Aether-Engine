@@ -98,13 +98,15 @@ try:
     python = "/kaggle/working/aether-paper-venv/bin/python"
     if REMOTE_CONFIG["mode"] == "all":
         run_logged([python, "-m", "pip", "install", "-r", "env/requirements-dali.lock"], cwd=repo)
-    if REMOTE_CONFIG["mode"] in {"monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout"}:
+    if REMOTE_CONFIG["mode"] in {"monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout", "population-jfr"}:
         run_logged([python, "-m", "pip", "install", "--no-deps", "-r", "env/requirements-monai.lock"], cwd=repo)
-    if REMOTE_CONFIG["mode"] not in {"population", "population-bulk", "population-layout"}:
+    if REMOTE_CONFIG["mode"] not in {"population", "population-bulk", "population-layout", "population-jfr"}:
         run_logged([python, "scripts/validate_gpu.py"], cwd=repo)
     if REMOTE_CONFIG["mode"] in {"pilot", "primary", "monai"} and REMOTE_CONFIG.get("datasetConfig"):
         prepare_evolution_data(python, repo / REMOTE_CONFIG["datasetConfig"])
     command = [python, "scripts/reproduce.py", REMOTE_CONFIG["mode"], "--output", str(results)]
+    if REMOTE_CONFIG["mode"] == "population-jfr":
+        command = [python, "scripts/profile_bulk_jfr.py", "--output", str(results / "population-jfr")]
     if REMOTE_CONFIG["mode"] == "monai":
         command = [python, "scripts/monai_comparison.py", "--output", str(results / "monai-pilot")]
     if REMOTE_CONFIG["mode"] in {"population", "population-bulk", "population-layout"}:

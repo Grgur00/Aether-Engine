@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import queue
+import re
 import struct
 import subprocess
 import threading
@@ -13,10 +14,12 @@ from profile_population import PublicationClient
 
 
 class BulkPipeWriter:
-    def __init__(self, store, *, crash_point=None, timeout=120, target_bytes=32 * 1024 ** 2):
+    def __init__(self, store, *, crash_point=None, timeout=120, target_bytes=32 * 1024 ** 2,
+                 jfr_file=None, jfr_settings="profile"):
         self.store, self.timeout = Path(store), timeout
         self.crash_point = crash_point
         self.target_bytes = target_bytes
+        self.jfr_file, self.jfr_settings = jfr_file, jfr_settings
         self.process = None
         self.committed = False
         self.closed = False
@@ -27,10 +30,20 @@ class BulkPipeWriter:
         classpath = java_classpath()
         main = "io.aetherdb.training.cache.BulkArtifactWriter"
         options = []
+        if self.jfr_file:
+            recording = Path(self.jfr_file).resolve()
+            recording.parent.mkdir(parents=True, exist_ok=True)
+            if recording.exists():
+                raise FileExistsError("JFR recording must be fresh")
+            repository = recording.with_suffix(".repository")
+            repository.mkdir(exist_ok=False)
+            options += ["-Daether.bulk.jfr=true", f"-XX:FlightRecorderOptions=stackdepth=256,repository={repository}",
+                        "-Xlog:jfr*=warning:stderr",
+                        f"-XX:StartFlightRecording=filename={recording},settings={self.jfr_settings},disk=true,dumponexit=true"]
         if self.crash_point:
             classpath += os.pathsep + str(ROOT / "modules/aether-training-cache/build/classes/java/test")
             main = "io.aetherdb.training.cache.BulkArtifactCrashProbe"
-            options = ["-Dbulk.test.crash=" + self.crash_point]
+            options += ["-Dbulk.test.crash=" + self.crash_point]
         self.errors = self.store.with_name(self.store.name + ".bulk.stderr.log").open("wb")
         try:
             self.process = subprocess.Popen(["java", *options, "--enable-preview", "-cp", classpath, main,
@@ -39,12 +52,18 @@ class BulkPipeWriter:
                 creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
             def reader():
                 for line in self.process.stdout:
+                    # StartFlightRecording can re-enable stdout startup logging despite -Xlog routing.
+                    if self.jfr_file and re.match(rb"^\[[0-9.]+s\]\[info\]\[jfr,startup\]", line):
+                        self.errors.write(line)
+                        self.errors.flush()
+                        continue
                     self.lines.put(line)
                 self.lines.put(None)
             self.reader = threading.Thread(target=reader, daemon=True)
             self.reader.start()
-            if self.line() != b"READY":
-                raise RuntimeError("bulk writer did not announce readiness")
+            ready = self.line()
+            if ready != b"READY":
+                raise RuntimeError(f"bulk writer did not announce readiness: {ready!r}")
             return self
         except BaseException:
             self.__exit__(None, None, None)
@@ -142,7 +161,8 @@ def run_bulk_case(request):
     sampler.start()
     before = base.snapshot()
     target_bytes = request["case"].get("targetSstableBytes", 32 * 1024 ** 2)
-    manager, entered = BulkPipeWriter(store, target_bytes=target_bytes), False
+    manager, entered = BulkPipeWriter(store, target_bytes=target_bytes,
+        jfr_file=request.get("jfrFile"), jfr_settings=request.get("jfrSettings", "profile")), False
     memory = None
     base.workload.preprocess_sample_with_timing = capture
     try:
@@ -170,6 +190,8 @@ def run_bulk_case(request):
         manager.__exit__(None, None, None)
         entered = False
         close_ms = (time.perf_counter() - started) * 1000
+        if request.get("jfrFile") and (not Path(request["jfrFile"]).is_file() or Path(request["jfrFile"]).stat().st_size == 0):
+            raise RuntimeError("bulk writer did not dump its JFR recording")
         memory_report = memory.stop() if memory else None
         population_disk = {**base.disk_usage(store), **sampler.stop()}
         # A genuinely new JVM validates every artifact using the ordinary cache reader.
