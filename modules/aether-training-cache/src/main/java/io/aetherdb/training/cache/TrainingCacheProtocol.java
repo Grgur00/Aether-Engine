@@ -68,7 +68,7 @@ final class TrainingCacheProtocol {
                     } finally { TrainingCacheRequestTrace.end("dispatch", dispatchStarted); }
                     writeResponse(output, response.status(), response.value());
                     long completedAt = System.nanoTime();
-                    if (operation == GET_MANY && acquired)
+                    if ((operation == GET_MANY || operation == PUT_MANY) && acquired)
                         cache.recordCompletedTrace(TrainingCacheRequestTrace.completed(completedAt));
                 } finally {
                     if (acquired) permits.release();

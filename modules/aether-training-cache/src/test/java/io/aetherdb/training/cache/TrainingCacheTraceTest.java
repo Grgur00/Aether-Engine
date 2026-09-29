@@ -87,6 +87,31 @@ final class TrainingCacheTraceTest {
         }
     }
 
+    @Test void populationWriteTraceSeparatesWalForceAndMemtableWithoutChangingReadback() throws Exception {
+        byte[] payload = {1, 4, 9};
+        var output = new ByteArrayOutputStream();
+        try (var cache = TrainingCache.open(temp.resolve("population-trace"))) {
+            TrainingCacheProtocol.serve(new ByteArrayInputStream(request(2, 6, "new", payload)),
+                    output, cache, new Semaphore(1), new TrainingCacheProtocolMetrics());
+            var input = new DataInputStream(new ByteArrayInputStream(output.toByteArray()));
+            input.readInt();
+            assertEquals(1, input.readUnsignedByte());
+            input.readInt();
+            String json = new String(input.readNBytes(input.readInt()), StandardCharsets.UTF_8);
+            for (String field : new String[] {"writeDiagnostics", "walLogicalEncode", "walFragmentEncode",
+                    "walAppend", "walForce", "memtableApply", "admissionPayloadSha256",
+                    "artifactEnvelopeEncode", "writeBatchConstruction", "publicationInputCopiesAndDedup"}) {
+                assertTrue(json.contains("\"" + field + "\":"), json);
+            }
+            assertTrue(json.contains("\"walForceCalls\":1"), json);
+            assertTrue(json.contains("\"operations\":1"), json);
+            assertTrue(json.contains("\"forceGroupParticipants\":1"), json);
+            assertArrayEquals(payload, cache.get(new CacheKey("tracing", "new",
+                    TransformationFingerprint.ofCanonicalDescriptor("v1"))));
+            assertNull(io.aetherdb.engine.FlushDiagnostics.current());
+        }
+    }
+
     @Test void flushEvidenceTravelsWithPublishResponseAndClearsBeforeLegacyRequest() throws Exception {
         var config = new io.aetherdb.config.AetherConfiguration(java.util.Map.of(
                 "aether.security.profile", "development", "aether.storage.disk_pressure.enabled", "false",

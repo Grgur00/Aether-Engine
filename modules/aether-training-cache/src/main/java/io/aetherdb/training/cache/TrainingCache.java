@@ -353,6 +353,7 @@ public final class TrainingCache implements AutoCloseable {
             // Serialize publication, including segment creation, and validate the
             // entire batch before modifying files. A derived-artifact key is immutable.
             java.util.LinkedHashMap<CacheKey, byte[]> unique = new java.util.LinkedHashMap<>();
+            long copyStarted = TrainingCacheRequestTrace.start();
             for (CacheEntry entry : values) {
                 byte[] ownedValue = entry.value();
                 byte[] previous = unique.putIfAbsent(entry.key(), ownedValue);
@@ -362,6 +363,7 @@ public final class TrainingCache implements AutoCloseable {
             // Each array was copied by CacheEntry.value() above and is owned by
             // this call. Retain it internally instead of cloning every time its
             // length or encoding is needed.
+            TrainingCacheRequestTrace.end("publicationInputCopiesAndDedup", copyStarted);
             java.util.ArrayList<Map.Entry<CacheKey, byte[]>> pending = new java.util.ArrayList<>();
             for (var entry : unique.entrySet()) {
                 byte[] storageKey = entry.getKey().storageKey();
@@ -376,8 +378,11 @@ public final class TrainingCache implements AutoCloseable {
             java.util.ArrayList<Integer> sizes = new java.util.ArrayList<>();
             try (WriteBatch batch = new WriteBatch()) {
                 for (var entry : pending) {
-                    byte[] encoded = encode(entry.getValue(), entry.getKey().storageKey());
+                    byte[] encoded = TrainingCacheRequestTrace.measure("artifactEnvelopeEncode",
+                            () -> encode(entry.getValue(), entry.getKey().storageKey()));
+                    long batchStarted = TrainingCacheRequestTrace.start();
                     batch.put(entry.getKey().storageKey(), encoded);
+                    TrainingCacheRequestTrace.end("writeBatchConstruction", batchStarted);
                     sizes.add(encoded.length + (storagePolicy.usesSegment(entry.getValue().length) ? entry.getValue().length : 0));
                 }
                 TrainingCacheFaultHooks.reach("before-index-commit");
@@ -501,7 +506,10 @@ public final class TrainingCache implements AutoCloseable {
     }
 
     private byte[] encode(byte[] payload, byte[] storageKey) {
-        byte[] digest = TransformationFingerprint.sha256(payload);
+        io.aetherdb.engine.FlushDiagnostics.writeCount("admissionSha256Calls", 1);
+        io.aetherdb.engine.FlushDiagnostics.writeCount("admissionSha256Bytes", payload.length);
+        byte[] digest = TrainingCacheRequestTrace.measure("admissionPayloadSha256",
+                () -> TransformationFingerprint.sha256(payload));
         if (storagePolicy.usesSegment(payload.length)) {
             if (segmentStore == null) throw new IllegalStateException("large values require a persistent cache");
             String name = segmentName(storageKey);
@@ -510,13 +518,17 @@ public final class TrainingCache implements AutoCloseable {
             metadata.putInt(SEGMENT_MAGIC).putInt(1).putInt(payload.length).put(digest);
             metadata.put(name.getBytes(StandardCharsets.US_ASCII));
             CRC32C crc = new CRC32C();
+            long crcStarted = TrainingCacheRequestTrace.start();
             crc.update(metadata.array(), 0, metadata.position());
             metadata.putInt((int) crc.getValue());
+            TrainingCacheRequestTrace.end("admissionCrc32c", crcStarted);
             return metadata.array();
         }
         ByteBuffer output = ByteBuffer.allocate(HEADER_BYTES + payload.length + 4).order(ByteOrder.BIG_ENDIAN);
         output.putInt(MAGIC).putInt(1).putInt(payload.length).put(digest).put(payload);
+        long crcStarted = TrainingCacheRequestTrace.start();
         CRC32C crc = new CRC32C(); crc.update(output.array(), 0, output.position()); output.putInt((int) crc.getValue());
+        TrainingCacheRequestTrace.end("admissionCrc32c", crcStarted);
         return output.array();
     }
 

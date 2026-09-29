@@ -81,6 +81,20 @@ def test_monai_pilot_is_separate_and_fixed(prepared):
     remote.validate_prepared(value)
 
 
+def test_population_diagnostic_has_no_training_and_separate_smoke(prepared):
+    remote.prepare(SimpleNamespace(user=None, mode="population", training_epochs=None, dataset_config=None,
+                                   scratch_root=None, dataset_source=None))
+    value = remote.config()
+    assert value["epochs"] is None and value["datasetConfig"] is None
+    assert value["pilotRepeats"] == 3 and value["prefetchDepth"] is None
+    notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
+    runner = "".join(notebook["cells"][1]["source"])
+    assert '"scripts/profile_population.py", "--smoke"' in runner
+    assert '"population-diagnostic"' in runner
+    compile(runner, "notebook", "exec")
+    remote.validate_prepared(value)
+
+
 def test_longitudinal_preparation(prepared):
     remote.prepare(SimpleNamespace(user=None, mode="longitudinal", training_epochs=None, dataset_config=None,
                                    scratch_root=None, dataset_source=None))

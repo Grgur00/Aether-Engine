@@ -1000,29 +1000,40 @@ final class PersistentAetherDatabase implements AetherDatabase {
                             new WriteResult(0, 0, 0, request.options.durabilityMode(), false);
                     continue;
                 }
+                long admissionStarted = FlushDiagnostics.writeStart();
                 long[] logicalBytes = FlushDiagnostics.current() == null ? null : new long[] {WalFormatV1.GROUP_HEADER_BYTES};
                 long required = requiredNativeBytes(request.batch, logicalBytes);
                 if (required > configuration.memtableBytes() - 256)
                     throw new IllegalArgumentException("batch cannot fit in one MemTable");
                 admitWrite(required, request.options, logicalBytes == null ? -1 : logicalBytes[0]);
+                FlushDiagnostics.writeEnd("writeAdmissionIncludingFlush", admissionStarted);
                 long first = Math.addExact(lastVisibleSequence, 1);
                 long last = Math.addExact(first, request.batch.operationCount() - 1L);
                 CrashPointRegistry.hit(
                         CrashPointIds.WRITE_AFTER_SEQUENCE_ALLOCATED,
                         writeSequenceCrashContext(first, last, request.batch.operationCount()));
+                long logicalStarted = FlushDiagnostics.writeStart();
                 byte[] logical = WalLogicalGroupCodec.encode(request.batch, first, last);
+                FlushDiagnostics.writeEnd("walLogicalEncode", logicalStarted);
                 long estimatedEnd = WalFormatV1.estimateEndOffset(wal.position(), logical.length);
                 if (estimatedEnd > configuration.walSegmentBytes())
                     flushActive(FlushCause.WAL_SEGMENT, required, logical.length);
                 int recordNumber = Math.incrementExact(walRecordNumber);
                 long walStartOffset = wal.position();
+                long fragmentStarted = FlushDiagnostics.writeStart();
                 byte[] physical = WalFragmentCodec.fragment(logical, walStartOffset, recordNumber);
+                FlushDiagnostics.writeEnd("walFragmentEncode", fragmentStarted);
                 request.batch.markSubmitted();
                 CrashContext walContext =
                         walCrashContext(
                                 recordNumber, walStartOffset, logical.length, physical.length);
                 CrashPointRegistry.hit(CrashPointIds.WAL_BEFORE_FRAGMENT_WRITE, walContext);
+                long appendStarted = FlushDiagnostics.writeStart();
                 writeFully(wal, ByteBuffer.wrap(physical));
+                FlushDiagnostics.writeEnd("walAppend", appendStarted);
+                FlushDiagnostics.writeCount("walPhysicalBytes", physical.length);
+                FlushDiagnostics.writeCount("walLogicalBytes", logical.length);
+                FlushDiagnostics.writeCount("operations", request.batch.operationCount());
                 CrashPointRegistry.hit(
                         CrashPointIds.WAL_AFTER_FRAGMENT_WRITE_BEFORE_FORCE,
                         walCrashContext(
@@ -1031,7 +1042,9 @@ final class PersistentAetherDatabase implements AetherDatabase {
                                 logical.length,
                                 physical.length));
                 walRecordNumber = recordNumber;
+                long memtableStarted = FlushDiagnostics.writeStart();
                 applyBatch(active, request.batch, first);
+                FlushDiagnostics.writeEnd("memtableApply", memtableStarted);
                 lastVisibleSequence = last;
                 prepared.add(new PreparedCommit(request, first, last));
                 forceRequested |=
@@ -1049,7 +1062,11 @@ final class PersistentAetherDatabase implements AetherDatabase {
         }
         boolean forced = false;
         if (backgroundFailure == null && forceRequested) {
+            // Attribute a shared force once, to the first request, never once per participant.
+            FlushDiagnostics.Collector forceTrace = FlushDiagnostics.attach(
+                    prepared.isEmpty() ? null : prepared.get(0).request.flushTrace);
             try {
+                FlushDiagnostics.writeCount("forceGroupParticipants", prepared.size());
                 forceWal();
                 CrashPointRegistry.hit(
                         CrashPointIds.WAL_AFTER_FORCE_BEFORE_VISIBILITY,
@@ -1057,6 +1074,8 @@ final class PersistentAetherDatabase implements AetherDatabase {
                 forced = true;
             } catch (Throwable failure) {
                 backgroundFailure = failure;
+            } finally {
+                FlushDiagnostics.attach(forceTrace);
             }
         }
         if (backgroundFailure != null) {
@@ -1112,7 +1131,10 @@ final class PersistentAetherDatabase implements AetherDatabase {
     }
 
     private void forceWal() throws IOException {
-        wal.force(false);
+        long started = FlushDiagnostics.writeStart();
+        try { wal.force(false); }
+        finally { FlushDiagnostics.writeEnd("walForce", started); }
+        FlushDiagnostics.writeCount("walForceCalls", 1);
         walForceCount++;
     }
 
