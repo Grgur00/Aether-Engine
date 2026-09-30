@@ -242,7 +242,9 @@ def prepare(args):
         shutil.copy2(baseline, source_dir / "baseline-source.zip")
         # Kaggle expands .zip uploads; opaque names preserve the exact two archives.
         shutil.copy2(source_dir / "aether-paper-artifact.zip", source_dir / "candidate-source.bin")
-        shutil.copy2(baseline, source_dir / "baseline-source.bin")
+        # Distinct bytes prevent Kaggle reusing its previously expanded ZIP blob.
+        (source_dir / "baseline-source.bin").write_bytes(b"AETHER-BASELINE-ARCHIVE-V1\n" + baseline.read_bytes())
+        value["bulkBaselineTransportSha256"] = hashlib.sha256((source_dir / "baseline-source.bin").read_bytes()).hexdigest()
     write(source_dir / "dataset-metadata.json", {"id": value["sourceDataset"], "title": "Aether Engine Source",
           "licenses": [{"name": "apache-2.0"}]})
     write(notebook_dir / "kernel-metadata.json", {"id": value["notebook"], "title": "Aether Engine VS Code",

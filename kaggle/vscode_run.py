@@ -130,7 +130,7 @@ try:
     command = [python, "scripts/reproduce.py", REMOTE_CONFIG["mode"], "--output", str(results)]
     if REMOTE_CONFIG["mode"] == "population-verification":
         baseline_archives = list(source.rglob("baseline-source.bin"))
-        if len(baseline_archives) != 1 or hashlib.sha256(baseline_archives[0].read_bytes()).hexdigest() != REMOTE_CONFIG["bulkBaselineSha256"]:
+        if len(baseline_archives) != 1 or hashlib.sha256(baseline_archives[0].read_bytes()).hexdigest() != REMOTE_CONFIG["bulkBaselineTransportSha256"]:
             raise ValueError("attached baseline differs from the frozen comparison")
         baseline_repo.mkdir(parents=True, exist_ok=False)
         baseline_created = True

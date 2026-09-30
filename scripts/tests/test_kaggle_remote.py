@@ -89,7 +89,9 @@ def test_verification_prepares_two_bound_snapshots(prepared):
     assert value["bulkBaselineSha256"] == hashlib.sha256(baseline.read_bytes()).hexdigest()
     assert value["epochs"] is None and value["pilotRepeats"] == 3 and not value["serverTrace"]
     assert (prepared / "source/candidate-source.bin").read_bytes() == (prepared / "source/aether-paper-artifact.zip").read_bytes()
-    assert (prepared / "source/baseline-source.bin").read_bytes() == baseline.read_bytes()
+    assert (prepared / "source/baseline-source.bin").read_bytes() == b"AETHER-BASELINE-ARCHIVE-V1\n" + baseline.read_bytes()
+    with zipfile.ZipFile(prepared / "source/baseline-source.bin") as archive:
+        assert archive.read("fixture") == b"before"
     remote.validate_prepared(value)
     notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
     runner = "".join(notebook["cells"][1]["source"])
