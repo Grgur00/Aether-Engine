@@ -68,6 +68,35 @@ def test_prepared_notebook_private_and_executable(prepared):
     assert "shutil.rmtree(results)" in runner
 
 
+@pytest.mark.parametrize("expected", ["frozen", "wrong"])
+def test_baseline_validation_uses_child_python_path(tmp_path, monkeypatch, expected):
+    import ast
+    import subprocess
+    source = ast.parse((remote.ROOT / "kaggle/vscode_run.py").read_text())
+    function = next(node for node in source.body if isinstance(node, ast.FunctionDef)
+                    and node.name == "validate_bulk_baseline")
+    scripts = tmp_path / "isolated-scripts"
+    scripts.mkdir()
+    (scripts / "profile_bulk_verification.py").write_text(
+        "def baseline_identity(root):\n    return {'sourceManifestSha256': 'frozen'}\n")
+    monkeypatch.setenv("PYTHONPATH", str(scripts))
+    calls = []
+    def logged(command, *, cwd):
+        assert command[0] == sys.executable
+        calls.append(command)
+        subprocess.run(command, cwd=cwd, check=True, capture_output=True, text=True)
+    namespace = dict(run_logged=logged, repo=tmp_path, baseline_repo=tmp_path / "baseline",
+                     REMOTE_CONFIG={"bulkBaselineManifestSha256": expected})
+    exec(compile(ast.Module(body=[function], type_ignores=[]), "baseline", "exec"), namespace)
+    if expected == "wrong":
+        with pytest.raises(subprocess.CalledProcessError) as error:
+            namespace["validate_bulk_baseline"](sys.executable)
+        assert "baseline provenance mismatch" in error.value.stderr
+    else:
+        namespace["validate_bulk_baseline"](sys.executable)
+    assert len(calls) == 1
+
+
 def verification_args(baseline=None):
     return SimpleNamespace(user=None, mode="population-verification", training_epochs=None,
                            dataset_config=None, scratch_root=None, dataset_source=None, bulk_baseline=baseline)

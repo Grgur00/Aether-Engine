@@ -36,6 +36,17 @@ def run_restart_correctness(python):
                 "--junitxml", str(results / "restart-correctness.xml")], cwd=repo)
 
 
+def validate_bulk_baseline(python):
+    # PYTHONPATH and the prepared dependencies apply to children, not this kernel.
+    run_logged([python, "-c",
+                "import sys; from profile_bulk_verification import baseline_identity; "
+                "identity = baseline_identity(sys.argv[1]); "
+                "expected = sys.argv[2]; "
+                "actual = identity['sourceManifestSha256']; "
+                "sys.exit('baseline provenance mismatch: ' + actual) if actual != expected else None",
+                str(baseline_repo), REMOTE_CONFIG["bulkBaselineManifestSha256"]], cwd=repo)
+
+
 def run_bulk_verification_gates(python):
     modules = ("sstable", "wal", "io", "memtable", "lsm", "engine", "training-cache")
     try:
@@ -139,9 +150,7 @@ try:
                 if not (baseline_repo / member.filename).resolve().is_relative_to(baseline_repo):
                     raise ValueError("baseline archive path escapes repository")
             archive.extractall(baseline_repo)
-        from profile_bulk_verification import baseline_identity
-        if baseline_identity(baseline_repo)["sourceManifestSha256"] != REMOTE_CONFIG["bulkBaselineManifestSha256"]:
-            raise ValueError("baseline provenance mismatch")
+        validate_bulk_baseline(python)
         run_bulk_verification_gates(python)
         run_logged(["bash", "gradlew", "--no-daemon",
                     ":modules:aether-training-cache:paperRuntimeClasspath"], cwd=baseline_repo)
