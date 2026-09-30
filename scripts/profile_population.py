@@ -425,7 +425,7 @@ def main(argv=None):
             traceCaveat="bulk stage instrumentation enabled equally for all sizes; online request tracing off",
             evolutionScope="post-population regression only; never included in V0 timing",
             targetSstableBytes=[32 * 1024 ** 2, 64 * 1024 ** 2, 128 * 1024 ** 2],
-            partitioning="unchanged v1 threshold, no balancing yet", verification="unchanged serial, both existing validations retained",
+            partitioning="unchanged v1 threshold, no balancing yet", verification="bulk-deferred-inventory-v2; one full inventory verification before manifest append",
             admission="unchanged v1", framing="unchanged v1 batch 16",
             orderDesign="cyclic balanced order, one position per size in three repetitions",
             updateManifestSha256=manifests["manifestSha256"][1], updateReferenceHash=update_reference,

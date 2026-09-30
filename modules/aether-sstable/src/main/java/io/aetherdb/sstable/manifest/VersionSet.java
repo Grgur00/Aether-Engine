@@ -341,9 +341,12 @@ public final class VersionSet implements AutoCloseable {
         Version candidate = current.apply(delta);
         timings.put("candidateNs", System.nanoTime() - started);
         started = System.nanoTime();
+        CrashPointRegistry.hit("bulk.before_verification");
+        io.aetherdb.sstable.SSTableVerificationTrace.inventoryCall();
         try (var phase = BulkPhaseEvent.start("SSTABLE_VERIFY", 0, 0, -1)) {
             verifyInventory(root, databaseId, delta.additions());
         }
+        CrashPointRegistry.hit("bulk.after_verification");
         timings.put("inventoryVerificationNs", System.nanoTime() - started);
         started = System.nanoTime();
         byte[] record;

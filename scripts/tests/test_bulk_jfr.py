@@ -43,6 +43,10 @@ def test_real_jfr_pipe_preserves_protocol_and_contains_coarse_events(tmp_path):
     phases = [e["values"]["phase"] for e in events if e["type"] == "aether.BulkPhase"]
     assert phases.count("INTEGRITY") == 2
     assert phases.count("REQUEST_DECODE") == 2
+    assert phases.count("SSTABLE_VERIFY") == 1
+    verification = receipt["storage"]["verification"]
+    assert verification["inventoryCalls"] == 1
+    assert verification["tablesFullyVerified"] == receipt["storage"]["tables"]
     assert {"SSTABLE_FORCE", "SSTABLE_VERIFY", "MANIFEST_FORCE", "QUIESCE"} <= set(phases)
     reports = [dict(samples=17, timingsMs=dict(population=100)) for _ in range(3)]
     analysis = analyze(path, tmp_path, reports)

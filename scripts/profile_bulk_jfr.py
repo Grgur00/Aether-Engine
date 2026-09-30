@@ -1,4 +1,4 @@
-"""Fixed 32 MiB bulk control/profile/control; no optimization or benchmark claim."""
+"""Fixed 32 MiB bulk control/profile/control; diagnostic only, never an automatic optimization gate."""
 import argparse
 import json
 from pathlib import Path
@@ -28,12 +28,13 @@ def run(output, manifest, samples=1200, scratch_root=None, smoke=False):
     args = workload_args(manifest, samples, 256)
     sources = base.workload.load_sources(args)
     reference = base.tensor_digest(base.CanonicalTransform(args)(s) for s in sources)
-    protocol = dict(schema="aether-bulk-population-jfr-v1", role="smoke diagnostic" if smoke else "diagnostic",
+    protocol = dict(schema="aether-bulk-population-jfr-v2", role="smoke diagnostic" if smoke else "diagnostic",
         samples=samples, bulkSstableMiB=32, putBatch=16, training=False, serverTrace=False,
         jfrSettings="profile", stackDepth=256, sequence=["control-before", "jfr-run", "control-after"],
         referenceHash=reference, manifestSha256=sha256(manifest),
         targetProcess="offline BulkArtifactWriter JVM; normal restart reader is not profiled",
-        optimizations=False, scope="V0 only; population includes finish/quiescence; verification readback outside timer")
+        verificationPolicy="bulk-deferred-inventory-v2",
+        scope="V0 only; population includes finish/quiescence; verification readback outside timer")
     scratch_root = Path(scratch_root or ROOT / "build/bulk-jfr-stores").resolve()
     scratch_root.mkdir(parents=True, exist_ok=True)
     reports = []

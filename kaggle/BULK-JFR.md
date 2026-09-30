@@ -3,7 +3,9 @@
 Run mode: `population-jfr`. Fixed V0 1,200 samples, 32 MiB SSTable target,
 publication batch 16, no training, no update, no other cache backends, no server
 tracing. Three fresh processes/stores execute control-before, JFR, control-after.
-Only the middle process records. No optimization or benchmark claim is made.
+Only the middle process records. No benchmark claim is made. For the v2 source,
+run the [unprofiled Phase-1 comparison](BULK-VERIFICATION-V2.md) first; do not launch
+the follow-up remote JFR until its timing and correctness gates pass.
 
 The actual population process is `BulkArtifactWriter`, an offline stdin-pipe JVM.
 Starting the regular TCP daemon with JFR would profile the wrong process. The
@@ -26,8 +28,11 @@ install, and final synchronous cleanup/directory barrier (`QUIESCE`). There is n
 asynchronous bulk queue. Admission events are one per batch, not per artifact;
 INTEGRITY includes SHA, ownership/envelope copies, CRC and sorted-map admission.
 Existing separate nanosecond counters remain available for attribution.
-SSTABLE_BUILD is inclusive of the builder's force/verification markers. All three
-existing table verification passes remain. Do not sum nested event durations.
+SSTABLE_BUILD is inclusive of the builder's force marker. The original v1 recording
+had three verification passes; Bulk Verification v2 retains only the authoritative
+inventory verification before manifest append. New recordings use the v2 protocol
+and include the policy identity. Do not sum nested event durations or relabel old
+recordings as measurements of the changed implementation.
 
 The shared phase type resides in the SSTable module to avoid an engine-to-training
 cache dependency cycle. The population type lives in training-cache/jfr. Events

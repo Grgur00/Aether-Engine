@@ -23,6 +23,15 @@ class EmptyStoreBulkLoaderTest {
             assertEquals(3, receipt.get("tables"));
             assertEquals(0, receipt.get("walPayloadBytes"));
             assertEquals(0, receipt.get("memtableInsertions"));
+            var verification = (Map<?, ?>) receipt.get("verification");
+            assertEquals(1L, verification.get("inventoryCalls"));
+            assertEquals(3L, verification.get("tablesFullyVerified"));
+            try (var files = Files.list(temp)) {
+                long bytes = 0;
+                for (Path file : files.filter(p -> p.toString().endsWith(".aess")).toList()) bytes += Files.size(file);
+                assertEquals(bytes, verification.get("bytesFullyVerified"));
+            }
+            assertEquals("bulk-deferred-inventory-v2", receipt.get("verificationPolicy"));
             assertThrows(IllegalStateException.class, bulk::finish);
         }
         try (var db = Aether.open(temp, config)) {
@@ -116,5 +125,41 @@ class EmptyStoreBulkLoaderTest {
             })) { assertThrows(java.io.IOException.class, bulk::finish); }
         }
         try (var db = Aether.open(temp, config)) { assertFalse(db.get(new byte[] {1}).isFound()); }
+    }
+
+    @Test void finalInventoryRejectsContentCorruptionAndTruncationWithoutManifestAppend() throws Exception {
+        for (boolean truncate : new boolean[] {false, true}) {
+            Path root = temp.resolve(truncate ? "truncated" : "content");
+            try (var bulk = new EmptyStoreBulkLoader(root, config, 1024, 8)) {
+                for (int i = 0; i < 10; i++) bulk.add(new byte[] {(byte) i}, new byte[] {99});
+                Path manifest;
+                try (var files = Files.list(root)) {
+                    manifest = files.filter(p -> p.getFileName().toString().startsWith("MANIFEST-"))
+                            .findFirst().orElseThrow();
+                }
+                byte[] before = Files.readAllBytes(manifest);
+                var corrupted = new java.util.concurrent.atomic.AtomicBoolean();
+                try (var fault = CrashPointRegistry.install((id, context) -> {
+                    if (!id.equals("bulk.before_verification")) return;
+                    try (var files = Files.list(root)) {
+                        var tables = files.filter(p -> p.toString().endsWith(".aess")).sorted().toList();
+                        assertEquals(3, tables.size());
+                        Path last = tables.get(tables.size() - 1);
+                        byte[] bytes = Files.readAllBytes(last);
+                        if (truncate) bytes = java.util.Arrays.copyOf(bytes, bytes.length - 1);
+                        else bytes[io.aetherdb.sstable.SSTableHeaderV1.HEADER_REGION_BYTES + 8] ^= 1;
+                        Files.write(last, bytes);
+                        corrupted.set(true);
+                    } catch (java.io.IOException error) { throw new RuntimeException(error); }
+                })) {
+                    assertThrows(java.io.IOException.class, bulk::finish);
+                }
+                assertTrue(corrupted.get(), "fault must run after all deferred tables were built");
+                assertArrayEquals(before, Files.readAllBytes(manifest), "no failed inventory may append a manifest edit");
+            }
+            try (var db = Aether.open(root, config)) {
+                for (int i = 0; i < 10; i++) assertFalse(db.get(new byte[] {(byte) i}).isFound());
+            }
+        }
     }
 }

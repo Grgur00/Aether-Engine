@@ -68,6 +68,81 @@ def test_prepared_notebook_private_and_executable(prepared):
     assert "shutil.rmtree(results)" in runner
 
 
+def verification_args(baseline=None):
+    return SimpleNamespace(user=None, mode="population-verification", training_epochs=None,
+                           dataset_config=None, scratch_root=None, dataset_source=None, bulk_baseline=baseline)
+
+
+def test_verification_requires_frozen_baseline(prepared):
+    with pytest.raises(ValueError, match="requires --bulk-baseline"):
+        remote.prepare(verification_args())
+
+
+def test_verification_prepares_two_bound_snapshots(prepared):
+    baseline = prepared / "baseline.zip"
+    provenance = {"sourceClean": False, "files": {"fixture": hashlib.sha256(b"before").hexdigest()}}
+    with zipfile.ZipFile(baseline, "w") as archive:
+        archive.writestr("artifact-provenance.json", json.dumps(provenance))
+        archive.writestr("fixture", b"before")
+    remote.prepare(verification_args(baseline))
+    value = remote.config()
+    assert value["bulkBaselineSha256"] == hashlib.sha256(baseline.read_bytes()).hexdigest()
+    assert value["epochs"] is None and value["pilotRepeats"] == 3 and not value["serverTrace"]
+    remote.validate_prepared(value)
+    notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
+    runner = "".join(notebook["cells"][1]["source"])
+    compile(runner, "notebook", "exec")
+    assert 'run_bulk_verification_gates(python)' in runner
+    assert '"scripts/profile_bulk_verification.py", "--baseline-root"' in runner
+    (prepared / "source/baseline-source.zip").write_bytes(b"changed")
+    with pytest.raises(ValueError, match="Prepared files changed"):
+        remote.validate_prepared(value)
+
+
+@pytest.mark.parametrize("name,contents", [("fixture", b"corrupt"), ("../escape", b"before")])
+def test_verification_rejects_bad_baseline(prepared, name, contents):
+    baseline = prepared / "baseline.zip"
+    with zipfile.ZipFile(baseline, "w") as archive:
+        archive.writestr("artifact-provenance.json", json.dumps({"files": {name: hashlib.sha256(b"before").hexdigest()}}))
+        archive.writestr(name, contents)
+    with pytest.raises(ValueError, match="baseline"):
+        remote.prepare(verification_args(baseline))
+
+
+@pytest.mark.parametrize("failure", [False, True])
+def test_bulk_storage_gate_preserves_reports_and_stops_on_failure(tmp_path, failure):
+    import ast
+    import os
+    import shutil
+    import subprocess
+    body = ast.parse((remote.ROOT / "kaggle/vscode_run.py").read_text())
+    function = next(node for node in body.body if isinstance(node, ast.FunctionDef)
+                    and node.name == "run_bulk_verification_gates")
+    repo, results = tmp_path / "repo", tmp_path / "results"
+    report = repo / "modules/aether-engine/build/test-results/test/TEST-fixture.xml"
+    report.parent.mkdir(parents=True)
+    report.write_text("<testsuite/>")
+    commands = []
+    def logged(command, *, cwd):
+        assert cwd == repo
+        commands.append(command)
+        if failure:
+            raise subprocess.CalledProcessError(1, command)
+    namespace = dict(repo=repo, results=results, run_logged=logged, shutil=shutil,
+                     os=SimpleNamespace(environ={}))
+    exec(compile(ast.Module(body=[function], type_ignores=[]), "gate", "exec"), namespace)
+    if failure:
+        with pytest.raises(subprocess.CalledProcessError):
+            namespace["run_bulk_verification_gates"]("python")
+        assert len(commands) == 1
+    else:
+        namespace["run_bulk_verification_gates"]("python")
+        assert len(commands) == 2
+        assert "scripts/tests/test_bulk_population.py" in commands[1]
+        assert namespace["os"].environ["AETHER_JAVA_TEST"] == "1"
+    assert (results / "storage-tests/engine/TEST-fixture.xml").read_text() == "<testsuite/>"
+
+
 def test_monai_pilot_is_separate_and_fixed(prepared):
     remote.prepare(SimpleNamespace(user=None, mode="monai", training_epochs=None, dataset_config=None,
                                    scratch_root=None, dataset_source=None, epochs=20, prefetch_depth=0))

@@ -31,6 +31,11 @@ def test_bulk_population_reopens_with_ordinary_reader(tmp_path, monkeypatch):
     assert report["restartValidation"]["passed"]
     assert report["bulkCommit"]["storage"]["walPayloadBytes"] == 0
     assert report["bulkCommit"]["storage"]["memtableInsertions"] == 0
+    verification = report["bulkCommit"]["storage"]["verification"]
+    assert verification["inventoryCalls"] == 1
+    assert verification["tablesFullyVerified"] == report["bulkCommit"]["storage"]["tables"]
+    assert verification["bytesFullyVerified"] == sum(
+        table["bytes"] for table in report["bulkCommit"]["storage"]["sstableFinishes"])
     assert report["preprocessCalls"] == report["uniqueArtifacts"] == report["bulkCommit"]["sha256Calls"] == 5
     assert report["model"] is None and report["trainingSampleRequests"] == 0
     assert report["totalMs"] == sum(report["timingsMs"].values())

@@ -322,6 +322,7 @@ public final class SSTableReader implements AutoCloseable {
                         expected.smallestInternalKey())
                 || !Arrays.equals(previous, expected.largestInternalKey()))
             throw corrupt("observed table content disagrees with metadata");
+        SSTableVerificationTrace.verified(fileSize);
     }
 
     /**

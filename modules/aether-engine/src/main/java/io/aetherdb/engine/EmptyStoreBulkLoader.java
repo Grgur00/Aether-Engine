@@ -8,7 +8,8 @@ import io.aetherdb.reliability.CrashPointRegistry;
 import io.aetherdb.sstable.InternalKey;
 import io.aetherdb.sstable.SSTableBuilder;
 import io.aetherdb.sstable.SSTableFinishTrace;
-import io.aetherdb.sstable.SSTableReader;
+import io.aetherdb.sstable.BulkInstallSupport;
+import io.aetherdb.sstable.SSTableVerificationTrace;
 import io.aetherdb.sstable.jfr.BulkPhaseEvent;
 import io.aetherdb.sstable.manifest.ManifestEdit;
 import io.aetherdb.sstable.manifest.ManifestFileMetadata;
@@ -111,7 +112,7 @@ public final class EmptyStoreBulkLoader implements AutoCloseable {
         long nextFile = versions.current().nextFileNumber();
         long sequence = 0;
         var iterator = entries.entrySet().iterator();
-        try {
+        try (var verification = SSTableVerificationTrace.begin()) {
             while (iterator.hasNext()) {
                 long file = nextFile++;
                 String name = VersionSet.sstableName(file);
@@ -130,7 +131,7 @@ public final class EmptyStoreBulkLoader implements AutoCloseable {
                 var trace = new SSTableFinishTrace(true);
                 io.aetherdb.sstable.TableFileMetadata built;
                 try (var phase = BulkPhaseEvent.start("SSTABLE_BUILD", 0, bytes, additions.size())) {
-                    built = builder.finish(trace);
+                    built = BulkInstallSupport.finishUnpublished(versions, builder, trace);
                 }
                 CrashPointRegistry.hit("bulk.after_table_force");
                 try (var phase = BulkPhaseEvent.start("SSTABLE_RENAME", built.entryCount(), built.fileSize(), additions.size())) {
@@ -139,19 +140,12 @@ public final class EmptyStoreBulkLoader implements AutoCloseable {
                 CrashPointRegistry.hit("bulk.after_table_rename");
                 var metadata = new ManifestFileMetadata(file, 1, built.fileSize(), built.entryCount(),
                         built.smallestSequence(), built.largestSequence(), built.smallestInternalKey(), built.largestInternalKey());
-                long verificationStarted = System.nanoTime();
-                CrashPointRegistry.hit("bulk.before_verification");
-                try (var phase = BulkPhaseEvent.start("SSTABLE_VERIFY", built.entryCount(), built.fileSize(), additions.size())) {
-                    SSTableReader.open(target, databaseId, metadata).close();
-                }
-                timings.merge("verificationNs", System.nanoTime() - verificationStarted, Long::sum);
-                CrashPointRegistry.hit("bulk.after_verification");
                 additions.add(metadata);
                 tableTimings.add(Map.of("file", file, "bytes", built.fileSize(), "entries", built.entryCount(),
                         "totalNs", trace.totalNs(), "stagesNs", trace.stagesNs()));
                 CrashPointRegistry.hit("bulk.after_table");
             }
-            timings.put("sstableBuildFinishRenameVerify", System.nanoTime() - started);
+            timings.put("sstableBuildFinishRename", System.nanoTime() - started);
             started = System.nanoTime();
             long oldWal = versions.current().minimumWalFileNumber();
             long newWal = Math.addExact(oldWal, 1);
@@ -184,6 +178,8 @@ public final class EmptyStoreBulkLoader implements AutoCloseable {
             result.put("targetSstableBytes", tableBytes);
             result.put("peakBufferedBytes", bufferedBytes);
             result.put("manifest", manifestTimings);
+            result.put("verification", verification.snapshot());
+            result.put("verificationPolicy", "bulk-deferred-inventory-v2");
             result.put("manifestProtocol", "existing append-only forced record; temp write/rename/directory force not applicable to this edit; directory barriers recorded separately");
             return result;
         } catch (Throwable error) {

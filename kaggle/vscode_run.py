@@ -36,6 +36,24 @@ def run_restart_correctness(python):
                 "--junitxml", str(results / "restart-correctness.xml")], cwd=repo)
 
 
+def run_bulk_verification_gates(python):
+    modules = ("sstable", "wal", "io", "memtable", "lsm", "engine", "training-cache")
+    try:
+        run_logged(["bash", "gradlew", "--no-daemon", "--continue",
+                    *[f":modules:aether-{name}:test" for name in modules]], cwd=repo)
+    finally:
+        for name in modules:
+            for report in (repo / f"modules/aether-{name}/build/test-results/test").glob("*.xml"):
+                destination = results / "storage-tests" / name / report.name
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(report, destination)
+    os.environ["AETHER_JAVA_TEST"] = "1"
+    run_logged([python, "-m", "pytest", "scripts/tests/test_bulk_population.py",
+                "scripts/tests/test_bulk_verification.py", "-q",
+                "--basetemp", str(repo / "build/bulk-verification-correctness"),
+                "--junitxml", str(results / "bulk-correctness.xml")], cwd=repo)
+
+
 def prepare_evolution_data(python, config_path):
     configuration = json.loads(config_path.read_text(encoding="utf-8"))
     for name, spec in configuration.items():
@@ -60,6 +78,8 @@ venv = Path("/kaggle/working/aether-paper-venv")
 runtime_path = Path("/kaggle/working/aether-paper-runtime.json")
 results.mkdir(parents=True, exist_ok=False)
 repo_created = False
+baseline_repo = Path("/kaggle/working/Aether-Bulk-Baseline")
+baseline_created = False
 venv_existed = venv.exists()
 status = {"status": "running", "config": REMOTE_CONFIG}
 try:
@@ -98,13 +118,32 @@ try:
     python = "/kaggle/working/aether-paper-venv/bin/python"
     if REMOTE_CONFIG["mode"] == "all":
         run_logged([python, "-m", "pip", "install", "-r", "env/requirements-dali.lock"], cwd=repo)
-    if REMOTE_CONFIG["mode"] in {"monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout", "population-jfr"}:
+    if REMOTE_CONFIG["mode"] in {"monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout", "population-jfr", "population-verification"}:
         run_logged([python, "-m", "pip", "install", "--no-deps", "-r", "env/requirements-monai.lock"], cwd=repo)
-    if REMOTE_CONFIG["mode"] not in {"population", "population-bulk", "population-layout", "population-jfr"}:
+    if REMOTE_CONFIG["mode"] not in {"population", "population-bulk", "population-layout", "population-jfr", "population-verification"}:
         run_logged([python, "scripts/validate_gpu.py"], cwd=repo)
     if REMOTE_CONFIG["mode"] in {"pilot", "primary", "monai"} and REMOTE_CONFIG.get("datasetConfig"):
         prepare_evolution_data(python, repo / REMOTE_CONFIG["datasetConfig"])
     command = [python, "scripts/reproduce.py", REMOTE_CONFIG["mode"], "--output", str(results)]
+    if REMOTE_CONFIG["mode"] == "population-verification":
+        baseline_archives = list(source.rglob("baseline-source.zip"))
+        if len(baseline_archives) != 1 or hashlib.sha256(baseline_archives[0].read_bytes()).hexdigest() != REMOTE_CONFIG["bulkBaselineSha256"]:
+            raise ValueError("attached baseline differs from the frozen comparison")
+        baseline_repo.mkdir(parents=True, exist_ok=False)
+        baseline_created = True
+        with zipfile.ZipFile(baseline_archives[0]) as archive:
+            for member in archive.infolist():
+                if not (baseline_repo / member.filename).resolve().is_relative_to(baseline_repo):
+                    raise ValueError("baseline archive path escapes repository")
+            archive.extractall(baseline_repo)
+        from profile_bulk_verification import baseline_identity
+        if baseline_identity(baseline_repo)["sourceManifestSha256"] != REMOTE_CONFIG["bulkBaselineManifestSha256"]:
+            raise ValueError("baseline provenance mismatch")
+        run_bulk_verification_gates(python)
+        run_logged(["bash", "gradlew", "--no-daemon",
+                    ":modules:aether-training-cache:paperRuntimeClasspath"], cwd=baseline_repo)
+        command = [python, "scripts/profile_bulk_verification.py", "--baseline-root", str(baseline_repo),
+                   "--repetitions", "3", "--output", str(results / "population-verification")]
     if REMOTE_CONFIG["mode"] == "population-jfr":
         command = [python, "scripts/profile_bulk_jfr.py", "--output", str(results / "population-jfr")]
     if REMOTE_CONFIG["mode"] == "monai":
@@ -167,6 +206,8 @@ finally:
     shutil.rmtree(results)
     if repo_created:
         shutil.rmtree(repo)
+    if baseline_created:
+        shutil.rmtree(baseline_repo)
     if not venv_existed and venv.exists():
         shutil.rmtree(venv)
     runtime_path.unlink(missing_ok=True)

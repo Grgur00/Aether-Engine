@@ -1,5 +1,9 @@
 # Bulk Population v2: Staged Diagnostics
 
+Historical layout protocol: its original source retained three verification passes.
+The current source now has a separately gated [Bulk Verification v2 Phase 1](BULK-VERIFICATION-V2.md).
+Do not relabel the earlier layout receipts or use their timing as a fresh control.
+
 Status: first-stage layout diagnostic only. Not a completed v2 optimization or a
 longitudinal/confirmatory result. Previous v1 artifacts and defaults are preserved.
 
