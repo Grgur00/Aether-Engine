@@ -181,12 +181,22 @@ def test_bulk_storage_gate_preserves_reports_and_stops_on_failure(tmp_path, fail
     report = repo / "modules/aether-engine/build/test-results/test/TEST-fixture.xml"
     report.parent.mkdir(parents=True)
     report.write_text("<testsuite/>")
+    assert not (repo / "build").exists()
+    fixtures = repo / "scripts/tests"
+    fixtures.mkdir(parents=True)
+    for name in ("test_bulk_population.py", "test_bulk_verification.py"):
+        (fixtures / name).write_text("def test_fresh_temp(tmp_path):\n    assert tmp_path.is_dir()\n")
     commands = []
     def logged(command, *, cwd):
         assert cwd == repo
         commands.append(command)
         if failure:
             raise subprocess.CalledProcessError(1, command)
+        if command[0] == "python":
+            assert (repo / "build").is_dir()
+            subprocess.run([sys.executable, *command[1:]], cwd=cwd, check=True,
+                           capture_output=True, text=True,
+                           env={**os.environ, "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"})
     namespace = dict(repo=repo, results=results, run_logged=logged, shutil=shutil,
                      os=SimpleNamespace(environ={}))
     exec(compile(ast.Module(body=[function], type_ignores=[]), "gate", "exec"), namespace)

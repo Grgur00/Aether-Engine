@@ -59,9 +59,11 @@ def run_bulk_verification_gates(python):
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(report, destination)
     os.environ["AETHER_JAVA_TEST"] = "1"
+    basetemp = repo / "build/bulk-verification-correctness"
+    basetemp.parent.mkdir(parents=True, exist_ok=True)
     run_logged([python, "-m", "pytest", "scripts/tests/test_bulk_population.py",
                 "scripts/tests/test_bulk_verification.py", "-q",
-                "--basetemp", str(repo / "build/bulk-verification-correctness"),
+                "--basetemp", str(basetemp),
                 "--junitxml", str(results / "bulk-correctness.xml")], cwd=repo)
 
 
