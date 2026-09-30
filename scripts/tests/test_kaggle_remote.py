@@ -88,6 +88,8 @@ def test_verification_prepares_two_bound_snapshots(prepared):
     value = remote.config()
     assert value["bulkBaselineSha256"] == hashlib.sha256(baseline.read_bytes()).hexdigest()
     assert value["epochs"] is None and value["pilotRepeats"] == 3 and not value["serverTrace"]
+    assert (prepared / "source/candidate-source.bin").read_bytes() == (prepared / "source/aether-paper-artifact.zip").read_bytes()
+    assert (prepared / "source/baseline-source.bin").read_bytes() == baseline.read_bytes()
     remote.validate_prepared(value)
     notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
     runner = "".join(notebook["cells"][1]["source"])
@@ -107,6 +109,32 @@ def test_verification_rejects_bad_baseline(prepared, name, contents):
         archive.writestr(name, contents)
     with pytest.raises(ValueError, match="baseline"):
         remote.prepare(verification_args(baseline))
+
+
+@pytest.mark.parametrize("mismatch", [False, True])
+def test_submission_pins_only_byte_verified_archives(prepared, monkeypatch, mismatch):
+    from pathlib import Path
+    import shutil
+    for name in ("candidate-source.bin", "baseline-source.bin"):
+        (prepared / "source" / name).write_bytes(name.encode())
+    value = remote.config()
+    def cli(*args, **kwargs):
+        if args[:2] == ("datasets", "status"):
+            return json.dumps({"status": "ready", "current_version_number": 41})
+        assert args[:3] == ("datasets", "download", value["sourceDataset"] + "/41")
+        name, destination = args[4], Path(args[6])
+        shutil.copy2(prepared / "source" / name, destination / name)
+        if mismatch:
+            (destination / name).write_bytes(b"wrong version")
+    monkeypatch.setattr(remote, "cli", cli)
+    if mismatch:
+        with pytest.raises(ValueError, match="Remote source mismatch"):
+            remote.verified_submission(value)
+    else:
+        notebook = remote.verified_submission(value)
+        metadata = json.loads((notebook / "kernel-metadata.json").read_text())
+        assert metadata["dataset_sources"][0] == value["sourceDataset"] + "/41"
+        assert (notebook / "aether.ipynb").read_bytes() == (prepared / "notebook/aether.ipynb").read_bytes()
 
 
 @pytest.mark.parametrize("failure", [False, True])

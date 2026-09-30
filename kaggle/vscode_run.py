@@ -86,7 +86,9 @@ try:
     source = Path("/kaggle/input") / REMOTE_CONFIG["sourceDataset"].split("/")[1]
     repo.mkdir(parents=True, exist_ok=False)
     repo_created = True
-    archives = list(source.rglob("aether-paper-artifact.zip"))
+    archives = list(source.rglob("candidate-source.bin")) if REMOTE_CONFIG["mode"] == "population-verification" else list(source.rglob("aether-paper-artifact.zip"))
+    if REMOTE_CONFIG["mode"] == "population-verification" and len(archives) != 1:
+        raise ValueError("attached source has no unique opaque candidate archive")
     if archives:
         if len(archives) != 1:
             raise ValueError("ambiguous source archive")
@@ -101,8 +103,9 @@ try:
             raise ValueError("source dataset has no unique artifact manifest")
         shutil.copytree(manifests[0].parent, repo, dirs_exist_ok=True)
     manifest_path = repo / "artifact-provenance.json"
-    if hashlib.sha256(manifest_path.read_bytes()).hexdigest() != REMOTE_CONFIG["sourceManifestSha256"]:
-        raise ValueError("attached source dataset differs from the locally prepared notebook")
+    actual_manifest = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+    if actual_manifest != REMOTE_CONFIG["sourceManifestSha256"]:
+        raise ValueError(f"attached source dataset differs from the locally prepared notebook: expected {REMOTE_CONFIG['sourceManifestSha256']}, actual {actual_manifest}")
     manifest = json.loads(manifest_path.read_text())
     if not manifest.get("files"):
         raise ValueError("empty source manifest")
@@ -126,7 +129,7 @@ try:
         prepare_evolution_data(python, repo / REMOTE_CONFIG["datasetConfig"])
     command = [python, "scripts/reproduce.py", REMOTE_CONFIG["mode"], "--output", str(results)]
     if REMOTE_CONFIG["mode"] == "population-verification":
-        baseline_archives = list(source.rglob("baseline-source.zip"))
+        baseline_archives = list(source.rglob("baseline-source.bin"))
         if len(baseline_archives) != 1 or hashlib.sha256(baseline_archives[0].read_bytes()).hexdigest() != REMOTE_CONFIG["bulkBaselineSha256"]:
             raise ValueError("attached baseline differs from the frozen comparison")
         baseline_repo.mkdir(parents=True, exist_ok=False)

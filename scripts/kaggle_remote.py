@@ -7,6 +7,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import zipfile
 from pathlib import Path
 
@@ -50,6 +51,31 @@ def write(path, value):
     path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
 
 
+def verified_submission(value):
+    """Bind this submission to downloaded, byte-verified source archives."""
+    state = json.loads(cli("datasets", "status", value["sourceDataset"],
+                           "--format", "json(status,current_version_number)", capture=True))
+    version = state.get("current_version_number")
+    if state.get("status") != "ready" or type(version) is not int or version < 1:
+        raise ValueError("Source dataset has no ready version to pin")
+    pinned = f"{value['sourceDataset']}/{version}"
+    destination = Path(tempfile.mkdtemp(prefix="submission-", dir=WORK))
+    for name in ("candidate-source.bin", "baseline-source.bin"):
+        cli("datasets", "download", pinned, "-f", name, "-p", destination)
+        downloaded = destination / name
+        if not downloaded.is_file() or hashlib.sha256(downloaded.read_bytes()).digest() != hashlib.sha256((WORK / "source" / name).read_bytes()).digest():
+            raise ValueError(f"Remote source mismatch: {pinned}/{name}; no notebook submitted")
+    notebook = destination / "notebook"
+    shutil.copytree(WORK / "notebook", notebook)
+    metadata = json.loads((notebook / "kernel-metadata.json").read_text())
+    metadata["dataset_sources"] = [pinned, *value["datasetSources"]]
+    write(notebook / "kernel-metadata.json", metadata)
+    write(destination / "receipt.json", {"sourceDataset": pinned,
+          "sourceManifestSha256": value["sourceManifestSha256"],
+          "files": {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in notebook.iterdir()}})
+    return notebook
+
+
 def config():
     path = WORK / "config.json"
     if not path.is_file():
@@ -74,6 +100,7 @@ def validate_prepared(value):
     allowed = {"dataset-metadata.json", "aether-paper-artifact.zip", "aether-paper-artifact.zip.sha256"}
     if value["mode"] == "population-verification":
         allowed.add("baseline-source.zip")
+        allowed.update({"candidate-source.bin", "baseline-source.bin"})
     if {p.name for p in (WORK / "source").iterdir()} != allowed:
         raise ValueError("Unexpected files in source upload folder; inspect before preparing again")
     metadata = json.loads((WORK / "notebook/kernel-metadata.json").read_text())
@@ -213,6 +240,9 @@ def prepare(args):
         value["sourceManifestSha256"] = hashlib.sha256(archive.read("artifact-provenance.json")).hexdigest()
     if baseline is not None:
         shutil.copy2(baseline, source_dir / "baseline-source.zip")
+        # Kaggle expands .zip uploads; opaque names preserve the exact two archives.
+        shutil.copy2(source_dir / "aether-paper-artifact.zip", source_dir / "candidate-source.bin")
+        shutil.copy2(baseline, source_dir / "baseline-source.bin")
     write(source_dir / "dataset-metadata.json", {"id": value["sourceDataset"], "title": "Aether Engine Source",
           "licenses": [{"name": "apache-2.0"}]})
     write(notebook_dir / "kernel-metadata.json", {"id": value["notebook"], "title": "Aether Engine VS Code",
@@ -234,6 +264,7 @@ def prepare(args):
              "source/aether-paper-artifact.zip.sha256", "notebook/kernel-metadata.json", "notebook/aether.ipynb"]
     if baseline is not None:
         files.append("source/baseline-source.zip")
+        files.extend(["source/candidate-source.bin", "source/baseline-source.bin"])
     write(WORK / "prepared.json", {name: hashlib.sha256((WORK / name).read_bytes()).hexdigest() for name in files})
     print(f"Prepared private notebook {value['notebook']} in mode {value['mode']}; nothing uploaded")
 
@@ -311,7 +342,8 @@ def main():
         if uploaded != {"dataset": value["sourceDataset"], "manifestSha256": value["sourceManifestSha256"]}:
             raise ValueError("upload the freshly prepared source dataset before running this notebook")
         require_source_ready(value)
-        cli("kernels", "push", "-p", WORK / "notebook", "--accelerator", value["accelerator"])
+        notebook = verified_submission(value) if value["mode"] == "population-verification" else WORK / "notebook"
+        cli("kernels", "push", "-p", notebook, "--accelerator", value["accelerator"])
     elif args.action == "status":
         cli("kernels", "status", value["notebook"])
     elif args.action == "outputs":
