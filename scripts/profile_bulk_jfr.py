@@ -20,7 +20,7 @@ EVENTS = ",".join(("aether.BulkPopulation", "aether.BulkPhase", "jdk.ExecutionSa
     "jdk.SocketRead", "jdk.DataLoss"))
 
 
-def run(output, manifest, samples=1200, scratch_root=None, smoke=False):
+def run(output, manifest, samples=1200, scratch_root=None, smoke=False, candidate_only=False):
     jfr = shutil.which("jfr")
     if not jfr:
         raise RuntimeError("JDK jfr executable is required")
@@ -30,7 +30,8 @@ def run(output, manifest, samples=1200, scratch_root=None, smoke=False):
     reference = base.tensor_digest(base.CanonicalTransform(args)(s) for s in sources)
     protocol = dict(schema="aether-bulk-population-jfr-v2", role="smoke diagnostic" if smoke else "diagnostic",
         samples=samples, bulkSstableMiB=32, putBatch=16, training=False, serverTrace=False,
-        jfrSettings="profile", stackDepth=256, sequence=["control-before", "jfr-run", "control-after"],
+        jfrSettings="profile", stackDepth=256, sequence=["jfr-run"] if candidate_only else ["control-before", "jfr-run", "control-after"],
+        candidateOnly=candidate_only, priorPerformanceGate="failed; unchanged" if candidate_only else None,
         referenceHash=reference, manifestSha256=sha256(manifest),
         targetProcess="offline BulkArtifactWriter JVM; normal restart reader is not profiled",
         verificationPolicy="bulk-deferred-inventory-v2",
@@ -57,6 +58,9 @@ def run(output, manifest, samples=1200, scratch_root=None, smoke=False):
                         "--request", str(output / (name + ".request.json")), "--output", str(output / (name + ".worker.json"))],
                         cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True)
                 report = json.loads((output / (name + ".worker.json")).read_text())
+                if candidate_only:
+                    from profile_bulk_verification import validate_report
+                    validate_report(report, "candidate", reference)
                 report["measurementRole"] = "diagnostic control" if name != "jfr-run" else "JFR diagnostic; not benchmark"
                 save_result(output / (name + ".json"), report, meta)
                 reports.append(report)
@@ -74,7 +78,7 @@ def run(output, manifest, samples=1200, scratch_root=None, smoke=False):
         with (output / "jfr-event-summary.txt").open("w", encoding="utf-8") as stream:
             subprocess.run([jfr, "summary", str(recording)], stdout=stream, check=True)
         analyze(output / "jfr-events.json", output, reports)
-        write_json(output / "completion.json", dict(status="passed", role="diagnostic", runs=3, recordings=1))
+        write_json(output / "completion.json", dict(status="passed", role="diagnostic", runs=len(reports), recordings=1))
     files = sorted(p for p in output.rglob("*") if p.is_file() and p.name != "checksums.sha256")
     (output / "checksums.sha256").write_text("".join(f"{sha256(p)}  {p.relative_to(output).as_posix()}\n" for p in files), encoding="utf-8")
 
@@ -84,9 +88,12 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--scratch-root", type=Path)
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--candidate-only", action="store_true", help="One verification-v2 recording, no controls or performance claim")
     opts = parser.parse_args()
     _, manifests = verify(ROOT / "configs/paper/oct5k-longitudinal")
-    run(opts.output, manifests[0], 65 if opts.smoke else 1200, opts.scratch_root, opts.smoke)
+    if opts.candidate_only and opts.smoke:
+        parser.error("candidate-only requires the full frozen 1200-artifact workload")
+    run(opts.output, manifests[0], 65 if opts.smoke else 1200, opts.scratch_root, opts.smoke, opts.candidate_only)
 
 
 if __name__ == "__main__":

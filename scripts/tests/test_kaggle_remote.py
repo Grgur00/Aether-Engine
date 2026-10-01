@@ -102,6 +102,21 @@ def verification_args(baseline=None):
                            dataset_config=None, scratch_root=None, dataset_source=None, bulk_baseline=baseline)
 
 
+def test_candidate_jfr_is_single_recording_without_baseline(prepared):
+    args = verification_args()
+    args.mode = "population-candidate-jfr"
+    remote.prepare(args)
+    value = remote.config()
+    assert value["pilotRepeats"] == 1 and value["epochs"] is None
+    assert value["priorPerformanceGate"] == "failed; unchanged"
+    assert "bulkBaselineSha256" not in value
+    remote.validate_prepared(value)
+    notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
+    body = "".join(notebook["cells"][1]["source"])
+    assert '"scripts/profile_bulk_jfr.py", "--candidate-only"' in body
+    compile(body, "notebook", "exec")
+
+
 def test_verification_requires_frozen_baseline(prepared):
     with pytest.raises(ValueError, match="requires --bulk-baseline"):
         remote.prepare(verification_args())

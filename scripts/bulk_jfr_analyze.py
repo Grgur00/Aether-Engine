@@ -19,6 +19,45 @@ def instant(value):
     return datetime.fromisoformat(value.replace("Z", "+00:00")).timestamp()
 
 
+def verification_detail(events):
+    markers = [e["values"] for e in events if e["type"] == "aether.BulkPhase"
+               and e["values"]["phase"] == "SSTABLE_VERIFY"]
+    if len(markers) != 1:
+        raise ValueError("candidate profile requires exactly one authoritative verification event")
+    marker = markers[0]
+    start = instant(marker["startTime"])
+    end = start + seconds(marker["duration"])
+    thread = marker["eventThread"]["javaThreadId"]
+    methods, allocation_stacks, classes, counts, io_bytes, elapsed = (Counter() for _ in range(6))
+    for event in events:
+        kind, value = event["type"], event["values"]
+        when = instant(value["startTime"])
+        duration = seconds(value.get("duration", "PT0S"))
+        if when > end or when + duration < start:
+            continue
+        global_event = kind in {"jdk.GarbageCollection", "jdk.GCPhasePause", "jdk.DataLoss"}
+        observed = (value.get("sampledThread") or value.get("eventThread") or {}).get("javaThreadId")
+        if not global_event and observed != thread:
+            continue
+        counts[kind] += 1
+        elapsed[kind] += max(0, min(end, when + duration) - max(start, when))
+        frames = (value.get("stackTrace") or {}).get("frames", [])
+        names = [f["method"]["type"]["name"].replace("/", ".") + "." + f["method"]["name"] for f in frames]
+        if kind in {"jdk.ExecutionSample", "jdk.NativeMethodSample"}:
+            methods.update(set(names))
+        if kind == "jdk.ObjectAllocationSample":
+            weight = value.get("weight", 0)
+            classes[value["objectClass"]["name"]] += weight
+            allocation_stacks[" <- ".join(names)] += weight
+        if kind in {"jdk.FileRead", "jdk.FileWrite"}:
+            io_bytes[kind] += value.get("bytesRead", value.get("bytesWritten", 0))
+    return dict(durationSeconds=seconds(marker["duration"]), threadId=thread,
+                inclusiveMethodSamples=methods, weightedAllocationBytes=classes,
+                allocationStacks=allocation_stacks.most_common(40), eventCounts=counts,
+                eventOverlapSeconds=elapsed, recordedIoBytes=io_bytes,
+                limitations="Sampled estimates, not exact copy volume or additive CPU time. I/O thresholds omit short events; GC overlap is JVM-wide, not causal attribution. Cold here means no earlier full verification; OS cache coldness is not controlled.")
+
+
 def analyze(events_file, output, reports):
     events = json.loads(Path(events_file).read_text(encoding="utf-8"))["recording"]["events"]
     populations = [e["values"] for e in events if e["type"] == "aether.BulkPopulation"]
@@ -27,7 +66,10 @@ def analyze(events_file, output, reports):
     population = populations[0]
     begin = instant(population["startTime"])
     end = begin + seconds(population["duration"])
-    if population["artifactCount"] != reports[1]["samples"]:
+    if len(reports) not in (1, 3):
+        raise ValueError("requires one candidate report or three control/profile/control reports")
+    profiled = reports[0] if len(reports) == 1 else reports[1]
+    if population["artifactCount"] != profiled["samples"]:
         raise ValueError("JFR artifact count differs from correctness receipt")
     methods, stacks, allocations, phases, phase_samples = (Counter() for _ in range(5))
     work, counts = Counter(), Counter()
@@ -65,12 +107,12 @@ def analyze(events_file, output, reports):
             heap.append(value["heapUsed"])
         if kind in {"jdk.FileRead", "jdk.FileWrite"}:
             byte_io[kind] += value.get("bytesRead", value.get("bytesWritten", 0))
-    reference = (reports[0]["timingsMs"]["population"] + reports[2]["timingsMs"]["population"]) / 2
-    ratio = reports[1]["timingsMs"]["population"] / reference
+    reference = (reports[0]["timingsMs"]["population"] + reports[2]["timingsMs"]["population"]) / 2 if len(reports) == 3 else None
+    ratio = profiled["timingsMs"]["population"] / reference if reference is not None else None
     samples = sum(methods.values())
     lines = ["# Bulk JFR Diagnostic", "", "Diagnostic only: not a benchmark or confirmatory result.", "",
         f"Population event interval: {end - begin:.3f} s (writer ready through durable finish; includes client/preprocessing waits).",
-        f"Controls mean population: {reference / 1000:.3f} s; JFR/control ratio: {ratio:.4f}.",
+        (f"Controls mean population: {reference / 1000:.3f} s; JFR/control ratio: {ratio:.4f}." if reference is not None else "Candidate-only recording: no controls, no profiler-overhead estimate. Prior 750 ms gate remains failed."),
         "The fixed A/B/C order is descriptive and does not remove machine drift.", "", "## Method Samples"]
     lines += [f"- `{name}`: {n} samples ({100*n/max(samples, 1):.1f}% of samples with stacks)" for name, n in methods.most_common(10)]
     lines += ["", "## Allocation Samples",
@@ -98,6 +140,15 @@ def analyze(events_file, output, reports):
                    weightedAllocationBytes=allocations, phaseSeconds=phases, phaseSamples=phase_samples,
                    eventCounts=counts, eventOverlapSeconds=work,
                    dataLoss=counts["jdk.DataLoss"], interpretation="sampled estimates; inclusive/overlapping work, not additive CPU accounting")
+    if len(reports) == 1:
+        detail = verification_detail(events)
+        details["authoritativeVerification"] = detail
+        lines += ["", "## Single Authoritative Verification", detail["limitations"],
+                  f"Elapsed: {detail['durationSeconds'] * 1000:.1f} ms.",
+                  "Inclusive method counts overlap; inspect decode, value copies, checksum and file reads together."]
+        lines += [f"- `{name}`: {count} inclusive samples" for name, count in detail["inclusiveMethodSamples"].most_common(30)]
+        lines += ["", "### Allocation Stacks (Weighted Bytes)"]
+        lines += [f"- {weight:,}: `{stack}`" for stack, weight in detail["allocationStacks"][:15]]
     Path(output, "jfr-analysis.json").write_text(json.dumps(details, indent=2), encoding="utf-8")
     Path(output, "jfr-summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     return details

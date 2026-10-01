@@ -60,7 +60,8 @@ def verified_submission(value):
         raise ValueError("Source dataset has no ready version to pin")
     pinned = f"{value['sourceDataset']}/{version}"
     destination = Path(tempfile.mkdtemp(prefix="submission-", dir=WORK))
-    for name in ("candidate-source.bin", "baseline-source.bin"):
+    names = ("candidate-source.bin",) if value["mode"] == "population-candidate-jfr" else ("candidate-source.bin", "baseline-source.bin")
+    for name in names:
         cli("datasets", "download", pinned, "-f", name, "-p", destination)
         downloaded = destination / name
         if not downloaded.is_file() or hashlib.sha256(downloaded.read_bytes()).digest() != hashlib.sha256((WORK / "source" / name).read_bytes()).digest():
@@ -98,6 +99,8 @@ def validate_prepared(value):
         if not path.is_relative_to(WORK.resolve()) or hashlib.sha256(path.read_bytes()).hexdigest() != expected:
             raise ValueError("Prepared files changed; run Prepare again before uploading or running")
     allowed = {"dataset-metadata.json", "aether-paper-artifact.zip", "aether-paper-artifact.zip.sha256"}
+    if value["mode"] == "population-candidate-jfr":
+        allowed.add("candidate-source.bin")
     if value["mode"] == "population-verification":
         allowed.add("baseline-source.zip")
         allowed.update({"candidate-source.bin", "baseline-source.bin"})
@@ -153,7 +156,7 @@ def prepare(args):
             raise ValueError("MONAI pilot requires 5 fresh paired blocks")
         value.update(epochs=20, prefetchDepth=0, serverTrace=False, pilotRepeats=5)
         value["datasetConfig"] = args.dataset_config or "configs/paper/oct5k-pilot-20ep.json"
-    if mode in {"population", "population-bulk", "population-layout", "population-jfr", "population-verification"}:
+    if mode in {"population", "population-bulk", "population-layout", "population-jfr", "population-verification", "population-candidate-jfr"}:
         if epochs is not None or getattr(args, "pilot_repeats", None) not in (None, 3):
             raise ValueError("population diagnostic has no training epochs and requires three repetitions")
         if args.dataset_config is not None or prefetch_depth not in (None, 0):
@@ -163,6 +166,10 @@ def prepare(args):
         from longitudinal_manifests import verify
         receipt, _ = verify(ROOT / "configs/paper/oct5k-longitudinal")
         value["populationManifestSha256"] = receipt["manifestSha256"][0]
+        if mode == "population-candidate-jfr":
+            if getattr(args, "pilot_repeats", None) is not None:
+                raise ValueError("candidate-only JFR has exactly one recording and no repetitions option")
+            value.update(pilotRepeats=1, candidateOnly=True, priorPerformanceGate="failed; unchanged")
     baseline = getattr(args, "bulk_baseline", None)
     if mode == "population-verification":
         if baseline is None:
@@ -235,9 +242,11 @@ def prepare(args):
     package(source_dir / "aether-paper-artifact.zip")
     with zipfile.ZipFile(source_dir / "aether-paper-artifact.zip") as archive:
         provenance = json.loads(archive.read("artifact-provenance.json"))
-        if mode in {"primary", "monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout", "population-jfr", "population-verification"} and provenance.get("sourceClean") is not True:
+        if mode in {"primary", "monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout", "population-jfr", "population-verification", "population-candidate-jfr"} and provenance.get("sourceClean") is not True:
             raise ValueError(f"prepare {mode} requires a clean committed source snapshot")
         value["sourceManifestSha256"] = hashlib.sha256(archive.read("artifact-provenance.json")).hexdigest()
+    if mode == "population-candidate-jfr":
+        shutil.copy2(source_dir / "aether-paper-artifact.zip", source_dir / "candidate-source.bin")
     if baseline is not None:
         shutil.copy2(baseline, source_dir / "baseline-source.zip")
         # Kaggle expands .zip uploads; opaque names preserve the exact two archives.
@@ -267,6 +276,8 @@ def prepare(args):
     if baseline is not None:
         files.append("source/baseline-source.zip")
         files.extend(["source/candidate-source.bin", "source/baseline-source.bin"])
+    if mode == "population-candidate-jfr":
+        files.append("source/candidate-source.bin")
     write(WORK / "prepared.json", {name: hashlib.sha256((WORK / name).read_bytes()).hexdigest() for name in files})
     print(f"Prepared private notebook {value['notebook']} in mode {value['mode']}; nothing uploaded")
 
@@ -275,7 +286,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=["setup", "prepare", "login", "check", "doctor", "upload-source", "source-status", "run", "status", "outputs", "logs"])
     parser.add_argument("--user")
-    parser.add_argument("--mode", choices=["smoke", "profile", "pilot", "primary", "all", "monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout", "population-jfr", "population-verification"])
+    parser.add_argument("--mode", choices=["smoke", "profile", "pilot", "primary", "all", "monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout", "population-jfr", "population-verification", "population-candidate-jfr"])
     parser.add_argument("--bulk-baseline", type=Path, help="Frozen pre-optimization source ZIP for the verification comparison")
     parser.add_argument("--training-epochs", type=int, help="Epochs per CPU training fixture in smoke mode")
     parser.add_argument("--epochs", type=int, default=None, help="Epochs per training block for pilot/primary runs")
@@ -344,7 +355,7 @@ def main():
         if uploaded != {"dataset": value["sourceDataset"], "manifestSha256": value["sourceManifestSha256"]}:
             raise ValueError("upload the freshly prepared source dataset before running this notebook")
         require_source_ready(value)
-        notebook = verified_submission(value) if value["mode"] == "population-verification" else WORK / "notebook"
+        notebook = verified_submission(value) if value["mode"] in {"population-verification", "population-candidate-jfr"} else WORK / "notebook"
         cli("kernels", "push", "-p", notebook, "--accelerator", value["accelerator"])
     elif args.action == "status":
         cli("kernels", "status", value["notebook"])

@@ -24,6 +24,71 @@ def test_summary_requires_successful_unique_population(tmp_path):
         analyze(path, tmp_path, [])
 
 
+def test_candidate_analysis_scopes_allocation_to_verifying_thread(tmp_path):
+    start = "2026-10-01T00:00:00Z"
+    def event(kind, **values):
+        return dict(type=kind, values=dict(startTime=start, **values))
+    stack = dict(frames=[dict(method=dict(type=dict(name="java/util/Arrays"), name="copyOfRange"))])
+    population = event("aether.BulkPopulation", success=True, artifactCount=1200,
+                       payloadBytes=236158800, duration="PT2S")
+    marker = event("aether.BulkPhase", phase="SSTABLE_VERIFY", duration="PT1S", eventThread=dict(javaThreadId=7))
+    allocation = event("jdk.ObjectAllocationSample", eventThread=dict(javaThreadId=7),
+                       objectClass=dict(name="[B"), weight=1024, stackTrace=stack)
+    unrelated = event("jdk.ObjectAllocationSample", eventThread=dict(javaThreadId=8),
+                      objectClass=dict(name="[B"), weight=9999, stackTrace=stack)
+    path = tmp_path / "events.json"
+    events = [population, marker, allocation, unrelated]
+    path.write_text(json.dumps(dict(recording=dict(events=events))))
+    result = analyze(path, tmp_path, [dict(samples=1200, timingsMs=dict(population=17000))])
+    assert result["profilerRatio"] is None
+    detail = result["authoritativeVerification"]
+    assert detail["weightedAllocationBytes"] == {"[B": 1024}
+    assert detail["allocationStacks"] == [("java.util.Arrays.copyOfRange", 1024)]
+    events.append(marker)
+    path.write_text(json.dumps(dict(recording=dict(events=events))))
+    with pytest.raises(ValueError, match="exactly one authoritative"):
+        analyze(path, tmp_path, [dict(samples=1200)])
+
+
+def test_candidate_only_orchestration_launches_one_profile(tmp_path, monkeypatch):
+    import contextlib
+    from pathlib import Path
+    import profile_bulk_jfr as runner
+    manifest = tmp_path / "v0.csv"
+    manifest.write_text("frozen")
+    monkeypatch.setattr(runner.shutil, "which", lambda name: "jfr")
+    monkeypatch.setattr(runner, "workload_args", lambda *args: None)
+    monkeypatch.setattr(runner.base.workload, "load_sources", lambda args: [1])
+    monkeypatch.setattr(runner.base, "CanonicalTransform", lambda args: lambda item: item)
+    monkeypatch.setattr(runner.base, "tensor_digest", lambda items: "reference")
+    monkeypatch.setattr(runner, "check_capacity", lambda *args: None)
+    import profile_bulk_verification
+    validations = []
+    monkeypatch.setattr(profile_bulk_verification, "validate_report", lambda *args: validations.append(args))
+    @contextlib.contextmanager
+    def campaign(output, protocol):
+        output.mkdir()
+        assert protocol["sequence"] == ["jfr-run"]
+        assert protocol["priorPerformanceGate"] == "failed; unchanged"
+        yield dict(protocolHash="hash", environmentId="host")
+    monkeypatch.setattr(runner, "campaign", campaign)
+    calls = []
+    def execute(command, **kwargs):
+        calls.append(command)
+        if "--request" in command:
+            request = json.loads(Path(command[command.index("--request") + 1]).read_text())
+            assert request["samples"] == 1200 and request["jfrSettings"] == "profile"
+            Path(request["jfrFile"]).write_bytes(b"fixture recording")
+            Path(command[command.index("--output") + 1]).write_text(json.dumps(dict(samples=1200)))
+    monkeypatch.setattr(runner.subprocess, "run", execute)
+    monkeypatch.setattr(runner, "analyze", lambda events, output, reports: len(reports) == 1)
+    output = tmp_path / "results"
+    runner.run(output, manifest, scratch_root=tmp_path / "scratch", candidate_only=True)
+    assert len(validations) == 1 and validations[0][1:] == ("candidate", "reference")
+    assert len([c for c in calls if "--request" in c]) == 1
+    assert json.loads((output / "completion.json").read_text())["runs"] == 1
+
+
 @pytest.mark.skipif(os.environ.get("AETHER_JAVA_TEST") != "1", reason="real JVM/JFR required")
 def test_real_jfr_pipe_preserves_protocol_and_contains_coarse_events(tmp_path):
     recording = tmp_path / "bulk.jfr"
@@ -52,6 +117,9 @@ def test_real_jfr_pipe_preserves_protocol_and_contains_coarse_events(tmp_path):
     analysis = analyze(path, tmp_path, reports)
     assert analysis["profilerRatio"] == 1
     assert (tmp_path / "jfr-summary.md").is_file()
+    single = analyze(path, tmp_path, reports[:1])
+    assert single["profilerRatio"] is None
+    assert single["authoritativeVerification"]["durationSeconds"] >= 0
 
 
 @pytest.mark.skipif(os.environ.get("AETHER_JAVA_TEST") != "1", reason="real JVM/JFR sequence required")

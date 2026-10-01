@@ -99,8 +99,9 @@ try:
     source = Path("/kaggle/input") / REMOTE_CONFIG["sourceDataset"].split("/")[1]
     repo.mkdir(parents=True, exist_ok=False)
     repo_created = True
-    archives = list(source.rglob("candidate-source.bin")) if REMOTE_CONFIG["mode"] == "population-verification" else list(source.rglob("aether-paper-artifact.zip"))
-    if REMOTE_CONFIG["mode"] == "population-verification" and len(archives) != 1:
+    opaque_source = REMOTE_CONFIG["mode"] in {"population-verification", "population-candidate-jfr"}
+    archives = list(source.rglob("candidate-source.bin")) if opaque_source else list(source.rglob("aether-paper-artifact.zip"))
+    if opaque_source and len(archives) != 1:
         raise ValueError("attached source has no unique opaque candidate archive")
     if archives:
         if len(archives) != 1:
@@ -134,9 +135,9 @@ try:
     python = "/kaggle/working/aether-paper-venv/bin/python"
     if REMOTE_CONFIG["mode"] == "all":
         run_logged([python, "-m", "pip", "install", "-r", "env/requirements-dali.lock"], cwd=repo)
-    if REMOTE_CONFIG["mode"] in {"monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout", "population-jfr", "population-verification"}:
+    if REMOTE_CONFIG["mode"] in {"monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout", "population-jfr", "population-verification", "population-candidate-jfr"}:
         run_logged([python, "-m", "pip", "install", "--no-deps", "-r", "env/requirements-monai.lock"], cwd=repo)
-    if REMOTE_CONFIG["mode"] not in {"population", "population-bulk", "population-layout", "population-jfr", "population-verification"}:
+    if REMOTE_CONFIG["mode"] not in {"population", "population-bulk", "population-layout", "population-jfr", "population-verification", "population-candidate-jfr"}:
         run_logged([python, "scripts/validate_gpu.py"], cwd=repo)
     if REMOTE_CONFIG["mode"] in {"pilot", "primary", "monai"} and REMOTE_CONFIG.get("datasetConfig"):
         prepare_evolution_data(python, repo / REMOTE_CONFIG["datasetConfig"])
@@ -160,6 +161,8 @@ try:
                    "--repetitions", "3", "--output", str(results / "population-verification")]
     if REMOTE_CONFIG["mode"] == "population-jfr":
         command = [python, "scripts/profile_bulk_jfr.py", "--output", str(results / "population-jfr")]
+    if REMOTE_CONFIG["mode"] == "population-candidate-jfr":
+        command = [python, "scripts/profile_bulk_jfr.py", "--candidate-only", "--output", str(results / "candidate-jfr")]
     if REMOTE_CONFIG["mode"] == "monai":
         command = [python, "scripts/monai_comparison.py", "--output", str(results / "monai-pilot")]
     if REMOTE_CONFIG["mode"] in {"population", "population-bulk", "population-layout"}:
