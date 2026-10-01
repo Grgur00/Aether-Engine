@@ -9,6 +9,7 @@ public final class SSTableVerificationTrace implements AutoCloseable {
     private long tables;
     private long bytes;
     private long inventories;
+    private long streamingTables, entries, valueBytes, readBytes, elapsedNs, blocks;
     private boolean closed;
 
     private SSTableVerificationTrace() {}
@@ -27,6 +28,27 @@ public final class SSTableVerificationTrace implements AutoCloseable {
             trace.tables++;
             trace.bytes = Math.addExact(trace.bytes, fileBytes);
         }
+    }
+
+    static void streamed(long fileBytes, SSTableVerifier.VerificationResult result) {
+        verified(fileBytes);
+        var trace = ACTIVE.get();
+        if (trace != null) {
+            trace.streamingTables++;
+            trace.entries += result.entryCount();
+            trace.valueBytes += result.rawValueBytes();
+            trace.readBytes += result.bytesRead();
+            trace.elapsedNs += result.elapsedNs();
+            trace.blocks += result.dataBlockCount();
+        }
+    }
+
+    /** Separate extension preserves the existing verification-counter schema. */
+    public Map<String, Object> streamingSnapshot() {
+        requireOwner();
+        return Map.of("implementation", "streaming-v1", "tables", streamingTables,
+                "entries", entries, "logicalValueBytes", valueBytes, "bytesRead", readBytes,
+                "elapsedNs", elapsedNs, "blockCount", blocks);
     }
 
     /** Internal instrumentation at the measured manifest verification boundary. */

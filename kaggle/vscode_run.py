@@ -99,7 +99,7 @@ try:
     source = Path("/kaggle/input") / REMOTE_CONFIG["sourceDataset"].split("/")[1]
     repo.mkdir(parents=True, exist_ok=False)
     repo_created = True
-    opaque_source = REMOTE_CONFIG["mode"] in {"population-verification", "population-candidate-jfr"}
+    opaque_source = REMOTE_CONFIG["mode"] in {"population-verification", "population-candidate-jfr", "population-streaming"}
     archives = list(source.rglob("candidate-source.bin")) if opaque_source else list(source.rglob("aether-paper-artifact.zip"))
     if opaque_source and len(archives) != 1:
         raise ValueError("attached source has no unique opaque candidate archive")
@@ -135,14 +135,14 @@ try:
     python = "/kaggle/working/aether-paper-venv/bin/python"
     if REMOTE_CONFIG["mode"] == "all":
         run_logged([python, "-m", "pip", "install", "-r", "env/requirements-dali.lock"], cwd=repo)
-    if REMOTE_CONFIG["mode"] in {"monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout", "population-jfr", "population-verification", "population-candidate-jfr"}:
+    if REMOTE_CONFIG["mode"] in {"monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout", "population-jfr", "population-verification", "population-candidate-jfr", "population-streaming"}:
         run_logged([python, "-m", "pip", "install", "--no-deps", "-r", "env/requirements-monai.lock"], cwd=repo)
-    if REMOTE_CONFIG["mode"] not in {"population", "population-bulk", "population-layout", "population-jfr", "population-verification", "population-candidate-jfr"}:
+    if REMOTE_CONFIG["mode"] not in {"population", "population-bulk", "population-layout", "population-jfr", "population-verification", "population-candidate-jfr", "population-streaming"}:
         run_logged([python, "scripts/validate_gpu.py"], cwd=repo)
     if REMOTE_CONFIG["mode"] in {"pilot", "primary", "monai"} and REMOTE_CONFIG.get("datasetConfig"):
         prepare_evolution_data(python, repo / REMOTE_CONFIG["datasetConfig"])
     command = [python, "scripts/reproduce.py", REMOTE_CONFIG["mode"], "--output", str(results)]
-    if REMOTE_CONFIG["mode"] == "population-verification":
+    if REMOTE_CONFIG["mode"] in {"population-verification", "population-streaming"}:
         baseline_archives = list(source.rglob("baseline-source.bin"))
         if len(baseline_archives) != 1 or hashlib.sha256(baseline_archives[0].read_bytes()).hexdigest() != REMOTE_CONFIG["bulkBaselineTransportSha256"]:
             raise ValueError("attached baseline differs from the frozen comparison")
@@ -158,7 +158,9 @@ try:
         run_logged(["bash", "gradlew", "--no-daemon",
                     ":modules:aether-training-cache:paperRuntimeClasspath"], cwd=baseline_repo)
         command = [python, "scripts/profile_bulk_verification.py", "--baseline-root", str(baseline_repo),
-                   "--repetitions", "3", "--output", str(results / "population-verification")]
+                   "--repetitions", str(REMOTE_CONFIG["pilotRepeats"]), "--output", str(results / REMOTE_CONFIG["mode"])]
+        if REMOTE_CONFIG["mode"] == "population-streaming":
+            command.append("--streaming")
     if REMOTE_CONFIG["mode"] == "population-jfr":
         command = [python, "scripts/profile_bulk_jfr.py", "--output", str(results / "population-jfr")]
     if REMOTE_CONFIG["mode"] == "population-candidate-jfr":

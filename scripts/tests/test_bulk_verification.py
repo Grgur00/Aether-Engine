@@ -64,6 +64,48 @@ def test_baseline_must_have_original_verification_stages():
         diagnostic.validate_report(row, "baseline", "reference")
 
 
+def streaming_report(arm, block, verify_ms):
+    row = report(arm, block)
+    storage = row["bulkCommit"]["storage"]
+    storage["manifest"] = dict(inventoryVerificationNs=verify_ms * 1e6)
+    storage["sstableFinishes"] = [dict(bytes=100, stagesNs={}) for _ in range(8)]
+    if arm == "candidate":
+        storage["streamingVerification"] = dict(implementation="streaming-v1", tables=8,
+                entries=1200, logicalValueBytes=236158800, bytesRead=800, elapsedNs=verify_ms * 1e6)
+    return row
+
+
+def test_streaming_gate_is_separate_and_requires_five_complete_pairs():
+    rows = [streaming_report(arm, block, 500 if arm == "baseline" else 375)
+            for block in range(5) for arm in ("baseline", "candidate")]
+    for row in rows:
+        diagnostic.validate_streaming_report(row, row["arm"], "reference")
+    summary = diagnostic.summarize_streaming(rows, 5)
+    assert summary["performanceGatePassed"]
+    assert summary["candidateToBaselineMedianRatio"] == 0.75
+    assert summary["prior750msGate"] == "failed; unchanged"
+    assert "thresholdMs" not in summary
+    assert not diagnostic.summarize_streaming(rows[:-1], 5)["performanceGatePassed"]
+    for row in rows:
+        if row["arm"] == "candidate":
+            row["bulkCommit"]["storage"]["manifest"]["inventoryVerificationNs"] += 1e6
+    assert not diagnostic.summarize_streaming(rows, 5)["performanceGatePassed"]
+
+
+def test_streaming_rejects_wrong_implementation_and_invalid_timing(tmp_path):
+    with pytest.raises(ValueError, match="five"):
+        diagnostic.run(tmp_path, tmp_path / "baseline", 3, streaming=True)
+    candidate = streaming_report("candidate", 0, 300)
+    with pytest.raises(ValueError, match="baseline"):
+        diagnostic.validate_streaming_report(candidate, "baseline", "reference")
+    baseline = streaming_report("baseline", 0, 500)
+    with pytest.raises(ValueError, match="metrics"):
+        diagnostic.validate_streaming_report(baseline, "candidate", "reference")
+    baseline["bulkCommit"]["storage"]["manifest"]["inventoryVerificationNs"] = float("nan")
+    with pytest.raises(ValueError, match="timing"):
+        diagnostic.validate_streaming_report(baseline, "baseline", "reference")
+
+
 def test_frozen_baseline_rejects_file_drift(tmp_path, monkeypatch):
     current, baseline = tmp_path / "current", tmp_path / "baseline"
     for root in (current, baseline):

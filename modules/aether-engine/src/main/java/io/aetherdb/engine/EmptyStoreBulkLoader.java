@@ -179,6 +179,7 @@ public final class EmptyStoreBulkLoader implements AutoCloseable {
             result.put("peakBufferedBytes", bufferedBytes);
             result.put("manifest", manifestTimings);
             result.put("verification", verification.snapshot());
+            result.put("streamingVerification", verification.streamingSnapshot());
             result.put("verificationPolicy", "bulk-deferred-inventory-v2");
             result.put("manifestProtocol", "existing append-only forced record; temp write/rename/directory force not applicable to this edit; directory barriers recorded separately");
             return result;

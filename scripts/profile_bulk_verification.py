@@ -98,7 +98,48 @@ def summarize(rows, repetitions):
                 nextGate="Review correctness results before one follow-up JFR; Phase 2 remains gated, and longitudinal work also requires warm-read/incremental performance checks")
 
 
-def run(output, baseline_root, repetitions=3, scratch_root=None):
+def validate_streaming_report(report, arm, reference):
+    # Both arms use verification-v2's one-pass publication sequence.
+    validate_report(report, "candidate", reference)
+    storage = report["bulkCommit"]["storage"]
+    timing = storage["manifest"]["inventoryVerificationNs"]
+    if not math.isfinite(timing) or timing <= 0:
+        raise ValueError("invalid authoritative verification timing")
+    streaming = storage.get("streamingVerification")
+    if arm == "baseline":
+        if streaming is not None:
+            raise ValueError("baseline must be the frozen reader-based verification-v2")
+    elif (not streaming or streaming.get("implementation") != "streaming-v1"
+          or streaming.get("tables") != storage["tables"] or streaming.get("entries") != 1200
+          or streaming.get("logicalValueBytes", 0) <= 0 or streaming.get("bytesRead", 0) <= 0
+          or streaming.get("elapsedNs", 0) <= 0):
+        raise ValueError("candidate streaming verification metrics missing or inconsistent")
+
+
+def summarize_streaming(rows, repetitions):
+    result = summarize(rows, repetitions)
+    result.pop("thresholdMs")
+    result.pop("medianImprovementMs")
+    for arm, values in result["arms"].items():
+        times = [r["bulkCommit"]["storage"]["manifest"]["inventoryVerificationNs"] / 1e6
+                 for r in rows if r["arm"] == arm]
+        values["authoritativeVerificationMs"] = dict(values=times, median=statistics.median(times))
+    ratio = None
+    if len(result["arms"]) == 2:
+        ratio = (result["arms"]["candidate"]["authoritativeVerificationMs"]["median"]
+                 / result["arms"]["baseline"]["authoritativeVerificationMs"]["median"])
+    result.update(measurementRole="exploratory streaming-v1 population diagnostic",
+                  primaryEndpoint="authoritative inventory verification elapsed time",
+                  candidateToBaselineMedianRatio=ratio, maximumMedianRatio=0.75,
+                  performanceGatePassed=result["complete"] and ratio is not None and ratio <= 0.75,
+                  prior750msGate="failed; unchanged",
+                  nextGate="Review correctness and secondary population effect before any envelope-copy optimization")
+    return result
+
+
+def run(output, baseline_root, repetitions=3, scratch_root=None, *, streaming=False):
+    if streaming and repetitions != 5:
+        raise ValueError("streaming-v1 requires exactly five fresh paired repetitions")
     if repetitions not in (3, 4, 5):
         raise ValueError("requires 3-5 fresh paired repetitions")
     output, baseline_root = Path(output).resolve(), Path(baseline_root).resolve()
@@ -119,6 +160,10 @@ def run(output, baseline_root, repetitions=3, scratch_root=None):
                     scope="population including finish; excludes startup, close and restart validation",
                     overhead="population minus measured source load/preprocessing; includes feeding, encoding and storage",
                     pageCache="uncontrolled, common reference preflight warms inputs; fresh store/process each arm")
+    if streaming:
+        protocol.pop("improvementThresholdMs")
+        protocol.update(schema="aether-streaming-verification-v1", primaryEndpoint="inventoryVerificationNs",
+                        maximumMedianRatio=0.75, prior750msGate="failed; unchanged")
     scratch_root = Path(scratch_root or ROOT / "build/bulk-verification-stores").resolve()
     scratch_root.mkdir(parents=True, exist_ok=True)
     rows = []
@@ -147,11 +192,11 @@ def run(output, baseline_root, repetitions=3, scratch_root=None):
                                        env={**os.environ, "PYTHONPATH": os.pathsep.join(
                                            str(checkout / p) for p in ("scripts", "clients/python"))})
                     report = json.loads((location / "worker.json").read_text(encoding="utf-8"))
-                    validate_report(report, arm, reference)
+                    (validate_streaming_report if streaming else validate_report)(report, arm, reference)
                     report.update(arm=arm, blockIndex=block)
                     save_result(location / "result.json", report, meta)
                     rows.append(report)
-                    write_json(output / "summary.json", summarize(rows, repetitions))
+                    write_json(output / "summary.json", (summarize_streaming if streaming else summarize)(rows, repetitions))
                 finally:
                     for path in scratch.glob("store.*"):
                         if path.is_file():
@@ -168,8 +213,9 @@ def main():
     parser.add_argument("--baseline-root", type=Path, required=True)
     parser.add_argument("--scratch-root", type=Path)
     parser.add_argument("--repetitions", type=int, choices=(3, 4, 5), default=3)
+    parser.add_argument("--streaming", action="store_true")
     opts = parser.parse_args()
-    run(opts.output, opts.baseline_root, opts.repetitions, opts.scratch_root)
+    run(opts.output, opts.baseline_root, opts.repetitions, opts.scratch_root, streaming=opts.streaming)
 
 
 if __name__ == "__main__":

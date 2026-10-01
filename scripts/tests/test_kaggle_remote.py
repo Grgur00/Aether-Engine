@@ -122,16 +122,19 @@ def test_verification_requires_frozen_baseline(prepared):
         remote.prepare(verification_args())
 
 
-def test_verification_prepares_two_bound_snapshots(prepared):
+@pytest.mark.parametrize("mode,repeats", [("population-verification", 3), ("population-streaming", 5)])
+def test_verification_prepares_two_bound_snapshots(prepared, mode, repeats):
     baseline = prepared / "baseline.zip"
     provenance = {"sourceClean": False, "files": {"fixture": hashlib.sha256(b"before").hexdigest()}}
     with zipfile.ZipFile(baseline, "w") as archive:
         archive.writestr("artifact-provenance.json", json.dumps(provenance))
         archive.writestr("fixture", b"before")
-    remote.prepare(verification_args(baseline))
+    args = verification_args(baseline)
+    args.mode = mode
+    remote.prepare(args)
     value = remote.config()
     assert value["bulkBaselineSha256"] == hashlib.sha256(baseline.read_bytes()).hexdigest()
-    assert value["epochs"] is None and value["pilotRepeats"] == 3 and not value["serverTrace"]
+    assert value["epochs"] is None and value["pilotRepeats"] == repeats and not value["serverTrace"]
     assert (prepared / "source/candidate-source.bin").read_bytes() == (prepared / "source/aether-paper-artifact.zip").read_bytes()
     assert (prepared / "source/baseline-source.bin").read_bytes() == b"AETHER-BASELINE-ARCHIVE-V1\n" + baseline.read_bytes()
     with zipfile.ZipFile(prepared / "source/baseline-source.bin") as archive:

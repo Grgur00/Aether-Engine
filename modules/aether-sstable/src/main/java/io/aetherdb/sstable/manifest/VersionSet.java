@@ -4,7 +4,7 @@ import io.aetherdb.io.PathSecurityValidator;
 import io.aetherdb.reliability.CrashContext;
 import io.aetherdb.reliability.CrashPointIds;
 import io.aetherdb.reliability.CrashPointRegistry;
-import io.aetherdb.sstable.SSTableReader;
+import io.aetherdb.sstable.SSTableVerifier;
 import io.aetherdb.sstable.jfr.BulkPhaseEvent;
 
 import java.io.IOException;
@@ -471,9 +471,7 @@ public final class VersionSet implements AutoCloseable {
                         "referenced SSTable is missing, unsafe, or has the wrong size: "
                                 + path.getFileName());
             }
-            try (SSTableReader verified = SSTableReader.open(path, databaseId, file)) {
-                verified.metadata();
-            }
+            SSTableVerifier.verify(path, databaseId, file);
         }
     }
 
