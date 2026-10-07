@@ -130,16 +130,16 @@ The system campaign takes an OS lock, validates the executable before recording 
 
 ```mermaid
 flowchart TD
-    Resume[Resume requested] --> Identity{Source, protocol and environment match?}
-    Identity -->|No| Preserve[Preserve evidence; new campaign required]
-    Identity -->|Yes| Mode{Service lifecycle}
-    Mode -->|Restart per version| Stage[Validate stage receipt and closed checkpoint inventory]
-    Stage --> Partial{Interrupted uncommitted store?}
-    Partial -->|Yes| Restore[Confirm no live owner; restore verified prior checkpoint]
+    Resume[Resume requested] --> Identity{{Source, protocol and<br/>environment match?}}
+    Identity -->|No| Preserve[Preserve evidence;<br/>new campaign required]
+    Identity -->|Yes| Mode{{Service lifecycle}}
+    Mode -->|Restart per version| Stage[Validate stage receipt and<br/>closed checkpoint inventory]
+    Stage --> Partial{{Interrupted<br/>uncommitted store?}}
+    Partial -->|Yes| Restore[Confirm no live owner;<br/>restore verified prior checkpoint]
     Partial -->|No| Continue[Continue validated trajectory]
     Restore --> Continue
-    Mode -->|Persistent per block| Complete{Whole paired block complete?}
-    Complete -->|Yes| Reuse[Validate every receipt; reuse completed block]
+    Mode -->|Persistent per block| Complete{{Whole paired<br/>block complete?}}
+    Complete -->|Yes| Reuse[Validate every receipt;<br/>reuse completed block]
     Complete -->|No| Preserve
 ```
 

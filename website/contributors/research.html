@@ -9,10 +9,10 @@
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../assets/site.css">
   <link rel="stylesheet" href="../assets/docs.css">
-  <link rel="stylesheet" href="../assets/contributors.css?v=20261007-2">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261007-3">
   <script src="../assets/site.js" defer></script>
   <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
-  <script src="../assets/contributors.js?v=20261007-2" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
 </head>
 <body class="docs-body contributor-body">
   <a class="skip-link" href="#docs-content">Skip to documentation</a>
@@ -242,16 +242,16 @@ paired speedup = baseline cumulative time / Aether cumulative time
 <p>The system campaign takes an OS lock, validates the executable before recording provenance, and uses atomic temporary-file replacement for JSON. Resume requires the same protocol, source and measured host environment. Do not edit source, reinstall packages, or modify result JSON to make a campaign resumable. A changed implementation needs a new output and campaign identity.</p>
 <h2 id="resume-is-workflow-specific">Resume Is Workflow-Specific</h2>
 <figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
-    Resume[Resume requested] --&gt; Identity{Source, protocol and environment match?}
-    Identity --&gt;|No| Preserve[Preserve evidence; new campaign required]
-    Identity --&gt;|Yes| Mode{Service lifecycle}
-    Mode --&gt;|Restart per version| Stage[Validate stage receipt and closed checkpoint inventory]
-    Stage --&gt; Partial{Interrupted uncommitted store?}
-    Partial --&gt;|Yes| Restore[Confirm no live owner; restore verified prior checkpoint]
+    Resume[Resume requested] --&gt; Identity{{Source, protocol and&lt;br/&gt;environment match?}}
+    Identity --&gt;|No| Preserve[Preserve evidence;&lt;br/&gt;new campaign required]
+    Identity --&gt;|Yes| Mode{{Service lifecycle}}
+    Mode --&gt;|Restart per version| Stage[Validate stage receipt and&lt;br/&gt;closed checkpoint inventory]
+    Stage --&gt; Partial{{Interrupted&lt;br/&gt;uncommitted store?}}
+    Partial --&gt;|Yes| Restore[Confirm no live owner;&lt;br/&gt;restore verified prior checkpoint]
     Partial --&gt;|No| Continue[Continue validated trajectory]
     Restore --&gt; Continue
-    Mode --&gt;|Persistent per block| Complete{Whole paired block complete?}
-    Complete --&gt;|Yes| Reuse[Validate every receipt; reuse completed block]
+    Mode --&gt;|Persistent per block| Complete{{Whole paired&lt;br/&gt;block complete?}}
+    Complete --&gt;|Yes| Reuse[Validate every receipt;&lt;br/&gt;reuse completed block]
     Complete --&gt;|No| Preserve
 </code></pre></details></figure>
 <p>Restart-based longitudinal stages commit independently hashed closed-store checkpoints; unverified partial stores are never silently reused. Live worker leases prevent concurrent recovery. Checkpoint copy/hash overhead is excluded from the commercial endpoint but can warm the OS page cache.</p>
