@@ -13,6 +13,10 @@ behavior.
 
 ## Highlights
 
+New contributors: start with the [Contributor Handbook](https://grgur00.github.io/Aether-Engine/contributors/).
+It covers setup, all 49 modules, concrete code tours, testing and ownership boundaries.
+The source guides live in [Docs/onboarding](Docs/onboarding/README.md).
+
 - Typed collections with stable UUID identities
 - Versioned key and value codecs with compatibility fingerprints
 - Point reads, writes, and deletes

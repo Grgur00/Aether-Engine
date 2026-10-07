@@ -1,0 +1,322 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/TYPED-API-AND-SCHEMAS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Typed API and schemas: source-backed contributor documentation for Aether Engine.">
+  <title>Typed API and schemas | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/contributors.js" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="storage.html">Storage engine</a><a href="schemas.html" aria-current="page">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/TYPED-API-AND-SCHEMAS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="typed-api-and-schemas">Typed API and Schemas</h1>
+<p><a href="index.html">Onboarding index</a> | <a href="architecture.html">Architecture</a> | <a href="storage.html">Storage engine</a></p>
+<p>Use the typed facade when application keys and values have stable Java types.
+It encodes typed collections into the same byte-oriented embedded engine; it is
+not a separate database, query planner, ORM, or transaction manager.</p>
+<h2 id="start-with-the-working-example">Start with the Working Example</h2>
+<p>Read these in order:</p>
+<ol>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-sample-app/src/main/java/io/aetherdb/examples/social/UserProfile.java">UserProfile</a>: an annotated record with explicit field bounds and application validation.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-sample-app/src/main/java/io/aetherdb/examples/social/SocialNetworkRepository.java">SocialNetworkRepository</a>: named collections, CRUD, batches, and application-side joins.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-sample-app/src/main/java/io/aetherdb/examples/social/SocialNetworkApplication.java">SocialNetworkApplication</a>: database lifetime and sample output.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-sample-app/build.gradle.kts">Example build</a>: runtime dependencies and annotation processor wiring.</li>
+</ol>
+<p>Run the sample and its tests from the repository root:</p>
+<pre><code class="language-powershell">.\gradlew.bat :examples:aether-sample-app:run :examples:aether-sample-app:test --console=plain
+</code></pre>
+<p>On Bash, use <code>./gradlew</code>. With no application arguments the sample uses an
+in-memory database. See <a href="getting-started.html">Getting started</a> before giving it a
+persistent directory.</p>
+<h2 id="call-path">Call Path</h2>
+<pre><code class="language-mermaid">sequenceDiagram
+    participant App as Application
+    participant Typed as EmbeddedTypedDatabase
+    participant Codec as Typed envelopes and generated codec
+    participant Raw as AetherDatabase
+    App-&gt;&gt;Typed: defineCollection(name, keyType, valueType)
+    Typed-&gt;&gt;Raw: Read or register collection metadata
+    App-&gt;&gt;Typed: put(key, record)
+    Typed-&gt;&gt;Codec: Encode collection key and value
+    Codec--&gt;&gt;Typed: Canonical bytes
+    Typed-&gt;&gt;Raw: write(batch, default write options)
+    Raw--&gt;&gt;Typed: WriteResult or exception
+    Typed--&gt;&gt;App: Applied result or exception
+    App-&gt;&gt;Typed: get(key)
+    Typed-&gt;&gt;Raw: get(encoded key)
+    Raw--&gt;&gt;Typed: Found bytes or not found
+    Typed-&gt;&gt;Codec: Decode found value
+    Typed--&gt;&gt;App: ReadResult
+</code></pre>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-embedded-typed/src/main/java/io/aetherdb/embedded/typed/AetherEmbedded.java">AetherEmbedded</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-embedded-typed/src/main/java/io/aetherdb/embedded/typed/EmbeddedTypedDatabase.java">EmbeddedTypedDatabase</a>.
+<code>openInMemory()</code> and <code>open(Path)</code> return owned, closeable typed databases.
+<code>adapt(raw)</code> also transfers close ownership: closing the typed adapter closes its
+underlying byte database. Do not let two independently managed owners close the
+same resource.</p>
+<h2 id="identity-is-part-of-the-data-format">Identity Is Part of the Data Format</h2>
+<table>
+<thead>
+<tr>
+<th>Identity</th>
+<th>Meaning</th>
+<th>Change consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Collection ID</td>
+<td>Namespace for encoded keys and durable metadata</td>
+<td>A new ID identifies different data</td>
+</tr>
+<tr>
+<td>Collection name</td>
+<td>Human-readable name; the convenience overload derives its ID from this name</td>
+<td>Renaming with that overload creates another collection</td>
+</tr>
+<tr>
+<td>Key codec ID, version, fingerprint</td>
+<td>Encoding and ordering of logical keys</td>
+<td>Cannot silently change for an existing collection</td>
+</tr>
+<tr>
+<td>Record schema UUID</td>
+<td>Durable family of value schemas</td>
+<td>A different UUID is not a version upgrade</td>
+</tr>
+<tr>
+<td>Schema version and fingerprint</td>
+<td>Concrete descriptor in that family</td>
+<td>Same version with a different fingerprint is a conflict</td>
+</tr>
+<tr>
+<td>Field ID</td>
+<td>Stable identity within the record, independent of Java position</td>
+<td>Preserve it across a supported rename</td>
+</tr>
+</tbody>
+</table>
+<p>Use the explicit <code>CollectionId</code> overload of
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/typed/TypedAetherDatabase.java">TypedAetherDatabase</a>
+when identity must survive a display-name change. Do not invent new IDs to silence
+a compatibility error on an existing store.</p>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/typed/CollectionDefinition.java">CollectionDefinition</a>
+binds these codecs and capabilities together. Range scans require an ordered key
+codec. See <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec/src/main/java/io/aetherdb/codec/BuiltInKeyCodecs.java">BuiltInKeyCodecs</a>
+for the actual supported Java key types, rather than assuming arbitrary classes
+can be serialized as keys.</p>
+<h2 id="reads-writes-batches-and-snapshots">Reads, Writes, Batches, and Snapshots</h2>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Current embedded behavior</th>
+<th>Caller responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>collection.get(key)</code></td>
+<td>Returns <code>ReadResult.Found</code> or <code>NotFound</code></td>
+<td>Use <code>value()</code> for an optional result or <code>requireValue()</code> when absence is an error</td>
+</tr>
+<tr>
+<td><code>put</code> / <code>delete</code></td>
+<td>Encodes one operation and submits a batch</td>
+<td>Validate application invariants and inspect failure/result</td>
+</tr>
+<tr>
+<td><code>database.batch()</code> / <code>write(batch)</code></td>
+<td>Atomic byte-engine batch, optionally spanning collections</td>
+<td>Use handles from the same writable database; submit only once</td>
+</tr>
+<tr>
+<td><code>scanAll()</code></td>
+<td>Exhausts a raw cursor into an immutable Java list</td>
+<td>Budget heap for the whole collection; this is not pagination</td>
+</tr>
+<tr>
+<td><code>database.snapshot()</code></td>
+<td>Captures a raw read snapshot</td>
+<td>Close it promptly; its collection handles are read-only</td>
+</tr>
+<tr>
+<td><code>close()</code></td>
+<td>Closes the owned engine and invalidates use</td>
+<td>Scope it with try-with-resources; keep snapshots inside the database lifetime</td>
+</tr>
+</tbody>
+</table>
+<p>The current adapter submits with <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/WriteOptions.java">WriteOptions.defaults()</a>:
+<code>GROUP_SYNC</code>, a 30-second admission timeout, and no fail-fast backpressure. It does
+not expose a typed per-call durability override. In-memory execution cannot make
+data durable; persistent acknowledgements depend on the storage path described
+in <a href="storage.html">Storage engine</a>.</p>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/typed/TypedWriteResult.java">TypedWriteResult</a>
+defines <code>Applied</code>, <code>Rejected</code>, and <code>Indeterminate</code>. Distinguish that public
+contract from the current embedded adapter: it returns <code>Rejected</code> for an empty
+batch and <code>Applied</code> after a successful raw write, but does <strong>not</strong> convert every
+engine exception into a result variant. Handle exceptions too. Its generated
+command UUID is not a durable deduplication mechanism or permission to retry any
+failed write blindly.</p>
+<p>An atomic batch does not make earlier reads transactional. In the sample,
+<code>follow()</code> reads a follower count and then batches two writes. Concurrent callers
+can race those reads; the example does not establish serializable isolation,
+compare-and-set, uniqueness constraints, or an automatic foreign-key system.
+Similarly, <code>feedFor()</code> performs Java-side scans and filtering, not an indexed join.</p>
+<h2 id="generated-codec-workflow">Generated Codec Workflow</h2>
+<p>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec-processor/src/main/java/io/aetherdb/codec/processor/AetherRecordProcessor.java">record processor</a>
+generates codecs and provider metadata at compilation. Variable-size fields need
+appropriate bounds; inspect the annotations in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec-annotations/src/main/java/io/aetherdb/codec/annotation">aether-codec-annotations</a>.
+The processor validates supported record shapes. Do not substitute general Java
+serialization or manually edit generated output to bypass it.</p>
+<pre><code class="language-mermaid">flowchart LR
+    Record[Annotated Java record] --&gt; Proposal[Schema proposal task]
+    Locks[Committed schema locks] --&gt; Proposal
+    Proposal --&gt; Review[Review identity and compatibility diff]
+    Review --&gt; Accept[Explicit schema acceptance]
+    Accept --&gt; Locks
+    Record --&gt; Compile[Normal compilation in VERIFY mode]
+    Locks --&gt; Compile
+    Compile --&gt; Generated[Generated codecs and provider metadata]
+    Generated --&gt; Runtime[Runtime collection registration]
+    Runtime --&gt; Stored[Stored collection metadata check]
+</code></pre>
+<p>There are two gates: the compile-time schema lock and the existing store's
+runtime collection metadata. Passing one does not bypass the other.</p>
+<p>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/build.gradle.kts">root Gradle schema tasks</a> are project-scoped:</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aetherSchemaInit</code></td>
+<td>Runs proposal generation for initial schemas</td>
+</tr>
+<tr>
+<td><code>aetherSchemaUpdate</code></td>
+<td>Runs proposal generation for a changed schema</td>
+</tr>
+<tr>
+<td><code>aetherSchemaAccept</code></td>
+<td>Regenerates proposals and copies accepted files into the project's <code>aether-schemas/</code> directory</td>
+</tr>
+<tr>
+<td><code>aetherSchemaCheck</code></td>
+<td>Depends on normal compilation, which verifies committed locks</td>
+</tr>
+</tbody>
+</table>
+<p>For an intentional edit in the sample project:</p>
+<pre><code class="language-powershell">.\gradlew.bat :examples:aether-sample-app:aetherSchemaUpdate
+git diff -- examples/aether-sample-app
+</code></pre>
+<p>Also inspect <code>examples/aether-sample-app/build/aether-schema/proposal/</code>: proposals
+are generated files and may not appear in <code>git diff</code>. Only after reviewing the
+proposal and deciding the evolution is supported:</p>
+<pre><code class="language-powershell">.\gradlew.bat :examples:aether-sample-app:aetherSchemaAccept
+git diff -- examples/aether-sample-app/aether-schemas
+.\gradlew.bat :examples:aether-sample-app:aetherSchemaCheck :examples:aether-sample-app:test
+</code></pre>
+<p>Replace that project path with the project you actually changed. Commit the
+record change and accepted locks together. Do not run acceptance as routine
+build troubleshooting: it changes durable schema definitions. Normal generated
+Java output under <code>build/</code> is not the source to commit.</p>
+<h2 id="schema-evolution">Schema Evolution</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec/src/main/java/io/aetherdb/codec/SchemaCompatibilityChecker.java">SchemaCompatibilityChecker</a>
+requires the same schema UUID and a strictly increasing version for an upgrade.
+The supported path includes stable-ID field renames, relaxed bounds,
+required-to-optional changes, and adding optional fields. It rejects field
+removal, changed wire types or nested/enum identities, tightened bounds,
+optional-to-required changes, and new required fields without a generated default.</p>
+<p>The runtime stores the compatible newer descriptor and minimum writer version.
+An older codec may still be registered, but its writes are rejected with
+<code>OLDER_WRITER_REJECTED</code> once the newer version is registered. This does not promise
+that every old reader can decode every newer value. Incompatible evolution needs
+an explicitly designed migration, not simply a version-number increment. The
+compatibility checker does not rewrite existing records for you.</p>
+<p>Use these tests as executable examples:</p>
+<ul>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-embedded-typed/src/test/java/io/aetherdb/embedded/typed/GeneratedSchemaEvolutionTest.java">GeneratedSchemaEvolutionTest</a>: V1 data read by V2, restart, and durable old-writer rejection.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-embedded-typed/src/test/java/io/aetherdb/embedded/typed/GeneratedRecordPersistenceTest.java">GeneratedRecordPersistenceTest</a>: generated records in a persistent store.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-embedded-typed/src/test/java/io/aetherdb/embedded/typed/PersistentTypedDatabaseTest.java">PersistentTypedDatabaseTest</a>: typed persistence and metadata checks.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec-processor/src/test/java/io/aetherdb/codec/processor/AetherRecordProcessorTest.java">AetherRecordProcessorTest</a>: accepted and rejected compile-time schemas.</li>
+</ul>
+<h2 id="debugging-and-first-changes">Debugging and First Changes</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Inspect first</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Generated codec cannot be resolved</td>
+<td>Annotation processor dependency, generated provider resources, runtime classpath</td>
+</tr>
+<tr>
+<td>Compile requests a schema proposal</td>
+<td>Existing lock, record annotations, version and field IDs; review rather than auto-accept</td>
+</tr>
+<tr>
+<td><code>COLLECTION_SCHEMA_CONFLICT</code></td>
+<td>Collection ID and codec/schema family in stored metadata</td>
+</tr>
+<tr>
+<td><code>SCHEMA_DESCRIPTOR_CONFLICT</code></td>
+<td>Same schema version but differing fingerprints</td>
+</tr>
+<tr>
+<td><code>SCHEMA_MIGRATION_REQUIRED</code></td>
+<td>Descriptor diff and the compatibility rules above</td>
+</tr>
+<tr>
+<td><code>OLDER_WRITER_REJECTED</code></td>
+<td>Which newer writer registered this collection, including after reopen</td>
+</tr>
+<tr>
+<td>Large scan allocates heavily</td>
+<td><code>scanAll()</code> materialization and application-side joins</td>
+</tr>
+</tbody>
+</table>
+<p>A good first contribution adds a regression test to an existing typed test class,
+traces the exact encoding or registration path, and changes only that behavior.
+For format changes, include old-data decode/reopen tests and rejected-change tests,
+not just a same-process round trip. See <a href="testing.html">Testing and contributing</a>.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#start-with-the-working-example">Start with the Working Example</a><a href="#call-path">Call Path</a><a href="#identity-is-part-of-the-data-format">Identity Is Part of the Data Format</a><a href="#reads-writes-batches-and-snapshots">Reads, Writes, Batches, and Snapshots</a><a href="#generated-codec-workflow">Generated Codec Workflow</a><a href="#schema-evolution">Schema Evolution</a><a href="#debugging-and-first-changes">Debugging and First Changes</a></nav></aside>
+  </div>
+</body>
+</html>

@@ -1,0 +1,352 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/MODULE-GUIDE.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Module guide: source-backed contributor documentation for Aether Engine.">
+  <title>Module guide | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/contributors.js" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html" aria-current="page">Module guide</a><a href="code-tour.html">Code tour</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/MODULE-GUIDE.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="module-guide-for-contributors">Module Guide For Contributors</h1>
+<p><a href="index.html">Onboarding index</a> | <a href="code-tour.html">Guided code tour</a> | <a href="architecture.html">Architecture</a></p>
+<p>This is a lookup table for choosing where to read and edit code. All 49 Java
+modules declared in <a href="https://github.com/Grgur00/Aether-Engine/blob/main/settings.gradle.kts">settings.gradle.kts</a> appear below.
+Linked build files define actual dependencies and tasks; named symbols are search
+targets within the module, not claims that every subsystem is integrated.</p>
+<h2 id="local-engine-and-application-layers">Local Engine And Application Layers</h2>
+<table>
+<thead>
+<tr>
+<th>Module/build boundary</th>
+<th>Start with</th>
+<th>Responsibility and change boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/build.gradle.kts">aether-api</a></td>
+<td><code>AetherDatabase</code>, <code>WriteBatch</code>, <code>Snapshot</code>, typed interfaces</td>
+<td>Public semantic and resource-lifetime contracts; changes affect callers and both engines</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/build.gradle.kts">aether-engine</a></td>
+<td><code>Aether</code>, <code>PersistentAetherDatabase</code>, <code>InMemoryAetherDatabase</code></td>
+<td>Local composition, commit/visibility/recovery and background lifecycle</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/build.gradle.kts">aether-memory</a></td>
+<td><code>FfmNativeRegion</code>, <code>NativeMemoryBudget</code></td>
+<td>Native allocation, bounds and lifetime; do not create unrelated FFM allocators elsewhere</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memtable/build.gradle.kts">aether-memtable</a></td>
+<td><code>NativeSkipListMemTable</code>, <code>VersionedKeyValueStore</code></td>
+<td>Ordered versioned mutable records; reference model versus native implementation</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-format/build.gradle.kts">aether-format</a></td>
+<td><code>AetherFormatCatalog</code>, <code>ChecksumPolicy</code></td>
+<td>Shared persisted-format identities and compatibility/checksum policies</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-io/build.gradle.kts">aether-io</a></td>
+<td><code>PathSecurityValidator</code>, <code>DatabaseLock</code>, backup/restore classes</td>
+<td>Validated filesystem ownership, locks and storage I/O primitives</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-wal/build.gradle.kts">aether-wal</a></td>
+<td><code>WalLogicalGroupCodec</code>, <code>WalFragmentCodec</code></td>
+<td>Logical groups, physical fragments and replay validation; reopen compatibility matters</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/build.gradle.kts">aether-sstable</a></td>
+<td><code>SSTableBuilder</code>, <code>SSTableReader</code>, <code>VersionSet</code></td>
+<td>Immutable tables, index/filter blocks and durable manifest authority</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/build.gradle.kts">aether-lsm</a></td>
+<td><code>CompactionDroppingIterator</code>, <code>WritePressureController</code></td>
+<td>Selection/retention and write-pressure policies consumed by engine orchestration</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cache/build.gradle.kts">aether-cache</a></td>
+<td><code>BlockLease</code>, <code>BlockCacheKey</code></td>
+<td>Cache primitives and leased ownership; inspect consumers before assuming integration</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec-annotations/build.gradle.kts">aether-codec-annotations</a></td>
+<td><code>AetherField</code>, record annotations</td>
+<td>User-facing schema declarations and stable field identities</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec-processor/build.gradle.kts">aether-codec-processor</a></td>
+<td><code>AetherRecordProcessor</code></td>
+<td>Compile-time generated codecs/providers and schema proposals</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec/build.gradle.kts">aether-codec</a></td>
+<td><code>BuiltInKeyCodecs</code>, <code>SchemaCompatibilityChecker</code></td>
+<td>Runtime typed encoding, envelopes and schema compatibility</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-embedded-typed/build.gradle.kts">aether-embedded-typed</a></td>
+<td><code>AetherEmbedded</code>, <code>EmbeddedTypedDatabase</code></td>
+<td>Typed collections over the local byte engine; metadata and close ownership</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/build.gradle.kts">aether-training-cache</a></td>
+<td><code>TrainingCache</code>, <code>TrainingCacheProtocol</code>, <code>TrainingCacheDaemon</code></td>
+<td>Local immutable-artifact service; a distinct Python-facing protocol, not general RPC</td>
+</tr>
+</tbody>
+</table>
+<p>The engine exposes <code>aether-api</code> through an <code>api</code> dependency and consumes lower
+storage modules through <code>implementation</code>. The typed wrapper composes the engine
+and codec layer; it is not where WAL ordering should be changed. Inspect build
+files before adding a dependency: an API edge exposes types to consumers, while
+an implementation edge keeps the dependency behind the module boundary.</p>
+<h2 id="cross-cutting-and-developer-tools">Cross-Cutting And Developer Tools</h2>
+<table>
+<thead>
+<tr>
+<th>Module/build boundary</th>
+<th>Start with</th>
+<th>Responsibility and limitation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-admission/build.gradle.kts">aether-admission</a></td>
+<td><code>AdmissionController</code>, <code>AdmissionDecision</code></td>
+<td>Explicit resource/overload decisions; rejection is part of behavior</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/build.gradle.kts">aether-config</a></td>
+<td><code>AetherConfigRegistry</code>, <code>AetherConfigLoader</code></td>
+<td>Typed settings, validation and configuration models; verify each actual runtime consumer</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-observability-api/build.gradle.kts">aether-observability-api</a></td>
+<td><code>MetricDescriptor</code>, <code>HealthStatus</code></td>
+<td>Diagnostic contracts; metrics are not substitutes for durability checks</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-reliability/build.gradle.kts">aether-reliability</a></td>
+<td><code>CrashPointRegistry</code>, corruption helpers</td>
+<td>Explicit fault hooks and controlled failure fixtures</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-security-api/build.gradle.kts">aether-security-api</a></td>
+<td><code>AetherAuthorizer</code>, <code>AuditSink</code></td>
+<td>Authorization/identity/audit contracts; not automatic enforcement on every entry point</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-security-core/build.gradle.kts">aether-security-core</a></td>
+<td><code>AuditJsonFormatter</code>, <code>FileAuditSink</code></td>
+<td>Audit implementations and supporting security helpers</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-crypto/build.gradle.kts">aether-crypto</a></td>
+<td><code>AetherAead</code>, <code>AeadEnvelope</code></td>
+<td>Cryptographic envelopes/primitives; existence does not imply all engine files are encrypted</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-tools/build.gradle.kts">aether-tools</a></td>
+<td><code>AetherCli</code></td>
+<td>Offline inspection/administration; respect exclusive directory ownership</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-workbench/build.gradle.kts">aether-workbench</a></td>
+<td><code>AetherWorkbench</code>, <code>DatabaseWorkspace</code></td>
+<td>Swing local database tooling; not a headless server</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-release/build.gradle.kts">aether-release</a></td>
+<td>Evidence/certification models</td>
+<td>Release-readiness evaluation machinery, not evidence that a release is certified</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-bom/build.gradle.kts">aether-bom</a></td>
+<td>Gradle constraints</td>
+<td>Consumer dependency alignment; no application runtime entry point</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-gradle-plugin/build.gradle.kts">aether-gradle-plugin</a></td>
+<td><code>AetherPlugin</code></td>
+<td>Consumer build/schema integration; test generated-task behavior</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/build.gradle.kts">aether-benchmarks</a></td>
+<td><code>BenchmarkProfileRunner</code></td>
+<td>Executable workload registration; not every named profile has a runner</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-testkit/build.gradle.kts">aether-testkit</a></td>
+<td>Source sets and fixture declarations</td>
+<td>Test support; do not add as a production dependency</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-concurrency-tests/build.gradle.kts">aether-concurrency-tests</a></td>
+<td>Actual attached tasks/source sets</td>
+<td>Concurrency-test boundary; a module name does not establish an active JCStress suite</td>
+</tr>
+</tbody>
+</table>
+<h2 id="remote-and-distributed-foundations">Remote And Distributed Foundations</h2>
+<p>These modules are a separate development path. An ordinary <code>Aether.open(path)</code>
+does not contact Raft, and the training-cache daemon is not a secured cluster
+node. Trace concrete transport/handler wiring before describing an end-to-end
+distributed feature as implemented.</p>
+<table>
+<thead>
+<tr>
+<th>Module/build boundary</th>
+<th>Start with</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-rpc-api/build.gradle.kts">aether-rpc-api</a></td>
+<td><code>RpcCallOptions</code>, handler/status contracts</td>
+<td>Calls, deadlines, admission and error semantics</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-rpc-codec/build.gradle.kts">aether-rpc-codec</a></td>
+<td><code>RpcFrameCodecV1</code>, <code>RpcFrameDecoder</code></td>
+<td>Framing, bounded decoding and wire compatibility</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-rpc-transport/build.gradle.kts">aether-rpc-transport</a></td>
+<td><code>PlaintextDevelopmentRpc</code></td>
+<td>Development socket transport; no confidentiality/certificate authentication</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-rpc-testkit/build.gradle.kts">aether-rpc-testkit</a></td>
+<td>Source sets and fixtures</td>
+<td>RPC test support</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-api/build.gradle.kts">aether-client-api</a></td>
+<td><code>ClientGetRequest</code>, <code>ClientProtocol</code></td>
+<td>General remote-client request/response contracts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-codec/build.gradle.kts">aether-client-codec</a></td>
+<td><code>ClientGetCodecV1</code>, <code>ClientWriteCodecV1</code></td>
+<td>Client operation serialization</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/build.gradle.kts">aether-client</a></td>
+<td><code>RemoteAetherClient</code>, <code>RemoteConnectionPool</code></td>
+<td>Endpoint resolution, connection use and retry/outcome handling</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-testkit/build.gradle.kts">aether-client-testkit</a></td>
+<td>Source sets and fixtures</td>
+<td>Client test support</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replication-api/build.gradle.kts">aether-replication-api</a></td>
+<td><code>ReplicatedLogStore</code>, <code>LogPosition</code></td>
+<td>Replicated log contracts and identities</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replicated-log/build.gradle.kts">aether-replicated-log</a></td>
+<td><code>ReplicatedLogEntryCodecV1</code></td>
+<td>Persisted replicated-entry encoding; distinct from local WAL groups</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-state-machine/build.gradle.kts">aether-state-machine</a></td>
+<td><code>AppliedState</code></td>
+<td>Applied-state foundations</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replication-testkit/build.gradle.kts">aether-replication-testkit</a></td>
+<td>Source sets and fixtures</td>
+<td>Replication test support</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-api/build.gradle.kts">aether-raft-api</a></td>
+<td><code>RaftRole</code>, vote/append reason types</td>
+<td>Consensus-facing records/contracts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-core/build.gradle.kts">aether-raft-core</a></td>
+<td><code>RaftCommitTracker</code>, <code>FollowerProgress</code></td>
+<td>Progress, freshness, quorum and commit helpers</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-storage/build.gradle.kts">aether-raft-storage</a></td>
+<td><code>RaftPersistentState</code>, state-slot codecs</td>
+<td>Persisted consensus-state encoding</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-testkit/build.gradle.kts">aether-raft-testkit</a></td>
+<td>Source sets and fixtures</td>
+<td>Raft test support</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-api/build.gradle.kts">aether-cluster-api</a></td>
+<td><code>ClusterIdentity</code>, <code>ClusterConfiguration</code></td>
+<td>Membership and identity contracts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-codec/build.gradle.kts">aether-cluster-codec</a></td>
+<td><code>IdentityCodecV1</code>, configuration codecs</td>
+<td>Durable/wire membership representations</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-core/build.gradle.kts">aether-cluster-core</a></td>
+<td><code>DualMajority</code></td>
+<td>Joint-configuration quorum logic, not complete deployment orchestration</td>
+</tr>
+</tbody>
+</table>
+<h2 id="from-module-to-test">From Module To Test</h2>
+<p>Within a Java module, start at <code>src/main/java</code>, then read matching packages under
+<code>src/test/java</code>. Build conventions are in <code>build-logic</code>, not duplicated in every
+module. Package-private implementations are intentionally tested within their
+package; widening an API solely to reach a test is usually unnecessary.</p>
+<p>For example, an SSTable decoder change needs SSTable malformed-input tests and
+affected engine reopen tests, while a typed collection change needs typed/codec
+tests rather than a storage format rewrite. Exact commands, optional test flags
+and placeholder-task limitations are in <a href="testing.html">Testing and contributing</a>.</p>
+<p>Python code lives under <code>clients/python</code>: <code>aether_training_cache</code> is the wire/store
+integration, and <code>aether_ml</code> adds derived-artifact identity, transforms and dataset
+adapters. <code>scripts</code> orchestrates research/reproduction rather than implementing
+the public database. See <a href="architecture.html#non-java-areas">Architecture</a> for other
+repository areas and <a href="operations.html">Operations</a> before opening an
+existing database with tools.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#local-engine-and-application-layers">Local Engine And Application Layers</a><a href="#cross-cutting-and-developer-tools">Cross-Cutting And Developer Tools</a><a href="#remote-and-distributed-foundations">Remote And Distributed Foundations</a><a href="#from-module-to-test">From Module To Test</a></nav></aside>
+  </div>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/CODE-TOUR.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Code tour: source-backed contributor documentation for Aether Engine.">
+  <title>Code tour | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/contributors.js" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html" aria-current="page">Code tour</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/CODE-TOUR.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="a-guided-code-tour">A Guided Code Tour</h1>
+<p><a href="index.html">Onboarding index</a> | <a href="modules.html">Module guide</a> | <a href="architecture.html">Architecture</a></p>
+<p>Read this after <a href="getting-started.html">Getting started</a>. The goal is to navigate an
+ordinary application request, locate its implementation and choose a regression
+test before changing code. You do not need Python, a dataset or a remote service
+for the first four routes.</p>
+<h2 id="1-from-an-application-to-the-database">1. From An Application To The Database</h2>
+<p>Open these files in order:</p>
+<ol>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-sample-app/src/main/java/io/aetherdb/examples/social/SocialNetworkApplication.java">SocialNetworkApplication</a>: chooses the in-memory or persistent database and runs the demonstration.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-sample-app/src/main/java/io/aetherdb/examples/social/SocialNetworkRepository.java">SocialNetworkRepository</a>: defines collections and implements domain CRUD, joins and relationship checks.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-embedded-typed/src/main/java/io/aetherdb/embedded/typed/AetherEmbedded.java">AetherEmbedded</a>: creates or adapts a byte database, transferring close ownership to the typed wrapper.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-embedded-typed/src/main/java/io/aetherdb/embedded/typed/EmbeddedTypedDatabase.java">EmbeddedTypedDatabase</a>: collection metadata, key/value encoding and typed-to-byte adaptation.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/AetherDatabase.java">AetherDatabase</a>: the contract implemented by both byte engines.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/Aether.java">Aether</a>: the composition root selecting the actual implementation.</li>
+</ol>
+<p>Trace <code>createProfile</code> and <code>findProfile</code>. Notice where a Java record becomes bytes,
+where a collection's identity is added, and where the returned bytes become a
+record again. Generated codecs come from annotations and schema locks, not
+reflection over arbitrary objects. See <a href="schemas.html">Typed API and schemas</a>.</p>
+<p>Then trace <code>follow</code>: two related mutations are placed in one typed batch. The
+repository's preceding lookups are application checks, not a serializable
+transaction or database-native foreign-key constraint. Do not infer concurrency
+guarantees from a single-threaded sample.</p>
+<p><strong>Checkpoint:</strong> explain which object owns the database and why a collection name,
+schema UUID and user key are three different identities.</p>
+<h2 id="2-one-online-write">2. One Online Write</h2>
+<p>Start at <code>put</code> in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/PersistentAetherDatabase.java">PersistentAetherDatabase</a>.
+It constructs a <code>WriteBatch</code>, then calls <code>write</code>. Read the inner
+<code>CommitCoordinator.submit</code> and <code>processCommitGroup</code> next. The persistent class is
+package-private: application code should use <code>Aether</code>, not construct it directly.</p>
+<pre><code class="language-text">put / delete / explicit batch
+  -&gt; WriteBatch owns copies of caller bytes
+  -&gt; CommitCoordinator gathers requests on a caller thread
+  -&gt; processCommitGroup seals and admits each batch
+  -&gt; assign sequence range
+  -&gt; encode logical WAL group and physical fragments
+  -&gt; mark submitted; append WAL
+  -&gt; apply mutations to active native memtable
+  -&gt; advance visible sequence
+  -&gt; requested WAL barrier; complete write outcome
+</code></pre>
+<p>Read these boundary implementations alongside the coordinator:</p>
+<ul>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/WriteBatch.java">WriteBatch</a>: byte limits, copied inputs and one-shot submission state.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-wal/src/main/java/io/aetherdb/wal/format/WalLogicalGroupCodec.java">WalLogicalGroupCodec</a>: batch/sequence encoding.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-wal/src/main/java/io/aetherdb/wal/format/WalFragmentCodec.java">WalFragmentCodec</a>: physical framing and validation.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memtable/src/main/java/io/aetherdb/memtable/skiplist/NativeSkipListMemTable.java">NativeSkipListMemTable</a>: ordered versioned records and native ownership.</li>
+</ul>
+<p>Public reads and group processing share the database monitor; intermediate
+mutation application is not a public partial-batch view. Submission/force failure
+can yield an indeterminate outcome and fence writes. An exception is not proof
+that no bytes were written. Admission can trigger synchronous flush before the
+new batch proceeds. The complete ordering and current durability distinctions
+are in <a href="storage.html#3-online-write-path">Storage engine</a>.</p>
+<p><strong>Checkpoint:</strong> locate the line that marks the batch submitted, the WAL append,
+the visibility update and the force. Explain failures on both sides of submission.</p>
+<h2 id="3-a-read-snapshot-and-delete">3. A Read, Snapshot And Delete</h2>
+<p>Follow <code>get</code> into <code>lookup</code>, then follow <code>newSnapshot</code> and <code>validateSnapshot</code> in
+the same persistent class. Compare with
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/InMemoryAetherDatabase.java">InMemoryAetherDatabase</a>
+to separate semantic rules from file mechanics.</p>
+<p>A read selects a visible record using a sequence boundary. A snapshot retains an
+older boundary and belongs to one database instance. A deletion is a versioned
+tombstone, not permission to erase every older record immediately. Compaction
+must preserve records needed by retained snapshots.</p>
+<p>Follow a table lookup into
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableReader.java">SSTableReader</a>
+and read <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/InternalKey.java">InternalKey</a>.
+User keys and internal keys have different ordering jobs. Check absence versus
+tombstone, and the lifetime/copy contract of
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/result/LookupResult.java">LookupResult</a>.
+Persistent scan cursors own materialized rows; they are not streaming iterators
+pinning arbitrary table files.</p>
+<p><strong>Checkpoint:</strong> predict current and snapshot results after put, overwrite and
+delete, then find the assertions in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/test/java/io/aetherdb/engine/InMemoryAetherDatabaseTest.java">InMemoryAetherDatabaseTest</a>.</p>
+<h2 id="4-flush-publication-and-reopen">4. Flush, Publication And Reopen</h2>
+<p>Read <code>flushActiveBody</code>, <code>open</code>, <code>recoverWal</code> and <code>close</code> in the persistent class.
+Use these collaborators to understand what survives a process exit:</p>
+<ul>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableBuilder.java">SSTableBuilder</a>: creates sorted immutable files.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/manifest/VersionSet.java">VersionSet</a>: validates and publishes the authoritative inventory.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableVerifier.java">SSTableVerifier</a>: structural/checksum verification without materializing DATA values.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/CompactionCoordinator.java">CompactionCoordinator</a>: schedules the single background worker.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/compaction/CompactionDroppingIterator.java">CompactionDroppingIterator</a>: version/tombstone retention rules.</li>
+</ul>
+<p>A file existing in the directory is not enough to make it authoritative. Manifest
+publication and the required WAL determine reopen behavior. Compaction builds
+outside the database monitor, then rechecks inputs before installation. Removing
+that recheck can lose a concurrent flush even when a single-threaded test passes.</p>
+<p>Read <code>valuesAndDeletesSurviveMultipleReopens</code>,
+<code>walCrashPointAfterForceBeforeAckMakesBatchOutcomeIndeterminate</code> and
+<code>corruptReferencedSstableIsFatal</code> in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/test/java/io/aetherdb/engine/PersistentAetherDatabaseTest.java">PersistentAetherDatabaseTest</a>.
+Then read <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/test/java/io/aetherdb/engine/BackgroundCompactionTest.java">BackgroundCompactionTest</a>.
+Crash tests establish their injected failure semantics, not every hardware
+power-loss scenario.</p>
+<p><strong>Checkpoint:</strong> explain why recovery must not initialize a fresh empty database
+over corrupt authoritative metadata, and when obsolete inputs can be removed.</p>
+<h2 id="5-the-optional-python-route">5. The Optional Python Route</h2>
+<p>Read <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/transform_cache.py">AetherTransformCache</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/identity.py">artifact identity</a>, the
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_training_cache/client.py">Python wire client</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheDaemon.java">TrainingCacheDaemon</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheProtocol.java">TrainingCacheProtocol</a>.
+Follow one <code>get_many_or_compute</code> call through key derivation, batch lookup,
+miss-only transformation, codec encoding and publication. The transform stays
+Python-side; Java stores immutable artifacts rather than executing a model.</p>
+<p>This protocol is different from the general RPC/client modules. Offline bulk
+ingestion is also different from an ordinary online write. Use
+<a href="python.html">Training cache and Python</a> for identities,
+multiprocessing, packed-buffer lifetime and supported failure behavior.</p>
+<p><strong>Checkpoint:</strong> explain why changing source content or transform parameters must
+change the artifact key, while appending unrelated samples must not invalidate
+old artifacts. Find the corresponding tests in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/tests/test_aether_ml.py">test_aether_ml.py</a>.</p>
+<h2 id="choose-a-first-contribution">Choose A First Contribution</h2>
+<table>
+<thead>
+<tr>
+<th>Task shape</th>
+<th>Where to work</th>
+<th>Verification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Add a sample-domain behavior</td>
+<td>Social repository and its tests</td>
+<td>Sample tests; explain application-level concurrency limits</td>
+</tr>
+<tr>
+<td>Cover a byte ownership or snapshot edge case</td>
+<td>API/engine tests, then owning implementation if needed</td>
+<td>In-memory semantic tests; persistent counterpart for a persistence claim</td>
+</tr>
+<tr>
+<td>Improve malformed binary-input rejection</td>
+<td>Owning WAL/SSTable codec and test</td>
+<td>Valid fixtures, corruption/truncation and affected reopen behavior</td>
+</tr>
+<tr>
+<td>Fix a cache identity regression</td>
+<td>Python identity/transform adapter</td>
+<td>Stable append keys, changed-content misses, caller ordering and Java integration where affected</td>
+</tr>
+<tr>
+<td>Clarify a configuration setting</td>
+<td>Setting registry plus actual consumer</td>
+<td>Validation tests and a test proving the runtime consumes the value</td>
+</tr>
+</tbody>
+</table>
+<p>Start with a failing assertion in an existing suite, not a new abstraction or a
+benchmark campaign. Keep the change inside its ownership boundary; expand testing
+when persisted bytes, concurrency or cross-language contracts change. See
+<a href="testing.html">Testing and contributing</a> for commands and review.</p>
+<p>From the repository root, a dataset-free first verification is:</p>
+<pre><code class="language-powershell">.\gradlew.bat :examples:aether-sample-app:run
+.\gradlew.bat :modules:aether-engine:test --tests io.aetherdb.engine.InMemoryAetherDatabaseTest --console=plain
+</code></pre>
+<p>On POSIX use <code>./gradlew</code>. Persistence, corruption and real-process suites are
+additional gates, not covered by this first verification.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#1-from-an-application-to-the-database">1. From An Application To The Database</a><a href="#2-one-online-write">2. One Online Write</a><a href="#3-a-read-snapshot-and-delete">3. A Read, Snapshot And Delete</a><a href="#4-flush-publication-and-reopen">4. Flush, Publication And Reopen</a><a href="#5-the-optional-python-route">5. The Optional Python Route</a><a href="#choose-a-first-contribution">Choose A First Contribution</a></nav></aside>
+  </div>
+</body>
+</html>

@@ -1,5 +1,11 @@
 # Contributing
 
+Start with [Developer onboarding](Docs/onboarding/README.md), the
+[guided code tour](Docs/onboarding/CODE-TOUR.md) and
+[module guide](Docs/onboarding/MODULE-GUIDE.md). Follow the
+[testing and contribution workflow](Docs/onboarding/TESTING-AND-CONTRIBUTING.md)
+before changing code.
+
 Read the [coding standards](Docs/07_Development_Workflow_and_Coding_Standards\(1\).md) and
 [build commands](docs/wiki/Build_and_Test_Commands.md) before changing code.
 

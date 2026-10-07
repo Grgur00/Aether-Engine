@@ -1,0 +1,240 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/README.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Overview: source-backed contributor documentation for Aether Engine.">
+  <title>Overview | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/contributors.js" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html" aria-current="page">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/README.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="developer-onboarding">Developer Onboarding</h1>
+<p>This guide explains the <strong>current source checkout</strong>, including its experimental ML
+cache tooling. It is an implementation guide, not a production-readiness certificate
+or a promise about a published artifact. Aether is pre-production: use disposable
+data while learning and keep irreplaceable data elsewhere.</p>
+<h2 id="start-here">Start Here</h2>
+<ol>
+<li><a href="getting-started.html">Get a working checkout</a>: JDK, wrapper, first sample, IDE and optional Python setup.</li>
+<li><a href="architecture.html">Understand the architecture</a>: module map, real runtime boundaries, and where to make changes.</li>
+<li>Follow the <a href="code-tour.html">guided code tour</a>: application, write, read, recovery and optional Python call chains.</li>
+<li>Use the <a href="modules.html">module guide</a> to locate the owning implementation, then <a href="testing.html">make a tested contribution</a>.</li>
+</ol>
+<pre><code class="language-mermaid">flowchart TD
+    Start[New developer] --&gt; Setup[Build and run the in-memory sample]
+    Setup --&gt; Map[Read the architecture map]
+    Map --&gt; App[Typed application and schema work]
+    Map --&gt; Engine[Storage and recovery work]
+    Map --&gt; ML[Python and training cache work]
+    App --&gt; Tests[Focused tests and contribution review]
+    Engine --&gt; Tests
+    ML --&gt; Tests
+    Tests --&gt; Ops[Operational safety and debugging]
+    Ops --&gt; Research[Optional experiments and profiling]
+</code></pre>
+<p>The graph is a reading path, not a dependency graph. Mermaid fences render on
+GitHub and in Mermaid-enabled Markdown previews; the adjacent text and tables
+carry the same information when a viewer does not render diagrams.</p>
+<h2 id="reading-paths">Reading Paths</h2>
+<table>
+<thead>
+<tr>
+<th>Your work</th>
+<th>Read next</th>
+<th>First code to inspect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Embedded application</td>
+<td><a href="schemas.html">Typed API and schemas</a></td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-sample-app/src/main/java/io/aetherdb/examples/social/SocialNetworkRepository.java">SocialNetworkRepository</a></td>
+</tr>
+<tr>
+<td>Engine correctness or performance</td>
+<td><a href="storage.html">Storage engine</a></td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/PersistentAetherDatabase.java">PersistentAetherDatabase</a></td>
+</tr>
+<tr>
+<td>PyTorch/MONAI integration</td>
+<td><a href="python.html">Training cache and Python</a></td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/transform_cache.py">TransformCache</a></td>
+</tr>
+<tr>
+<td>Reproduction and profiling</td>
+<td><a href="research.html">Experiments and profiling</a></td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/reproduce.py">reproduce.py</a></td>
+</tr>
+<tr>
+<td>Reliability and operational tooling</td>
+<td><a href="operations.html">Operations and debugging</a></td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-tools/src/main/java/io/aetherdb/tools/AetherCli.java">AetherCli</a></td>
+</tr>
+<tr>
+<td>RPC, client, replication or Raft foundations</td>
+<td><a href="architecture.html">Architecture</a></td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/src/main/java/io/aetherdb/client/RemoteAetherClient.java">RemoteAetherClient</a></td>
+</tr>
+</tbody>
+</table>
+<p>Use the <a href="glossary.html">glossary</a> when terminology is unfamiliar. All paths in these
+documents are relative to the repository unless a command says otherwise.</p>
+<h2 id="a-practical-first-week">A Practical First Week</h2>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Exercise</th>
+<th>Completion evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First session</td>
+<td>Run the in-memory social sample and its tests</td>
+<td>Sample prints <code>Deleted draft exists: false</code>; tests pass</td>
+</tr>
+<tr>
+<td>Storage orientation</td>
+<td>Trace one <code>put</code> through admission, WAL, publication and subsequent <code>get</code></td>
+<td>Explain what changes before and after the durable acknowledgement</td>
+</tr>
+<tr>
+<td>API orientation</td>
+<td>Read a generated codec, its record and committed schema lock</td>
+<td>Explain why a collection name, field ID and schema UUID are not interchangeable</td>
+</tr>
+<tr>
+<td>Integration orientation</td>
+<td>Read one Python batch lookup and the matching Java protocol branch</td>
+<td>Identify cache identity, miss preparation, publication and buffer ownership</td>
+</tr>
+<tr>
+<td>First change</td>
+<td>Add a regression test for a small behavior before editing it</td>
+<td>Focused tests fail before the change and pass afterward</td>
+</tr>
+<tr>
+<td>Review</td>
+<td>Explain ownership, failure states and format impact</td>
+<td>Review links to source/tests, not only a benchmark chart</td>
+</tr>
+</tbody>
+</table>
+<p>These exercises do not require a GPU, Kaggle credentials, production data, a
+cluster, or a full paper campaign.</p>
+<h2 id="rules-that-prevent-expensive-mistakes">Rules That Prevent Expensive Mistakes</h2>
+<ul>
+<li>One persistent directory has one process owner. Close the application before opening it in Workbench or offline tooling.</li>
+<li>Never infer durable success from a volatile stage acknowledgement or an indeterminate result.</li>
+<li>Keep readers, cursors, snapshots, native regions and packed responses within their documented lifetimes.</li>
+<li>Do not edit a manifest, WAL, schema lock or generated codec as a shortcut around a failing check.</li>
+<li>Do not remove checksums, barriers, locks or admission guards merely to improve a timing.</li>
+<li>A configuration key, module name, specification chapter or empty task is not evidence of an integrated production feature.</li>
+<li>Diagnostics, pilot measurements and fresh confirmatory measurements have different roles. Do not pool them.</li>
+<li>Build outputs and benchmark stores are disposable only when you have verified their identity and ownership. Never use an unverified recursive cleanup path.</li>
+</ul>
+<h2 id="documentation-authority">Documentation Authority</h2>
+<p>Source and tests are the authority for behavior. These onboarding pages link to
+both. <a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/Aether_Engine_Documentation_Index.md">Historical specifications</a> explain
+design intent, but several describe future or only partially integrated behavior.
+<a href="../docs/index.html">Website documentation</a> and the root README are
+additional entry points, not replacements for source verification.</p>
+<p>The repository can contain uncommitted experiments. Record <code>git status --short</code>
+and the revision when comparing behavior. A clean research snapshot in <code>build/</code>
+can be intentionally different from the active worktree.</p>
+<h2 id="verification-record">Verification Record</h2>
+<p>The documentation was checked against this worktree on 2026-09-30. This records
+the scope of the documentation review, not a release certification:</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Repository coverage</td>
+<td>All 49 Java modules in <code>settings.gradle.kts</code> are represented in the architecture inventory; Python integration, research tooling, build and operations have dedicated guides</td>
+</tr>
+<tr>
+<td>Documentation structure</td>
+<td>Local links and heading targets checked; code fences balanced; all 22 Mermaid diagrams rendered successfully</td>
+</tr>
+<tr>
+<td>First-run commands</td>
+<td>In-memory social sample and offline CLI help succeeded on Windows/JDK 21</td>
+</tr>
+<tr>
+<td>Focused Java tests</td>
+<td>83 tests executed across the sample, typed adapter, codec processor, tools and configuration: 69 passed, 14 failed with <code>RESOURCE_EXHAUSTED: write pressure: DISK_SPACE</code></td>
+</tr>
+<tr>
+<td>Focused Python tests</td>
+<td>70 passed and 2 opt-in real-JFR tests skipped across JFR orchestration, system campaign, confirmatory and Kaggle preparation tests</td>
+</tr>
+</tbody>
+</table>
+<p>The Java command was:</p>
+<pre><code class="language-powershell">.\gradlew.bat :examples:aether-sample-app:test :modules:aether-embedded-typed:test :modules:aether-codec-processor:test :modules:aether-tools:test :modules:aether-config:test --console=plain
+</code></pre>
+<p>The Python subset used <code>PYTHONPATH=scripts;clients/python</code> and <code>AETHER_JAVA_TEST=0</code>:</p>
+<pre><code class="language-powershell">.venv/Scripts/python.exe -m pytest scripts/tests/test_bulk_jfr.py scripts/tests/test_system_campaign.py scripts/tests/test_confirmatory.py scripts/tests/test_kaggle_remote.py -q
+</code></pre>
+<p>The disk-space failures affect persistence/recovery checks and are not passing
+coverage. Safeguards were not disabled, and no existing stores were deleted.
+The full Java/Python suites, real-JFR runs, GPU campaigns and remote submissions
+were not part of this documentation verification. Runtime code was not changed
+to make this guide's checks pass.</p>
+<h2 id="maintaining-this-guide">Maintaining This Guide</h2>
+<h3 id="contributor-navigation-check-2026-10-07">Contributor Navigation Check: 2026-10-07</h3>
+<p>The module guide and code tour were checked against the active worktree, not the
+separately frozen research checkout. All 49 module declarations were matched to
+the guide; named module entry symbols were checked against <code>src/main</code> Java files.
+All 406 local links/heading targets across the 13 onboarding pages resolved and
+code fences were balanced. No new Mermaid diagrams were added in this update.</p>
+<p>The in-memory social sample ran and printed <code>Deleted draft exists: false</code>.
+<code>InMemoryAetherDatabaseTest</code> executed 9 tests with no failures, errors or skips:</p>
+<pre><code class="language-powershell">.\gradlew.bat :examples:aether-sample-app:run :modules:aether-engine:test --tests io.aetherdb.engine.InMemoryAetherDatabaseTest --console=plain
+</code></pre>
+<p>These checks verify the first source-reading/semantic exercise, not persistence,
+all distributed foundations, optional Python integration or a production release.
+The earlier verification record above remains separate, including its failures.</p>
+<h3 id="ongoing-maintenance">Ongoing Maintenance</h3>
+<p>Update the relevant page when changing public APIs, configuration consumers,
+durability boundaries, CLI arguments, source layout or experiment protocols.
+Keep graph edges honest: label conceptual relationships, and do not draw a
+production cluster path where only independent foundations exist. Test commands
+against disposable fixtures and check local links after moving files.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#start-here">Start Here</a><a href="#reading-paths">Reading Paths</a><a href="#a-practical-first-week">A Practical First Week</a><a href="#rules-that-prevent-expensive-mistakes">Rules That Prevent Expensive Mistakes</a><a href="#documentation-authority">Documentation Authority</a><a href="#verification-record">Verification Record</a><a href="#maintaining-this-guide">Maintaining This Guide</a></nav></aside>
+  </div>
+</body>
+</html>

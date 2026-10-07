@@ -1,0 +1,356 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/EXPERIMENTS-AND-PROFILING.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Research tooling: source-backed contributor documentation for Aether Engine.">
+  <title>Research tooling | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/contributors.js" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html" aria-current="page">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/EXPERIMENTS-AND-PROFILING.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="experiments-and-profiling">Experiments And Profiling</h1>
+<p><a href="index.html">Onboarding index</a> | <a href="testing.html">Testing and contributing</a> | <a href="operations.html">Operations and debugging</a></p>
+<p>The research code is part of the implementation, not a folder of interchangeable benchmark commands. Different campaigns answer different questions and use different timing boundaries. Preserve those distinctions when changing code, collecting data or explaining results.</p>
+<p>This guide documents current runner behavior, not the status of a particular remote job. A local <code>run-status.json</code>, an old notebook log, or a historical result archive is not evidence that a new Kaggle version is running.</p>
+<p>The separately frozen <a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/H2-TRAINING-WORKLOAD.md">H2 streaming pilot</a> adds V0 training
+and a same-JVM bulk-to-online transition. Its harness is a distinct committed
+snapshot, not necessarily the active worktree. The longitudinal descriptions below
+refer to the earlier protocols unless explicitly qualified; do not pool their
+endpoints with H2.</p>
+<h2 id="evidence-levels">Evidence Levels</h2>
+<pre><code class="language-mermaid">flowchart LR
+    Tests[Unit and integration correctness] --&gt; Smoke[Small end-to-end smoke]
+    Smoke --&gt; Diagnostic[Diagnostic or profile]
+    Diagnostic --&gt; Change[Candidate implementation change]
+    Change --&gt; Tests
+    Smoke --&gt; Pilot[Fresh exploratory pilot]
+    Pilot --&gt; Freeze[Freeze source, workload, hypothesis and N]
+    Freeze --&gt; Confirm[Fresh confirmatory campaign]
+    Confirm --&gt; Report[Validate and report every completed block]
+</code></pre>
+<ul>
+<li><strong>Correctness tests</strong> check invariants on controlled fixtures; their timings are not benchmark results.</li>
+<li><strong>Smoke runs</strong> exercise the complete plumbing with fewer samples/epochs, outside later inference.</li>
+<li><strong>Diagnostics/profiles</strong> localize costs with tracing or JFR. Instrumented timings are not interchangeable with uninstrumented performance measurements.</li>
+<li><strong>Pilots</strong> support design choices and variance estimates. They remain exploratory after a favorable result.</li>
+<li><strong>Confirmatory campaigns</strong> bind the implementation, data membership, endpoint, hypotheses and sample size before fresh measurements. Do not pool pilot blocks, tune after inspection or choose the best-looking endpoint afterward.</li>
+</ul>
+<p>The current <code>primary</code> command is specifically the frozen <strong>20-epoch append75 superiority design</strong>, not a generic alias for any proposed primary experiment. The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/CONFIRMATORY-V1.md">earlier 10-epoch equivalence design</a> remains separate historical evidence. The longitudinal runner explicitly rejects <code>confirmatory: true</code>; it does not implement a 24-block longitudinal confirmation.</p>
+<h2 id="entry-points-and-ownership">Entry Points And Ownership</h2>
+<table>
+<thead>
+<tr>
+<th>Entry point</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/reproduce.py">reproduce.py</a></td>
+<td>Cross-platform wrapper for <code>test</code>, <code>smoke</code>, <code>profile</code>, <code>pilot</code>, <code>primary</code>, and <code>all</code>; runs Java cache tests/build before dispatch.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/run_matrix.py">run_matrix.py</a></td>
+<td>Paired training campaigns and their frozen conditions, outputs and resume validation.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/confirmatory.py">confirmatory.py</a></td>
+<td>Exact current primary design and evidence guards; knows the separate earlier design.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/analyze.py">analyze.py</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/figures.py">figures.py</a></td>
+<td>Training statistical summaries and figures from validated outputs.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/monai_comparison.py">monai_comparison.py</a></td>
+<td>Existing canonical transform, native cache adapters and one-update MONAI comparison.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/longitudinal_comparison.py">longitudinal_comparison.py</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/longitudinal_worker.py">longitudinal_worker.py</a></td>
+<td>Five-version paired orchestration and isolated backend jobs.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/longitudinal_state.py">longitudinal_state.py</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/persistent_service.py">persistent_service.py</a></td>
+<td>Stage receipts/checkpoints versus uninterrupted persistent-service state.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/longitudinal_analyze.py">longitudinal_analyze.py</a></td>
+<td>Cumulative wall-time comparisons, descriptive paired intervals and plots.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/profile_population.py">profile_population.py</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/bulk_population.py">bulk_population.py</a></td>
+<td>Population-only comparisons and the offline bulk writer adapter.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/profile_bulk_jfr.py">profile_bulk_jfr.py</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/bulk_jfr_analyze.py">bulk_jfr_analyze.py</a></td>
+<td>Controlled JFR collection and phase/sample analysis.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/paper_common.py">paper_common.py</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/system_campaign.py">system_campaign.py</a></td>
+<td>Runtime identity, subprocess lifecycle, atomic JSON, immutable protocol/environment and result receipts.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/package_artifact.py">package_artifact.py</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/kaggle_remote.py">kaggle_remote.py</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/kaggle_results.py">kaggle_results.py</a></td>
+<td>Source freeze, notebook submission controls and result-only packaging.</td>
+</tr>
+</tbody>
+</table>
+<p>Inspect a command before using it:</p>
+<pre><code class="language-powershell">.venv/Scripts/python.exe scripts/reproduce.py --help
+.venv/Scripts/python.exe scripts/kaggle_remote.py --help
+.venv/Scripts/python.exe scripts/longitudinal_comparison.py --help
+.venv/Scripts/python.exe scripts/profile_population.py --help
+.venv/Scripts/python.exe scripts/profile_bulk_jfr.py --help
+</code></pre>
+<p>These examples assume the <a href="testing.html#python-environments-and-optional-tests">scientific Python environment</a> exists. Some help entrypoints import their scientific dependencies before parsing arguments. Local fixture tests do not require the actual OCT5K image dataset; full workloads do.</p>
+<h2 id="workloads-and-timing-boundaries">Workloads And Timing Boundaries</h2>
+<table>
+<thead>
+<tr>
+<th>Family</th>
+<th>Fixed/current design</th>
+<th>Meaning of the endpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Current <code>primary</code></td>
+<td>1,430 -&gt; 1,505 samples, 75 additions; 24 fresh paired blocks; 20 epochs, batch 16, prefetch 0, trace off. Raw/Aether/incremental mmap/RAM-ready.</td>
+<td>All 20 V2 training epochs, including inline admission and training input work. Excludes V1 population, daemon startup, reference validation and final compaction drain.</td>
+</tr>
+<tr>
+<td>One-update MONAI pilot</td>
+<td>Five paired blocks; same 1,430 -&gt; 1,505 workload and 20 epochs. Aether/mmap/MONAI PersistentDataset/MONAI LMDBDataset.</td>
+<td>Separate initial-population, update/training and full-lifecycle reports. Here <code>fullLifecycleMs</code> sums service startup and both measured stages; it excludes model setup/warmup, correctness validation and close.</td>
+</tr>
+<tr>
+<td>Longitudinal restart pilot</td>
+<td>Five blocks; V0..V4 = 1,200/1,260/1,323/1,389/1,458; 20 epochs per update.</td>
+<td>Cumulative operational phases through V4, including V0 and each service restart.</td>
+</tr>
+<tr>
+<td>Longitudinal persistent pilot</td>
+<td>Same five versions/blocks/epochs; one Aether PID per block.</td>
+<td>Cumulative phases through V4 with one startup at V0 and one shutdown at V4. Other backend handles still reopen per job.</td>
+</tr>
+<tr>
+<td>Original population and bulk-prototype diagnostics</td>
+<td>Empty store, V0 1,200 artifacts, three repetitions; no model, training, or evolution.</td>
+<td>Population plus separately reported startup, drain and close; reference and correctness readback excluded from the population measurement.</td>
+</tr>
+<tr>
+<td>Bulk-layout diagnostic</td>
+<td>32/64/128 MiB SSTable targets, batch 16, three repetitions; no model or training.</td>
+<td>V0 population is measured separately from subsequent warm-read and V1 append regression checks; those checks are not added to V0 population time.</td>
+</tr>
+<tr>
+<td>Bulk JFR</td>
+<td>Fixed 32 MiB tables and batch 16; control -&gt; JFR -&gt; control.</td>
+<td>Diagnostic attribution and profiler overhead, not a new backend comparison or confirmatory endpoint.</td>
+</tr>
+</tbody>
+</table>
+<p>The primary hypothesis is one-sided paired log-ratio superiority of Aether over incremental mmap. The +/-3% equivalence test is secondary in the current design; it was primary in the earlier design. Read the <a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/CONFIRMATORY.md">full current protocol</a> and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/confirmatory.py">code guards</a> before changing or interpreting a <code>primary</code> result. All 1,505 samples must appear in every epoch.</p>
+<p>For longitudinal experiments, the five CSV manifests are frozen nested prefixes of one seeded permutation in <a href="https://github.com/Grgur00/Aether-Engine/blob/main/configs/paper/oct5k-longitudinal">configs/paper/oct5k-longitudinal</a>. New counts are 60, 63, 66 and 69; retained sample identity, content hashes and transform identity must not change. V0 populates without training. Each later version uses a fresh matched model/optimizer seed, the same ordered samples and exactly 20 epochs: 108,600 training sample requests per backend per complete block. These are successive simulated updates on the available pool, not four independently acquired real-world weekly datasets.</p>
+<p>The longitudinal measured sum is:</p>
+<pre><code class="language-text">stage = startup + scanAdmission + modelSetup + training + drain + close
+cumulative(V4) = stage(V0) + stage(V1) + stage(V2) + stage(V3) + stage(V4)
+paired speedup = baseline cumulative time / Aether cumulative time
+</code></pre>
+<p>Speedup above 1 means Aether completed the defined lifecycle faster. <code>scanAdmission</code> intentionally combines native opening/index reconstruction, lookup and preparation because MONAI LMDB populates eagerly in its constructor. Shared content-hash preflight, reference preparation, Python worker launch/import, checksum validation, checkpointing and plotting are separately recorded or excluded. The sum is not the notebook's elapsed time.</p>
+<p>Full protocols: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/MONAI-PILOT.md">MONAI pilot</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/LONGITUDINAL-PILOT.md">restart longitudinal</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/PERSISTENT-SERVICE-PILOT.md">persistent longitudinal</a>.</p>
+<h2 id="provenance-is-part-of-correctness">Provenance Is Part Of Correctness</h2>
+<pre><code class="language-mermaid">flowchart TD
+    Commit[Clean committed source] --&gt; Archive[Source ZIP and per-file SHA-256 manifest]
+    Archive --&gt; Prepared[Prepared notebook plus immutable input hashes]
+    Prepared --&gt; Upload[Private source dataset upload]
+    Upload --&gt; Ready[Dataset READY check]
+    Ready --&gt; Notebook[Notebook verifies attached source manifest]
+    Notebook --&gt; Build[Build Java and record runtime hashes]
+    Build --&gt; Campaign[Protocol, source and environment identity]
+    Campaign --&gt; Worker[Isolated measured worker]
+    Worker --&gt; Receipt[Checksummed result or stage receipt]
+    Receipt --&gt; Validation[Tensor, model, count and timing checks]
+    Validation --&gt; Bundle[Results-only ZIP with SHA256SUMS]
+</code></pre>
+<p>There are several distinct identities, not one universal checksum:</p>
+<table>
+<thead>
+<tr>
+<th>Artifact</th>
+<th>What it binds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>artifact-provenance.json</code> inside source ZIP</td>
+<td>Selected source-file hashes, originating Git commit/status and <code>sourceClean</code>. A source archive is not the result archive.</td>
+</tr>
+<tr>
+<td>ZIP <code>.sha256</code> sidecar</td>
+<td>Exact compressed source archive bytes. Repackaging can change this even if the source manifest is unchanged.</td>
+</tr>
+<tr>
+<td><code>build/kaggle/prepared.json</code></td>
+<td>Exact local config, source upload files and notebook files produced at <code>prepare</code>.</td>
+</tr>
+<tr>
+<td><code>paper-runtime-build.json</code></td>
+<td>Java/build source inventory, classpath file and actual class/resource/JAR bytes.</td>
+</tr>
+<tr>
+<td><code>campaign.json</code> and <code>environment.json</code></td>
+<td>Protocol hash, source hashes, measured host/package/runtime identity and environment report checksum.</td>
+</tr>
+<tr>
+<td>Result/stage receipt</td>
+<td>Its result payload plus protocol/environment identity; longitudinal receipts also bind block/version/backend and source identity.</td>
+</tr>
+<tr>
+<td><code>SHA256SUMS</code> in results ZIP</td>
+<td>Every bundled result file; JFR mode also writes its own recording/report checksum list.</td>
+</tr>
+</tbody>
+</table>
+<p><code>package_artifact.py</code> deliberately excludes caches, build products, virtual environments and datasets. On a clean checkout it packages selected tracked bytes from <code>git archive HEAD</code>, not an arbitrary untracked working directory. On a dirty checkout it can produce an explicitly dirty artifact, but scientific Kaggle modes such as primary, MONAI, longitudinal and population reject that source at preparation.</p>
+<p>Use an isolated clean checkout when unrelated development is in progress; do not discard work to satisfy a freeze. Record source commit/tag, archive hash, manifest hash, config and notebook identity before launching. GitHub synchronization and tagging are release/research procedures: <code>kaggle_remote.py prepare</code> does <strong>not</strong> commit, tag or push Git for you.</p>
+<p>The system campaign takes an OS lock, validates the executable before recording provenance, and uses atomic temporary-file replacement for JSON. Resume requires the same protocol, source and measured host environment. Do not edit source, reinstall packages, or modify result JSON to make a campaign resumable. A changed implementation needs a new output and campaign identity.</p>
+<h2 id="resume-is-workflow-specific">Resume Is Workflow-Specific</h2>
+<pre><code class="language-mermaid">flowchart TD
+    Resume[Resume requested] --&gt; Identity{Source, protocol and environment match?}
+    Identity --&gt;|No| Preserve[Preserve evidence; new campaign required]
+    Identity --&gt;|Yes| Mode{Service lifecycle}
+    Mode --&gt;|Restart per version| Stage[Validate stage receipt and closed checkpoint inventory]
+    Stage --&gt; Partial{Interrupted uncommitted store?}
+    Partial --&gt;|Yes| Restore[Confirm no live owner; restore verified prior checkpoint]
+    Partial --&gt;|No| Continue[Continue validated trajectory]
+    Restore --&gt; Continue
+    Mode --&gt;|Persistent per block| Complete{Whole paired block complete?}
+    Complete --&gt;|Yes| Reuse[Validate every receipt; reuse completed block]
+    Complete --&gt;|No| Preserve
+</code></pre>
+<p>Restart-based longitudinal stages commit independently hashed closed-store checkpoints; unverified partial stores are never silently reused. Live worker leases prevent concurrent recovery. Checkpoint copy/hash overhead is excluded from the commercial endpoint but can warm the OS page cache.</p>
+<p>Persistent-service mode must retain a single uninterrupted Aether PID. It deliberately does not copy/hash live stores between versions for any backend. An interrupted incomplete block cannot be resumed as if the service had never stopped: preserve it and choose a new campaign output. Only complete validated blocks are reusable under <code>--resume</code>.</p>
+<p>A results-only ZIP does not contain all cache stores and cannot reconstruct an interrupted cache trajectory. Capacity preflight is a conservative estimate, not a reservation; real disk exhaustion can still fail a campaign. Failed stores/evidence are retained for investigation. Never point a scratch option at the only copy of a source dataset or a preserved campaign.</p>
+<h2 id="population-and-bulk-diagnostics">Population And Bulk Diagnostics</h2>
+<p>The original <a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/POPULATION-DIAGNOSTIC.md">population diagnostic</a> has eleven arms: six <code>put_many</code> sizes (1/4/8/16/32/64) with lookup group fixed at 64, two original 16-sample pilot-path controls (traced/untraced), and mmap/PersistentDataset/LMDB baselines. Three repetitions use fresh workers/stores; a separate 65-sample smoke includes partial batches. The old pilot already batched publication, so it is incorrect to describe it as 1,200 single-artifact RPCs.</p>
+<p><code>--include-bulk</code> adds the separate offline bulk arm; the mutually exclusive <code>--bulk-layout</code> replaces that comparison with the three table-size arms. Layout mode also checks warm reads and incremental V1 admission after population, outside the V0 timer. Read <a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/BULK-POPULATION-PROTOTYPE.md">bulk prototype</a> and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/BULK-POPULATION-V2.md">layout v2</a> before comparing their arms. The bulk path is empty-store-only, creates SSTables directly and publishes their inventory durably; ordinary online writes are a different path. Bulk acknowledgements before final commit are staged, not durable.</p>
+<p>The offline adapter feeds the writer through a local pipe, not the online TCP daemon. It also knows the store is empty, so lookup/readback work differs. An end-to-end difference is not proof that all saved time came from avoiding WAL or memtable work. A fresh normal daemon must read back the committed store successfully before the result is accepted. That validation restart is outside the population timer; a future bulk-enabled lifecycle must explicitly charge any transition into online service.</p>
+<p>Useful measured layers include source/preprocessing, codec encoding, Python body/framing, request transfer/wait, Java parsing/ownership/integrity, database/WAL/force/memtable work, table creation, manifest publication and quiescence. Many durations are nested or overlap. Do not sum inclusive database, WAL, flush and socket-wait counters into a supposedly disjoint wall-time decomposition.</p>
+<h2 id="jfr-workflow">JFR Workflow</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/BULK-JFR.md">Bulk JFR mode</a> profiles the <strong>offline <code>BulkArtifactWriter</code> JVM</strong>, not the Gradle daemon or later restart reader. It uses <code>settings=profile</code>, stack depth 256, disk recording and dump-on-exit. JFR startup messages go to stderr so stdout remains the pipe protocol.</p>
+<p>Two custom event types connect sampled stacks to meaningful work:</p>
+<ul>
+<li><code>aether.BulkPopulation</code>: readiness through durable finish, including waits for Python input; excludes JVM/bootstrap startup. Python's population timer remains authoritative.</li>
+<li><code>aether.BulkPhase</code>: request decoding/integrity, sorted partitioning, table build/force/verification/rename, manifest stages and final quiescence. Events are enabled only for the profiled run. Some phases are inclusive of others.</li>
+</ul>
+<p>For a local <strong>tiny correctness recording</strong>, build the runtime/test classes, enable the integration flag, and run:</p>
+<pre><code class="language-powershell">$env:PYTHONPATH = 'scripts;clients/python'
+$env:AETHER_JAVA_TEST = '1'
+.venv/Scripts/python.exe -m pytest scripts/tests/test_bulk_jfr.py::test_control_profile_control_uses_same_fixture_and_retains_recording -q --basetemp build/local-jfr-test
+</code></pre>
+<p><code>--basetemp</code> is a disposable pytest directory and may be cleared on a later run. Preserve a recording elsewhere before rerunning if it is evidence you need. This fixture uses five synthetic samples, not the full 1,200-sample medical-imaging workload. The test output directory contains <code>results/aether-bulk-32.jfr</code> beneath its per-test temporary folder.</p>
+<p>On a machine with the frozen OCT5K manifest paths and data available, the full driver is:</p>
+<pre><code class="language-powershell">.venv/Scripts/python.exe scripts/profile_bulk_jfr.py --output results/bulk-jfr-new --scratch-root build/bulk-jfr-new-stores
+</code></pre>
+<p><code>--smoke</code> uses 65 genuine manifest samples, not the synthetic unit-test fixture. The full command is a real workload, not an onboarding prerequisite. It records control-before, JFR, control-after in fresh processes/stores and retains one recording. Outputs include <code>aether-bulk-32.jfr</code>, <code>jfr-events.json</code>, <code>jfr-event-summary.txt</code>, <code>jfr-summary.md</code>, <code>jfr-analysis.json</code>, all three receipts and checksums. Open the recording in Java Mission Control for thread/call-tree investigation, or inspect it with the JDK tool:</p>
+<pre><code class="language-powershell">jfr summary results/bulk-jfr-new/aether-bulk-32.jfr
+jfr print --json --events aether.BulkPopulation,aether.BulkPhase results/bulk-jfr-new/aether-bulk-32.jfr
+</code></pre>
+<p>The analyzer reports JFR population time divided by the mean of the two controls, plus sampled CPU stacks, weighted allocations, GC and thresholded I/O/blocking observations. Fixed control/profile/control order does not eliminate host drift. Missing events do not mean zero cost; allocation sampling is not an exact copy-byte count. Profiling alone cannot establish disk saturation or how much wall time an optimization will recover.</p>
+<p>Other JVM profiling hooks exist in <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/build.gradle.kts">training-cache Gradle tasks</a>: <code>trainingCacheDaemon</code> and <code>trainingCacheBenchmark</code> accept <code>-PjfrFile=&lt;path&gt;</code> and optional <code>-PjfrSettings=&lt;settings&gt;</code>. Relative paths resolve from that project. They profile those tasks' JVMs, not an independently launched Python bulk worker.</p>
+<h2 id="lower-level-engine-benchmarks">Lower-Level Engine Benchmarks</h2>
+<p>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/build.gradle.kts">aether-benchmarks module</a> runs <code>BenchmarkProfileRunner</code>. List registered profiles without executing a workload:</p>
+<pre><code class="language-powershell">./gradlew.bat :modules:aether-benchmarks:run --args=&quot;--list&quot;
+</code></pre>
+<p>Only three profile IDs currently map to executable <code>CvBenchmark</code> plans: <code>local.write.sequential.group_sync</code>, <code>local.read.point_warm</code>, and <code>local.recovery.wal_replay</code>. Other registered profiles fail explicitly as not executable. The CLI requires <code>--profile</code> and <code>--directory</code>, and supports record/read counts, batch/value size, output, durability/cache mode and crash-point options. It requires an empty benchmark directory. Do not confuse these storage micro/workload benchmarks with ML preprocessing/training lifecycles.</p>
+<p>Setting <code>AETHER_JFR=true</code> before the module's <code>run</code> task enables its own JFR recording under <code>modules/aether-benchmarks/build/jfr/aether-benchmark.jfr</code>. The profile runner may override requested knobs to preserve a named profile's semantics, so inspect the resulting plan/report rather than just the command text.</p>
+<p>The separate <code>:modules:aether-training-cache:trainingCacheCrashCampaign</code> task defaults to <strong>1,000 forced-process trials</strong> and deletes/recreates its <code>trial-*</code> directories. It is neither a quick check nor safe against an arbitrary user-data directory. Use only dedicated disposable storage and an explicitly chosen trial count.</p>
+<h2 id="kaggle-prepare-submit-and-retrieve">Kaggle Prepare, Submit And Retrieve</h2>
+<p>Kaggle actions can upload private source and consume a remote job allocation. Do not run them as a routine documentation or unit-test check. The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/VSCODE.md">remote guide</a> covers authentication; credentials stay in Kaggle's supported auth locations, never in source/config commits.</p>
+<p>The current helper separates actions:</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>setup</code></td>
+<td>Creates <code>build/kaggle-venv</code> and installs the pinned CLI environment.</td>
+</tr>
+<tr>
+<td><code>prepare</code></td>
+<td>Packages source, generates a private notebook and hashes local inputs under <code>build/kaggle</code>; uploads nothing. Configuration flags apply only here.</td>
+</tr>
+<tr>
+<td><code>upload-source</code></td>
+<td>Creates a private source dataset; <code>--update</code> publishes another version of an existing dataset.</td>
+</tr>
+<tr>
+<td><code>source-status</code></td>
+<td>Requires the source dataset to report <code>ready</code>.</td>
+</tr>
+<tr>
+<td><code>run</code></td>
+<td>Validates prepared/uploaded identity, checks dataset readiness and pushes the notebook. It does not accept replacement experiment flags.</td>
+</tr>
+<tr>
+<td><code>status</code>, <code>logs</code></td>
+<td>Inspect the configured remote notebook. Status refers to that remote target, not a downloaded archive.</td>
+</tr>
+<tr>
+<td><code>outputs</code></td>
+<td>Downloads <code>aether-results-only.zip</code> into a fresh <code>results/kaggle/&lt;timestamp&gt;</code> directory and checks ZIP integrity.</td>
+</tr>
+</tbody>
+</table>
+<p>For an approved new JFR collection, prepare from the frozen clean checkout with the intended account and existing image dataset:</p>
+<pre><code class="language-powershell">build/kaggle-venv/Scripts/python.exe scripts/kaggle_remote.py prepare --user YOUR_KAGGLE_USERNAME --mode population-jfr --no-server-trace --dataset-source DATASET_OWNER/DATASET_SLUG
+</code></pre>
+<p>Inspect <code>build/kaggle/config.json</code>, source provenance and notebook metadata before uploading. Preparation can inherit saved options for some modes; explicit arguments and inspection prevent reusing an unintended dataset/configuration. The image dataset must expose the paths expected by the frozen manifests. Population modes have no epochs and reject an epoch override. Current notebook metadata retains the T4 accelerator even for population-only modes, although no training is performed.</p>
+<p>After explicit authorization, the operational sequence is <code>upload-source --update</code>, <code>source-status</code>, <code>run</code>, then <code>status</code> until the requested launch condition is reached. Use <code>upload-source</code> without <code>--update</code> only for initial dataset creation. Do not repeatedly resubmit a queued notebook: retain its identity and inspect the existing job. A successful upload is not a running notebook, and <code>running</code> is not a successful experiment.</p>
+<p>The embedded <a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/vscode_run.py">notebook runner</a> checks attached source identity, setup and required gates before collection, writes <code>run-status.json</code>, and attempts results bundling even on failure. Persistent-service mode runs restart correctness separately before smoke/pilot; population/JFR use their own smoke and main output directories. On retrieval, inspect the status, failures, protocol, completion records and checksums before interpreting the summary. Keep original ZIPs immutable and keep prior source snapshots alongside them; preserved result archives are not benchmark source code.</p>
+<h2 id="interpretation-checklist">Interpretation Checklist</h2>
+<ul>
+<li>Compare the same endpoint and timing scope; update throughput and initial-population-inclusive lifecycle time answer different questions.</li>
+<li>Keep the raw, mmap, RAM and MONAI backend semantics explicit. Aether/mmap use TensorDictCodec while the MONAI pilot retains native Torch serialization; durability guarantees also differ.</li>
+<li>Report Aether startup/shutdown and service residence distinctly. Persistent Aether remains resident while baseline jobs run, affecting resource use and cache conditions.</li>
+<li>A process restart is not a cold OS page cache; common preflight and validation can warm input files. No privileged page-cache reset is implied.</li>
+<li>Input-wait time and sampled GPU utilization are proxies, not direct hardware GPU-idle measurements. Sampled disk high-water marks are lower bounds, not exact peaks.</li>
+<li>Preserve failures, interrupted attempts and complete unfavorable blocks. Do not edit receipts, remove awkward results, mix smoke/pilot/confirmatory data, or extend N after looking at effects.</li>
+<li>After an optimization, rerun correctness and a fresh exploratory pilot before freezing a new confirmatory study. A favorable old pilot cannot validate a changed system.</li>
+</ul>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#evidence-levels">Evidence Levels</a><a href="#entry-points-and-ownership">Entry Points And Ownership</a><a href="#workloads-and-timing-boundaries">Workloads And Timing Boundaries</a><a href="#provenance-is-part-of-correctness">Provenance Is Part Of Correctness</a><a href="#resume-is-workflow-specific">Resume Is Workflow-Specific</a><a href="#population-and-bulk-diagnostics">Population And Bulk Diagnostics</a><a href="#jfr-workflow">JFR Workflow</a><a href="#lower-level-engine-benchmarks">Lower-Level Engine Benchmarks</a><a href="#kaggle-prepare-submit-and-retrieve">Kaggle Prepare, Submit And Retrieve</a><a href="#interpretation-checklist">Interpretation Checklist</a></nav></aside>
+  </div>
+</body>
+</html>

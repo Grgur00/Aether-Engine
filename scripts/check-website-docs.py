@@ -61,6 +61,11 @@ def audit_page(path: Path) -> list[str]:
             target /= "index.html"
         if reference and not target.exists():
             errors.append(f"{path.relative_to(ROOT)}: missing local resource {reference}")
+        elif urlparse(reference).fragment and target.is_file() and target.suffix == ".html":
+            linked = PageAudit()
+            linked.feed(target.read_text(encoding="utf-8"))
+            if urlparse(reference).fragment not in linked.ids:
+                errors.append(f"{path.relative_to(ROOT)}: missing linked anchor {reference}")
     return errors
 
 
