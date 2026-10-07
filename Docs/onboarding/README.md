@@ -26,9 +26,7 @@ flowchart TD
     Ops --> Research[Optional experiments and profiling]
 ```
 
-The graph is a reading path, not a dependency graph. Mermaid fences render on
-GitHub and in Mermaid-enabled Markdown previews; the adjacent text and tables
-carry the same information when a viewer does not render diagrams.
+The graph is a reading path, not a dependency graph.
 
 ## Reading Paths
 
