@@ -49,6 +49,11 @@ class PersistentService:
         report = worker(backend, stage, live)
         report.update(serviceLifecycle=LIFECYCLE, checkpointPolicy="no live-store checkpoints; complete-block resume only")
         if backend == "aether":
+            if stage == 0 and "bulkPort" in self.daemon:
+                if not report.get("servicePort"):
+                    raise RuntimeError("bulk bootstrap did not publish a training port")
+                self.daemon["port"] = report["servicePort"]
+                del self.daemon["bulkPort"]
             if report["engineInfo"]["pid"] != self.daemon["pid"]:
                 raise RuntimeError("Aether service PID changed inside persistent block")
             report["serviceStartCount"] = int(stage == 0)

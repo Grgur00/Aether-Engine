@@ -28,6 +28,11 @@ def bundle_checkpoint(output, destination):
 
 
 def validate_config(config, fixture=False, smoke=False):
+    if config.get("initialPopulation") == "bulk-streaming-v1" and (
+            config.get("serviceLifecycle") != "persistent-per-block" or config.get("trainV0") is not True
+            or config.get("targetSstableBytes") != 33554432
+            or config.get("storageCommit") != "00760e5f31fa31a17e69522539a3b60318ca9bf0"):
+        raise ValueError("frozen H2 storage/training configuration drift")
     if config.get("serviceLifecycle", "restart-per-version") not in {"restart-per-version", "persistent-per-block"}:
         raise ValueError("unknown service lifecycle")
     if (len(config["versions"]) != 5 or config["versions"] != sorted(set(config["versions"]))
@@ -82,8 +87,8 @@ def validate_stage(report, config, stage):
     previous = config["versions"][stage - 1] if stage else 0
     if (report["preprocessCalls"] != count - previous or report["trainingCacheMisses"] != 0
             or report["uniqueArtifacts"] != count or report["reusedSamples"] != previous
-            or report["trainingSampleRequests"] != (count * config["epochs"] if stage else 0)
-            or len(report["epochs"]) != (config["epochs"] if stage else 0)):
+            or report["trainingSampleRequests"] != (count * config["epochs"] if stage or config.get("trainV0") else 0)
+            or len(report["epochs"]) != (config["epochs"] if stage or config.get("trainV0") else 0)):
         raise ValueError("longitudinal cardinality/request accounting mismatch")
     if any(epoch["sampleRequests"] != count for epoch in report["epochs"]):
         raise ValueError("training dropped or duplicated samples")
@@ -100,7 +105,11 @@ def run_block(index, output, scratch, meta, config, paths, reference, worker=Non
     identity = {"protocolHash": meta["protocolHash"], "sourceHash": digest(meta["sourceSha256"]),
                 "sourceManifestSha256": meta["protocol"]["sourceManifestSha256"],
                 "environmentId": meta["environmentId"], "blockIndex": index}
-    with PersistentService(scratch, reports, identity, completed=(reports / "paired.json").exists()) as service:
+    kwargs = {}
+    if config.get("initialPopulation") == "bulk-streaming-v1":
+        from h2_bootstrap import h2_daemon
+        kwargs["factory"] = h2_daemon
+    with PersistentService(scratch, reports, identity, completed=(reports / "paired.json").exists(), **kwargs) as service:
         return _run_block(index, output, scratch, meta, config, paths, reference, worker, service)
 
 
@@ -234,6 +243,11 @@ def main(argv=None):
             serviceResidence="reported separately, includes interleaved baseline jobs; excluded from operational phase sum",
             pageCache="uncontrolled; Aether service remains resident while baselines run; clients are fresh processes",
             restartCorrectness="separate CPU process-restart test, excluded from commercial pilot endpoint")
+    if config.get("initialPopulation") == "bulk-streaming-v1":
+        protocol.update(schema="aether-h2-streaming-pilot-v1", trainingVersions=[0, 1, 2, 3, 4],
+            storageCommit=config["storageCommit"], initialPopulation="same-JVM frozen bulk streaming-v1",
+            historicalComparability="V0 training added; do not pool with earlier pilot",
+            primaryPilotEndpoint="cumulative lifecycle through V4, including V0 training and one service start/stop")
     scratch_base = (opts.scratch_root or ROOT / "build/longitudinal-stores").resolve()
     scratch_base.mkdir(parents=True, exist_ok=True)
     required = capacity_required(config["versions"][-1], config["imageSize"])
@@ -270,7 +284,10 @@ def main(argv=None):
                 blocks.append(run_block(index, output, block_scratch, meta, config, paths, reference))
                 from longitudinal_analyze import analyze
                 write_json(output / "summary.json", {**analyze(blocks, common_ms), "measurementRole": protocol["measurementRole"]})
-                bundle_checkpoint(output, output.parent / f"{output.name}-through-block-{index:02d}.zip")
+                checkpoint = output.parent / f"{output.name}-through-block-{index:02d}.zip"
+                if config.get("initialPopulation") == "bulk-streaming-v1" and checkpoint.exists():
+                    checkpoint = checkpoint.with_name(checkpoint.stem + f"-resume-{time.time_ns()}.zip")
+                bundle_checkpoint(output, checkpoint)
                 remove_owned(block_scratch, scratch)
             from longitudinal_analyze import plot
             plot(blocks, output / "figures", role=protocol["measurementRole"])

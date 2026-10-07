@@ -60,7 +60,8 @@ def verified_submission(value):
         raise ValueError("Source dataset has no ready version to pin")
     pinned = f"{value['sourceDataset']}/{version}"
     destination = Path(tempfile.mkdtemp(prefix="submission-", dir=WORK))
-    names = ("candidate-source.bin",) if value["mode"] == "population-candidate-jfr" else ("candidate-source.bin", "baseline-source.bin")
+    names = ("candidate-source.bin",) if (value["mode"] == "population-candidate-jfr"
+        or value.get("initialPopulation") == "bulk-streaming-v1") else ("candidate-source.bin", "baseline-source.bin")
     for name in names:
         cli("datasets", "download", pinned, "-f", name, "-p", destination)
         downloaded = destination / name
@@ -100,6 +101,8 @@ def validate_prepared(value):
             raise ValueError("Prepared files changed; run Prepare again before uploading or running")
     allowed = {"dataset-metadata.json", "aether-paper-artifact.zip", "aether-paper-artifact.zip.sha256"}
     if value["mode"] == "population-candidate-jfr":
+        allowed.add("candidate-source.bin")
+    if value.get("initialPopulation") == "bulk-streaming-v1":
         allowed.add("candidate-source.bin")
     if value["mode"] in {"population-verification", "population-streaming"}:
         allowed.add("baseline-source.zip")
@@ -211,6 +214,8 @@ def prepare(args):
             raise ValueError("selected Kaggle mode and service lifecycle differ")
         if mode == "longitudinal-persistent":
             value["serviceLifecycle"] = expected_lifecycle
+            if specification.get("initialPopulation") == "bulk-streaming-v1":
+                value["initialPopulation"] = "bulk-streaming-v1"
         receipt, _ = verify(ROOT / specification["manifestDirectory"])
         if receipt["counts"] != specification["versions"] or receipt["seed"] != specification["seed"]:
             raise ValueError("longitudinal manifests differ from the frozen configuration")
@@ -246,7 +251,7 @@ def prepare(args):
         if mode in {"primary", "monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout", "population-jfr", "population-verification", "population-candidate-jfr", "population-streaming"} and provenance.get("sourceClean") is not True:
             raise ValueError(f"prepare {mode} requires a clean committed source snapshot")
         value["sourceManifestSha256"] = hashlib.sha256(archive.read("artifact-provenance.json")).hexdigest()
-    if mode == "population-candidate-jfr":
+    if mode == "population-candidate-jfr" or value.get("initialPopulation") == "bulk-streaming-v1":
         shutil.copy2(source_dir / "aether-paper-artifact.zip", source_dir / "candidate-source.bin")
     if baseline is not None:
         shutil.copy2(baseline, source_dir / "baseline-source.zip")
@@ -277,7 +282,7 @@ def prepare(args):
     if baseline is not None:
         files.append("source/baseline-source.zip")
         files.extend(["source/candidate-source.bin", "source/baseline-source.bin"])
-    if mode == "population-candidate-jfr":
+    if mode == "population-candidate-jfr" or value.get("initialPopulation") == "bulk-streaming-v1":
         files.append("source/candidate-source.bin")
     write(WORK / "prepared.json", {name: hashlib.sha256((WORK / name).read_bytes()).hexdigest() for name in files})
     print(f"Prepared private notebook {value['notebook']} in mode {value['mode']}; nothing uploaded")
@@ -356,7 +361,8 @@ def main():
         if uploaded != {"dataset": value["sourceDataset"], "manifestSha256": value["sourceManifestSha256"]}:
             raise ValueError("upload the freshly prepared source dataset before running this notebook")
         require_source_ready(value)
-        notebook = verified_submission(value) if value["mode"] in {"population-verification", "population-candidate-jfr", "population-streaming"} else WORK / "notebook"
+        notebook = verified_submission(value) if (value["mode"] in {"population-verification", "population-candidate-jfr", "population-streaming"}
+            or value.get("initialPopulation") == "bulk-streaming-v1") else WORK / "notebook"
         cli("kernels", "push", "-p", notebook, "--accelerator", value["accelerator"])
     elif args.action == "status":
         cli("kernels", "status", value["notebook"])

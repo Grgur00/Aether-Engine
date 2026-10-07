@@ -94,7 +94,7 @@ def execute(request):
     manager = (contextlib.nullcontext(external) if external else
                (base.java_daemon(directory) if backend == "aether" else contextlib.nullcontext(None)))
     disk_sampler = DiskSampler(directory)
-    gpu_sampler = workload.GpuUtilizationSampler(250 if device.type == "cuda" and stage else 0)
+    gpu_sampler = workload.GpuUtilizationSampler(250 if device.type == "cuda" and (stage or config.get("trainV0")) else 0)
     disk_sampler.start()
     gpu_sampler.start()
     parent_before = base.snapshot()
@@ -107,10 +107,11 @@ def execute(request):
         if request.get("lease"):
             write_json(request["lease"], {"pids": [os.getpid()] + ([daemon["pid"]] if daemon else [])})
         timings["startup"] = 0. if external else (time.perf_counter() - start) * 1000
-        port = daemon["port"] if daemon else None
+        bulk_v0 = backend == "aether" and stage == 0 and config.get("initialPopulation") == "bulk-streaming-v1"
+        port = daemon.get("port") if daemon else None
         java_before = base.snapshot(daemon["pid"]) if daemon else None
         info = None
-        if daemon:
+        if daemon and not bulk_v0:
             with base.AetherTrainingCache(port=port) as client:
                 info = client.engine_info()
             if external and info["pid"] != external["pid"]:
@@ -121,6 +122,25 @@ def execute(request):
             if info["cacheEntries"] != previous:
                 raise RuntimeError("persistent Aether entries did not survive restart")
         start = time.perf_counter()
+        bulk_commit = None
+        if bulk_v0:
+            from h2_bootstrap import BootstrapWriter
+            from bulk_population import BulkPublicationClient
+            from aether_ml.identity import artifact_key
+            codec = base.TensorDictCodec()
+            with BootstrapWriter(daemon) as writer:
+                client = BulkPublicationClient(writer, 16)
+                for batch in indices:
+                    client.put_many([(artifact_key("monai-pilot-v1", sources[i]["source_identity"],
+                        transform.identity, "1"), codec.encode(transform(sources[i]))) for i in batch])
+                bulk_commit = writer.finish()
+            if bulk_commit["artifacts"] != count or bulk_commit["sha256Calls"] != count:
+                raise RuntimeError("H2 bulk cardinality mismatch")
+            port = bulk_commit["servicePort"]
+            with base.AetherTrainingCache(port=port) as client:
+                info = client.engine_info()
+            if info["pid"] != daemon["pid"] or info["cacheEntries"] != count or info["durability"] != "DURABLE":
+                raise RuntimeError("H2 bootstrap identity or durability mismatch")
         ds = base.dataset(backend, sources, transform, directory, port)
         for batch in indices:
             base.fetch(ds, batch)
@@ -133,7 +153,7 @@ def execute(request):
         preparation_calls = transform.calls
         model = None
         initial_model_hash = None
-        if stage:
+        if stage or config.get("trainV0"):
             start = time.perf_counter()
             workload.set_seed(torch, args.seed)
             model = workload.create_model("small", torch).to(device)
@@ -211,6 +231,14 @@ def execute(request):
                              "scope": "stage process counters include validation/instrumentation; Java excludes process startup/exit"}}
         metrics["initialPopulation" if stage == 0 else "updateTraining"] = {
             key: metrics[key] for key in ("totalMs", "preparationMs", "preprocessCalls", "trainingPreprocessCalls", "epochs")}
+        if bulk_commit is not None:
+            metrics.update(bulkCommit=bulk_commit, servicePort=port)
+        metrics["reuseRate"] = previous / count
+        usage = metrics["processUsage"]
+        counters = [usage["python"]["diskWriteBytes"]] + ([usage["java"]["diskWriteBytes"]] if daemon else [])
+        metrics["bytesWritten"] = {
+            "value": sum(counters) if all(value is not None for value in counters) else None,
+            "scope": "Linux process write_bytes during worker stage; includes validation; excludes service startup/final exit; not logical payload bytes"}
         return metrics
     finally:
         gpu_sampler.stop()

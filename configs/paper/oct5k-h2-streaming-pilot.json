@@ -1,0 +1,20 @@
+{
+  "schema": "aether-h2-streaming-config-v1",
+  "serviceLifecycle": "persistent-per-block",
+  "initialPopulation": "bulk-streaming-v1",
+  "trainV0": true,
+  "targetSstableBytes": 33554432,
+  "storageCommit": "00760e5f31fa31a17e69522539a3b60318ca9bf0",
+  "manifestDirectory": "configs/paper/oct5k-longitudinal",
+  "sourceManifest": "/kaggle/input/aether-oct5k-pilot/manifests/v2.csv",
+  "sourceSamples": 1505,
+  "versions": [1200, 1260, 1323, 1389, 1458],
+  "seed": 20260926,
+  "pairedBlocks": 5,
+  "epochs": 20,
+  "batchSize": 16,
+  "imageSize": 256,
+  "prefetchDepth": 0,
+  "serverTrace": false,
+  "confirmatory": false
+}

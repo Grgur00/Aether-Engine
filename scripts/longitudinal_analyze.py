@@ -41,12 +41,22 @@ def analyze(blocks, common_ms=0.):
         for index in range(len(blocks)):
             observed.append(next((v for v in range(5) if checkpoints[f"V{v}"]["pairedRatios"][index] >= 1), None))
         comparisons[baseline] = {"cumulative": checkpoints, "perUpdate": updates,
+            "aetherToBaselineCumulative": {f"V{v}": ratio_summary([
+                b["backendResults"]["aether"]["cumulativeMs"][f"V{v}"] /
+                b["backendResults"][baseline]["cumulativeMs"][f"V{v}"] for b in blocks]) for v in range(5)},
             "includingCommonIdentification": shared, "firstObservedBreakEvenVersionByBlock": observed,
             "firstObservedGeometricMeanBreakEvenVersion": next((v for v in range(5) if checkpoints[f"V{v}"]["geometricMeanRatio"] >= 1), None)}
     return {"schema": "aether-longitudinal-analysis-v1", "measurementRole": "exploratory; no confirmatory claim",
             "completePairedBlocks": len(blocks), "primaryCheckpoint": "V4", "primaryComparison": "mmap",
             "ratioDirection": "baseline cumulative time / Aether cumulative time; >1 favors Aether",
-            "commonIdentificationMsAddedOnce": common_ms, "comparisons": comparisons}
+            "commonIdentificationMsAddedOnce": common_ms, "comparisons": comparisons,
+            "stageMetrics": {name: {f"V{v}": [{
+                "preparationMs": b["backendResults"][name]["stages"][v].get("preparationMs"),
+                "trainingMs": b["backendResults"][name]["stages"][v]["timingsMs"].get("training"),
+                "lifecycleMs": b["backendResults"][name]["stages"][v]["fullLifecycleMs"],
+                "reuseRate": b["backendResults"][name]["stages"][v].get("reuseRate"),
+                "bytesWritten": b["backendResults"][name]["stages"][v].get("bytesWritten")}
+                for b in blocks] for v in range(5)} for name in BACKENDS}}
 
 
 def plot(blocks, directory, role="Exploratory longitudinal pilot"):

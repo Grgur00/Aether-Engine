@@ -163,7 +163,7 @@ def test_real_five_version_process_restart(tmp_path):
     exercise_real_campaign(tmp_path)
 
 
-def exercise_real_campaign(tmp_path, service_lifecycle=None):
+def exercise_real_campaign(tmp_path, service_lifecycle=None, h2=False):
     pytest.importorskip("monai")
     from test_monai_comparison import fixture_data
     from longitudinal_comparison import main
@@ -177,6 +177,9 @@ def exercise_real_campaign(tmp_path, service_lifecycle=None):
               "prefetchDepth": 0, "serverTrace": False, "confirmatory": False}
     if service_lifecycle:
         config["serviceLifecycle"] = service_lifecycle
+    if h2:
+        config.update(initialPopulation="bulk-streaming-v1", trainV0=True, targetSstableBytes=33554432,
+                      storageCommit="00760e5f31fa31a17e69522539a3b60318ca9bf0")
     path = tmp_path / "config.json"
     path.write_text(json.dumps(config))
     command = ["--config", str(path), "--output", str(tmp_path / "run"),
@@ -187,11 +190,17 @@ def exercise_real_campaign(tmp_path, service_lifecycle=None):
     for name, result in block["backendResults"].items():
         assert [s["preprocessCalls"] for s in result["stages"]] == [1] * 5
         assert [s["reusedSamples"] for s in result["stages"]] == [0, 1, 2, 3, 4]
-        assert sum(s["trainingSampleRequests"] for s in result["stages"]) == 14
+        assert sum(s["trainingSampleRequests"] for s in result["stages"]) == (15 if h2 else 14)
         if name == "aether":
             assert len({s["engineInfo"]["pid"] for s in result["stages"]}) == (1 if service_lifecycle else 5)
             if service_lifecycle:
                 from persistent_service import validate_service_stages
                 validate_service_stages(result["stages"])
+            if h2:
+                commit = result["initial"]["bulkCommit"]
+                assert commit["servicePid"] == result["initial"]["engineInfo"]["pid"]
+                assert commit["storage"]["verification"]["inventoryCalls"] == 1
+                assert commit["storage"]["streamingVerification"]["implementation"] == "streaming-v1"
+                assert len(result["initial"]["epochs"]) == 1
     main(command + ["--resume"])
     assert (tmp_path / "run/figures/cumulative.png").stat().st_size > 1000

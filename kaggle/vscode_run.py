@@ -99,7 +99,8 @@ try:
     source = Path("/kaggle/input") / REMOTE_CONFIG["sourceDataset"].split("/")[1]
     repo.mkdir(parents=True, exist_ok=False)
     repo_created = True
-    opaque_source = REMOTE_CONFIG["mode"] in {"population-verification", "population-candidate-jfr", "population-streaming"}
+    opaque_source = (REMOTE_CONFIG["mode"] in {"population-verification", "population-candidate-jfr", "population-streaming"}
+                     or REMOTE_CONFIG.get("initialPopulation") == "bulk-streaming-v1")
     archives = list(source.rglob("candidate-source.bin")) if opaque_source else list(source.rglob("aether-paper-artifact.zip"))
     if opaque_source and len(archives) != 1:
         raise ValueError("attached source has no unique opaque candidate archive")
@@ -181,6 +182,11 @@ try:
         # Separate smoke stores/results; a failure prevents all pilot measurements.
         if REMOTE_CONFIG["mode"] == "longitudinal-persistent":
             run_restart_correctness(python)
+            if REMOTE_CONFIG.get("initialPopulation") == "bulk-streaming-v1":
+                temp = repo / "build/h2-correctness"
+                temp.parent.mkdir(parents=True, exist_ok=True)
+                run_logged([python, "-m", "pytest", "scripts/tests/test_h2_bootstrap.py", "-q",
+                    "--basetemp", str(temp), "--junitxml", str(results / "h2-correctness.xml")], cwd=repo)
         smoke_name = "longitudinal-persistent-smoke" if REMOTE_CONFIG["mode"] == "longitudinal-persistent" else "longitudinal-smoke"
         pilot_name = "longitudinal-persistent-pilot" if REMOTE_CONFIG["mode"] == "longitudinal-persistent" else "longitudinal-pilot"
         smoke = [python, "scripts/longitudinal_comparison.py", "--smoke",
