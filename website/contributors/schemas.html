@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../assets/docs.css">
   <link rel="stylesheet" href="../assets/contributors.css">
   <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
   <script src="../assets/contributors.js" defer></script>
 </head>
 <body class="docs-body contributor-body">
@@ -52,7 +53,7 @@ not a separate database, query planner, ORM, or transaction manager.</p>
 in-memory database. See <a href="getting-started.html">Getting started</a> before giving it a
 persistent directory.</p>
 <h2 id="call-path">Call Path</h2>
-<pre><code class="language-mermaid">sequenceDiagram
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">sequenceDiagram
     participant App as Application
     participant Typed as EmbeddedTypedDatabase
     participant Codec as Typed envelopes and generated codec
@@ -70,7 +71,7 @@ persistent directory.</p>
     Raw--&gt;&gt;Typed: Found bytes or not found
     Typed-&gt;&gt;Codec: Decode found value
     Typed--&gt;&gt;App: ReadResult
-</code></pre>
+</code></pre></details></figure>
 <p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-embedded-typed/src/main/java/io/aetherdb/embedded/typed/AetherEmbedded.java">AetherEmbedded</a>
 and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-embedded-typed/src/main/java/io/aetherdb/embedded/typed/EmbeddedTypedDatabase.java">EmbeddedTypedDatabase</a>.
 <code>openInMemory()</code> and <code>open(Path)</code> return owned, closeable typed databases.
@@ -194,7 +195,7 @@ appropriate bounds; inspect the annotations in
 <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec-annotations/src/main/java/io/aetherdb/codec/annotation">aether-codec-annotations</a>.
 The processor validates supported record shapes. Do not substitute general Java
 serialization or manually edit generated output to bypass it.</p>
-<pre><code class="language-mermaid">flowchart LR
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart LR
     Record[Annotated Java record] --&gt; Proposal[Schema proposal task]
     Locks[Committed schema locks] --&gt; Proposal
     Proposal --&gt; Review[Review identity and compatibility diff]
@@ -205,7 +206,7 @@ serialization or manually edit generated output to bypass it.</p>
     Compile --&gt; Generated[Generated codecs and provider metadata]
     Generated --&gt; Runtime[Runtime collection registration]
     Runtime --&gt; Stored[Stored collection metadata check]
-</code></pre>
+</code></pre></details></figure>
 <p>There are two gates: the compile-time schema lock and the existing store's
 runtime collection metadata. Passing one does not bypass the other.</p>
 <p>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/build.gradle.kts">root Gradle schema tasks</a> are project-scoped:</p>

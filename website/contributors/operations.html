@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../assets/docs.css">
   <link rel="stylesheet" href="../assets/contributors.css">
   <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
   <script src="../assets/contributors.js" defer></script>
 </head>
 <body class="docs-body contributor-body">
@@ -49,7 +50,7 @@ Close releases native resources and file handles as well as the lock. For the
 cache, staged acknowledgement is not durable admission: drain and publish using
 the matching cache API before relying on restart survival. See
 <a href="python.html">training-cache lifetimes</a>.</p>
-<pre><code class="language-mermaid">flowchart TD
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
     Symptom[Failure or unexpected latency] --&gt; Evidence[Save logs, revision, config, paths and timestamps]
     Evidence --&gt; Owner{Is another process the owner?}
     Owner --&gt;|Yes| Close[Stop work and close the actual owner]
@@ -61,7 +62,7 @@ the matching cache API before relying on restart survival. See
     Kind --&gt;|Performance| Profile[Measure a defined workload and timing scope]
     Preserve --&gt; Recover[Choose an explicit recovery operation]
     Recover --&gt; Verify[Verify recovered bytes and application invariants]
-</code></pre>
+</code></pre></details></figure>
 <h2 id="offline-cli">Offline CLI</h2>
 <p>The implementation is <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-tools/src/main/java/io/aetherdb/tools/AetherCli.java">AetherCli</a>.
 From the repository root:</p>
@@ -153,7 +154,7 @@ Individual commands have their own reports. When invoking through Gradle, a
 nonzero application exit becomes a failed Gradle task; read the application report
 rather than treating the wrapper's exit code as the full diagnosis.</p>
 <h2 id="configuration-declaration-versus-consumption">Configuration: Declaration Versus Consumption</h2>
-<pre><code class="language-mermaid">flowchart LR
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart LR
     Properties[Properties file] --&gt; Loader[AetherConfigLoader]
     Environment[Recognized environment variables] --&gt; Loader
     Overrides[Explicit overrides] --&gt; Loader
@@ -163,7 +164,7 @@ rather than treating the wrapper's exit code as the full diagnosis.</p>
     Open --&gt; Runtime[RuntimeConfiguration reads supported settings]
     Runtime --&gt; State[Engine state]
     Registry -. declaration alone does not wire a feature .-&gt; State
-</code></pre>
+</code></pre></details></figure>
 <p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/src/main/java/io/aetherdb/config/AetherConfigLoader.java">AetherConfigLoader</a>
 applies properties, then recognized environment values, then explicit overrides;
 registry defaults fill missing settings when read. Environment names are the

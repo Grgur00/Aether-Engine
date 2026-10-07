@@ -65,8 +65,9 @@
 .docs-paths b { margin-top: auto; font-size: 11px; }
 
 .docs-content .code-panel { margin: 24px 0 34px; }
-.docs-content pre { white-space: pre; }
-.docs-content pre code { font-size: 11px; }
+.docs-content pre { white-space: pre; color: #24332b; background: #f6f7f5; }
+.docs-content pre code { color: inherit; font-size: 11px; }
+.docs-content .code-panel pre { color: var(--code-ink); background: transparent; }
 .signature { overflow-x: auto; margin: 18px 0; padding: 18px 20px; border-left: 3px solid var(--accent); background: #eae7df; }
 .signature code { font-family: var(--mono); font-size: 11px; white-space: nowrap; }
 

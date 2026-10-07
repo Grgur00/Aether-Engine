@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../assets/docs.css">
   <link rel="stylesheet" href="../assets/contributors.css">
   <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
   <script src="../assets/contributors.js" defer></script>
 </head>
 <body class="docs-body contributor-body">
@@ -117,13 +118,13 @@ codecs are unavailable. See <a href="operations.html">operations</a>.</p>
 Keep annotation processing enabled or delegate builds to Gradle. Generated codec
 sources are under each module's <code>build/generated/</code> tree; their inputs are Java
 records and committed <code>aether-schemas/</code> locks. Never edit generated output.</p>
-<pre><code class="language-mermaid">flowchart LR
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart LR
     Record[Record source and annotations] --&gt; Processor[Annotation processor]
     Lock[Committed schema locks] --&gt; Processor
     Processor --&gt; Generated[Generated codecs and providers]
     Generated --&gt; Compile[Application compilation]
     Compile --&gt; Run[Sample or tests]
-</code></pre>
+</code></pre></details></figure>
 <p>Start with the sample's <a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-sample-app/src/main/java/io/aetherdb/examples/social/SocialNetworkRepository.java">repository</a>,
 follow <code>AetherEmbedded</code> into the typed adapter, then follow its byte database call.
 This is a smaller and more useful first reading exercise than opening every module.</p>

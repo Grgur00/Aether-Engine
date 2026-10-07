@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../assets/docs.css">
   <link rel="stylesheet" href="../assets/contributors.css">
   <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
   <script src="../assets/contributors.js" defer></script>
 </head>
 <body class="docs-body contributor-body">
@@ -50,7 +51,7 @@
 <li>Persistent scans materialize their result rows. They are not streaming merge iterators over pinned SSTable files.</li>
 <li>The empty-store bulk loader is a separate, explicitly experimental offline path.</li>
 </ul>
-<pre><code class="language-mermaid">flowchart TD
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
     App[Application] --&gt; API[AetherDatabase byte API]
     API --&gt; Engine[PersistentAetherDatabase]
     Engine --&gt; Commit[Commit coordinator]
@@ -67,7 +68,7 @@
     Read --&gt; Mem
     Read --&gt; L0
     Read --&gt; Levels
-</code></pre>
+</code></pre></details></figure>
 <h3 id="source-map">Source Map</h3>
 <table>
 <thead>
@@ -131,7 +132,7 @@
 <p>Close the database, snapshots, cursors, and write batches with try-with-resources. A snapshot belongs to one database instance and records a sequence boundary, not a timestamp or a durable checkpoint. Reopening a directory creates a different owner; handles from the old instance cannot be reused. Closing the database invalidates its snapshots.</p>
 <h3 id="write-outcomes">Write Outcomes</h3>
 <p>The one-shot batch state is useful when diagnosing failures:</p>
-<pre><code class="language-mermaid">stateDiagram-v2
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">stateDiagram-v2
     [*] --&gt; OPEN
     OPEN --&gt; SEALED: writer claims batch
     OPEN --&gt; CLOSED: close before submission
@@ -140,7 +141,7 @@
     SEALED --&gt; SUBMITTED: before WAL append
     SUBMITTED --&gt; SUCCEEDED: requested barrier completed
     SUBMITTED --&gt; INDETERMINATE: submission or force failure
-</code></pre>
+</code></pre></details></figure>
 <p>An exception after submission does not prove that the write was absent. The engine can fence subsequent writes and report an indeterminate outcome. Recover the store and inspect state before deciding whether an application-level operation can be retried. Do not retry the same <code>WriteBatch</code> instance; it is one-shot even after failure.</p>
 <p>The in-memory reference cannot perform a disk barrier. <code>WriteResult</code> reports the requested durability mode and whether a barrier actually occurred; a mode name alone is not evidence of persistence.</p>
 <h2 id="3-online-write-path">3. Online Write Path</h2>
@@ -154,7 +155,7 @@
 <li>The WAL bytes are appended before mutations enter the active memtable. <code>lastVisibleSequence</code> advances under the same state monitor.</li>
 <li>If any successfully prepared request requires synchronization, the group forces the WAL. Successful requests are marked succeeded and their waiting callers are released.</li>
 </ol>
-<pre><code class="language-mermaid">sequenceDiagram
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">sequenceDiagram
     participant Caller
     participant Queue as Commit coordinator
     participant DB as Database state monitor
@@ -174,7 +175,7 @@
     end
     DB--&gt;&gt;Queue: result or indeterminate failure
     Queue--&gt;&gt;Caller: acknowledge or throw
-</code></pre>
+</code></pre></details></figure>
 <p>Public reads also hold the state monitor. They cannot observe the intermediate mutations of a group while the writer is inside this critical section. Do not move visibility or lock boundaries casually when optimizing WAL construction or memtable insertion.</p>
 <h3 id="durability-modes-contract-versus-current-implementation">Durability Modes: Contract Versus Current Implementation</h3>
 <table>
@@ -218,7 +219,7 @@
 <p>Point lookup first queries the active memtable at the requested visible sequence. A visible value is returned immediately; a visible tombstone terminates the lookup as not found. If the memtable has no visible record, the engine checks its open SSTables and chooses the candidate with the highest visible sequence, including tombstones.</p>
 <p>Within one SSTable, the reader checks the Bloom filter, locates a candidate indexed data block, searches the user key, and selects a version no newer than the visibility boundary. <code>SSTableReader.open</code> performs complete structural and metadata validation, so opening a table is not merely opening a channel and deferring all validation until lookup.</p>
 <p>That open-time verification loads every data block into its <code>DataBlock.entries</code> list, and the current reader retains those decoded entries without eviction. Normal lookups therefore usually visit heap-resident decoded values even though a file channel remains open. This is not a bounded block cache or a disk-I/O benchmark on every lookup. Account for startup work and heap growth when scaling the store; a configured block-cache budget does not bound these lists.</p>
-<pre><code class="language-mermaid">flowchart TD
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
     Get[Get at visible sequence] --&gt; Mem[Active memtable lookup]
     Mem --&gt;|value| Return[Return copied value]
     Mem --&gt;|tombstone| Missing[Not found]
@@ -228,7 +229,7 @@
     Versions --&gt; Best[Choose highest sequence across tables]
     Best --&gt;|value| Return
     Best --&gt;|tombstone or absent| Missing
-</code></pre>
+</code></pre></details></figure>
 <p>Scans gather all candidate user keys from the active memtable and table entries, sort/deduplicate them, and call the same visibility lookup for each key in the requested range. The range is half-open: <code>[startInclusive, endExclusive)</code>. The returned <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/PersistentListCursor.java">PersistentListCursor</a> owns materialized rows, not live table readers. Consequences:</p>
 <ul>
 <li>Scan construction can consume substantial memory and time before the first row is returned.</li>
@@ -305,7 +306,7 @@
 <p><code>VersionSet.logAndApply</code> first validates the candidate version and new table inventory, then appends/forces the manifest record, then replaces its in-memory <code>current</code> version. A routine delta is an append to the existing manifest, not a rewrite/rename of <code>CURRENT</code>. Initial manifest creation has a separate temporary-file/rename/<code>CURRENT</code> publication protocol.</p>
 <p>Directory synchronization is platform-sensitive. Ordinary helper implementations tolerate some unsupported/access-denied cases; the bulk loader specifically tolerates Windows directory access denial. Tests on one OS do not establish identical crash-durability guarantees on another OS or filesystem.</p>
 <h2 id="8-recovery-and-close">8. Recovery and Close</h2>
-<pre><code class="language-mermaid">flowchart TD
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
     Open[Aether.open] --&gt; Root[Validate root and acquire lock]
     Root --&gt; Identity[Create or validate identity pair]
     Identity --&gt; Manifest[Recover CURRENT and manifest]
@@ -316,7 +317,7 @@
     Replay --&gt; Tail[Truncate incomplete final WAL tail]
     Tail --&gt; Ready[Install memtable and visible sequence]
     Ready --&gt; Schedule[Schedule eligible background compaction]
-</code></pre>
+</code></pre></details></figure>
 <p>Manifest recovery checks contiguous record numbers and version transitions. It truncates an incomplete last record only after creating a repair backup. Complete malformed records and invalid transitions fail. It verifies every referenced table before cleaning obsolete canonical SSTable files.</p>
 <p>WAL recovery validates the segment header and fragment checksums, skips groups entirely at or below the persisted watermark, and requires contiguous sequences above that watermark. A group straddling the watermark or a sequence discontinuity fails. The active memtable must have sufficient capacity for the replayed content; recovery is not an unlimited-memory salvage process.</p>
 <p>Open can repair tails and remove known obsolete files. It is therefore not a read-only forensic operation. Copy a store before investigating damage. <code>VersionSet.inspect</code> provides manifest inspection without truncation/deletion; <code>inspectMetadata</code> deliberately omits table verification for explicit forensic workflows. Neither is a replacement for normal recovery validation.</p>
@@ -370,7 +371,7 @@
 <p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/EmptyStoreBulkLoader.java">EmptyStoreBulkLoader</a> is deliberately separate from <code>AetherDatabase.write</code>. It is for a never-populated store, not a faster flag on arbitrary online writes.</p>
 <p>The constructor bootstraps canonical metadata if necessary, takes the exclusive directory lock, recovers the manifest, and rejects any store with tables, assigned sequences, a persisted watermark, or WAL content beyond its header. Deleting all logical keys from an old store does not make it eligible.</p>
 <p><code>add</code> copies keys/values into an unsigned-key-ordered <code>TreeMap</code>, rejects duplicates, and poisons the writer after a staging validation failure. Defaults cap staged key/value bytes at 512 MiB and entries at 100,000, with a 32 MiB target table size. These are prototype limits, not a hard JVM heap bound: map overhead, defensive copies, SSTable buffers, and verification can consume additional memory. The target is a partitioning threshold, not an exact encoded file-size cap.</p>
-<pre><code class="language-mermaid">sequenceDiagram
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">sequenceDiagram
     participant Caller
     participant Bulk as Offline bulk loader
     participant Tables as Sorted L1 tables
@@ -387,7 +388,7 @@
     Bulk-&gt;&gt;Bulk: remove obsolete empty WAL
     Bulk--&gt;&gt;Caller: committed receipt
     Caller-&gt;&gt;Bulk: close and release lock
-</code></pre>
+</code></pre></details></figure>
 <p><code>finish</code> assigns sequences in sorted-key order and builds nonoverlapping L1 tables. It writes no artifact payload to the WAL and inserts no artifact into a memtable. It still creates and forces the replacement empty WAL header and synchronizes publication metadata. One manifest edit publishes the complete inventory and watermark. Closing without <code>finish</code> does not commit.</p>
 <p>Bulk Verification v2 defers the bulk builder's check to this inventory boundary and
 removes its redundant post-rename reader open. Ordinary builder finishes retain

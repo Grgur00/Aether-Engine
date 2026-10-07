@@ -30,3 +30,21 @@ def test_module_guide_contains_all_49_modules():
     body, headings = docs.render(docs.SOURCE / "MODULE-GUIDE.md")
     assert body.count("<tr>") == 52  # Three table headers plus 49 module rows.
     assert any(anchor == "remote-and-distributed-foundations" for anchor, _ in headings)
+
+
+def test_diagrams_have_readable_fallback_and_local_renderer():
+    diagram_count = 0
+    for source, target, title in docs.PAGES:
+        html = docs.page(source, target, title)
+        diagram_count += html.count('class="docs-diagram"')
+        assert 'src="../assets/vendor/mermaid-10.9.5.min.js"' in html
+        assert html.count('class="docs-diagram"') == html.count('class="docs-diagram-source" open')
+    assert diagram_count == 22
+    assert (ROOT / "website/assets/vendor/mermaid-10.9.5.min.js").is_file()
+
+
+def test_mermaid_source_is_escaped():
+    html = docs.parser.render('```mermaid\nflowchart TD\nA["<script>alert(1)</script>"]\n```')
+    assert '<script>' not in html
+    assert '&lt;script&gt;' in html
+    assert '<details class="docs-diagram-source" open>' in html

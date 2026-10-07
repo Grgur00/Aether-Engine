@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../assets/docs.css">
   <link rel="stylesheet" href="../assets/contributors.css">
   <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
   <script src="../assets/contributors.js" defer></script>
 </head>
 <body class="docs-body contributor-body">
@@ -44,7 +45,7 @@ data while learning and keep irreplaceable data elsewhere.</p>
 <li>Follow the <a href="code-tour.html">guided code tour</a>: application, write, read, recovery and optional Python call chains.</li>
 <li>Use the <a href="modules.html">module guide</a> to locate the owning implementation, then <a href="testing.html">make a tested contribution</a>.</li>
 </ol>
-<pre><code class="language-mermaid">flowchart TD
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
     Start[New developer] --&gt; Setup[Build and run the in-memory sample]
     Setup --&gt; Map[Read the architecture map]
     Map --&gt; App[Typed application and schema work]
@@ -55,7 +56,7 @@ data while learning and keep irreplaceable data elsewhere.</p>
     ML --&gt; Tests
     Tests --&gt; Ops[Operational safety and debugging]
     Ops --&gt; Research[Optional experiments and profiling]
-</code></pre>
+</code></pre></details></figure>
 <p>The graph is a reading path, not a dependency graph. Mermaid fences render on
 GitHub and in Mermaid-enabled Markdown previews; the adjacent text and tables
 carry the same information when a viewer does not render diagrams.</p>

@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../assets/docs.css">
   <link rel="stylesheet" href="../assets/contributors.css">
   <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
   <script src="../assets/contributors.js" defer></script>
 </head>
 <body class="docs-body contributor-body">
@@ -38,7 +39,7 @@
 <p>Aether is not a single distributed service with every module enabled. The current
 checkout contains a local embedded engine, an application-specific training cache,
 and independent distributed-system foundations.</p>
-<pre><code class="language-mermaid">flowchart TD
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
     App[Java application] --&gt; Typed[Typed embedded adapter]
     Typed --&gt; Byte[Byte database API]
     App --&gt; Byte
@@ -53,7 +54,7 @@ and independent distributed-system foundations.</p>
     WAL --&gt; Files
     Remote[Remote Java client] -. separate development path .-&gt; RPC[Framed development RPC]
     RPC -. handler integration is separate .-&gt; Foundations[Replication and Raft foundations]
-</code></pre>
+</code></pre></details></figure>
 <p>Arrows describe calls and conceptual data flow, not every Gradle dependency. A
 dashed path is not a claim that the repository provides an integrated production
 Raft cluster. The training-cache wire protocol is also <strong>not</strong> the general Java

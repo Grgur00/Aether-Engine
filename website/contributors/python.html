@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../assets/docs.css">
   <link rel="stylesheet" href="../assets/contributors.css">
   <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
   <script src="../assets/contributors.js" defer></script>
 </head>
 <body class="docs-body contributor-body">
@@ -100,7 +101,7 @@ explicit binary/JSON formats instead.</p>
 delegates to PyTorch. The low-level one in <code>aether_training_cache.dataset</code> loads
 segment references. The <code>aetherml</code> loader belongs to the filesystem prototype.
 Imports determine the behavior; the class name alone is not enough.</p>
-<pre><code class="language-mermaid">flowchart TD
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
     Train[Training loop] --&gt; Dataset[aether_ml AetherDataset]
     Dataset --&gt; Cache[AetherTransformCache]
     Cache --&gt; Client[aether_training_cache client]
@@ -111,7 +112,7 @@ Imports determine the behavior; the class name alone is not enough.</p>
     Java --&gt;|segment metadata| Engine
     Engine --&gt; Storage[WAL / memtable / SSTables / manifest]
     Separate[aetherml filesystem prototype] --&gt; Files[Python artifact blobs and metadata]
-</code></pre>
+</code></pre></details></figure>
 <h2 id="2-run-a-small-daemon-backed-example">2. Run a Small Daemon-Backed Example</h2>
 <p>The Python distribution is named <code>aether-training-cache</code>, version <code>0.1.0</code> in the
 current <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/pyproject.toml">pyproject.toml</a>. It requires Python
@@ -238,7 +239,7 @@ delete them. Java exposes <code>invalidateNamespace</code>/<code>deleteNamespace
 wire protocol has no namespace-delete opcode. Python <code>normalize_namespace</code> is an
 explicit utility, not an automatic normalization step in dataset construction.</p>
 <h2 id="4-dataset-and-transform-flow">4. Dataset and Transform Flow</h2>
-<pre><code class="language-mermaid">sequenceDiagram
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">sequenceDiagram
     participant Loader as DataLoader / caller
     participant Dataset as AetherDataset
     participant Cache as AetherTransformCache
@@ -256,7 +257,7 @@ explicit utility, not an automatic normalization step in dataset construction.</
     Cache--&gt;&gt;Dataset: prepared values
     Dataset-&gt;&gt;Dataset: optional metadata merge, then random augmentation
     Dataset--&gt;&gt;Loader: requested batch
-</code></pre>
+</code></pre></details></figure>
 <p>The implementation deduplicates keys within a request while preserving caller
 order in its returned list. It chunks more than 4,096 source entries, performs
 one lookup per chunk, and publishes missing entries in a batch. It still accesses
@@ -570,13 +571,13 @@ See <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/a
 matrix in <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/tests/test_aether_ml.py">test_aether_ml.py</a>.</p>
 <p>The research <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_training_cache/prefetch.py">BoundedPrefetchIterator</a>
 is a different component, not an implicit setting on <code>AetherDataset</code>:</p>
-<pre><code class="language-mermaid">flowchart LR
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart LR
     Schedule[Fixed caller schedule] --&gt; Prepare[One producer callback]
     Prepare --&gt; Queue[Ready queue: capacity depth]
     Queue --&gt; Consumer[Ordered consumer]
     Consumer -. early close .-&gt; Cancel[Cancel pending I/O, then join]
     Cancel -.-&gt; Prepare
-</code></pre>
+</code></pre></details></figure>
 <p>Depth zero creates no worker and prepares synchronously. Positive depth creates
 one producer, a queue of exactly that depth, and at most one additional batch in
 preparation or waiting to enqueue. It preserves schedule order, forwards failures
@@ -640,7 +641,7 @@ PUT_MANY bodies through an offline stdin pipe, and uses
 <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/EmptyStoreBulkLoader.java">EmptyStoreBulkLoader</a>
 to build sorted SSTables directly. Existing online writes remain on their normal
 WAL/memtable path.</p>
-<pre><code class="language-mermaid">flowchart LR
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart LR
     Python[Python preprocess and encode] --&gt; Pipe[PUT_MANY body over local pipe]
     Pipe --&gt; Stage[STAGED: volatile acknowledgment]
     Stage --&gt; Sort[Bounded sorted buffer]
@@ -649,7 +650,7 @@ WAL/memtable path.</p>
     Verify --&gt; Manifest[One forced manifest edit]
     Manifest --&gt; Finish[Explicit finish: committed receipt]
     Finish --&gt; Restart[Fresh normal daemon: full readback]
-</code></pre>
+</code></pre></details></figure>
 <p>Only explicit finish publishes the inventory. EOF/close is not commit; a failed
 or indeterminate commit requires reopen/validation, not blind retries. The
 prototype is bounded to 512 MiB encoded key/value buffering and 100,000 entries,

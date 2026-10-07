@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../assets/docs.css">
   <link rel="stylesheet" href="../assets/contributors.css">
   <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
   <script src="../assets/contributors.js" defer></script>
 </head>
 <body class="docs-body contributor-body">
@@ -42,7 +43,7 @@ snapshot, not necessarily the active worktree. The longitudinal descriptions bel
 refer to the earlier protocols unless explicitly qualified; do not pool their
 endpoints with H2.</p>
 <h2 id="evidence-levels">Evidence Levels</h2>
-<pre><code class="language-mermaid">flowchart LR
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart LR
     Tests[Unit and integration correctness] --&gt; Smoke[Small end-to-end smoke]
     Smoke --&gt; Diagnostic[Diagnostic or profile]
     Diagnostic --&gt; Change[Candidate implementation change]
@@ -51,7 +52,7 @@ endpoints with H2.</p>
     Pilot --&gt; Freeze[Freeze source, workload, hypothesis and N]
     Freeze --&gt; Confirm[Fresh confirmatory campaign]
     Confirm --&gt; Report[Validate and report every completed block]
-</code></pre>
+</code></pre></details></figure>
 <ul>
 <li><strong>Correctness tests</strong> check invariants on controlled fixtures; their timings are not benchmark results.</li>
 <li><strong>Smoke runs</strong> exercise the complete plumbing with fewer samples/epochs, outside later inference.</li>
@@ -184,7 +185,7 @@ paired speedup = baseline cumulative time / Aether cumulative time
 <p>Speedup above 1 means Aether completed the defined lifecycle faster. <code>scanAdmission</code> intentionally combines native opening/index reconstruction, lookup and preparation because MONAI LMDB populates eagerly in its constructor. Shared content-hash preflight, reference preparation, Python worker launch/import, checksum validation, checkpointing and plotting are separately recorded or excluded. The sum is not the notebook's elapsed time.</p>
 <p>Full protocols: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/MONAI-PILOT.md">MONAI pilot</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/LONGITUDINAL-PILOT.md">restart longitudinal</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/PERSISTENT-SERVICE-PILOT.md">persistent longitudinal</a>.</p>
 <h2 id="provenance-is-part-of-correctness">Provenance Is Part Of Correctness</h2>
-<pre><code class="language-mermaid">flowchart TD
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
     Commit[Clean committed source] --&gt; Archive[Source ZIP and per-file SHA-256 manifest]
     Archive --&gt; Prepared[Prepared notebook plus immutable input hashes]
     Prepared --&gt; Upload[Private source dataset upload]
@@ -196,7 +197,7 @@ paired speedup = baseline cumulative time / Aether cumulative time
     Worker --&gt; Receipt[Checksummed result or stage receipt]
     Receipt --&gt; Validation[Tensor, model, count and timing checks]
     Validation --&gt; Bundle[Results-only ZIP with SHA256SUMS]
-</code></pre>
+</code></pre></details></figure>
 <p>There are several distinct identities, not one universal checksum:</p>
 <table>
 <thead>
@@ -240,7 +241,7 @@ paired speedup = baseline cumulative time / Aether cumulative time
 <p>Use an isolated clean checkout when unrelated development is in progress; do not discard work to satisfy a freeze. Record source commit/tag, archive hash, manifest hash, config and notebook identity before launching. GitHub synchronization and tagging are release/research procedures: <code>kaggle_remote.py prepare</code> does <strong>not</strong> commit, tag or push Git for you.</p>
 <p>The system campaign takes an OS lock, validates the executable before recording provenance, and uses atomic temporary-file replacement for JSON. Resume requires the same protocol, source and measured host environment. Do not edit source, reinstall packages, or modify result JSON to make a campaign resumable. A changed implementation needs a new output and campaign identity.</p>
 <h2 id="resume-is-workflow-specific">Resume Is Workflow-Specific</h2>
-<pre><code class="language-mermaid">flowchart TD
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
     Resume[Resume requested] --&gt; Identity{Source, protocol and environment match?}
     Identity --&gt;|No| Preserve[Preserve evidence; new campaign required]
     Identity --&gt;|Yes| Mode{Service lifecycle}
@@ -252,7 +253,7 @@ paired speedup = baseline cumulative time / Aether cumulative time
     Mode --&gt;|Persistent per block| Complete{Whole paired block complete?}
     Complete --&gt;|Yes| Reuse[Validate every receipt; reuse completed block]
     Complete --&gt;|No| Preserve
-</code></pre>
+</code></pre></details></figure>
 <p>Restart-based longitudinal stages commit independently hashed closed-store checkpoints; unverified partial stores are never silently reused. Live worker leases prevent concurrent recovery. Checkpoint copy/hash overhead is excluded from the commercial endpoint but can warm the OS page cache.</p>
 <p>Persistent-service mode must retain a single uninterrupted Aether PID. It deliberately does not copy/hash live stores between versions for any backend. An interrupted incomplete block cannot be resumed as if the service had never stopped: preserve it and choose a new campaign output. Only complete validated blocks are reusable under <code>--resume</code>.</p>
 <p>A results-only ZIP does not contain all cache stores and cannot reconstruct an interrupted cache trajectory. Capacity preflight is a conservative estimate, not a reservation; real disk exhaustion can still fail a campaign. Failed stores/evidence are retained for investigation. Never point a scratch option at the only copy of a source dataset or a preserved campaign.</p>

@@ -18,5 +18,7 @@ then regenerate using the pinned Markdown parser:
 Run these from the repository root. Commit the source Markdown and generated
 pages together. Local onboarding links become website links; code, tests and
 other repository links point to GitHub. Build outputs and local research
-checkouts are not copied into the site. Fenced architecture sketches retain a
-readable source representation without fetching a diagram renderer at runtime.
+checkouts are not copied into the site. Mermaid diagrams use the pinned, locally
+hosted Mermaid 10.9.5 bundle in `assets/vendor/`; no CDN requests are needed.
+Diagram source remains available and is expanded when JavaScript is unavailable
+or a diagram cannot be rendered. The vendor directory includes the MIT license.

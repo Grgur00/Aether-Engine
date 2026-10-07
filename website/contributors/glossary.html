@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../assets/docs.css">
   <link rel="stylesheet" href="../assets/contributors.css">
   <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
   <script src="../assets/contributors.js" defer></script>
 </head>
 <body class="docs-body contributor-body">
@@ -266,13 +267,13 @@ specification may have a broader intended scope.</p>
 </tr>
 </tbody>
 </table>
-<pre><code class="language-mermaid">flowchart LR
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart LR
     Diagnostic[Diagnostic profile] --&gt; Change[Possible implementation change]
     Change --&gt; Pilot[Fresh exploratory pilot]
     Pilot --&gt; Freeze[Freeze source, protocol and endpoint]
     Freeze --&gt; Confirmatory[Fresh confirmatory measurements]
     Restart[Separate restart correctness tests] -. prerequisite evidence .-&gt; Freeze
-</code></pre>
+</code></pre></details></figure>
 <p>The graph is a research workflow, not permission to launch a campaign. A diagnostic
 without training has no training epochs; a population speedup alone does not prove
 an end-to-end training gain. Read <a href="research.html">Experiments and profiling</a>

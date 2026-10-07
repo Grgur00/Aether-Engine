@@ -10,7 +10,12 @@
 .contributor-content code { font-family: var(--mono); font-size: .85em; overflow-wrap: anywhere; }
 .contributor-content :not(pre) > code { padding: 2px 4px; background: #f0f2ef; }
 .contributor-content pre { overflow-x: auto; padding: 22px; border: 1px solid var(--line); background: #f6f7f5; line-height: 1.6; }
-.contributor-content pre code { overflow-wrap: normal; }
+.contributor-content pre code { color: #24332b; font-size: 13px; overflow-wrap: normal; }
+.docs-diagram { margin: 24px 0; min-width: 0; }
+.docs-diagram-view { overflow-x: auto; padding: 16px 0; }
+.docs-diagram-view svg { display: block; max-width: none !important; height: auto; margin: 0 auto; }
+.docs-diagram-view:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.docs-diagram-source summary { width: fit-content; color: var(--accent); cursor: pointer; font-size: 13px; }
 .contributor-content table { display: block; width: 100%; overflow-x: auto; border-collapse: collapse; margin: 24px 0; }
 .contributor-content :is(th,td) { min-width: 130px; padding: 14px 12px; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left; font-size: 13px; line-height: 1.6; }
 .contributor-content th { background: #f0f2ef; }

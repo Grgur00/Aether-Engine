@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../assets/docs.css">
   <link rel="stylesheet" href="../assets/contributors.css">
   <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
   <script src="../assets/contributors.js" defer></script>
 </head>
 <body class="docs-body contributor-body">
@@ -38,7 +39,7 @@
 <h2 id="build-and-test-contract">Build And Test Contract</h2>
 <p>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/src/main/kotlin/aether.java-base.gradle.kts">Java convention</a> selects Java 21, compiles with <code>--enable-preview</code>, <code>-Xlint:all</code>, and <code>-Werror</code>, and passes preview support to tests and Java application tasks. Warnings can fail compilation. Use the checked-in Gradle wrapper, not an unrelated system Gradle installation. When launching Java manually, use a compatible JDK and the same preview flag.</p>
 <p>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/src/main/kotlin/aether.testing.gradle.kts">testing convention</a> uses JUnit Jupiter through JUnit Platform, JUnit BOM 6.0.1, and AssertJ 3.27.7. The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/src/main/kotlin/aether.java-library.gradle.kts">library convention</a> applies both Java and testing conventions. Module tests normally live in <code>modules/&lt;module&gt;/src/test/java</code> beside the package they test; there is no separate, generally wired <code>src/integrationTest</code> source set.</p>
-<pre><code class="language-mermaid">flowchart TD
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
     Change[Identify changed behavior] --&gt; Unit[Focused owning-module tests]
     Unit --&gt; Cross{Crosses a boundary?}
     Cross --&gt;|Format or durable state| Recovery[Round-trip, corruption, reopen and crash tests]
@@ -53,7 +54,7 @@
     Perf --&gt;|Yes| Experiment[Separate frozen benchmark protocol]
     Perf --&gt;|No| PR[Submit change with test evidence]
     Experiment --&gt; PR
-</code></pre>
+</code></pre></details></figure>
 <h2 id="choose-a-check">Choose A Check</h2>
 <p>Commands below run from the repository root. PowerShell examples use <code>./gradlew.bat</code>; use <code>./gradlew</code> on POSIX systems. Timings depend heavily on dependency downloads, local storage, and which JVM tests are enabled.</p>
 <table>

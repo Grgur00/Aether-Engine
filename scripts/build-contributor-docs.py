@@ -26,6 +26,21 @@ PAGES = [
 ]
 TARGETS = {SOURCE / source: output for source, output, _ in PAGES}
 parser = MarkdownIt("commonmark", {"html": False}).enable("table")
+default_fence = parser.renderer.rules["fence"]
+
+
+def render_fence(tokens, index, options, env):
+    token = tokens[index]
+    if token.info.strip() != "mermaid":
+        return default_fence(tokens, index, options, env)
+    source = escape(token.content)
+    return ('<figure class="docs-diagram" data-diagram-state="pending">'
+            '<div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div>'
+            '<details class="docs-diagram-source" open><summary>Diagram source</summary>'
+            f'<pre><code class="language-mermaid">{source}</code></pre></details></figure>\n')
+
+
+parser.renderer.rules["fence"] = render_fence
 
 
 def slug(text):
@@ -89,6 +104,7 @@ def page(source_name, output, title):
   <link rel="stylesheet" href="../assets/docs.css">
   <link rel="stylesheet" href="../assets/contributors.css">
   <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
   <script src="../assets/contributors.js" defer></script>
 </head>
 <body class="docs-body contributor-body">

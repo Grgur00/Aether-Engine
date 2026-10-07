@@ -19,3 +19,36 @@ document.addEventListener('keydown', (event) => {
   guideMenu.setAttribute('aria-expanded', 'false');
   guideMenu.focus();
 });
+
+async function renderDiagrams() {
+  if (!window.mermaid) return;
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'strict',
+    theme: 'neutral',
+    fontFamily: 'Arial, sans-serif',
+    suppressErrorRendering: true,
+  });
+  const diagrams = document.querySelectorAll('.docs-diagram');
+  for (const [index, figure] of Array.from(diagrams).entries()) {
+    const view = figure.querySelector('.docs-diagram-view');
+    const source = figure.querySelector('.docs-diagram-source');
+    try {
+      const { svg, bindFunctions } = await mermaid.render(`guide-diagram-${index}`, source.querySelector('code').textContent);
+      view.innerHTML = svg;
+      const graphic = view.querySelector('svg');
+      graphic.style.width = `${Math.ceil(graphic.viewBox.baseVal.width)}px`;
+      graphic.setAttribute('role', 'img');
+      graphic.setAttribute('aria-label', 'Architecture and workflow diagram');
+      view.hidden = false;
+      source.open = false;
+      if (bindFunctions) bindFunctions(view);
+      figure.dataset.diagramState = 'rendered';
+    } catch (error) {
+      figure.dataset.diagramState = 'failed';
+      console.warn('Unable to render documentation diagram:', error);
+    }
+  }
+}
+
+renderDiagrams();
