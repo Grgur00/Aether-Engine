@@ -1,0 +1,476 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/ENGINE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Engine function reference: source-backed contributor documentation for Aether Engine.">
+  <title>Engine function reference | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html" aria-current="page">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/ENGINE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="engine-function-reference">Engine Function Reference</h1>
+<p><a href="code-tour.html">Code tour</a> | <a href="architecture.html">Architecture</a> | <a href="storage.html">Storage engine</a></p>
+<p><a href="mvcc-reference-functions.html">Heap MVCC functions</a> describes the reference version
+store and sequence allocator beneath the in-memory implementation.</p>
+<p>This reference describes concrete functions in the current checkout, including
+package-private helpers. Names in code formatting identify source symbols; linked
+class names open their implementations. Overloads are described together only
+when their shared operation and differences are explicit.</p>
+<h2 id="architecture-and-state">Architecture And State</h2>
+<p>The byte database owns keys, values, sequence assignment and resource lifetimes.
+It does not interpret a Java record, execute a transform or train an ML model.
+The typed wrapper encodes application records before calling this layer; the
+training cache stores encoded immutable artifacts above it.</p>
+<p>There are two implementations of the same interface:</p>
+<ul>
+<li><code>InMemoryAetherDatabase</code> is a single-threaded, heap-backed semantic reference.
+It stores multiple versions through <code>VersionedKeyValueStore</code>. It has no WAL,
+file lock or persistence barrier.</li>
+<li><code>PersistentAetherDatabase</code> coordinates a native mutable memtable, an append-only
+WAL, immutable table readers and a manifest-backed <code>VersionSet</code>. Its database
+monitor protects public reads and commit-group mutation application. A single
+compaction worker builds outside that monitor and rechecks inputs before install.</li>
+</ul>
+<p>The central read boundary is <code>lastVisibleSequence</code>: a normal read uses its current
+value; a snapshot captures an earlier value. Sequence numbers select versions,
+not wall-clock timestamps. Tombstones are versions too. Closing a snapshot can
+allow future compaction to discard history; it does not itself compact anything.</p>
+<p>The ownership chain matters independently of version selection. A <code>WriteBatch</code>
+copies caller arrays. A <code>LookupResult</code> owns immutable bytes and its <code>value()</code>
+returns another copy. A cursor materializes rows. A snapshot owns a registration,
+not its own database. Closing an owning wrapper closes its underlying database.</p>
+<h2 id="aether-composition-root">Aether: Composition Root</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/Aether.java">Aether.java</a>.
+Use this class for ordinary application construction. The private <code>Aether()</code>
+constructor prevents an instance of the static factory class.</p>
+<h3 id="openinmemory">openInMemory()</h3>
+<p>Allocates a new <code>InMemoryAetherDatabase</code> and returns the public <code>AetherDatabase</code>
+interface. Every call creates independent state. No directory is opened and no
+background storage service starts. The caller owns <code>close()</code>.</p>
+<h3 id="openpath-and-openpath-aetherconfiguration">open(Path) And open(Path, AetherConfiguration)</h3>
+<p>Delegate to persistent construction. The path identifies one local database
+directory, not a remote endpoint. The configured overload passes the resolved
+configuration through validation and runtime extraction; the path-only overload
+uses the persistent implementation's development-profile defaults.</p>
+<p>Opening may create metadata for a new database or validate/recover an existing
+one. A process-exclusive directory lock is acquired. A failed open is not an
+instruction to replace the directory with empty files: identity, authoritative
+table or manifest corruption must remain an error.</p>
+<h3 id="openinmemorywithmetrics-and-openwithmetricspath">openInMemoryWithMetrics() And openWithMetrics(Path)</h3>
+<p>Construct the appropriate database, then call <code>instrument</code>. They return the
+<code>MeteredAetherDatabase</code> decorator rather than changing storage algorithms.
+The decorator owns the database it wraps. Operation measurements do not replace
+format validation or durability evidence.</p>
+<h3 id="instrumentaetherdatabase">instrument(AetherDatabase)</h3>
+<p>Constructs <code>DefaultMeteredAetherDatabase</code> around an existing byte database and
+transfers close ownership to the wrapper. This is an instrumentation boundary,
+not a copy of the underlying database or an additional store.</p>
+<h3 id="compactiondiagnosticsaetherdatabase">compactionDiagnostics(AetherDatabase)</h3>
+<p>For a direct <code>PersistentAetherDatabase</code> instance, returns its bounded compaction
+diagnostic map. Otherwise returns a map containing <code>state = UNAVAILABLE</code>.
+The type test is on the object supplied: an arbitrary decorator is not unwrapped
+by this function. Unavailable therefore does not prove the underlying storage is
+in-memory.</p>
+<h3 id="awaitcompactionidleaetherdatabase">awaitCompactionIdle(AetherDatabase)</h3>
+<p>For a direct persistent instance, waits through its compaction coordinator with
+the implementation's 60-second timeout. For other objects it is a no-op.
+It does not flush new data, change compaction policy or turn background work into
+a new benchmark endpoint. Interruption is propagated.</p>
+<h2 id="writebatch-owned-one-shot-mutations">WriteBatch: Owned, One-Shot Mutations</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/WriteBatch.java">WriteBatch.java</a>.
+The batch retains insertion order, including repeated mutations to one key.
+It is not a reusable builder after submission.</p>
+<h3 id="writebatch-putbyte-byte-and-deletebyte">WriteBatch(), put(byte[], byte[]) And delete(byte[])</h3>
+<p>The constructor creates an empty <code>OPEN</code> batch. <code>put</code> validates both arrays,
+accounts for encoded size, then clones key and value into a <code>Put</code> mutation.
+<code>delete</code> performs the same key/size checks and clones the key into a <code>Delete</code>.
+Both return the same batch for chaining. They require <code>OPEN</code> state.</p>
+<p>The limits are 10,000 operations, 32 MiB estimated encoded bytes, 65,536 key bytes
+and 16 MiB per value. Null is rejected; zero-length keys and values are not
+rejected by these validators. Mutation accessors copy bytes again, so retaining
+or changing an accessor result cannot alter the stored mutation.</p>
+<h3 id="operationcount-size-isempty-and-encodedsizebytes">operationCount(), size(), isEmpty() And encodedSizeBytes()</h3>
+<p><code>operationCount</code> reads the accumulated list size; <code>size</code> delegates to it.
+<code>isEmpty</code> checks the list. <code>encodedSizeBytes</code> returns zero for an empty batch or
+the current size estimate. These methods use <code>ensureReadable</code>, which rejects
+<code>CLOSED</code> but permits the submission and terminal states. The estimate is a batch
+encoding bound, not an estimate of total WAL, SSTable or filesystem overhead.</p>
+<h3 id="state-isclosed-and-mutations">state(), isClosed() And mutations()</h3>
+<p><code>state</code> returns the exact lifecycle enum. <code>isClosed</code> returns true for every state
+other than <code>OPEN</code>, including <code>SEALED</code> and <code>SUCCEEDED</code>; it does not mean only
+explicit close. <code>mutations</code> returns an unmodifiable ordered list view after a
+readability check. It is not a deep-copied list snapshot, although its mutation
+objects keep byte ownership private.</p>
+<h3 id="sealforsubmission-and-marksubmitted">sealForSubmission() And markSubmitted()</h3>
+<p><code>sealForSubmission</code> requires <code>OPEN</code> and changes it to <code>SEALED</code>: one writer has
+claimed the batch. <code>markSubmitted</code> requires <code>SEALED</code> and changes it to
+<code>SUBMITTED</code>: the implementation has crossed its uncertainty boundary.
+These transitions are separate so definite pre-submission failure can be
+distinguished from a write whose final durable outcome is unknown.</p>
+<h3 id="marksucceeded-markcommitted-markfailed-and-markindeterminate">markSucceeded(), markCommitted(), markFailed() And markIndeterminate()</h3>
+<p><code>markSucceeded</code> accepts <code>SEALED</code> or <code>SUBMITTED</code> and writes <code>SUCCEEDED</code>.
+<code>markCommitted</code> is the reference engine's compatibility alias for that method.
+<code>markFailed</code> accepts the same two source states and writes <code>FAILED</code>; its caller
+must have evidence of a definite non-commit outcome. <code>markIndeterminate</code> accepts
+only <code>SUBMITTED</code> and writes <code>INDETERMINATE</code>. Illegal transitions throw
+<code>IllegalStateException</code>. None of these methods themselves write data or force a
+file: they record the outcome chosen by database orchestration.</p>
+<h3 id="close">close()</h3>
+<p>Changes an <code>OPEN</code> batch to <code>CLOSED</code>. It does not rewrite a submitted/terminal
+state, remove stored mutations or undo a successful write. This makes
+try-with-resources usable around submission without obscuring its outcome.</p>
+<h3 id="addsizeint-int">addSize(int, int)</h3>
+<p>Rejects a full operation list before adding another entry. Adds the 24-byte batch
+header once, then 12 bytes of per-operation overhead plus key/value lengths using
+<code>Math.addExact</code>. Rejects a candidate larger than 32 MiB before storing the new
+estimate. The operation itself is appended by <code>put</code> or <code>delete</code> afterward.</p>
+<h3 id="validatekeybyte-validatevaluebyte-and-state-guards">validateKey(byte[]), validateValue(byte[]) And State Guards</h3>
+<p>The validators reject null and their respective length limits.
+<code>ensureOpen</code> rejects any non-<code>OPEN</code> state with <code>AetherClosedException</code>.
+<code>ensureReadable</code> rejects only <code>CLOSED</code>. <code>requireState</code> checks one exact state and
+throws <code>IllegalStateException</code> on mismatch. These are lifecycle/input guards,
+not transaction admission or disk-pressure checks.</p>
+<h3 id="put-and-delete-members">Put And Delete Members</h3>
+<p>The private <code>Put(byte[], byte[])</code> and <code>Delete(byte[])</code> constructors retain the
+arrays already cloned by the enclosing batch. <code>Put.key()</code>, <code>Put.value()</code> and
+<code>Delete.key()</code> return <code>Arrays.copyOf</code> results. The sealed <code>Mutation.key()</code>
+contract exposes that defensive-copy boundary to database implementations.</p>
+<h2 id="inmemoryaetherdatabase-semantic-reference">InMemoryAetherDatabase: Semantic Reference</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/InMemoryAetherDatabase.java">InMemoryAetherDatabase.java</a>.
+This class is explicitly single-threaded. Its behavior is useful for checking
+MVCC semantics but is not evidence of persistent durability or concurrent group
+commit behavior.</p>
+<h3 id="constructors">Constructors</h3>
+<p><code>InMemoryAetherDatabase()</code> starts at visible sequence zero with 1,024 permitted
+active snapshots. <code>InMemoryAetherDatabase(long)</code> changes the initial sequence,
+primarily for overflow tests. <code>InMemoryAetherDatabase(long, int)</code> validates the
+snapshot limit (1 through 65,536), creates <code>SequenceSource</code> and initializes the
+visible boundary. The initial sequence does not create matching stored records.</p>
+<h3 id="putbyte-byte-and-deletebyte">put(byte[], byte[]) And delete(byte[])</h3>
+<p><code>put</code> checks database lifetime, copies the key through <code>ByteKey.copyOf</code>, copies
+the non-null value, reserves one sequence, inserts a value record, then advances
+<code>lastVisibleSequence</code>. <code>delete</code> follows the same sequence path but inserts a
+tombstone with no value. Repeated writes retain older versions for older read
+boundaries; neither function erases the key's complete history.</p>
+<p>These direct reference-engine methods do not pass through <code>WriteBatch</code>, so do
+not infer its batch-size/key/value limits from this path. Sequence exhaustion
+is checked by <code>SequenceSource</code> before inserting the record.</p>
+<h3 id="getbyte-and-getbyte-snapshot">get(byte[]) And get(byte[], Snapshot)</h3>
+<p>Both check database lifetime and copy/validate the lookup key. The ordinary
+overload resolves at <code>lastVisibleSequence</code>; the snapshot overload first validates
+the supplied handle and resolves at its captured sequence. Neither advances the
+sequence source or mutates stored records. Absence and a visible tombstone both
+become <code>LookupResult.notFound()</code>.</p>
+<h3 id="newsnapshot">newSnapshot()</h3>
+<p>Checks the database is open, enforces the active-snapshot limit and rejects an
+exhausted snapshot ID. Allocates a <code>SnapshotHandle</code> containing database identity,
+new ID and current visible sequence. Its release callback removes that exact
+handle from the identity-based registration set. The holder array permits the
+callback to refer to the handle being constructed. A snapshot does not clone the
+store or copy values.</p>
+<h3 id="scanbyte-byte-and-scanbyte-byte-snapshot">scan(byte[], byte[]) And scan(byte[], byte[], Snapshot)</h3>
+<p>Select the current or validated snapshot sequence and delegate to <code>scanAt</code>.
+The range is start-inclusive and end-exclusive. <code>scanAt</code> copies both endpoints,
+rejects start greater than end, and produces an empty list for equal endpoints.
+Otherwise it asks the reference store for visible entries, then wraps the
+materialized list in <code>ListCursor</code>.</p>
+<h3 id="scanall-and-scanallsnapshot">scanAll() And scanAll(Snapshot)</h3>
+<p>Ask the reference store for all visible entries at the current or validated
+snapshot sequence and return a <code>ListCursor</code>. They do not implement an unbounded
+lazy stream. Later writes do not change the cursor's already selected row list.</p>
+<h3 id="writewritebatch-and-writewritebatch-writeoptions">write(WriteBatch) And write(WriteBatch, WriteOptions)</h3>
+<p>The one-argument overload supplies <code>WriteOptions.defaults()</code>. The result-returning
+overload checks lifetime and non-null arguments, seals the batch and prepares all
+mutations as owned keys/values before applying anything. Preparation failure
+marks the batch <code>FAILED</code> and propagates the exception.</p>
+<p>An empty prepared list succeeds with operation/sequence counts zero and no
+barrier. Otherwise reserves one contiguous sequence range for the entire list;
+reservation failure also marks definite failure. It marks <code>SUBMITTED</code>, inserts
+the prepared value/tombstone records in order, advances visibility to the range's
+last sequence and marks success through <code>markCommitted</code>. <code>WriteResult</code> reports
+the requested durability mode but its persistent-barrier flag is false: this
+engine never forces a WAL, even for a synchronous request.</p>
+<p>The mutation-application loop has no rollback handler. Do not generalize its
+happy-path atomic visibility into a guarantee that arbitrary VM/allocation
+failures during reference insertion are recovered transactionally.</p>
+<h3 id="lastvisiblesequence-and-retainedversioncountbyte">lastVisibleSequence() And retainedVersionCount(byte[])</h3>
+<p>The first returns the read boundary after a lifetime check. The second copies
+the supplied key and returns the number of retained versions in the reference
+store. That count includes historical records rather than only currently visible
+values and does not represent persisted SSTable counts.</p>
+<h3 id="restorevisiblebyte-byte-long">restoreVisible(byte[], byte[], long)</h3>
+<p>A package-private recovery hook. Requires an open database and a sequence in
+the interval zero through <code>lastVisibleSequence</code>; copies the key/value and inserts
+a value record at the supplied sequence. It does not allocate a new sequence,
+advance visibility or insert a tombstone. Ordinary callers should use writes.</p>
+<h3 id="isclosed-close-and-ensureopen">isClosed(), close() And ensureOpen()</h3>
+<p><code>isClosed</code> reads the lifetime flag. <code>close</code> invalidates a copy of the registered
+snapshot set, clears registrations and sets <code>closed</code>. It does not force or
+persist anything. <code>ensureOpen</code> throws <code>AetherClosedException</code> after close.
+Closing the reference implementation does not expose or return its internal
+record map to callers.</p>
+<h3 id="resolvebytekey-long-validatesnapshotsnapshot-keybyte-and-valuebyte">resolve(ByteKey, long), validateSnapshot(Snapshot), key(byte[]) And value(byte[])</h3>
+<p><code>resolve</code> asks the store for the version visible at the boundary; missing or
+tombstone returns absence, while a value is copied into a found result.
+<code>validateSnapshot</code> requires the internal handle type, this database's identity
+object and an open handle. A handle from another database is rejected even when
+its sequence is numerically valid. <code>key</code> delegates to <code>ByteKey.copyOf</code>; <code>value</code>
+rejects null and returns <code>Arrays.copyOf</code>.</p>
+<p>The private <code>PreparedMutation</code> record carries the prepared key, nullable value
+and tombstone flag during a batch submission. Its generated accessors are data
+holders, not additional database operations.</p>
+<h2 id="persistent-public-entry-points">Persistent Public Entry Points</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/PersistentAetherDatabase.java">PersistentAetherDatabase.java</a>.
+This implementation is package-private. Its internal flush, group-commit,
+compaction and recovery algorithms also participate in these calls; read
+<a href="persistent-internals.html">Persistent engine internals</a> for private functions and
+<a href="storage.html">Storage engine</a> for publication ordering.</p>
+<h3 id="openpath-and-openpath-aetherconfiguration-1">open(Path) And open(Path, AetherConfiguration)</h3>
+<p>The path-only overload supplies the development security profile. The configured
+overload validates settings, normalizes/creates the directory, validates the
+filesystem root and acquires <code>DatabaseLock</code>. It initializes or validates the
+identity/options pair, creates or recovers the manifest, establishes a checkpoint
+WAL when needed and removes obsolete WAL files other than the required segment.</p>
+<p>It opens every authoritative table with the expected database identity/metadata,
+opens the required WAL, creates a native budget/memtable and replays recoverable
+groups. The WAL is truncated and positioned at recovery's valid end before
+constructing the database. Failures close every acquired resource with suppressed
+cleanup errors and surface <code>DatabaseOpenException</code>; corrupt authority is not
+silently replaced by an empty database.</p>
+<h3 id="persistentaetherdatabase-constructor">PersistentAetherDatabase Constructor</h3>
+<p>Takes ownership of the acquired lock, WAL, version set, readers and memtable.
+Initializes write pressure from runtime settings, visible sequence and replayed
+WAL record count, memtable numbering and the next table-file number. Creates one
+<code>CompactionCoordinator</code> with <code>runBackgroundCompaction</code> as its worker callback and
+requests compaction if the recovered inventory already needs it.</p>
+<h3 id="putbyte-byte-and-deletebyte-1">put(byte[], byte[]) And delete(byte[])</h3>
+<p>Build a temporary <code>WriteBatch</code>, append one mutation, submit through <code>write</code> and
+close the batch through try-with-resources. Therefore these persistent entry
+points inherit <code>WriteBatch</code> validation/copies and coordinator semantics. They
+do not bypass WAL or write-pressure admission merely because there is one entry.</p>
+<h3 id="writewritebatch-and-writewritebatch-writeoptions-1">write(WriteBatch) And write(WriteBatch, WriteOptions)</h3>
+<p>The void overload uses the database's configured default write options. The
+explicit overload null-checks both arguments and hands them to
+<code>CommitCoordinator.submit</code>. It does not directly apply the mutation list on this
+line: the coordinator groups requests and completes each caller's outcome after
+<code>processCommitGroup</code>. Reads and application of a group share the database monitor.</p>
+<h3 id="getbyte-and-getbyte-snapshot-1">get(byte[]) And get(byte[], Snapshot)</h3>
+<p>Both are synchronized. They call <code>lookup</code> at the current visible sequence or
+the sequence from a validated snapshot. The synchronization prevents a public
+reader observing the middle of a coordinator's mutation application.</p>
+<h3 id="lookupbyte-long">lookup(byte[], long)</h3>
+<p>Checks lifetime and key size, then asks the active memtable for the visible
+version. A value returns a copied found result; a tombstone returns absence.
+Only memtable absence continues to tables. It visits current readers, compares
+found/tombstone sequence numbers and keeps the greatest visible sequence.
+The newest visible table tombstone hides older values. Read diagnostics count
+lookups/tables and time the memtable/table-selection work without changing the
+selection rule.</p>
+<h3 id="newsnapshot-and-validatesnapshotsnapshot">newSnapshot() And validateSnapshot(Snapshot)</h3>
+<p>Snapshot creation is synchronized, enforces the configured active limit and ID
+range, and registers a handle at <code>lastVisibleSequence</code>. The release callback
+removes its registration under the database monitor. Validation checks internal
+handle type, exact database identity and open lifetime. Snapshot retention feeds
+compaction planning; it does not pin an independent file inventory per handle.</p>
+<h3 id="scan-overloads-scanall-overloads-and-scanatbyte-byte-long">scan Overloads, scanAll Overloads And scanAt(byte[], byte[], long)</h3>
+<p>The synchronized entry points select the current or snapshot boundary. <code>scanAll</code>
+uses null endpoints internally. <code>scanAt</code> validates non-null endpoints and rejects
+a reversed range, gathers user keys from the active memtable and all table
+entries into an unsigned-byte-ordered <code>TreeSet</code>, then resolves each in-range key
+through <code>lookup</code>. It materializes only visible values into a
+<code>PersistentListCursor</code>.</p>
+<p>This path can enumerate and decode tables before resolving individual keys. It
+is not a zero-copy block iterator and does not have the same allocation behavior
+as the authoritative streaming verifier. Start is inclusive, end is exclusive,
+and duplicate keys are deduplicated before row selection.</p>
+<h3 id="isclosed-close-and-closeresources">isClosed(), close() And closeResources()</h3>
+<p><code>isClosed</code> returns the flag under the database monitor. <code>close</code> serializes closers
+using <code>closeMonitor</code>, sets <code>closing</code>, stops/joins the compaction coordinator
+outside the database monitor and invokes <code>closeResources</code> under that monitor.
+This separation avoids waiting for a worker while holding the monitor it needs.</p>
+<p><code>closeResources</code> first attempts a WAL force and flush, skipping flush after a
+recorded compaction-manifest failure. It then marks closed, invalidates snapshots
+and closes the native memtable, table readers, version set, WAL and directory
+lock. Failures are collected rather than preventing later cleanup; an aggregated
+<code>AetherException</code> can be thrown after resources have been closed. Close therefore
+is not a promise that a preceding uncertain write has become definitely absent.</p>
+<h2 id="snapshothandle-registration-lifetime">SnapshotHandle: Registration Lifetime</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/SnapshotHandle.java">SnapshotHandle.java</a>.
+Its constructor stores database identity, numeric ID, retained sequence and a
+release callback. These fields identify one registration; they do not allocate
+a second store.</p>
+<ul>
+<li><code>identity()</code> returns the opaque owner identity used for cross-database checks.</li>
+<li><code>id()</code> returns the handle ID, including after close; it is not a sequence.</li>
+<li><code>sequence()</code> calls <code>ensureOpen()</code> before returning the captured read boundary.</li>
+<li><code>retainedSequence()</code> returns that boundary without checking closed state.
+Planning may conservatively retain history for a closed handle awaiting removal.</li>
+<li><code>ensureOpen()</code> throws <code>SnapshotException</code> when invalidated or closed.</li>
+<li><code>isClosed()</code> reads the lifetime flag.</li>
+<li><code>close()</code> sets the flag and invokes release only once. Repeated close does not
+run the callback again.</li>
+<li><code>invalidate()</code> sets the flag without invoking release. Database teardown uses
+this when it will clear the entire registration set itself.</li>
+</ul>
+<h2 id="materialized-cursors">Materialized Cursors</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/ListCursor.java">ListCursor.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/PersistentListCursor.java">PersistentListCursor.java</a>.
+The two implementations have the same row-positioning algorithm and different
+database-lifetime checks.</p>
+<h3 id="constructors-and-next">Constructors And next()</h3>
+<p>Each constructor retains its owning database and a <code>List.copyOf</code> of selected
+visible rows, starting at index -1 (before the first row). The list copy is
+shallow; byte ownership comes from the <code>VisibleEntry</code> objects, not <code>List.copyOf</code>.
+<code>next</code> validates usability, increments the index when another row exists and
+returns true. At exhaustion it sets the index to list size and returns false.
+Repeated <code>next</code> after exhaustion stays false; it does not wrap around.</p>
+<h3 id="key-value-and-current">key(), value() And current()</h3>
+<p>The accessors delegate through <code>current</code> to the selected <code>VisibleEntry</code>'s byte
+accessors. <code>current</code> validates lifetime and requires index within the row list.
+Access before the first successful <code>next</code>, or after exhaustion, throws
+<code>IllegalStateException</code>. These functions do not advance the cursor.</p>
+<h3 id="isclosed-close-and-ensureusable">isClosed(), close() And ensureUsable()</h3>
+<p><code>isClosed</code> returns the cursor's own flag, not the database's flag. <code>close</code> sets
+that flag; it does not close the database or drop a snapshot registration.
+The reference cursor calls its database's <code>ensureOpen</code>; the persistent cursor
+checks <code>database.isClosed</code>. Both reject their own closed state with
+<code>AetherClosedException</code>. A cursor whose database has closed is unusable even if
+its own <code>isClosed()</code> is still false.</p>
+<h2 id="lookupresult-copies-and-validation-identity">LookupResult: Copies And Validation Identity</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/result/LookupResult.java">LookupResult.java</a>.
+Its private constructor stores an already owned value array; null represents
+logical absence. Absence is not used to hide corruption or I/O errors.</p>
+<h3 id="foundbyte-notfound-and-isfound">found(byte[]), notFound() And isFound()</h3>
+<p><code>found</code> rejects null and copies input through <code>ReadDiagnostics.copy</code> into a new
+result. <code>notFound</code> returns the shared absence singleton. <code>isFound</code> tests whether
+the privately owned value is non-null. A zero-length value is still found.</p>
+<h3 id="value-and-readonlyvalue">value() And readOnlyValue()</h3>
+<p><code>value</code> returns another defensive copy through <code>ReadDiagnostics.copy</code>.
+<code>readOnlyValue</code> wraps the privately owned array in a read-only <code>ByteBuffer</code>
+without copying the payload. The returned buffer has its own position/limit;
+the backing array is not exposed as writable memory. Both throw
+<code>NoSuchElementException</code> for absence.</p>
+<h3 id="validateonceobject-consumerbytebuffer">validateOnce(Object, Consumer&lt;ByteBuffer&gt;)</h3>
+<p>Requires non-null validator identity/callback and a found value. If the opaque
+identity is the same object as <code>validatedBy</code>, returns false immediately. Otherwise
+synchronizes on this result, checks the identity again, passes a read-only view
+to the validator and only then records successful validation and returns true.
+A throwing validator does not mark the representation validated.</p>
+<p>There is one identity slot, compared by reference rather than <code>equals</code>. Switching
+validators causes revalidation. A newly loaded result starts unvalidated even
+for identical bytes. This is representation-local validation reuse, not a
+global assertion that every future block/value is already trusted.</p>
+<h2 id="write-result-record">Write Result Record</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/WriteResult.java">WriteResult.java</a>
+is successful synchronous write metadata, not a request or storage barrier itself.</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and Limits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WriteResult.WriteResult(operationCount, firstSequence, lastSequence, requestedDurability, durabilityBarrierPerformed)</code></td>
+<td>Rejects negative count/sequences and null durability. Empty writes require both sequences zero; nonempty writes require positive first and last at least first. Does not require sequence-range length to equal operationCount or check barrier/durability consistency.</td>
+</tr>
+<tr>
+<td><code>WriteResult.hasSequenceRange()</code></td>
+<td>Returns operationCount &gt; 0, relying on constructor invariants; does not inspect storage files or barrier flag.</td>
+</tr>
+</tbody>
+</table>
+<p>Implicit record accessors return the five components. Component-based equals,
+hashCode and toString are compiler-supplied. requestedDurability is the requested
+mode; durabilityBarrierPerformed reports whether a barrier occurred, not an
+independent assertion of recovery under every crash/power-loss model. Constructors
+permit a caller-created result with inconsistent policy metadata; actual engine
+behavior, not merely constructing this record, establishes write evidence.</p>
+<h2 id="cursor-api-and-snapshot-limit-failure">Cursor API and Snapshot Limit Failure</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/AetherCursor.java">AetherCursor.java</a>
+is the public closeable scan contract implemented by the engine cursors described
+above. It declares operations, not a storage strategy: materialization, retained
+read views and close behavior must be read in the specific implementation.</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherCursor.next()</code></td>
+<td>Advances to the next visible entry; true means positioned. Call before reading the first key/value. The interface does not promise a particular iteration implementation.</td>
+</tr>
+<tr>
+<td><code>AetherCursor.key()</code></td>
+<td>Returns defensive copy of current key; throws IllegalStateException if not positioned.</td>
+</tr>
+<tr>
+<td><code>AetherCursor.value()</code></td>
+<td>Returns defensive copy of current value; throws IllegalStateException if not positioned. It is not the training-cache mapped-value API.</td>
+</tr>
+<tr>
+<td><code>AetherCursor.isClosed()</code></td>
+<td>Reports released-resource state; true after close. Not a substitute for closing a live cursor.</td>
+</tr>
+<tr>
+<td><code>AetherCursor.close()</code></td>
+<td>Releases held resources through AutoCloseable; use try-with-resources. Interface alone does not define every post-close operation or thread-safety guarantee.</td>
+</tr>
+<tr>
+<td><code>SnapshotLimitExceededException.SnapshotLimitExceededException(message)</code></td>
+<td>Delegates supplied message to AetherException; no retry, limit adjustment, snapshot disposal or extra state.</td>
+</tr>
+</tbody>
+</table>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/exceptions/SnapshotLimitExceededException.java">SnapshotLimitExceededException.java</a>
+is thrown by both embedded engines' newSnapshot paths when active handle count
+is already at the configured maximum, before allocating the next handle. It is
+distinct from exhausted snapshot IDs or using a closed/foreign snapshot. Closing
+an owned snapshot removes its active handle and can free capacity; ignoring this
+exception or closing a cursor does not necessarily release a separate snapshot.
+The exception's serialVersionUID is serialization metadata, not a persistent
+database error-format identifier.</p>
+<h2 id="regression-boundaries">Regression Boundaries</h2>
+<p>Semantic changes belong with <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/test/java/io/aetherdb/engine/InMemoryAetherDatabaseTest.java">InMemoryAetherDatabaseTest</a>.
+Persistence claims also need <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/test/java/io/aetherdb/engine/PersistentAetherDatabaseTest.java">PersistentAetherDatabaseTest</a>,
+and background installation changes need <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/test/java/io/aetherdb/engine/BackgroundCompactionTest.java">BackgroundCompactionTest</a>.</p>
+<p>For a new function or changed contract, check normal input, empty input, lifetime,
+ownership, boundary/overflow and failure behavior independently. A semantic
+reference test cannot prove file durability; a successful read after close/reopen
+cannot by itself prove every injected crash boundary.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-state">Architecture And State</a><a href="#aether-composition-root">Aether: Composition Root</a><a href="#writebatch-owned-one-shot-mutations">WriteBatch: Owned, One-Shot Mutations</a><a href="#inmemoryaetherdatabase-semantic-reference">InMemoryAetherDatabase: Semantic Reference</a><a href="#persistent-public-entry-points">Persistent Public Entry Points</a><a href="#snapshothandle-registration-lifetime">SnapshotHandle: Registration Lifetime</a><a href="#materialized-cursors">Materialized Cursors</a><a href="#lookupresult-copies-and-validation-identity">LookupResult: Copies And Validation Identity</a><a href="#write-result-record">Write Result Record</a><a href="#cursor-api-and-snapshot-limit-failure">Cursor API and Snapshot Limit Failure</a><a href="#regression-boundaries">Regression Boundaries</a></nav></aside>
+  </div>
+</body>
+</html>

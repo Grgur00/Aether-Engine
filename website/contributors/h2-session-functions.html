@@ -1,0 +1,236 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/H2-SESSION-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="H2 amended session controller: source-backed contributor documentation for Aether Engine.">
+  <title>H2 amended session controller | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html" aria-current="page">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/H2-SESSION-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="h2-multi-session-controller-functions">H2 Multi-Session Controller Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="h2-execution-functions.html">Original execution</a> | <a href="h2-protocol-functions.html">Freeze</a> | <a href="h2-analysis-functions.html">Inference</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/h2_sessions.py">h2_sessions.py</a>. This page covers <strong>all eight
+explicit functions</strong> in the separately hashed session controller. The source
+guard lambda in <code>run</code> is described separately, not counted as a named function.
+The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/H2-SESSION-AMENDMENT.md">session amendment</a> records authorization
+and reporting policy; this guide documents the implemented controller, not a
+completed experiment or an unchanged single-host protocol.</p>
+<h2 id="control-and-evidence-architecture">Control and Evidence Architecture</h2>
+<pre><code class="language-text">main -&gt; preserved original harness + preserved candidate dependency paths
+run -&gt; frozen source/harness/runtime verification + amendment/controller/ZIP hashes
+    -&gt; extract first-session evidence -&gt; original receipt validators
+    -&gt; new session campaign/environment -&gt; deterministic input preflight
+    -&gt; excluded full four-backend lifecycle -&gt; checkpoint
+    -&gt; original assignments 09..17 -&gt; original whole-block retry/worker machinery
+    -&gt; per-block count/checkpoint -&gt; original session receipt validation
+    -&gt; 18 unique blocks -&gt; partial-campaign completion, no inference
+</code></pre>
+<p>The original H2 treatment and worker harness remain immutable. Session 2 calls
+their existing lifecycle and receipt helpers rather than reimplementing storage
+or training. The new campaign has its own host identity; prior receipts retain
+the old one. The original same-host <code>--resume</code> fence is not weakened. Daemon
+continuity remains <strong>within each Aether V0-V4 lifecycle</strong>, not across blocks or
+Kaggle sessions. Each session's excluded preflight is outside confirmatory counts.</p>
+<h2 id="input-and-partition-functions">Input and Partition Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>What It Does</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read(path)</code></td>
+<td>Reads UTF-8 text and returns <code>json.loads</code> output.</td>
+<td>No schema check, default or error conversion. Callers validate selected fields; missing keys and malformed JSON propagate.</td>
+</tr>
+<tr>
+<td><code>file_hash(path)</code></td>
+<td>Opens a binary stream and returns the SHA-256 hex digest using <code>hashlib.file_digest</code>.</td>
+<td>Hashes bytes without loading the entire file. Unkeyed integrity check, not authentication or proof of scientific validity. Requires the supported Python runtime.</td>
+</tr>
+<tr>
+<td><code>assignments(protocol, session)</code></td>
+<td>Requires an exact integer 1..3, rejecting booleans and strings, then returns the original schedule slice for that session.</td>
+<td>Fixed zero-based half-open partitions are <code>[0,9)</code>, <code>[9,18)</code>, <code>[18,24)</code>: human blocks 1-9, 10-18, 19-24. Does not regenerate orders or seeds. Alone it does not validate schedule contents/length; frozen-protocol verification does that.</td>
+</tr>
+<tr>
+<td><code>extract_evidence(path, destination)</code></td>
+<td>Resolves the destination, opens the ZIP, rejects duplicate entry names, inspects all entries for unsafe paths/symlinks, then extracts.</td>
+<td>Rejects normalized-vs-original filename changes, absolute/parent paths, backslashes, colons, resolved targets outside the destination and Unix symlink entries. Does not impose decompression size/count limits, remove old destination files or roll back partial extraction after read/I/O failure.</td>
+</tr>
+</tbody>
+</table>
+<p>An extracted ZIP is not automatically accepted experiment evidence. <code>run</code> first
+checks the entire previous ZIP's expected SHA-256, then calls <code>validate_session</code>
+on its campaign tree. ZIP CRC/read failures can propagate during extraction.
+The destination is a new output subtree in this workflow, not a general-purpose
+user archive import location.</p>
+<h2 id="archived-session-validation">Archived Session Validation</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>What It Does</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>validate_session(root, protocol, session, engine)</code></td>
+<td>Calls original <code>load_campaign</code> to validate campaign/environment provenance, requires exact protocol equality, checks the archived frozen bundle with <code>check_source=False</code>, compares manifest/reference/transform identities, requires exactly the expected block directory names, validates the excluded preflight and every scheduled attempt via original <code>archived_attempt</code>, and returns metadata plus accepted block payloads.</td>
+<td>Uses each archive's original environment ID when checking receipts. <code>check_source=False</code> allows archived validation without comparing today's checkout; it does not disable execution source guards. Non-directory extras at block-directory level are not independently rejected by this set check. Session controller metadata is not itself validated by this helper.</td>
+</tr>
+</tbody>
+</table>
+<p>The original attempt validator supplies the one-successful-attempt rule,
+contiguous retry history, failed-attempt reasons, maximum attempts, completion
+inventory and equality between paired and per-stage receipts. Original block
+validation supplies scheduled order/seed, four backend results, cumulative phase
+sums, CUDA/training/input-binding checks and paired model/tensor/sample-order
+identities. These are delegated contracts, not checks silently omitted because
+a progress file says nine blocks completed.</p>
+<p>The archived environment's internal digest is verified; this does not require
+the new host to have the same hostname or environment ID. Exact runtime versions
+and deterministic prepared artifacts are checked again for the new session.
+That distinction enables the explicitly amended experiment while preserving
+evidence provenance. It does not prove hosts have identical performance.</p>
+<h2 id="atomic-checkpoint-function">Atomic Checkpoint Function</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>What It Does</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>checkpoint(root, destination, engine)</code></td>
+<td>Rejects a destination inside the evidence root, creates a temporary ZIP beside the destination, inventories sorted regular files under <code>h2-confirmatory/</code>, skips <code>.campaign.lock</code>, rejects source symlinks, adds <code>checkpoint.json</code>, reopens the ZIP for CRC and byte-digest verification, then atomically replaces the destination. Deletes the temporary file in <code>finally</code> and prints a verified-checkpoint message.</td>
+<td>Includes prior evidence, current partial/failed attempts and controller/amendment files, not only successful timings. Archive I/O is outside measured backend phases. Replacement is atomic path publication, not an explicit file/directory fsync guarantee. Final verification reads each archived entry into memory for hashing.</td>
+</tr>
+</tbody>
+</table>
+<p><code>checkpoint.json</code> uses schema <code>aether-h2-session-checkpoint-v1</code>, file hashes,
+inventory digest and count-only inference/continuation statements. It is an
+archive integrity receipt, not campaign completion or a signature. Source files
+changing between inventory/hash and ZIP writing are detected by the re-read
+verification. A failing checkpoint does not overwrite the prior destination.</p>
+<h2 id="session-execution-function">Session Execution Function</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>What It Does</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>run(args, engine)</code></td>
+<td>Verifies the original frozen bundle; binds amendment schema, original protocol hash, fixed partitions, this controller's file hash and previous ZIP hash; requires session 2; checks exact runtime and forbids unrecorded JVM option variables. Creates fresh output/scratch trees, imports and validates prior session 1, archives amendment/controller, opens a new campaign, resolves actual input mount paths without rewriting frozen CSVs, verifies deterministic identities, archives freeze/input/artifact/session metadata, runs excluded preflight and original scheduled blocks 10-18, checkpoints each success, validates the completed current session and 18-block uniqueness, then writes partial completion.</td>
+<td>Not a generic resume or final-campaign runner. Existing output or scratch roots fail <code>exist_ok=False</code>; there is no cross-session partial lifecycle recovery. No statistics, significance tests, figures or final 24-block completion are produced. Does not inspect performance to choose assignments or stop early.</td>
+</tr>
+</tbody>
+</table>
+<p>Detailed ordering matters:</p>
+<ol>
+<li>Integrity/runtime guards run before creating output. Session 2 is the only
+currently allowed launch, even though <code>assignments</code> also understands session 3.</li>
+<li>Prior evidence is extracted under <code>previous-session-01/h2-confirmatory</code> and
+validated before the new campaign is created. Its bytes and identities are not
+rewritten to resemble the new host.</li>
+<li>A uniquely named scratch directory lives beneath the newly created scratch
+root. The original retry helper checks capacity and manages whole attempts.</li>
+<li>The new session lives under <code>session-02</code>. <code>session.json</code> records human range
+10-18, amendment digest, current environment ID and previous environment ID.
+Stage/block identities still use the original frozen protocol/source plus the
+new campaign environment ID.</li>
+<li>The source-guard lambda calls original <code>verify_frozen(args.frozen)</code> before
+each attempt through <code>run_with_retries</code>. Original worker launches use their
+frozen harness path, not this controller as a replacement worker.</li>
+<li>After each completed block, progress count is <code>assignment.block + 1</code>, valid
+only because the first nine were validated and the selected schedule is the
+next contiguous slice. It then removes that owned block scratch subtree and
+checkpoints. The excluded preflight scratch is not explicitly removed here.</li>
+<li>Final current-session validation and the 18-unique-ID check precede the
+<code>partial-campaign</code> receipt. Failure at any step preserves available evidence;
+the controller has no global cleanup/restart handler.</li>
+</ol>
+<p>The entry guard does not check every amendment field: the document digest,
+descriptive sensitivity wording and other reporting metadata are not independent
+schema invariants in <code>run</code>. The deployment wrapper separately pins uploaded file
+hashes. Do not confuse metadata presence with an implemented session-3 aggregator,
+session sensitivity analysis or a cryptographic trust boundary.</p>
+<h2 id="cli-and-dependency-selection">CLI and Dependency Selection</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>What It Does</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>h2_sessions.main()</code></td>
+<td>Requires path arguments for candidate root, harness root, frozen bundle, amendment, previous evidence ZIP, output, scratch root, actual input root and checkpoint ZIP, plus integer session. Prepends candidate scripts, then original harness scripts, imports original <code>h2_confirmatory</code> as <code>engine</code>, and calls <code>run</code>.</td>
+<td>Harness scripts take precedence over candidate scripts for overlapping module names; candidate supplies the original dependencies. CLI does not provide <code>--resume</code>, <code>analyze</code> or an automatic upload command. Path selection itself is not provenance validation; subsequent guards bind treatment and harness bytes.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="verification-and-reporting-scope">Verification and Reporting Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_h2_sessions.py">test_h2_sessions.py</a> contains five
+parameter-expanded cases: complete disjoint 9/9/6 schedule slicing and invalid
+session types, three unsafe archive-name cases, and wrong-protocol rejection
+before block inspection. It does not run training, validate a successful session
+with synthetic receipts, exercise atomic replacement failure, or test session
+resume/aggregation. Original H2 tests cover delegated validators separately.
+The documentation AST gate requires exactly one entry for every named function.</p>
+<p>Before the second-session upload, the downloaded first-session bundle was locally
+checked with original campaign, frozen, preflight, attempt and stage validators.
+That supports that particular evidence tree, not universal archive safety or
+proof that the new remote execution completes.</p>
+<p>The original campaign prohibited cross-host pooling. This controller implements
+an explicitly authorized amendment after session 1, not retroactive authorization
+inside original receipts. Final reporting must disclose host/session boundaries
+and possible clustered performance effects. Session 3 and final aggregation remain
+unimplemented in this file; the original flat single-host <code>analyze_output</code> cannot
+be applied directly to this nested multi-session tree. Until the full 24-block
+evidence and amended aggregation are validated, report correctness/counts only.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#control-and-evidence-architecture">Control and Evidence Architecture</a><a href="#input-and-partition-functions">Input and Partition Functions</a><a href="#archived-session-validation">Archived Session Validation</a><a href="#atomic-checkpoint-function">Atomic Checkpoint Function</a><a href="#session-execution-function">Session Execution Function</a><a href="#cli-and-dependency-selection">CLI and Dependency Selection</a><a href="#verification-and-reporting-scope">Verification and Reporting Scope</a></nav></aside>
+  </div>
+</body>
+</html>

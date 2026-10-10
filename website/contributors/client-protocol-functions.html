@@ -1,0 +1,336 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/CLIENT-PROTOCOL-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Client protocol contracts: source-backed contributor documentation for Aether Engine.">
+  <title>Client protocol contracts | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html" aria-current="page">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/CLIENT-PROTOCOL-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="client-protocol-contract-functions">Client Protocol Contract Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="client-codec-functions.html">Message codecs</a> | <a href="remote-facade-functions.html">Remote facade</a> | <a href="rpc-api-functions.html">RPC API</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-api/src/main/java/io/aetherdb/client/api">aether-client-api</a>.
+All <strong>22 explicit declarations across 11 files</strong> are covered below. ClientStatus
+and the nested mutation Type enum have no explicit methods. Compiler-generated
+record accessors, equality and enum helpers are not included in that count.</p>
+<h2 id="protocol-architecture">Protocol Architecture</h2>
+<pre><code class="language-text">application -&gt; request records -&gt; client codecs -&gt; successful RPC envelope
+  -&gt; application response record -&gt; RemoteAetherClient outcome/retry mapping
+</code></pre>
+<p>These records own bounded physical key/value bytes and describe application
+outcomes. They do not open sockets, enforce authorization, apply writes, compare
+configuration versions with a live cluster, or implement deduplication. A valid
+record is not evidence that any server supports the requested operation.
+Application ClientStatus is distinct from the outer RpcStatus: an RPC envelope
+can succeed while its decoded application response reports failure.</p>
+<p>Every explicitly overridden byte-array accessor returns a fresh copy. Constructors
+also copy arrays; mutating caller buffers cannot change a validated request.
+Record-generated equality/hashCode still use array identity, not byte-content
+equality. List.copyOf freezes list membership and rejects null elements; entries
+are immutable records whose byte accessors copy their internal buffers.</p>
+<h2 id="point-reads">Point Reads</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-api/src/main/java/io/aetherdb/client/api/ClientGetRequest.java">ClientGetRequest.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-api/src/main/java/io/aetherdb/client/api/ClientGetResponse.java">ClientGetResponse.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ClientGetRequest.ClientGetRequest(configurationVersion, key)</code></td>
+<td>Requires nonnegative version and a nonnull physical key of 1..65,536 bytes, otherwise IllegalArgumentException. Copies the key. Does not validate namespace/key encoding or establish a read consistency mode.</td>
+</tr>
+<tr>
+<td><code>ClientGetRequest.key()</code></td>
+<td>Returns a new array copy, including on repeated calls.</td>
+</tr>
+<tr>
+<td><code>ClientGetResponse.ClientGetResponse(status, value, detail)</code></td>
+<td>Requires nonnull status/value/detail, value at most 16 MiB and detail at most 4,096 Java String characters. A non-OK status must have an empty value. OK may carry an empty value. Copies the value; invalid bounds/consistency raise IllegalArgumentException.</td>
+</tr>
+<tr>
+<td><code>ClientGetResponse.value()</code></td>
+<td>Returns a new value copy. No buffer borrowing or zero-copy view.</td>
+</tr>
+</tbody>
+</table>
+<p>The version field is a claim by the caller. The constructor accepts zero and does
+not inspect any cluster state. Detail bounds count UTF-16 code units, not encoded
+UTF-8 bytes; message codecs have separate wire-size responsibilities.</p>
+<h2 id="scan-pages">Scan Pages</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-api/src/main/java/io/aetherdb/client/api/ClientScanEntry.java">ClientScanEntry.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-api/src/main/java/io/aetherdb/client/api/ClientScanRequest.java">ClientScanRequest.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-api/src/main/java/io/aetherdb/client/api/ClientScanResponse.java">ClientScanResponse.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ClientScanEntry.ClientScanEntry(key, value)</code></td>
+<td>Requires nonnull key/value, key length 1..65,536 and value length 0..16 MiB. Copies both arrays; invalid input raises IllegalArgumentException.</td>
+</tr>
+<tr>
+<td><code>ClientScanEntry.key()</code></td>
+<td>Returns a new physical-key copy.</td>
+</tr>
+<tr>
+<td><code>ClientScanEntry.value()</code></td>
+<td>Returns a new value copy.</td>
+</tr>
+<tr>
+<td><code>ClientScanRequest.ClientScanRequest(configurationVersion, startInclusive, endExclusive, maxEntries, pageToken)</code></td>
+<td>Requires nonnegative version, nonnull/nonempty bounds each at most 65,536 bytes, maxEntries 1..10,000 and nonnull token at most 4,096 bytes. Copies all three arrays. Does not compare start/end, validate a token, or require a nonempty token for SCAN_NEXT.</td>
+</tr>
+<tr>
+<td><code>ClientScanRequest.startInclusive()</code></td>
+<td>Returns a new lower-bound copy.</td>
+</tr>
+<tr>
+<td><code>ClientScanRequest.endExclusive()</code></td>
+<td>Returns a new upper-bound copy.</td>
+</tr>
+<tr>
+<td><code>ClientScanRequest.pageToken()</code></td>
+<td>Returns a new opaque token copy. An empty token is allowed.</td>
+</tr>
+<tr>
+<td><code>ClientScanResponse.ClientScanResponse(status, entries, nextPageToken, detail)</code></td>
+<td>Requires nonnull fields, at most 10,000 entries, token at most 4,096 bytes and detail at most 4,096 characters. Copies list membership and token. Non-OK responses must have no entries and no token. Null list elements raise NullPointerException through List.copyOf; other explicit validation failures raise IllegalArgumentException.</td>
+</tr>
+<tr>
+<td><code>ClientScanResponse.nextPageToken()</code></td>
+<td>Returns a new continuation-token copy.</td>
+</tr>
+</tbody>
+</table>
+<p>A page's per-entry limits do not impose a 16 MiB aggregate page limit here. The
+constructor also does not enforce sorted entries, unique keys, a common snapshot,
+progress between tokens or a relationship between page size and the original
+request. Those are higher-level protocol/implementation responsibilities.
+Generated entries() returns the immutable list, not a fresh list each time.</p>
+<h2 id="write-identity-and-mutation-ownership">Write Identity And Mutation Ownership</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-api/src/main/java/io/aetherdb/client/api/ClientWriteOperation.java">ClientWriteOperation.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-api/src/main/java/io/aetherdb/client/api/ClientWriteRequest.java">ClientWriteRequest.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ClientWriteOperation.ClientWriteOperation(type, key, value)</code></td>
+<td>Requires nonnull type/key/value, key at most 65,536 bytes and value at most 16 MiB. DELETE requires an empty value; PUT permits empty values. Unlike get/scan keys, an empty write key is accepted. Clones both arrays; invalid input raises IllegalArgumentException.</td>
+</tr>
+<tr>
+<td><code>ClientWriteOperation.key()</code></td>
+<td>Returns a fresh key clone.</td>
+</tr>
+<tr>
+<td><code>ClientWriteOperation.value()</code></td>
+<td>Returns a fresh value clone, including an empty DELETE value.</td>
+</tr>
+<tr>
+<td><code>ClientWriteRequest.ClientWriteRequest(configurationVersion, operations)</code></td>
+<td>Delegates to the canonical constructor with NO_COMMAND_ID (zero UUID) and deduplicated=false. Does not generate an identity.</td>
+</tr>
+<tr>
+<td><code>ClientWriteRequest.ClientWriteRequest(configurationVersion, commandId, deduplicated, operations)</code></td>
+<td>Rejects null commandId, copies operations with List.copyOf, then requires nonnegative version and 1..10,000 operations. deduplicated=true requires a nonzero UUID; false requires exactly the zero UUID. Null list/elements fail through List.copyOf with NullPointerException; other explicit validation failures raise IllegalArgumentException.</td>
+</tr>
+<tr>
+<td><code>ClientWriteRequest.deduplicated(configurationVersion, commandId, operations)</code></td>
+<td>Constructs the canonical record with deduplicated=true. Caller supplies the nonzero command ID; this helper neither generates IDs nor stores retry history.</td>
+</tr>
+</tbody>
+</table>
+<p>Type is PUT or DELETE. Operation order and duplicate keys are preserved; the
+record does not normalize repeated mutations. The list bound and per-value bounds
+do not impose a total batch byte limit. Generated operations() returns the
+immutable list. Server-side command/content conflict detection is not implemented
+by this record, and the word deduplicated does not itself guarantee retry safety.</p>
+<h2 id="write-outcomes-and-redirects">Write Outcomes And Redirects</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-api/src/main/java/io/aetherdb/client/api/ClientWriteResponse.java">ClientWriteResponse.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-api/src/main/java/io/aetherdb/client/api/ClientEndpointHint.java">ClientEndpointHint.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ClientWriteResponse.ClientWriteResponse(status, commandId, operationCount, firstSequence, lastSequence, leaderHint, detail)</code></td>
+<td>Requires nonnull status/UUID/detail, nonnegative operation count/sequences, firstSequence &lt;= lastSequence and detail at most 4,096 characters. OK additionally requires positive count and both sequences nonzero. NOT_LEADER requires a hint; every other status forbids a hint. Invalid input raises IllegalArgumentException. Zero command UUID remains allowed.</td>
+</tr>
+<tr>
+<td><code>ClientEndpointHint.ClientEndpointHint(host, port, expectedNodeId)</code></td>
+<td>Rejects null/blank host, NUL/control characters, slash, @, ://, port outside 1..65,535 and an explicitly zero expected UUID. Strips outer host whitespace. Null expectedNodeId is allowed. Does not resolve DNS, verify node identity, authenticate a redirect or fully validate host syntax. All explicit rejection uses IllegalArgumentException.</td>
+</tr>
+</tbody>
+</table>
+<p>Non-OK responses may still carry nonzero operation counts and sequence numbers;
+the constructor does not enforce status-specific outcome certainty beyond the
+listed rules. It does not require operationCount to match sequence-range length,
+cap it at 10,000, or check a response ID against its request. A hint is metadata,
+not a trusted leader proof. The remote routing layer separately decides whether
+and how to follow it.</p>
+<h2 id="codes-and-status-vocabulary">Codes And Status Vocabulary</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-api/src/main/java/io/aetherdb/client/api/ClientProtocol.java">ClientProtocol.java</a>.
+<code>ClientProtocol.ClientProtocol()</code> is a private empty constructor that prevents
+normal instantiation; this class contains constants rather than runtime routing.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Constant</th>
+<th>Numeric operation code</th>
+<th>Declared purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LEADER_QUERY</td>
+<td>16384</td>
+<td>Discover leader</td>
+</tr>
+<tr>
+<td>CLIENT_WRITE</td>
+<td>16385</td>
+<td>Submit write</td>
+</tr>
+<tr>
+<td>CLIENT_GET</td>
+<td>16386</td>
+<td>Point read</td>
+</tr>
+<tr>
+<td>SCAN_OPEN</td>
+<td>16387</td>
+<td>Open scan</td>
+</tr>
+<tr>
+<td>SCAN_NEXT</td>
+<td>16388</td>
+<td>Next page</td>
+</tr>
+<tr>
+<td>SCAN_CLOSE</td>
+<td>16389</td>
+<td>Close scan</td>
+</tr>
+<tr>
+<td>READ_INDEX</td>
+<td>8195</td>
+<td>Linearizable read barrier</td>
+</tr>
+</tbody>
+</table>
+<p>Constants do not register handlers. The current RemoteAetherClient facade exposes
+write/get/scan operations, not a public method for every code above.</p>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-api/src/main/java/io/aetherdb/client/api/ClientStatus.java">ClientStatus.java</a>
+defines 20 application outcomes:</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Group</th>
+<th>Status values</th>
+<th>Meaning at this contract boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Success/absence</td>
+<td>OK, NOT_FOUND</td>
+<td>Completed operation or absent key/resource</td>
+</tr>
+<tr>
+<td>Leadership</td>
+<td>NOT_LEADER, LEADER_NOT_READY, NO_LEADER_KNOWN</td>
+<td>Redirect, readiness incomplete, or unknown leader</td>
+</tr>
+<tr>
+<td>Request/configuration</td>
+<td>INVALID_ARGUMENT, CONFIGURATION_MISMATCH, COMMAND_ID_CONFLICT</td>
+<td>Invalid arguments, incompatible configuration, or reused command ID with different content</td>
+</tr>
+<tr>
+<td>Capacity/time/uncertainty</td>
+<td>RESOURCE_EXHAUSTED, DEADLINE_EXCEEDED, INDETERMINATE</td>
+<td>Bound exhausted, elapsed deadline, or unknown final write outcome</td>
+</tr>
+<tr>
+<td>Engine/read policy</td>
+<td>ENGINE_FAILED, READ_MODE_DISABLED</td>
+<td>Local engine failed or requested read mode disabled</td>
+</tr>
+<tr>
+<td>Scan state</td>
+<td>SCAN_NOT_FOUND, SCAN_EXPIRED, SCAN_PAGE_MISMATCH</td>
+<td>Unknown cursor, expired lease, or mismatched token</td>
+</tr>
+<tr>
+<td>Integrity/size</td>
+<td>RESULT_TOO_LARGE, DATA_LOSS</td>
+<td>Response bound exceeded or integrity validation failed</td>
+</tr>
+<tr>
+<td>Access control</td>
+<td>UNAUTHENTICATED, PERMISSION_DENIED</td>
+<td>Missing authentication or insufficient permission</td>
+</tr>
+</tbody>
+</table>
+<p>These names do not prescribe a universal retry policy. Read the
+<a href="remote-facade-functions.html">remote facade</a> and <a href="remote-routing-functions.html">routing policy</a>
+for actual mapping and retry decisions. In particular, INDETERMINATE is not a
+promise that no write was applied.</p>
+<h2 id="verification-and-ownership">Verification And Ownership</h2>
+<p>The compiler-tree coverage test checks all 22 declarations and both constructor
+overloads. Existing module tests cover write identity and write-response rules;
+they do not exhaustively test get/scan validation or every host form. Codec tests
+and facade tests provide separate evidence, not a replacement for these contracts.
+Use disposable tests rather than a live database when changing byte bounds,
+status rules or command identity behavior. Documentation does not certify a
+production distributed service or change the frozen ML experiment implementation.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#protocol-architecture">Protocol Architecture</a><a href="#point-reads">Point Reads</a><a href="#scan-pages">Scan Pages</a><a href="#write-identity-and-mutation-ownership">Write Identity And Mutation Ownership</a><a href="#write-outcomes-and-redirects">Write Outcomes And Redirects</a><a href="#codes-and-status-vocabulary">Codes And Status Vocabulary</a><a href="#verification-and-ownership">Verification And Ownership</a></nav></aside>
+  </div>
+</body>
+</html>

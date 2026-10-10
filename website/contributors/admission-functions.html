@@ -1,0 +1,169 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/ADMISSION-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Resource admission functions: source-backed contributor documentation for Aether Engine.">
+  <title>Resource admission functions | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html" aria-current="page">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/ADMISSION-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="resource-admission-functions">Resource Admission Functions</h1>
+<p><a href="write-pressure-functions.html">Write pressure</a> | <a href="modules.html">Module guide</a></p>
+<p>This reference describes current source in <code>aether-admission</code>. It is a reusable
+pure evaluator, not an automatic global limiter. The local engine and training
+cache currently do not reference <code>AdmissionController</code>, <code>AdmissionPolicy</code>, or
+<code>AdmissionRequest</code> in their main Java sources. Their own admission paths must be
+read separately; similar terminology does not establish integration.</p>
+<h2 id="architecture-and-limits">Architecture and Limits</h2>
+<p>A policy supplies resource thresholds; a snapshot supplies current measurements;
+a request supplies projected charges and draining state. Evaluation returns a
+decision with reasons and optional delay. It does not reserve resources, apply
+charges, measure the host, sleep, mutate the WAL, transfer leadership, mark the
+node read-only, or send an acknowledgement.</p>
+<p>Two concurrent accepted decisions can oversubscribe a resource if their caller
+does not serialize measurement and reservation. Acceptance means only that the
+supplied projected values passed this evaluation. Rejection-before-ack semantics
+require the caller to evaluate before crossing its actual uncertainty boundary.</p>
+<h2 id="resource-models">Resource Models</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-admission/src/main/java/io/aetherdb/admission/ResourceLimit.java">ResourceLimit.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-admission/src/main/java/io/aetherdb/admission/ResourceMeasurement.java">ResourceMeasurement.java</a>.</p>
+<h3 id="resourcelimitresource-softlimit-hardlimit-emergencylimit"><code>ResourceLimit(resource, softLimit, hardLimit, emergencyLimit)</code></h3>
+<p>Requires a resource, nonnegative soft limit, positive hard/emergency limits, and
+<code>soft &lt;= hard &lt;= emergency</code>. Equal adjacent thresholds are allowed, unlike write
+pressure's strictly separated slow/stop pairs. The record provides scalar accessors
+for its fields. Thresholds are quantities in the chosen dimension; the model does
+not convert units or collect measurements.</p>
+<h3 id="resourcemeasurementresource-currentvalue"><code>ResourceMeasurement(resource, currentValue)</code></h3>
+<p>Requires nonnull resource and nonnegative current value. Its accessors expose
+those fields. There is no sampling timestamp, freshness check, rate window, or
+coherence guarantee with measurements of other dimensions.</p>
+<h2 id="admission-policy">Admission Policy</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-admission/src/main/java/io/aetherdb/admission/AdmissionPolicy.java">AdmissionPolicy.java</a>.</p>
+<h3 id="admissionpolicylimits-maximumslowdowndelay"><code>AdmissionPolicy(limits, maximumSlowdownDelay)</code></h3>
+<p>Requires a nonnull map and nonnegative nonnull duration, validates each map key
+matches its limit's resource, copies through an enum map, then exposes an immutable
+map. Null map entries can fail by dereference rather than a custom validation
+message. Empty policies are valid. Very large durations are accepted here even
+if converting to nanoseconds during evaluation will overflow.</p>
+<h3 id="oflimit-more-and-empty"><code>of(limit, more)</code> and <code>empty()</code></h3>
+<p><code>of</code> collects the first limit plus varargs into an enum map and selects 100 ms
+maximum slowdown. Repeated resources overwrite earlier limits; it does not reject
+duplicates. <code>empty</code> creates an empty policy with zero delay. Empty policy accepts
+a nondraining request even if its charge map contains large quantities.</p>
+<h3 id="orderedlimits"><code>orderedLimits()</code></h3>
+<p>Sorts configured limits alphabetically by resource enum name and returns an
+unmodifiable list. This makes reason order deterministic within the chosen outcome
+category, not declaration order or numeric severity order. The policy's implicit
+<code>limits()</code> accessor exposes its immutable map; <code>maximumSlowdownDelay()</code> exposes
+the duration.</p>
+<h2 id="snapshot-and-request">Snapshot and Request</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-admission/src/main/java/io/aetherdb/admission/AdmissionSnapshot.java">AdmissionSnapshot.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-admission/src/main/java/io/aetherdb/admission/AdmissionRequest.java">AdmissionRequest.java</a>.</p>
+<h3 id="admissionsnapshotmeasurements-and-valueresource"><code>AdmissionSnapshot(measurements)</code> and <code>value(resource)</code></h3>
+<p>Construction validates nonnull map and key/resource correspondence, copying into
+an immutable map. The <code>measurements()</code> accessor returns that map. <code>value</code> returns
+the current measured value, or zero when the dimension is missing. Missing is not
+treated as unknown or unsafe; callers needing conservative admission must supply
+measurements for configured dimensions.</p>
+<h3 id="admissionrequestcharges-draining"><code>AdmissionRequest(charges, draining)</code></h3>
+<p>Requires a nonnull map, rejects null resource keys and negative charges, omits
+zero charges, and copies positive charges into an immutable map. A null boxed
+charge fails on unboxing. Its <code>charges()</code> and <code>draining()</code> accessors expose immutable
+deltas and the caller's node-state flag. Charges for dimensions absent from the
+policy are not checked by the controller.</p>
+<h2 id="evaluation">Evaluation</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-admission/src/main/java/io/aetherdb/admission/AdmissionController.java">AdmissionController.java</a>.</p>
+<h3 id="evaluatepolicy-snapshot-request"><code>evaluate(policy, snapshot, request)</code></h3>
+<p>If draining, immediately returns <code>DRAINING_REJECTED</code>, reason <code>node is draining</code>,
+and zero delay. This path does not consult policy or snapshot. Otherwise visits
+ordered policy limits and adds current plus requested charge with saturation.
+Each resource contributes to only one bucket, using inclusive thresholds:</p>
+<ol>
+<li>At or above emergency: emergency reason.</li>
+<li>Otherwise at or above hard: hard reason.</li>
+<li>Otherwise at or above soft: soft reason and a normalized slowdown ratio.</li>
+</ol>
+<p>If any emergency reasons exist, returns <code>RESOURCE_EXHAUSTED</code> with only those
+reasons. Otherwise hard reasons produce the same outcome with only hard reasons.
+Otherwise soft reasons produce <code>REJECTED_BEFORE_ACK</code> with a suggested delay.
+No reasons produces <code>ACCEPTED</code> and zero delay. Lower-priority categories are not
+included in the returned reasons when a higher one wins.</p>
+<p>Soft pressure here is a rejection with retry-delay advice, not the storage
+controller's <code>SLOWDOWN</code> state admitting after a delay. Emergency evaluation does
+not itself switch the node to read-only. The controller never emits <code>UNCERTAIN</code>.
+There are no explicit null guards for the three evaluation arguments.</p>
+<h3 id="addsaturatedleft-right"><code>addSaturated(left, right)</code></h3>
+<p>Adds nonnegative current and charge values; a negative result signals signed
+overflow and becomes <code>Long.MAX_VALUE</code>. Model validation supplies the nonnegative
+domain. Saturation still compares against configured thresholds, including limits
+equal to <code>Long.MAX_VALUE</code>.</p>
+<h3 id="ratiovalue-range"><code>ratio(value, range)</code></h3>
+<p>For positive range, divides as double and clamps to zero through one. Nonpositive
+range returns one. In the soft branch, value is projected minus soft and range
+is hard minus soft. Equal soft/hard thresholds are caught by the hard branch,
+so that degenerate range does not normally reach slowdown computation.</p>
+<h3 id="slowdownmaximum-ratio"><code>slowdown(maximum, ratio)</code></h3>
+<p>Zero maximum returns zero. Otherwise converts maximum to nanoseconds, multiplies
+by at least 1% of maximum, rounds with a minimum of one nanosecond, and caps at
+the maximum. At exactly soft threshold the ratio is zero, but advice is still
+1% of maximum rather than zero. With <code>of</code> policy that is 1 ms of its 100 ms limit.
+An oversized duration can throw <code>ArithmeticException</code> during <code>toNanos</code>; there is
+no saturation for that conversion. This function only computes advice.</p>
+<h2 id="decision-contract">Decision Contract</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-admission/src/main/java/io/aetherdb/admission/AdmissionDecision.java">AdmissionDecision.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-admission/src/main/java/io/aetherdb/admission/AdmissionOutcome.java">AdmissionOutcome.java</a>.</p>
+<h3 id="admissiondecisionoutcome-reasons-suggesteddelay-and-accepted"><code>AdmissionDecision(outcome, reasons, suggestedDelay)</code> and <code>accepted()</code></h3>
+<p>Requires nonnull outcome, reasons, and delay, copies reasons immutably, rejects
+negative delay, and forbids nonempty reasons for accepted decisions. It does not
+require rejection reasons for rejected outcomes or forbid delay on acceptance.
+<code>accepted</code> tests outcome equals <code>ACCEPTED</code>; other accessors return stored fields.</p>
+<p>Outcome meanings are acceptance, pre-ack rejection, uncertain final state,
+draining rejection, or resource exhaustion. <code>UNCERTAIN</code> exists for callers to
+represent operations beyond an uncertainty boundary; this evaluator cannot derive
+it from a resource snapshot. An outcome taxonomy alone does not implement
+idempotency, read-back, acknowledgement ordering, or leadership transfer.</p>
+<h2 id="resource-dimensions">Resource Dimensions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-admission/src/main/java/io/aetherdb/admission/AdmissionResource.java">AdmissionResource.java</a>.</p>
+<p>Dimensions cover heap/native/cache/immutable bytes; active and retained WAL;
+live SSTables and compaction debt; open files; RPC inbound/outbound bytes and
+inflight streams; unapplied Raft entries; snapshot-transfer rate; backup bytes,
+objects, and rate; thread count and virtual-thread inflight work. Each enum value
+is an identifier, not a sensor or automatic hook into the named subsystem.</p>
+<h2 id="review-boundaries">Review Boundaries</h2>
+<p>Audit configured dimensions against actual measurements and reservation ownership.
+Test equal thresholds, missing measurements, ignored charges, saturated addition,
+draining precedence, category-specific reasons, and duration overflow. Function-name
+coverage checks documentation omissions, not resource safety or runtime integration.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-limits">Architecture and Limits</a><a href="#resource-models">Resource Models</a><a href="#admission-policy">Admission Policy</a><a href="#snapshot-and-request">Snapshot and Request</a><a href="#evaluation">Evaluation</a><a href="#decision-contract">Decision Contract</a><a href="#resource-dimensions">Resource Dimensions</a><a href="#review-boundaries">Review Boundaries</a></nav></aside>
+  </div>
+</body>
+</html>

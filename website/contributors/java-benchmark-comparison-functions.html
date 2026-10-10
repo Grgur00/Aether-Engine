@@ -1,0 +1,241 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/JAVA-BENCHMARK-COMPARISON-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Java benchmark comparisons and gates: source-backed contributor documentation for Aether Engine.">
+  <title>Java benchmark comparisons and gates | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html" aria-current="page">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/JAVA-BENCHMARK-COMPARISON-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="java-benchmark-comparison-and-gate-functions">Java Benchmark Comparison and Gate Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="java-benchmark-runner-functions.html">Execution</a> | <a href="java-benchmark-evidence-functions.html">Evidence and baselines</a></p>
+<p>This reference covers <strong>14 explicit declarations across eight complete files</strong> in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks">aether-benchmarks</a>.
+ExternalEngine contributes an enum vocabulary, not explicit methods. Generated
+record/enum members are excluded. Together with execution and evidence references,
+these cover the module's production implementations, not its test functions.</p>
+<h2 id="comparison-architecture">Comparison Architecture</h2>
+<pre><code class="language-text">Full baseline result + candidate + policy -&gt; RegressionComparator.compare
+Repeated equivalent results -&gt; medianByP50 -&gt; one selected result
+
+Compact baseline store + candidate -&gt; BenchmarkGateEvaluator.evaluate
+    -&gt; find ID -&gt; toResultLike(candidate) -&gt; RegressionComparator.compare
+
+Aether manifest/result + external manifest/result
+    -&gt; ExternalBenchmarkComparator.compare -&gt; blockers + throughput ratio
+</code></pre>
+<p>These functions compare supplied records. They do not execute engines, inspect
+hardware, recover acknowledged writes, load artifacts, estimate uncertainty or
+enforce CI exit status. A passing gate is limited to the checks below. This is not
+the Python H2 paired-block analysis or an external-engine adapter implementation.</p>
+<h2 id="regression-policies-and-outcomes">Regression Policies and Outcomes</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/RegressionGatePolicy.java">RegressionGatePolicy.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/RegressionComparison.java">RegressionComparison.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Validation and limits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RegressionGatePolicy.RegressionGatePolicy(...)</code></td>
+<td>Stores permitted throughput decrease, latency increase and acknowledgement-count loss flag.</td>
+<td>Throughput fraction finite in [0,1]; latency fraction finite in [0,10]. Rejects invalid inputs with IllegalArgumentException. No sample-count or confidence requirement.</td>
+</tr>
+<tr>
+<td><code>RegressionComparison.RegressionComparison(passed, failures)</code></td>
+<td>Null failures becomes empty; otherwise immutable list copy. Requires passed exactly when failures is empty.</td>
+<td>Null list elements fail during copy. Strings need not be nonblank, unique or recognized failure codes. No failure-count cap.</td>
+</tr>
+</tbody>
+</table>
+<p>END_TO_END uses throughput 0.15, latency 0.20 and acknowledgement-loss checking.
+MICROBENCHMARK uses throughput 1.0, latency 0.15 and no acknowledgement-loss check.
+The comparator applies the latency fraction to <strong>all three percentiles</strong> for both
+policies, despite the microbenchmark constant's comment describing a median gate.
+The end-to-end policy also checks p50, not just the p95/p99 named by its comment.</p>
+<h2 id="full-result-regression-functions">Full-Result Regression Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/RegressionComparator.java">RegressionComparator.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RegressionComparator.RegressionComparator()</code></td>
+<td>Private utility constructor.</td>
+<td>No stored baseline or mutable instrumentation.</td>
+</tr>
+<tr>
+<td><code>RegressionComparator.compare(baseline, candidate, policy)</code></td>
+<td>Requires three nonnull inputs. Collects failures in fixed order: benchmark ID, workload map, Aether config map, throughput, p50, p95, p99, acknowledged count. Returns consistent RegressionComparison.</td>
+<td>Semantic mismatches do not short-circuit numeric checks. Environment, storage, commit, dirty flag, artifact list, histogram count/max and non-acknowledgement counters are not compared. Map equality is exact.</td>
+</tr>
+<tr>
+<td><code>RegressionComparator.medianByP50(runs)</code></td>
+<td>Requires nonempty list; checks every run against first for ID/workload/config equality. Copies to array, sorts ascending p50 and returns element length/2.</td>
+<td>Returns an existing complete result, not an aggregate. Even sample counts select upper middle. Stable object sort preserves input order for ties. No environment/commit/count equivalence, paired design or confidence interval. Null elements cause NullPointerException.</td>
+</tr>
+<tr>
+<td><code>RegressionComparator.regressedDown(baseline, candidate, fraction)</code></td>
+<td>Returns false for baseline &lt;= 0; otherwise tests candidate &lt; baseline * (1 - fraction).</td>
+<td>Strict inequality: exact threshold passes. A 1.0 fraction disables meaningful throughput failure for nonnegative candidate throughput. Zero baseline provides no throughput gate.</td>
+</tr>
+<tr>
+<td><code>RegressionComparator.regressedUp(baseline, candidate, fraction)</code></td>
+<td>Returns false for baseline &lt;= 0; otherwise tests candidate &gt; ceil(baseline * (1 + fraction)).</td>
+<td>Exact rounded threshold passes. Ceil allows integer-nanosecond rounding; double arithmetic can lose precision for very large long latencies. Zero baseline provides no latency gate.</td>
+</tr>
+</tbody>
+</table>
+<p>With baseline throughput 1000 and END_TO_END, 850 passes while anything below 850
+fails. With baseline p95=101 ns, ceil(101 * 1.20)=122 ns, so 122 passes and 123 fails.
+These are deterministic thresholds, not a significance test. Choosing the median
+run by p50 does not compute median throughput or independently median p95/p99.</p>
+<p>Acknowledgement checking means candidate acknowledged count &lt; baseline count.
+It does not measure recovered-versus-acknowledged records, inspect write results or
+prove crash consistency. A caller must supply equal workload scale and genuine
+recovery evidence before interpreting that count check as a durability result.</p>
+<h2 id="persisted-baseline-gate">Persisted Baseline Gate</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/BenchmarkGateEvaluator.java">BenchmarkGateEvaluator.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Limits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BenchmarkGateEvaluator.BenchmarkGateEvaluator()</code></td>
+<td>Private utility constructor.</td>
+<td>No baseline file IO.</td>
+</tr>
+<tr>
+<td><code>BenchmarkGateEvaluator.evaluate(baselines, candidate, policy)</code></td>
+<td>Rejects null inputs. Finds exact candidate ID in store. Present entry becomes toResultLike(candidate), then normal comparison; absent entry returns false with one missing-baseline message naming ID.</td>
+<td>Does not retrieve original resultUri. Conversion or comparison exceptions propagate. Does not select repetitions or write a gate receipt.</td>
+</tr>
+</tbody>
+</table>
+<p>The compact store has no historical workload/config/environment maps. Its conversion
+copies those maps from the candidate. Consequently ID/workload/config equality
+checks in this path do not independently certify baseline semantics; stored metrics
+are compared under synthetic current context. Use original evidence to establish
+fairness. See the evidence reference for dropped counters and reconstructed latency
+count/max.</p>
+<h2 id="external-semantics-manifest">External Semantics Manifest</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/BenchmarkSemanticsManifest.java">BenchmarkSemanticsManifest.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/ExternalEngine.java">ExternalEngine.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Validation and ownership</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BenchmarkSemanticsManifest.BenchmarkSemanticsManifest(...)</code></td>
+<td>Requires engine, nonblank benchmark/machine/durability strings, positive batch/threads, workloadShape. Strips three strings, uppercases durability using Locale.ROOT, copies map.</td>
+<td>keyBytes 1..1 MiB; valueBytes 0..64 MiB; map &lt;= 128 entries. Keys nonblank &lt;=128 units, values &lt;=4096. Map.copyOf precedes entry validation, so null keys/values throw NullPointerException. No string cap/control policy for identity fields, durability vocabulary, or upper bound on positive batch/threads.</td>
+</tr>
+<tr>
+<td><code>BenchmarkSemanticsManifest.sameSemanticsAs(other)</code></td>
+<td>False for null; otherwise exact equality of benchmark ID, machine ID, canonical durability, key/value sizes, batch, threads and workloadShape.</td>
+<td>Deliberately ignores engine so cross-engine comparison is possible. Machine and durability strings are declarations, not verified host identity or actual fsync behavior. Map keys are not stripped; value controls are allowed.</td>
+</tr>
+</tbody>
+</table>
+<p>ExternalEngine values are AETHER, ROCKSDB, LEVELDB, LMDB and SQLITE. Enumeration does
+not imply that this module supplies runnable adapters for these engines. Workload
+shape is a free-form string map, not a checked schema. Equal empty maps are allowed.</p>
+<h2 id="external-comparison-functions">External Comparison Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/ExternalBenchmarkComparator.java">ExternalBenchmarkComparator.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/ExternalBenchmarkComparison.java">ExternalBenchmarkComparison.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ExternalBenchmarkComparator.ExternalBenchmarkComparator()</code></td>
+<td>Private utility constructor.</td>
+<td>No engine launch or materialization.</td>
+</tr>
+<tr>
+<td><code>ExternalBenchmarkComparator.compare(aetherManifest, aetherResult, externalManifest, externalResult)</code></td>
+<td>Requires all inputs. Collects blockers for left not AETHER, right AETHER, manifest semantics mismatch, left result ID mismatch, right result ID mismatch. If unblocked and external throughput &gt;0, computes Aether/external throughput; otherwise ratio=0. Returns comparison.</td>
+<td>Checks each result's benchmark ID against its manifest, not result maps against manifest shape/host/durability. Does not compare latency, counters, artifacts or commit. External zero throughput yields comparable=true with ratio=0 when semantics match. Finite operands can divide to infinity, causing output constructor rejection.</td>
+</tr>
+<tr>
+<td><code>ExternalBenchmarkComparison.ExternalBenchmarkComparison(comparable, blockers, throughputRatio)</code></td>
+<td>Null blockers becomes empty, otherwise immutable copy. Requires comparable exactly when blockers empty, and finite nonnegative ratio.</td>
+<td>Noncomparable results need not have ratio zero when constructed directly. Ratio zero alone cannot distinguish blocked comparison, zero numerator or zero denominator convention. Null blocker elements rejected by copy.</td>
+</tr>
+</tbody>
+</table>
+<p>For positive denominator and comparable inputs, ratio &gt;1 means higher Aether
+throughput, ratio &lt;1 means lower throughput. It is not lifecycle time, speedup over
+dataset revisions, break-even version or a statistically established advantage.
+The result's comparable flag must accompany the number, and original runtime
+evidence must corroborate the caller-provided semantics manifests.</p>
+<h2 id="tests-and-verification-scope">Tests and Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/test/java/io/aetherdb/benchmarks/RegressionComparatorTest.java">RegressionComparatorTest</a>
+has three cases: selected throughput/tail/acknowledgement failures, benchmark ID
+mismatch, and odd-count median selection plus ID mismatch rejection.
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/test/java/io/aetherdb/benchmarks/ExternalBenchmarkComparatorTest.java">ExternalBenchmarkComparatorTest</a>
+has three cases: matching manifests and ratio 2, durability/shape mismatch, and
+right-engine/result-ID blockers.
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/test/java/io/aetherdb/benchmarks/BenchmarkBaselineStoreTest.java">Baseline store tests</a>
+also exercise missing baseline and numeric gate delegation.</p>
+<p>Existing tests do not exhaustively cover threshold equality/rounding, zero
+baselines/denominators, even medians/ties, null inputs, all manifest mismatches,
+ratio overflow, constructor edge cases or actual cross-engine semantic parity.
+Declaration inventory checks documentation omissions, not runtime correctness.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#comparison-architecture">Comparison Architecture</a><a href="#regression-policies-and-outcomes">Regression Policies and Outcomes</a><a href="#full-result-regression-functions">Full-Result Regression Functions</a><a href="#persisted-baseline-gate">Persisted Baseline Gate</a><a href="#external-semantics-manifest">External Semantics Manifest</a><a href="#external-comparison-functions">External Comparison Functions</a><a href="#tests-and-verification-scope">Tests and Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

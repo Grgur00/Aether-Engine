@@ -1,0 +1,16 @@
+{
+  "schema": "aether-longitudinal-persistent-config-v1",
+  "serviceLifecycle": "persistent-per-block",
+  "manifestDirectory": "configs/paper/oct5k-longitudinal",
+  "sourceManifest": "/kaggle/input/aether-oct5k-pilot/manifests/v2.csv",
+  "sourceSamples": 1505,
+  "versions": [1200, 1260, 1323, 1389, 1458],
+  "seed": 20260926,
+  "pairedBlocks": 5,
+  "epochs": 20,
+  "batchSize": 16,
+  "imageSize": 256,
+  "prefetchDepth": 0,
+  "serverTrace": false,
+  "confirmatory": false
+}

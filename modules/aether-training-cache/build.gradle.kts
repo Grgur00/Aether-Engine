@@ -7,6 +7,8 @@ dependencies {
     implementation(project(":modules:aether-api"))
     implementation(project(":modules:aether-config"))
     implementation(project(":modules:aether-engine"))
+    implementation(project(":modules:aether-sstable"))
+    testImplementation(project(":modules:aether-reliability"))
 }
 
 tasks.register("paperRuntimeClasspath") {
@@ -64,7 +66,9 @@ tasks.register<JavaExec>("trainingCacheBenchmark") {
     providers.gradleProperty("jfrFile").orNull?.let { file ->
         val requested = project.file(file).absolutePath
         val recording = if (requested.endsWith(".jfr")) requested else "$requested.jfr"
-        jvmArgs("-XX:StartFlightRecording=filename=$recording,settings=profile,dumponexit=true")
+        val settings = providers.gradleProperty("jfrSettings").orElse("profile").get()
+        jvmArgs("-XX:FlightRecorderOptions=stackdepth=256",
+            "-XX:StartFlightRecording=filename=$recording,settings=$settings,disk=true,dumponexit=true")
     }
     args(
         providers.gradleProperty("benchmarkDir").orElse("build/training-cache-benchmark").get(),
@@ -91,7 +95,9 @@ tasks.register<JavaExec>("trainingCacheDaemon") {
     providers.gradleProperty("jfrFile").orNull?.let { file ->
         val requested = project.file(file).absolutePath
         val recording = if (requested.endsWith(".jfr")) requested else "$requested.jfr"
-        jvmArgs("-XX:StartFlightRecording=filename=$recording,settings=profile,dumponexit=true")
+        val settings = providers.gradleProperty("jfrSettings").orElse("profile").get()
+        jvmArgs("-XX:FlightRecorderOptions=stackdepth=256",
+            "-XX:StartFlightRecording=filename=$recording,settings=$settings,disk=true,dumponexit=true")
     }
     args(
         providers.gradleProperty("cacheDir").orElse("build/training-cache-daemon").get(),

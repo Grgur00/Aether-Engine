@@ -1,0 +1,246 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/BENCHMARK-DATA-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Benchmark sources and artifact payloads: source-backed contributor documentation for Aether Engine.">
+  <title>Benchmark sources and artifact payloads | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html" aria-current="page">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/BENCHMARK-DATA-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="benchmark-source-preprocessing-and-payload-functions">Benchmark Source, Preprocessing, and Payload Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="python-pipeline-functions.html">Loading and prefetch</a> | <a href="longitudinal-worker-functions.html">Longitudinal worker</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/benchmark_gpu_segmentation.py">benchmark_gpu_segmentation.py</a>.
+This page covers 27 explicit functions for inputs, deterministic preparation,
+artifact bytes and descriptive configuration. The larger module has 138 explicit
+declarations; this is one partition, not a complete benchmark reference. Imported
+vision and synthetic-input helpers remain separate implementations.</p>
+<h2 id="architecture-and-data-contract">Architecture and Data Contract</h2>
+<pre><code class="language-text">source arguments -&gt; source rows/raw buffers -&gt; deterministic preprocessing
+                 -&gt; image + mask + sample ID -&gt; normalization/codec tag
+                 -&gt; float16 image + binary uint8 mask -&gt; header/body payload
+                 -&gt; optional zlib -&gt; cache -&gt; checked unpack -&gt; float32 arrays
+                 -&gt; stack batches -&gt; uncached training augmentation -&gt; model
+</code></pre>
+<p>OCT5K input uses actual image/mask files and their paired declared digests. Synthetic
+input uses generated or resized raw byte buffers and derives masks from intensity.
+COCO/ImageNet routes to the vision workload. None of these functions starts a JVM,
+opens a training cache, runs an optimizer or establishes GPU timing validity.</p>
+<p>Deterministic preparation stops before random training augmentation. Artifact
+packing quantizes images to float16 and masks to positive/nonpositive binary
+uint8. Unpacking returns newly converted float32 arrays, not views that retain
+zero-copy storage. Raw/reference and cached backends must be compared after this
+same quantization boundary; equal preprocessing float32 inputs alone do not prove
+equal cached training tensors.</p>
+<h2 id="source-loading-functions">Source Loading Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>load_sources(args)</code></td>
+<td>Routes COCO/ImageNet to the imported vision loader and OCT5K to load_oct5k_sources. Synthetic mode without input_dir generates args.samples raw OCT buffers, seed/index identities and raw SHA-256 hashes. With input_dir, discovers matching files, takes the requested prefix, requires enough files, reads and coerces each to requested OCT dimensions, and uses path identity, stem ID and coerced-buffer hash. File-backed synthetic inputs are raw buffers here, not semantic image/mask pairs. Imported discovery/coercion owns ordering and resize behavior.</td>
+</tr>
+<tr>
+<td><code>load_oct5k_sources(args)</code></td>
+<td>Resolves and reads UTF-8 CSV, requires seven named columns, includes rows with absent/empty split or the selected split, and takes the first requested samples. Requires enough rows, nonempty stripped unique sample IDs, existing resolved image/mask files, lowercased declared digests and the correct paired source identity. Unless trust_manifest_hashes is set, hashes actual files and compares digests. Rejects duplicate selected content identities. Returns path-bearing normalized source dictionaries. Checks selected rows only; later unused rows may be invalid. Does not decode images, validate digest string format separately or enforce path containment.</td>
+</tr>
+<tr>
+<td><code>resolve_manifest_path(value, manifest_root)</code></td>
+<td>Resolves an absolute path directly or a relative path beneath the manifest's parent. Normalizes traversal/symlinks but does not reject escape from that parent or validate existence. H2 input binding adds its own separate containment policy; this helper is not that guard.</td>
+</tr>
+<tr>
+<td><code>file_sha256(path)</code></td>
+<td>Hashes a Path object's binary file in 1 MiB chunks. Does not convert strings to Path, verify ownership or stabilize a concurrently changing file. Its read-loop lambda returns the next chunk; no image decode or preprocessing is involved.</td>
+</tr>
+</tbody>
+</table>
+<p>Trusted manifest mode omits raw digest verification but still requires files and
+valid declared paired identity. Preprocessing later opens the current bytes; a
+changed file is not detected merely by trusting an old digest. Sample IDs/disease
+labels are stripped; an empty split includes the row rather than excluding it.
+Duplicate source identity rejection is stricter than the descriptive integrity
+summary's text about reporting content-identical rows.</p>
+<h2 id="preparation-functions">Preparation Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>preprocess_sample(sample, args, np)</code></td>
+<td>Returns only the value from preprocess_sample_with_timing, discarding its counters. Does not create a separate computation or cache hit path.</td>
+</tr>
+<tr>
+<td><code>preprocess_sample_with_timing(sample, args, np)</code></td>
+<td>Delegates base preparation, mutates the returned value with artifactCodec, then optionally scales/offsets only image as float32. Adds that normalization wrapper time to preprocessMs, including the tiny no-op timing path. Mask is unaffected by scale/offset. Expects counters with preprocessMs and relies on validated args; it does not reject nonfinite parameters itself.</td>
+</tr>
+<tr>
+<td><code>_preprocess_sample_with_timing(sample, args, np)</code></td>
+<td>Routes vision/OCT5K kinds to specialized helpers. Other kinds read uint8 raw bytes into float32, reshape to source dimensions, nearest-resize and divide by 255, apply passes-minus-one denoising, z-score with zero standard deviation replaced by one, and make a mask at the denoised image's mean. Returns 1xresize x resize float32 arrays and preprocessing time with sourceLoadMs zero because raw bytes were already loaded. Buffer/reshape errors propagate.</td>
+</tr>
+<tr>
+<td><code>preprocess_oct5k_sample(sample, args, np)</code></td>
+<td>Requires Pillow; loads/copies grayscale image and validated-mode mask under file contexts, timing those operations as sourceLoadMs. Bilinear-resizes image, always applies radius-1 Gaussian blur, nearest-resizes labels, clips image to its 1st/99th percentiles with a unit range fallback, min-max normalizes, applies passes-minus-one wraparound denoise passes, and maps mask labels greater than zero to foreground. Returns float32 channel-first arrays and separate load/preprocess times. Does not preserve multiclass labels or verify source hashes during decode.</td>
+</tr>
+<tr>
+<td><code>validate_semantic_mask_mode(mode, path)</code></td>
+<td>Accepts 1, L, P, I and I;16 modes. Rejects RGB/RGBA/CMYK/HSV as visualizations and every other mode as unsupported. Checks mode only, not label meaning. Palette mode uses index values, not rendered palette colors.</td>
+</tr>
+<tr>
+<td><code>nearest_resize(image, target, np)</code></td>
+<td>Computes floor-scaled row/column indices with clipping and performs indexed sampling to a square target. No interpolation or Pillow call. Assumes meaningful nonempty source dimensions and target; direct calls lack argument validation.</td>
+</tr>
+<tr>
+<td><code>deterministic_denoise_pass(image, np)</code></td>
+<td>Returns float32 weighted center 0.5 plus four neighboring rolls at 0.125 each. np.roll wraps edges, so opposite borders influence one another; it is not zero/reflection padding or the Pillow Gaussian blur. Allocates rolled arrays/result and does not mutate the input.</td>
+</tr>
+<tr>
+<td><code>stack_values(values, np)</code></td>
+<td>Stacks ordered image and mask arrays and casts both to float32. Ignores IDs/codec tags, does not augment or transfer to GPU. Empty/mismatched shapes raise through NumPy.</td>
+</tr>
+</tbody>
+</table>
+<p>OCT foreground includes any positive semantic label, so multiple nonzero classes
+collapse to one. Synthetic threshold masks are derived data, not expert annotations.
+Both pipelines may be useful workload fixtures, but neither function alone validates
+clinical segmentation ground truth. Additional normalization changes the image
+after mask construction and must enter artifact identity.</p>
+<h2 id="payload-and-checksum-functions">Payload and Checksum Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pack_payload(sample)</code></td>
+<td>Accepts codec none or zlib, makes compact sorted JSON of ID/shapes, fixed persisted dtypes, encoding-version tag and codec, then appends native NumPy float16 image and positive-binary uint8 mask bytes, optionally compressed together. Prefixes a four-byte little-endian header length. No checksum, raw-digest verification, shape bound, finite-value check or explicit tensor-byte endianness normalization. Unsupported codec raises before encoding.</td>
+</tr>
+<tr>
+<td><code>unpack_payload(payload, np)</code></td>
+<td>Requires length prefix/header bounds, parses UTF-8 JSON, multiplies shape counts, uses declared dtypes (legacy defaults float32), and handles none/zlib only. Zlib decompression is bounded to declared byte total plus one; it requires EOF/no trailing stream data and exact resulting body length. Splits image/mask bytes, converts each to newly allocated float32 and reshapes. Does not require the encoding-version tag or the current fixed dtype names, validate schema/positive dimensions explicitly, authenticate contents or impose an independent maximum artifact size. JSON/dtype/zlib/reshape failures propagate.</td>
+</tr>
+<tr>
+<td><code>artifact_to_tensor_sample(sample, np)</code></td>
+<td>Pack-then-unpack canonicalization. Applies lossy image/mask encoding even without a cache, returning float32 arrays derived from persisted precision. Not a zero-copy tensor constructor.</td>
+</tr>
+<tr>
+<td><code>element_count(shape)</code></td>
+<td>Multiplies int-converted dimensions starting at one. Empty shape returns one; zero gives zero, negative/fractional/string dimensions are not separately rejected. Downstream slicing/reshape may reject malformed shapes, but this is not a tensor-schema validator.</td>
+</tr>
+<tr>
+<td><code>dataset_checksums(samples)</code></td>
+<td>Iterates samples in order, separately hashes each sample ID followed by image bytes and mask bytes, then hashes the two binary digest values together. Does not include shape/dtype metadata or separators between ID and bytes; differently shaped arrays with the same raw bytes can match. Not equivalent to the MONAI tensor_digest contract.</td>
+</tr>
+<tr>
+<td><code>assert_equivalent_inputs(reference, checksums)</code></td>
+<td>Recomputes dataset_checksums and requires exact dictionary equality, raising on mismatch. Consumes iterables; can trigger lazy preprocessing. Does not compare model outcomes, metadata identity or durability.</td>
+</tr>
+<tr>
+<td><code>dataset_integrity_summary(args, sources)</code></td>
+<td>Reports dataset/manifest hash/split, diseases, selected count, distinct identities and IDs/collisions. passed checks sample count and unique sample IDs only; source identity collisions can coexist with passed when called directly. manifestHashesVerified is inferred from manifest presence and the trust flag, not a fresh per-file verification. No backend/device correctness proof.</td>
+</tr>
+</tbody>
+</table>
+<p>The compressed byte limit is derived from untrusted shape/dtype fields. Exact
+length and compressed-stream checks are structural safeguards, not a fixed memory
+quota or cryptographic authenticity. Arbitrary JSON/dtypes are not silently
+normalized to the current schema. A caller can unpack legacy float32 bytes even
+when the encoding tag is absent or different.</p>
+<h2 id="identity-scheduling-and-description-functions">Identity, Scheduling and Description Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>batch_plan(args)</code></td>
+<td>Lazily yields contiguous index batches for one pass, keeping the short final batch. Does not shuffle, repeat epochs or enforce measured_steps. Direct invalid step arguments fail through range; normal parse_args validates them.</td>
+</tr>
+<tr>
+<td><code>effective_measured_steps(args)</code></td>
+<td>Returns nonzero explicit measured_steps, otherwise ceiling sample/batch count times epochs with a minimum of one. It is a schedule count, not a measured-duration estimate. Direct negative explicit values are returned; argument validation is separate.</td>
+</tr>
+<tr>
+<td><code>deterministic_parameters(args)</code></td>
+<td>Returns the specialized descriptor plus pipeline version, artifact codec and normalization scale/offset. These wrapper fields override same-named base entries. Produces a dictionary, not a hash or an independent check that every code change updates identity.</td>
+</tr>
+<tr>
+<td><code>_deterministic_parameters(args)</code></td>
+<td>Routes vision to imported parameters. OCT describes dataset/resize/decode/interpolation/percentile/blur/normalization/dtypes/encoding/passes/version. Synthetic describes dimensions, resize, z-score/mask/payload formats, passes and implementation version. Contains descriptive strings, not serialized executable transforms; actual denoise behavior must still be read in preparation code.</td>
+</tr>
+<tr>
+<td><code>configuration(args)</code></td>
+<td>Serializes selected argument fields plus derived step count, backend names and descriptive parallelism. Class count is null for segmentation; Java-only port/namespace are null for Python engine. Does not mutate args, execute work, revalidate limits or include every parse option (for example output path, run count and invocation are elsewhere). Claims such as worker startup inclusion are protocol descriptions, not probes.</td>
+</tr>
+<tr>
+<td><code>storage_locations(args)</code></td>
+<td>Describes raw path, generic temporary-per-run cache locations, cwd filesystem label and platform. Does not resolve configured cache paths or prove actual backend placements; explicit persistent directories can differ from these descriptive labels. COCO/ImageNet rawPath here does not use their manifest like OCT5K does.</td>
+</tr>
+<tr>
+<td><code>filesystem_name(path)</code></td>
+<td>Returns posix immediately on non-Windows, not the actual filesystem type. Windows runs fsutil volumeinfo without timeout and extracts an English File System Name line; catches exceptions and returns unknown otherwise. Does not require a successful exit code or support localized output explicitly.</td>
+</tr>
+<tr>
+<td><code>dataset_version(args)</code></td>
+<td>OCT label includes split/count, first 12 hex characters of current manifest hash (or missing-manifest), resize and OCT transform version. Other dataset kinds use input source/dimensions/resize/passes/seed. A readable label, not complete content/transform identity: codec/normalization are absent, and vision kinds use the non-OCT labeling branch.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="verification-and-remaining-coverage">Verification and Remaining Coverage</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_benchmark_data_documented_contracts.py">Data documentation contracts</a>
+exercise real tiny image/CSV inputs, trust-mode limits, semantic mask modes,
+denoise/normalization, quantized and legacy payloads, corruption/stream boundaries,
+checksum omissions and descriptive metadata. <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/tests/test_paper_storage.py">Storage tests</a>
+already check compressed codec parity and cache behavior. These require no GPU
+or live Java daemon. Function entries are checked against a selected AST inventory.</p>
+<p>The <a href="python-pipeline-functions.html">prefetch reference</a> separately covers two routing
+declarations. The <a href="function-index.html#main-benchmark-workload">function index</a> links
+all partitions, jointly covering the module's 138 explicit declarations. This
+page alone is partial, and complete module entries do not complete the repository
+overview or establish runtime correctness.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-data-contract">Architecture and Data Contract</a><a href="#source-loading-functions">Source Loading Functions</a><a href="#preparation-functions">Preparation Functions</a><a href="#payload-and-checksum-functions">Payload and Checksum Functions</a><a href="#identity-scheduling-and-description-functions">Identity, Scheduling and Description Functions</a><a href="#verification-and-remaining-coverage">Verification and Remaining Coverage</a></nav></aside>
+  </div>
+</body>
+</html>

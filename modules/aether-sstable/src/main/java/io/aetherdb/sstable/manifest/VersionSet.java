@@ -4,7 +4,8 @@ import io.aetherdb.io.PathSecurityValidator;
 import io.aetherdb.reliability.CrashContext;
 import io.aetherdb.reliability.CrashPointIds;
 import io.aetherdb.reliability.CrashPointRegistry;
-import io.aetherdb.sstable.SSTableReader;
+import io.aetherdb.sstable.SSTableVerifier;
+import io.aetherdb.sstable.jfr.BulkPhaseEvent;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -331,6 +332,50 @@ public final class VersionSet implements AutoCloseable {
         return appendAndPublish(delta, candidate);
     }
 
+    /** Bulk-only diagnostics of the unchanged append/force publication protocol. */
+    @SuppressWarnings("try")
+    public synchronized Version logAndApplyMeasured(ManifestEdit delta, java.util.Map<String, Long> timings)
+            throws IOException {
+        ensureOpen();
+        long started = System.nanoTime();
+        Version candidate = current.apply(delta);
+        timings.put("candidateNs", System.nanoTime() - started);
+        started = System.nanoTime();
+        CrashPointRegistry.hit("bulk.before_verification");
+        io.aetherdb.sstable.SSTableVerificationTrace.inventoryCall();
+        try (var phase = BulkPhaseEvent.start("SSTABLE_VERIFY", 0, 0, -1)) {
+            verifyInventory(root, databaseId, delta.additions());
+        }
+        CrashPointRegistry.hit("bulk.after_verification");
+        timings.put("inventoryVerificationNs", System.nanoTime() - started);
+        started = System.nanoTime();
+        byte[] record;
+        try (var phase = BulkPhaseEvent.start("MANIFEST_BUILD", 0, 0, -1)) {
+            record = ManifestCodecV1.encodeRecord(delta);
+        }
+        timings.put("encodeNs", System.nanoTime() - started);
+        started = System.nanoTime();
+        try (var phase = BulkPhaseEvent.start("MANIFEST_WRITE", 0, record.length, -1)) {
+            writeFully(writer, ByteBuffer.wrap(record));
+        }
+        timings.put("writeNs", System.nanoTime() - started);
+        CrashPointRegistry.hit("bulk.manifest.after_append");
+        started = System.nanoTime();
+        try (var phase = BulkPhaseEvent.start("MANIFEST_FORCE", 0, record.length, -1)) {
+            writer.force(true);
+        }
+        timings.put("forceNs", System.nanoTime() - started);
+        CrashPointRegistry.hit("bulk.manifest.after_force");
+        CrashPointRegistry.hit(
+                CrashPointIds.MANIFEST_AFTER_APPEND_BEFORE_CURRENT, manifestContext(delta));
+        started = System.nanoTime();
+        try (var phase = BulkPhaseEvent.start("MANIFEST_INSTALL", 0, record.length, -1)) {
+            current = candidate;
+        }
+        timings.put("installNs", System.nanoTime() - started);
+        return candidate;
+    }
+
     /** An owner-bound proof of full verification of immutable, unpublished output files. */
     public static final class VerifiedAdditions {
         private final VersionSet owner;
@@ -426,9 +471,7 @@ public final class VersionSet implements AutoCloseable {
                         "referenced SSTable is missing, unsafe, or has the wrong size: "
                                 + path.getFileName());
             }
-            try (SSTableReader verified = SSTableReader.open(path, databaseId, file)) {
-                verified.metadata();
-            }
+            SSTableVerifier.verify(path, databaseId, file);
         }
     }
 

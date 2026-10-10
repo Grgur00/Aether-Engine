@@ -68,6 +68,286 @@ def test_prepared_notebook_private_and_executable(prepared):
     assert "shutil.rmtree(results)" in runner
 
 
+@pytest.mark.parametrize("expected", ["frozen", "wrong"])
+def test_baseline_validation_uses_child_python_path(tmp_path, monkeypatch, expected):
+    import ast
+    import subprocess
+    source = ast.parse((remote.ROOT / "kaggle/vscode_run.py").read_text())
+    function = next(node for node in source.body if isinstance(node, ast.FunctionDef)
+                    and node.name == "validate_bulk_baseline")
+    scripts = tmp_path / "isolated-scripts"
+    scripts.mkdir()
+    (scripts / "profile_bulk_verification.py").write_text(
+        "def baseline_identity(root):\n    return {'sourceManifestSha256': 'frozen'}\n")
+    monkeypatch.setenv("PYTHONPATH", str(scripts))
+    calls = []
+    def logged(command, *, cwd):
+        assert command[0] == sys.executable
+        calls.append(command)
+        subprocess.run(command, cwd=cwd, check=True, capture_output=True, text=True)
+    namespace = dict(run_logged=logged, repo=tmp_path, baseline_repo=tmp_path / "baseline",
+                     REMOTE_CONFIG={"bulkBaselineManifestSha256": expected})
+    exec(compile(ast.Module(body=[function], type_ignores=[]), "baseline", "exec"), namespace)
+    if expected == "wrong":
+        with pytest.raises(subprocess.CalledProcessError) as error:
+            namespace["validate_bulk_baseline"](sys.executable)
+        assert "baseline provenance mismatch" in error.value.stderr
+    else:
+        namespace["validate_bulk_baseline"](sys.executable)
+    assert len(calls) == 1
+
+
+def verification_args(baseline=None):
+    return SimpleNamespace(user=None, mode="population-verification", training_epochs=None,
+                           dataset_config=None, scratch_root=None, dataset_source=None, bulk_baseline=baseline)
+
+
+def test_candidate_jfr_is_single_recording_without_baseline(prepared):
+    args = verification_args()
+    args.mode = "population-candidate-jfr"
+    remote.prepare(args)
+    value = remote.config()
+    assert value["pilotRepeats"] == 1 and value["epochs"] is None
+    assert value["priorPerformanceGate"] == "failed; unchanged"
+    assert "bulkBaselineSha256" not in value
+    remote.validate_prepared(value)
+    notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
+    body = "".join(notebook["cells"][1]["source"])
+    assert '"scripts/profile_bulk_jfr.py", "--candidate-only"' in body
+    compile(body, "notebook", "exec")
+
+
+def test_verification_requires_frozen_baseline(prepared):
+    with pytest.raises(ValueError, match="requires --bulk-baseline"):
+        remote.prepare(verification_args())
+
+
+@pytest.mark.parametrize("mode,repeats", [("population-verification", 3), ("population-streaming", 5)])
+def test_verification_prepares_two_bound_snapshots(prepared, mode, repeats):
+    baseline = prepared / "baseline.zip"
+    provenance = {"sourceClean": False, "files": {"fixture": hashlib.sha256(b"before").hexdigest()}}
+    with zipfile.ZipFile(baseline, "w") as archive:
+        archive.writestr("artifact-provenance.json", json.dumps(provenance))
+        archive.writestr("fixture", b"before")
+    args = verification_args(baseline)
+    args.mode = mode
+    remote.prepare(args)
+    value = remote.config()
+    assert value["bulkBaselineSha256"] == hashlib.sha256(baseline.read_bytes()).hexdigest()
+    assert value["epochs"] is None and value["pilotRepeats"] == repeats and not value["serverTrace"]
+    assert (prepared / "source/candidate-source.bin").read_bytes() == (prepared / "source/aether-paper-artifact.zip").read_bytes()
+    assert (prepared / "source/baseline-source.bin").read_bytes() == b"AETHER-BASELINE-ARCHIVE-V1\n" + baseline.read_bytes()
+    with zipfile.ZipFile(prepared / "source/baseline-source.bin") as archive:
+        assert archive.read("fixture") == b"before"
+    remote.validate_prepared(value)
+    notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
+    runner = "".join(notebook["cells"][1]["source"])
+    compile(runner, "notebook", "exec")
+    assert 'run_bulk_verification_gates(python)' in runner
+    assert '"scripts/profile_bulk_verification.py", "--baseline-root"' in runner
+    (prepared / "source/baseline-source.zip").write_bytes(b"changed")
+    with pytest.raises(ValueError, match="Prepared files changed"):
+        remote.validate_prepared(value)
+
+
+@pytest.mark.parametrize("name,contents", [("fixture", b"corrupt"), ("../escape", b"before")])
+def test_verification_rejects_bad_baseline(prepared, name, contents):
+    baseline = prepared / "baseline.zip"
+    with zipfile.ZipFile(baseline, "w") as archive:
+        archive.writestr("artifact-provenance.json", json.dumps({"files": {name: hashlib.sha256(b"before").hexdigest()}}))
+        archive.writestr(name, contents)
+    with pytest.raises(ValueError, match="baseline"):
+        remote.prepare(verification_args(baseline))
+
+
+@pytest.mark.parametrize("mismatch", [False, True])
+def test_submission_pins_only_byte_verified_archives(prepared, monkeypatch, mismatch):
+    from pathlib import Path
+    import shutil
+    for name in ("candidate-source.bin", "baseline-source.bin"):
+        (prepared / "source" / name).write_bytes(name.encode())
+    value = remote.config()
+    def cli(*args, **kwargs):
+        if args[:2] == ("datasets", "status"):
+            return json.dumps({"status": "ready", "current_version_number": 41})
+        assert args[:3] == ("datasets", "download", value["sourceDataset"] + "/41")
+        name, destination = args[4], Path(args[6])
+        shutil.copy2(prepared / "source" / name, destination / name)
+        if mismatch:
+            (destination / name).write_bytes(b"wrong version")
+    monkeypatch.setattr(remote, "cli", cli)
+    if mismatch:
+        with pytest.raises(ValueError, match="Remote source mismatch"):
+            remote.verified_submission(value)
+    else:
+        notebook = remote.verified_submission(value)
+        metadata = json.loads((notebook / "kernel-metadata.json").read_text())
+        assert metadata["dataset_sources"][0] == value["sourceDataset"] + "/41"
+        assert (notebook / "aether.ipynb").read_bytes() == (prepared / "notebook/aether.ipynb").read_bytes()
+
+
+@pytest.mark.parametrize("failure", [False, True])
+def test_bulk_storage_gate_preserves_reports_and_stops_on_failure(tmp_path, failure):
+    import ast
+    import os
+    import shutil
+    import subprocess
+    body = ast.parse((remote.ROOT / "kaggle/vscode_run.py").read_text())
+    function = next(node for node in body.body if isinstance(node, ast.FunctionDef)
+                    and node.name == "run_bulk_verification_gates")
+    repo, results = tmp_path / "repo", tmp_path / "results"
+    report = repo / "modules/aether-engine/build/test-results/test/TEST-fixture.xml"
+    report.parent.mkdir(parents=True)
+    report.write_text("<testsuite/>")
+    assert not (repo / "build").exists()
+    fixtures = repo / "scripts/tests"
+    fixtures.mkdir(parents=True)
+    for name in ("test_bulk_population.py", "test_bulk_verification.py"):
+        (fixtures / name).write_text("def test_fresh_temp(tmp_path):\n    assert tmp_path.is_dir()\n")
+    commands = []
+    def logged(command, *, cwd):
+        assert cwd == repo
+        commands.append(command)
+        if failure:
+            raise subprocess.CalledProcessError(1, command)
+        if command[0] == "python":
+            assert (repo / "build").is_dir()
+            subprocess.run([sys.executable, *command[1:]], cwd=cwd, check=True,
+                           capture_output=True, text=True,
+                           env={**os.environ, "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"})
+    namespace = dict(repo=repo, results=results, run_logged=logged, shutil=shutil,
+                     os=SimpleNamespace(environ={}))
+    exec(compile(ast.Module(body=[function], type_ignores=[]), "gate", "exec"), namespace)
+    if failure:
+        with pytest.raises(subprocess.CalledProcessError):
+            namespace["run_bulk_verification_gates"]("python")
+        assert len(commands) == 1
+    else:
+        namespace["run_bulk_verification_gates"]("python")
+        assert len(commands) == 2
+        assert "scripts/tests/test_bulk_population.py" in commands[1]
+        assert namespace["os"].environ["AETHER_JAVA_TEST"] == "1"
+    assert (results / "storage-tests/engine/TEST-fixture.xml").read_text() == "<testsuite/>"
+
+
+def test_monai_pilot_is_separate_and_fixed(prepared):
+    remote.prepare(SimpleNamespace(user=None, mode="monai", training_epochs=None, dataset_config=None,
+                                   scratch_root=None, dataset_source=None, epochs=20, prefetch_depth=0))
+    value = remote.config()
+    assert (value["mode"], value["epochs"], value["pilotRepeats"], value["prefetchDepth"], value["serverTrace"]) == (
+        "monai", 20, 5, 0, False)
+    notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
+    runner = "".join(notebook["cells"][1]["source"])
+    assert '"scripts/monai_comparison.py"' in runner
+    assert '"--no-deps", "-r", "env/requirements-monai.lock"' in runner
+    remote.validate_prepared(value)
+
+
+@pytest.mark.parametrize("mode", ["population", "population-bulk", "population-layout"])
+def test_population_diagnostic_has_no_training_and_separate_smoke(prepared, mode):
+    remote.prepare(SimpleNamespace(user=None, mode=mode, training_epochs=None, dataset_config=None,
+                                   scratch_root=None, dataset_source=None))
+    value = remote.config()
+    assert value["epochs"] is None and value["datasetConfig"] is None
+    assert value["pilotRepeats"] == 3 and value["prefetchDepth"] is None
+    notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
+    runner = "".join(notebook["cells"][1]["source"])
+    assert '"scripts/profile_population.py", "--smoke"' in runner
+    assert 'prefix + "-diagnostic"' in runner
+    assert '"--include-bulk"' in runner
+    compile(runner, "notebook", "exec")
+    remote.validate_prepared(value)
+
+
+def test_longitudinal_preparation(prepared):
+    remote.prepare(SimpleNamespace(user=None, mode="longitudinal", training_epochs=None, dataset_config=None,
+                                   scratch_root=None, dataset_source=None))
+    value = remote.config()
+    assert value["mode"] == "longitudinal"
+    assert value["epochs"] == 20 and value["pilotRepeats"] == 5 and value["prefetchDepth"] == 0
+    assert len(value["longitudinalManifestSha256"]) == 5
+    assert value["scratchRoot"] == "/kaggle/working/aether-longitudinal-stores"
+    notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
+    runner = "".join(notebook["cells"][1]["source"])
+    assert '"longitudinal-smoke"' in runner and '"longitudinal-pilot"' in runner
+    assert runner.index("run_logged(smoke") < runner.index('command = [python, "scripts/longitudinal_comparison.py"')
+    compile(runner, "notebook", "exec")
+    remote.validate_prepared(value)
+
+
+def test_bulk_jfr_preparation_is_one_fixed_sequence_without_layout_sweep(prepared):
+    remote.prepare(SimpleNamespace(user=None, mode="population-jfr", training_epochs=None,
+        dataset_config=None, scratch_root=None, dataset_source=None))
+    value = remote.config()
+    assert value["epochs"] is None and not value["serverTrace"]
+    notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
+    runner = "".join(notebook["cells"][1]["source"])
+    assert '"scripts/profile_bulk_jfr.py"' in runner
+    compile(runner, "notebook", "exec")
+    remote.validate_prepared(value)
+
+
+def test_persistent_longitudinal_is_a_separate_protocol(prepared):
+    remote.prepare(SimpleNamespace(user=None, mode="longitudinal-persistent", training_epochs=None,
+                                   dataset_config=None, scratch_root=None, dataset_source=None))
+    value = remote.config()
+    assert value["serviceLifecycle"] == "persistent-per-block"
+    assert value["pilotRepeats"] == 5 and value["epochs"] == 20
+    assert value["datasetConfig"] == "configs/paper/oct5k-longitudinal-persistent-pilot.json"
+    with pytest.raises(ValueError, match="lifecycle differ"):
+        remote.prepare(SimpleNamespace(user=None, mode="longitudinal",
+            training_epochs=None, dataset_config=value["datasetConfig"], scratch_root=None, dataset_source=None))
+
+
+@pytest.mark.parametrize("test_fails", [False, True])
+def test_restart_gate_creates_basetemp_parent_in_clean_checkout(prepared, monkeypatch, test_fails):
+    import ast
+    import os
+    import subprocess
+    from pathlib import Path
+
+    notebook = json.loads((prepared / "notebook/aether.ipynb").read_text())
+    tree = ast.parse("".join(notebook["cells"][1]["source"]))
+    gate = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
+                and node.name == "run_restart_correctness")
+    repo, results = prepared / "checkout", prepared / "results"
+    repo.mkdir()
+    results.mkdir()
+    assert not (repo / "build").exists()
+    calls = []
+
+    def run_logged(command, *, cwd):
+        calls.append(command)
+        assert cwd == repo and os.environ["AETHER_JAVA_TEST"] == "1"
+        basetemp = Path(command[command.index("--basetemp") + 1])
+        assert basetemp == repo / "build/restart-correctness"
+        basetemp.mkdir()  # pytest creates this directory without parents=True.
+        assert command[command.index("--junitxml") + 1] == str(results / "restart-correctness.xml")
+        if test_fails:
+            raise subprocess.CalledProcessError(1, command)
+
+    monkeypatch.setenv("AETHER_JAVA_TEST", "0")
+    namespace = dict(os=os, repo=repo, results=results, run_logged=run_logged)
+    exec(compile(ast.Module(body=[gate], type_ignores=[]), "notebook-gate", "exec"), namespace)
+    if test_fails:
+        with pytest.raises(subprocess.CalledProcessError):
+            namespace["run_restart_correctness"]("python")
+    else:
+        namespace["run_restart_correctness"]("python")
+    assert len(calls) == 1
+    assert calls[0][1:4] == ["-m", "pytest",
+        "scripts/tests/test_longitudinal_comparison.py::test_real_five_version_process_restart"]
+
+
+@pytest.mark.parametrize("changed", [{"epochs": 10}, {"prefetch_depth": 1},
+                                    {"pilot_repeats": 10}, {"server_trace": True}])
+def test_monai_pilot_rejects_setting_drift(prepared, changed):
+    values = dict(user=None, mode="monai", training_epochs=None, dataset_config=None,
+                  scratch_root=None, dataset_source=None)
+    with pytest.raises(ValueError, match="MONAI pilot"):
+        remote.prepare(SimpleNamespace(**values, **changed))
+
+
 def test_five_epochs_persist_in_prepared_notebook(prepared, monkeypatch):
     monkeypatch.setattr(sys, "argv", ["kaggle_remote.py", "prepare", "--training-epochs", "5"])
     remote.main()
@@ -114,7 +394,8 @@ def test_primary_resets_saved_pilot_settings_and_freezes_notebook(prepared, monk
     monkeypatch.setattr(sys, "argv", ["kaggle_remote.py", "prepare", "--mode", "primary"])
     remote.main()
     value = remote.config()
-    assert (value["epochs"], value["prefetchDepth"], value["serverTrace"]) == (10, 0, False)
+    assert (value["epochs"], value["prefetchDepth"], value["serverTrace"]) == (20, 0, False)
+    assert value["datasetConfig"] == "configs/paper/oct5k-confirmatory-v2.json"
     remote.validate_prepared(value)
 
 

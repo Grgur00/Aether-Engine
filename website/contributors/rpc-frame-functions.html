@@ -1,0 +1,375 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/RPC-FRAME-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="RPC frames and handshake: source-backed contributor documentation for Aether Engine.">
+  <title>RPC frames and handshake | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html" aria-current="page">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/RPC-FRAME-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="rpc-frame-and-handshake-functions">RPC Frame and Handshake Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="architecture.html">Architecture</a> | <a href="modules.html">Module guide</a></p>
+<p>Source package: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-rpc-codec/src/main/java/io/aetherdb/rpc/codec">aether-rpc-codec</a>.
+This reference covers <strong>38 explicit constructors/methods</strong> across all ten
+implementation files in the codec package, including framing, HELLO,
+fragmentation, assembly, stream allocation and protocol exceptions.
+Compiler-generated record accessors/equality and enum values/valueOf are not part
+of that explicit inventory. Transport and connection policy are separate
+responsibilities, not supplied by these codecs.</p>
+<h2 id="wire-boundary-architecture">Wire Boundary Architecture</h2>
+<pre><code class="language-text">semantic header + defensive payload -&gt; RpcFrameCodecV1.encode -&gt; wire bytes
+transport reads -&gt; RpcFrameDecoder.feed (split/coalesced chunks)
+  -&gt; header envelope + negotiated length guard -&gt; bounded payload allocation
+  -&gt; complete frame CRC + semantic header validation -&gt; RpcFrame
+HELLO payload -&gt; fixed envelope/features/identities/limits/fingerprint/CRC
+</code></pre>
+<p>This is the general RPC development path, <strong>not</strong> TrainingCacheProtocol used by
+Python ML workloads. Codecs provide format checks, not TLS, certificate validation,
+authorization, Raft integration or durable writes. CRC detects accidental
+corruption, not malicious tampering. HELLO identities and compatibility hashes are
+not cryptographic peer authentication.</p>
+<h2 id="frame-values-and-types">Frame Values and Types</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RpcFrame.RpcFrame(header, payload)</code></td>
+<td>Compact constructor rejects null header/payload or length mismatch with header.payloadLength, then clones the array. Caller mutation cannot change stored payload. Header is an immutable record.</td>
+</tr>
+<tr>
+<td><code>RpcFrame.payload()</code></td>
+<td>Returns a new payload clone on every call, not a borrowed view. Encoding/assembly callers can therefore incur copies even for immutable frames.</td>
+</tr>
+<tr>
+<td><code>RpcFrameType.RpcFrameType(code, control)</code></td>
+<td>Private enum construction stores stable wire code and stream-zero control classification. Constants map HELLO=1, REQUEST=2, RESPONSE=3, CANCEL=4, WINDOW_UPDATE=5, PING=6, PONG=7, GOAWAY=8, CONNECTION_ERROR=9.</td>
+</tr>
+<tr>
+<td><code>RpcFrameType.code()</code></td>
+<td>Returns stored wire type code; no encoding or validation.</td>
+</tr>
+<tr>
+<td><code>RpcFrameType.control()</code></td>
+<td>Returns whether the type is connection control. REQUEST/RESPONSE/CANCEL are non-control; CANCEL still requires a nonzero stream.</td>
+</tr>
+<tr>
+<td><code>RpcFrameType.fromCode(code)</code></td>
+<td>Scans enum values for exact code and returns the type; unknown code raises RpcProtocolException. No masking or coercion.</td>
+</tr>
+<tr>
+<td><code>RpcFrameHeaderV1.RpcFrameHeaderV1(type, flags, streamId, code, payloadLength, messageLength, fragmentOffset, timeoutMillis, creditDelta, invocationId)</code></td>
+<td>Compact constructor requires nonnull type/UUID, known BEGIN/END flags, nonnegative stream/length/offset/timeout/credit, payload &lt;=1 MiB and message &lt;=64 MiB. Enforces stream-zero control versus application streams, nonzero CANCEL stream, BEGIN-only declared message length, request-only timeout and WINDOW_UPDATE-only positive credit. Certain controls require ZERO_INVOCATION.</td>
+</tr>
+<tr>
+<td><code>RpcFrameHeaderV1.beginsMessage()</code></td>
+<td>Tests BEGIN bit (1) without changing state.</td>
+</tr>
+<tr>
+<td><code>RpcFrameHeaderV1.endsMessage()</code></td>
+<td>Tests END bit (2) without changing state.</td>
+</tr>
+</tbody>
+</table>
+<p>Header validation does not assert fragmentOffset+payloadLength &lt;= messageLength,
+contiguous fragments, BEGIN at offset zero, END at the declared final byte,
+stream parity or unique stream IDs. These need assembler/connection validation.
+code can be any signed int. Timeout is allowed on any REQUEST frame here, not
+explicitly restricted to BEGIN despite the field description. Non-BEGIN
+messageLength must be zero, not a repeated total.</p>
+<p>HELLO, GOAWAY and CONNECTION_ERROR are exempt from the control UUID-zero check.
+PING/PONG/WINDOW_UPDATE require zero UUID; application/CANCEL UUIDs are not required
+nonzero by this constructor. Null requirements throw NullPointerException through
+Objects.requireNonNull; invalid semantic numeric combinations throw
+IllegalArgumentException.</p>
+<h2 id="complete-frame-codec">Complete Frame Codec</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RpcFrameCodecV1.RpcFrameCodecV1()</code></td>
+<td>Private empty constructor prevents utility instantiation.</td>
+</tr>
+<tr>
+<td><code>RpcFrameCodecV1.encode(frame)</code></td>
+<td>Gets defensive payload copy, allocates header+payload, writes AERP/version 1.0/type/flags and semantic fields big-endian. Writes zero reserved word and masked CRC32C over first 60 header bytes concatenated with payload, excluding stored CRC. Returns complete wire bytes; no I/O or authentication.</td>
+</tr>
+<tr>
+<td><code>RpcFrameCodecV1.decode(encoded)</code></td>
+<td>Requires &gt;=64 bytes, correct magic/version, known type and zero reserved field. Requires legal payload length and exact total size, copies payload and checksum input, verifies CRC, then constructs validated header/frame. Semantic IllegalArgumentException becomes RpcProtocolException. Rejects extra trailing bytes: decode handles exactly one complete frame.</td>
+</tr>
+</tbody>
+</table>
+<p>Wire offsets: magic 0..3, major/minor 4..5, type/flags 6..7, stream 8..15,
+code 16..19, payload length 20..23, message length 24..27, offset 28..31,
+timeout 32..35, credit 36..39, UUID 40..55, reserved 56..59, CRC 60..63,
+payload from 64. The checksum covers type/length/UUID/reserved and payload, but
+not its own four-byte slot. encode derives payload length from the copied array.</p>
+<p>decode validates some envelope/length fields before CRC; corruption can therefore
+raise a structural error rather than specifically checksum mismatch. RpcFrame's
+constructor copies the already copied payload again. This codec prioritizes bounded
+format correctness, not zero-copy transport or exact allocation minimization.</p>
+<h2 id="incremental-decoder">Incremental Decoder</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RpcFrameDecoder.RpcFrameDecoder(maximumFramePayload)</code></td>
+<td>Requires negotiated payload bound 1..global 1 MiB, retains it and a fixed 64-byte header buffer. No negotiation or peer identity validation occurs here.</td>
+</tr>
+<tr>
+<td><code>RpcFrameDecoder.feed(input)</code></td>
+<td>Rejects null input, consumes its available bytes into partial header/payload state and returns immutable list of complete verified frames in order. Handles arbitrary splits and coalescing, including zero-payload completion directly after header. Mutates ByteBuffer position. Does not limit total frames returned from a large input or expose frames preceding a later error in that call.</td>
+</tr>
+<tr>
+<td><code>RpcFrameDecoder.hasPartialFrame()</code></td>
+<td>Returns headerBytes!=0; complete header plus unfinished payload counts as partial. Does not distinguish valid partial state from a rejected header awaiting reset.</td>
+</tr>
+<tr>
+<td><code>RpcFrameDecoder.retainedBytes()</code></td>
+<td>Returns filled header+payload byte counts, not actual allocated memory. A full declared payload array is allocated after header even when none of it has arrived, so this number can understate resident capacity.</td>
+</tr>
+<tr>
+<td><code>RpcFrameDecoder.reset()</code></td>
+<td>Clears counters and drops payload reference; retains/reuses fixed header array without zeroing it. Intended for terminal connection cleanup; does not emit a partial frame.</td>
+</tr>
+<tr>
+<td><code>RpcFrameDecoder.validateHeaderAndPayloadLength()</code></td>
+<td>Checks AERP/version and reads big-endian payload length at offset 20. Rejects negative or negotiated-oversize lengths before payload allocation. Other type/flags/reserved/CRC/semantic checks wait until complete decode.</td>
+</tr>
+<tr>
+<td><code>RpcFrameDecoder.complete()</code></td>
+<td>Allocates contiguous encoded bytes, copies header/payload and delegates full decode. finally clears partial state even if CRC/semantic decode fails. Allocation/copy before try is not covered by that finally.</td>
+</tr>
+</tbody>
+</table>
+<p>A header-validation failure occurs before complete(), leaving headerBytes=64 and
+no payload allocated. Callers should close/reset the failed connection rather than
+continue feeding that state. By contrast full-frame decode failure clears counters.
+The decoder is mutable and not synchronized; give it one ordered transport reader.
+Bounds are per frame, not a connection-wide memory reservation or reassembled
+message quota. No EOF/truncated-frame exception is generated automatically;
+connection code must inspect partial state on terminal read.</p>
+<h2 id="hello-handshake-functions">HELLO Handshake Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RpcHelloV1.Role.Role(code)</code></td>
+<td>Private nested enum constructor stores DIALER=1 or ACCEPTOR=2.</td>
+</tr>
+<tr>
+<td><code>RpcHelloV1.Role.code()</code></td>
+<td>Package-private getter used by HELLO encoding.</td>
+</tr>
+<tr>
+<td><code>RpcHelloV1.RpcHelloV1(role, clusterId, nodeId, sessionId, connectionNonce, maximumFramePayload, maximumMessageBytes, maximumConcurrentStreams, initialReceiveWindowBytes, keepaliveIdleMillis, keepaliveTimeoutMillis, engineMajor, engineMinor, enginePatch, javaMajor)</code></td>
+<td>Requires role/nonzero UUIDs and nonzero nonce; frame 1..1 MiB, message 0..64 MiB, streams 1..1024, receive window 1..256 MiB, positive keepalive durations, nonnegative engine versions and Java &gt;=21. Does not compare peer/local cluster, roles, versions or negotiate minima.</td>
+</tr>
+<tr>
+<td><code>RpcHelloV1.encode()</code></td>
+<td>Allocates zero-filled 192 bytes, writes AEHL/version/length/fixed capability marker/role and zero unsupported features, UUIDs/nonce/limits/runtime versions, compatibility fingerprint, then masked CRC32C over first 188 bytes. Reserved tail remains zero.</td>
+</tr>
+<tr>
+<td><code>RpcHelloV1.decode(encoded)</code></td>
+<td>Requires exactly 192 bytes and expected envelope/capability marker, valid role and zero feature/reserved fields. Reads identities/limits, verifies reserved tail and CRC, constructs validated HELLO, then compares compatibility fingerprint using MessageDigest.isEqual. Semantic IllegalArgumentException becomes RpcProtocolException.</td>
+</tr>
+<tr>
+<td><code>RpcHelloV1.compatibilityFingerprint()</code></td>
+<td>Computes a newly allocated SHA-256 of the frozen ASCII RPC v1 compatibility descriptor, including frame size/types/flags/status/HELLO/checksum identifiers. Missing SHA-256 is treated as AssertionError. This is a format fingerprint, not a source commit or security identity.</td>
+</tr>
+<tr>
+<td><code>RpcHelloV1.isZero(value)</code></td>
+<td>Returns true for null UUID or both UUID halves zero. Used to reject missing/zero identities.</td>
+</tr>
+<tr>
+<td><code>RpcHelloV1.putUuid(bytes, value)</code></td>
+<td>Writes most/least significant UUID longs using supplied buffer order; no independent null/space check.</td>
+</tr>
+<tr>
+<td><code>RpcHelloV1.getUuid(bytes)</code></td>
+<td>Reads two longs from current position and constructs UUID; semantic zero check occurs in constructor.</td>
+</tr>
+</tbody>
+</table>
+<p>HELLO offsets: envelope 0..7, fixed marker/role 8..9, zero flags/features 10..31,
+cluster/node/session UUIDs 32..79, nonce 80..87, limits/keepalive/runtime fields
+88..127, fingerprint 128..159, reserved tail 160..187, CRC 188..191.
+Negative nonce is allowed as long as nonzero. Zero maximumMessageBytes is allowed;
+the constructor does not require a window large enough for a configured message.
+Engine version fields are recorded but not compared for exact peer compatibility;
+the frozen fingerprint is the codec-level compatibility gate. Transport/connection
+policy must authenticate identity, match roles/cluster and negotiate capabilities.</p>
+<h2 id="message-fragmentation-functions">Message Fragmentation Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-rpc-codec/src/main/java/io/aetherdb/rpc/codec/RpcMessageFragmenter.java">RpcMessageFragmenter</a>.</p>
+<pre><code class="language-text">one complete REQUEST/RESPONSE byte array
+  -&gt; ordered fragments with stable type/stream/code/invocation
+  -&gt; BEGIN declares total length and request timeout
+  -&gt; continuation frames declare zero message length/timeout
+  -&gt; END marks final bytes (empty message has BEGIN + END)
+</code></pre>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RpcMessageFragmenter.RpcMessageFragmenter()</code></td>
+<td>Private empty constructor prevents normal instantiation of this static utility.</td>
+</tr>
+<tr>
+<td><code>RpcMessageFragmenter.fragment(type, streamId, code, invocationId, timeoutMillis, message, maximumPayload)</code></td>
+<td>Accepts REQUEST or RESPONSE only, nonnull message up to the global 64 MiB limit and payload limit 1..1 MiB. Empty input yields one zero-payload BEGIN+END frame. Otherwise copies consecutive ranges, creates frames and returns an immutable ordered list. Header construction rejects invalid stream/UUID or negative BEGIN request timeout. Response timeout is ignored, including negative values. Does not apply a negotiated message-size limit or send bytes.</td>
+</tr>
+<tr>
+<td><code>RpcMessageFragmenter.frame(type, stream, code, invocation, timeout, payload, total, offset, begin, end)</code></td>
+<td>Private helper forms flags, declares total only on BEGIN, sets timeout only for a BEGIN REQUEST and zero credit, then constructs validated header and defensively copied RpcFrame. Does not validate connection parity or reserve a stream.</td>
+</tr>
+</tbody>
+</table>
+<p>Nonempty messages incur a range copy and the RpcFrame constructor's payload copy
+for every fragment. The utility materializes the entire list before returning;
+it is not a streaming sender or a receive-window scheduler. The number of frames
+can be large when maximumPayload is small. Concurrent mutation of the input during
+fragmentation is not a supported snapshot guarantee, although returned frame
+payloads cannot be changed by later caller mutation. Allocation failure can stop
+construction; nothing is published to a transport by this utility.</p>
+<h2 id="message-assembly-functions">Message Assembly Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-rpc-codec/src/main/java/io/aetherdb/rpc/codec/RpcMessageAssembler.java">RpcMessageAssembler</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RpcMessageAssembler.RpcMessageAssembler(maximumMessageBytes)</code></td>
+<td>Stores negotiated message bound 0..64 MiB; invalid bounds raise IllegalArgumentException. Starts idle with no output allocation. Zero permits empty messages only.</td>
+</tr>
+<tr>
+<td><code>RpcMessageAssembler.accept(frame)</code></td>
+<td>BEGIN requires idle state and declared size within negotiated bound before creating ByteArrayOutputStream with initial capacity min(total, 64 KiB). Saves type/stream/code/invocation. Continuations require active state and unchanged identity. Every offset must equal bytes already assembled and payload must fit declared length, using long addition for the bound. Appends a cloned payload. Returns null until END; END requires exact total, copies completed bytes, resets state and returns them. Protocol violations raise RpcProtocolException; null frame instead produces NullPointerException.</td>
+</tr>
+<tr>
+<td><code>RpcMessageAssembler.reset()</code></td>
+<td>Drops output reference and clears saved identity, declared length, stream and code. Does not overwrite retained byte storage or notify transport/flow-control accounting. Safe to call while idle.</td>
+</tr>
+<tr>
+<td><code>RpcMessageAssembler.isAssembling()</code></td>
+<td>Tests output != null; reports state rather than completeness of bytes. Remains true if all bytes arrived without END or if an error left an active assembly.</td>
+</tr>
+</tbody>
+</table>
+<p>One instance assembles <strong>one message at a time</strong>, not interleaved streams. Connection
+code must route frames to the appropriate assembler and bound aggregate memory
+across streams. This class has no synchronization, deadline, cancellation,
+flow-control credit, peer-role checks or EOF handling. It does not restrict frame
+type to REQUEST/RESPONSE; frame headers and connection policy impose other rules.</p>
+<p>Failures do <strong>not</strong> automatically reset assembly. A bad initial offset can leave
+the new output active; early END leaves appended bytes in that state. An identity
+mismatch leaves the prior assembly intact. Callers must choose reset/discard or
+connection failure rather than assume transactional rollback. Zero-length
+continuations and a zero-payload END after all bytes are already present can be
+accepted when identity/offset rules hold. BEGIN+END with a zero declared length
+returns an empty byte array and resets successfully.</p>
+<p>The initial 64 KiB cap is not a cap on final buffering: output grows with the
+bounded message. Each append obtains RpcFrame.payload()'s defensive clone and
+copies into the output; completion copies once more via toByteArray(). These are
+ownership guarantees, not zero-copy assembly.</p>
+<h2 id="stream-identity-and-failure-functions">Stream Identity and Failure Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-rpc-codec/src/main/java/io/aetherdb/rpc/codec/RpcStreamIdAllocator.java">RpcStreamIdAllocator</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-rpc-codec/src/main/java/io/aetherdb/rpc/codec/RpcProtocolException.java">RpcProtocolException</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RpcStreamIdAllocator.RpcStreamIdAllocator(role)</code></td>
+<td>Starts at 1 for DIALER and 2 for every other value, including null. Role enum has DIALER/ACCEPTOR and no explicit methods. Allocator state is local to this instance; it does not discover or negotiate peer role.</td>
+</tr>
+<tr>
+<td><code>RpcStreamIdAllocator.nextId()</code></td>
+<td>Synchronized method returns next positive ID and increments by two. Rejects next &lt;=0 or next &gt; Long.MAX_VALUE-2 with IllegalStateException before overflow. IDs are never reused within this instance; exhaustion does not advance state. No active-stream quota, release operation or connection lifecycle is implemented.</td>
+</tr>
+<tr>
+<td><code>RpcProtocolException.RpcProtocolException(message)</code></td>
+<td>Delegates message to unchecked RuntimeException; no cause-taking constructor, status code, wire response or transport close. serialVersionUID is fixed at 1. Null message is accepted by the superclass.</td>
+</tr>
+</tbody>
+</table>
+<p>The conservative exhaustion guard leaves Long.MAX_VALUE unused for dialers and
+Long.MAX_VALUE-1 unused for acceptors. Synchronization protects one allocator, not
+uniqueness across separate allocators. A connection should own one role-correct
+allocator and independently enforce incoming parity and stream reuse rules.
+Protocol exceptions signal invalid data; their class alone does not prove a
+GOAWAY/CONNECTION_ERROR frame was emitted or the socket was closed.</p>
+<h2 id="coverage-and-verification">Coverage and Verification</h2>
+<p>Compiler-tree inventory checks all 38 explicit declarations in the ten implementation
+files and rejects additions not included in the inventory.
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-rpc-codec/src/test/java/io/aetherdb/rpc/codec/RpcFrameCodecV1Test.java">RpcFrameCodecV1Test</a>
+covers golden frame/HELLO bytes, CRC corruption, byte-at-a-time/coalesced decoding,
+negotiated length rejection, fragmentation/assembly and stream parity. These tests
+are focused codec evidence, not a transport concurrency or authentication suite.</p>
+<p>This codec package has <strong>38/38 declarations covered (100%; 0% remaining)</strong>.
+It is not full RPC API/transport or end-to-end distributed-service coverage.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#wire-boundary-architecture">Wire Boundary Architecture</a><a href="#frame-values-and-types">Frame Values and Types</a><a href="#complete-frame-codec">Complete Frame Codec</a><a href="#incremental-decoder">Incremental Decoder</a><a href="#hello-handshake-functions">HELLO Handshake Functions</a><a href="#message-fragmentation-functions">Message Fragmentation Functions</a><a href="#message-assembly-functions">Message Assembly Functions</a><a href="#stream-identity-and-failure-functions">Stream Identity and Failure Functions</a><a href="#coverage-and-verification">Coverage and Verification</a></nav></aside>
+  </div>
+</body>
+</html>

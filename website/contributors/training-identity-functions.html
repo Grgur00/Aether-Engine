@@ -1,0 +1,331 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/TRAINING-IDENTITY-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Training artifact identity and policy: source-backed contributor documentation for Aether Engine.">
+  <title>Training artifact identity and policy | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html" aria-current="page">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/TRAINING-IDENTITY-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="training-artifact-identity-and-storage-policy-functions">Training Artifact Identity and Storage Policy Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="python.html">Python and training cache</a> | <a href="training-cache-functions.html">Cache operations</a></p>
+<p>This reference covers five Java source files: <code>TransformationFingerprint</code>, <code>CacheKey</code>,
+<code>CacheEntry</code>, <code>TrainingCacheStoragePolicy</code>, and <code>TrainingCacheDurability</code>. These
+define an artifact's identity, caller-byte ownership, representation selection,
+and persistence mode. They do not determine whether a Python transform is actually
+deterministic or whether its descriptor contains every relevant input.</p>
+<h2 id="reuse-architecture">Reuse Architecture</h2>
+<p>An artifact is addressed by <strong>namespace + sample ID + transformation fingerprint</strong>.
+The database key stores a readable namespace prefix followed by a SHA-256 digest
+of the complete identity. Changing the sample identity or transform fingerprint
+produces a different lookup key; version labels alone are not Java cache identity.</p>
+<table>
+<thead>
+<tr>
+<th>Boundary</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dataset/application</td>
+<td>Supply stable sample IDs and descriptors that change whenever deterministic preprocessing output changes</td>
+</tr>
+<tr>
+<td><code>TransformationFingerprint</code></td>
+<td>Convert supplied descriptor information into 32 identity bytes</td>
+</tr>
+<tr>
+<td><code>CacheKey</code></td>
+<td>Combine namespace, sample identity and fingerprint into a storage key</td>
+</tr>
+<tr>
+<td><code>CacheEntry</code></td>
+<td>Copy caller payload bytes for batched publication</td>
+</tr>
+<tr>
+<td><code>TrainingCache</code></td>
+<td>Validate stored envelopes and reject conflicting bytes for a currently existing immutable key</td>
+</tr>
+</tbody>
+</table>
+<p>The sample ID is not automatically a source-content checksum. If a caller reuses
+the same ID/fingerprint after changing source content, Java lookup can return the
+previous artifact. Likewise, hashing a supplied descriptor does not discover
+undeclared library versions, random state, file changes, or transform parameters.</p>
+<h2 id="transformationfingerprint-functions">TransformationFingerprint Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TransformationFingerprint.java">TransformationFingerprint.java</a>.</p>
+<h3 id="construction-and-canonical-descriptors">Construction and Canonical Descriptors</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Private <code>TransformationFingerprint(digest)</code></td>
+<td>Retains the supplied array directly; factory paths provide a fresh digest or defensive copy. The constructor itself performs no length check.</td>
+</tr>
+<tr>
+<td><code>ofCanonicalDescriptor(descriptor)</code></td>
+<td>Requires a non-null string, encodes it as UTF-8 and hashes those exact bytes. Empty strings are allowed. It does not parse or normalize the descriptor.</td>
+</tr>
+<tr>
+<td><code>of(descriptor)</code></td>
+<td>Requires a map, rejects null keys/values, converts values with <code>String.valueOf</code>, sorts keys with <code>TreeMap</code>, constructs a length-delimited string, then delegates to <code>ofCanonicalDescriptor</code>.</td>
+</tr>
+<tr>
+<td><code>fromBytes(digest)</code></td>
+<td>Requires exactly 32 non-null bytes and clones them; accepts any 32-byte value, not only one generated by these factories.</td>
+</tr>
+</tbody>
+</table>
+<p>For each sorted entry, <code>of</code> appends:</p>
+<pre><code class="language-text">&lt;key-character-count&gt;:&lt;key&gt;&lt;value-character-count&gt;:&lt;value&gt;;
+</code></pre>
+<p>Counts come from Java <code>String.length()</code> (UTF-16 code units), then the complete
+string is encoded as UTF-8 for hashing. This is a Java-specific flat descriptor
+format, not canonical JSON. Nested objects, maps and collections receive their
+<code>toString</code> representation, not recursive canonicalization. An integer value <code>1</code>
+and string value <code>&quot;1&quot;</code> therefore produce the same string value in this factory.
+Cross-language clients must agree on bytes rather than assume all descriptor
+canonicalization APIs implement this exact format.</p>
+<h3 id="ownership-equality-and-rendering">Ownership, Equality and Rendering</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bytes()</code></td>
+<td>Returns a clone of the stored digest. Caller mutations cannot change identity.</td>
+</tr>
+<tr>
+<td><code>equals(other)</code></td>
+<td>Checks type and <code>Arrays.equals</code> on digest contents; not a constant-time authentication check.</td>
+</tr>
+<tr>
+<td><code>hashCode()</code></td>
+<td>Uses <code>Arrays.hashCode</code> on digest contents, consistent with equality.</td>
+</tr>
+<tr>
+<td><code>toString()</code></td>
+<td>Formats each digest byte as two lowercase hex digits, producing 64 characters; does not expose the array.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="hash-and-key-helpers">Hash and Key Helpers</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sha256(input)</code></td>
+<td>Creates a new SHA-256 digest instance and hashes the whole array. Unavailable algorithm becomes <code>IllegalStateException</code> with cause.</td>
+</tr>
+<tr>
+<td><code>sha256(input, offset, length)</code></td>
+<td>Creates a new digest, updates from the specified range, then returns 32 bytes. Range validity comes from the digest API, not custom argument checks.</td>
+</tr>
+<tr>
+<td><code>keyBytes(namespace, sampleId, transform)</code></td>
+<td>UTF-8 encodes namespace/sample ID, allocates a length-prefixed identity buffer, includes the transform's internal digest, and returns its SHA-256.</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>keyBytes</code> preimage is big-endian:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Width</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Namespace UTF-8 byte length</td>
+<td>4 bytes</td>
+</tr>
+<tr>
+<td>Namespace bytes</td>
+<td>Declared length</td>
+</tr>
+<tr>
+<td>Sample ID UTF-8 byte length</td>
+<td>4 bytes</td>
+</tr>
+<tr>
+<td>Sample ID bytes</td>
+<td>Declared length</td>
+</tr>
+<tr>
+<td>Transformation fingerprint</td>
+<td>32 bytes</td>
+</tr>
+</tbody>
+</table>
+<p>Unlike <code>of</code>'s descriptor counts, these lengths count UTF-8 bytes. There is no
+separate maximum namespace/sample length here; ordinary integer/allocation limits
+still apply. The helper relies on validated callers for non-null identity fields.</p>
+<h2 id="cachekey-functions">CacheKey Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/CacheKey.java">CacheKey.java</a>.</p>
+<p><code>CacheKey(namespace, sampleId, transform)</code> requires all three fields, rejects a
+blank namespace and an empty sample ID. A whitespace-only sample ID is allowed.
+It does not trim, normalize Unicode, canonicalize a path, or hash source content.
+Implicit record accessors return immutable fields; generated record equality
+uses string equality and <code>TransformationFingerprint.equals</code>.</p>
+<p>Package-private <code>storageKey()</code> allocates a new array containing:</p>
+<pre><code class="language-text">4-byte big-endian namespace UTF-8 length
+namespace UTF-8 bytes
+32-byte keyBytes(namespace, sampleId, transform) digest
+</code></pre>
+<p>The namespace is both directly recoverable and included in the digest preimage.
+The sample ID and fingerprint cannot be recovered from this key; consumers that
+need them must retain the original identity elsewhere. Repeated calls allocate
+and hash again; the key record does not cache its encoded representation.</p>
+<h2 id="cacheentry-functions">CacheEntry Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/CacheEntry.java">CacheEntry.java</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CacheEntry(key, value)</code></td>
+<td>Requires both fields and clones the input array. Empty payloads are allowed.</td>
+</tr>
+<tr>
+<td>Overridden <code>value()</code></td>
+<td>Returns another clone on every call.</td>
+</tr>
+<tr>
+<td>Implicit <code>key()</code></td>
+<td>Returns the immutable key.</td>
+</tr>
+</tbody>
+</table>
+<p>This prevents publication from borrowing a mutable caller array. <code>TrainingCache.putMany</code>
+takes one <code>value()</code> copy per supplied entry and retains that owned copy internally
+for length checks and encoding. Record-generated equality does not compare array
+contents; publication explicitly uses <code>Arrays.equals</code> when checking payload conflicts.</p>
+<h2 id="storage-representation-policy">Storage Representation Policy</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheStoragePolicy.java">TrainingCacheStoragePolicy.java</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TrainingCacheStoragePolicy(mode, segmentThresholdBytes)</code></td>
+<td>Requires non-null mode and positive threshold, even when that mode does not use a threshold.</td>
+</tr>
+<tr>
+<td><code>auto()</code></td>
+<td>Returns <code>AUTO</code> with the cache's 256 KiB threshold.</td>
+</tr>
+<tr>
+<td><code>inline()</code></td>
+<td>Returns <code>INLINE</code> with <code>Integer.MAX_VALUE</code>; inline selection comes from mode, not comparing to this threshold.</td>
+</tr>
+<tr>
+<td><code>segment(thresholdBytes)</code></td>
+<td>Returns <code>SEGMENT</code> with the supplied positive threshold.</td>
+</tr>
+<tr>
+<td><code>usesSegment(payloadBytes)</code></td>
+<td>True for all <code>SEGMENT</code> payloads, or for <code>AUTO</code> payloads at least the threshold; always false for <code>INLINE</code>. No payload-length argument validation.</td>
+</tr>
+</tbody>
+</table>
+<p><code>Mode</code> contains <code>AUTO</code>, <code>INLINE</code>, and <code>SEGMENT</code>. In particular, <strong>SEGMENT mode
+forces every value into a segment</strong>; <code>segment(largeThreshold)</code> does not mean
+&quot;segment only values above that threshold.&quot; Only AUTO uses the threshold for
+selection. At exactly 256 KiB the default AUTO policy selects a segment.</p>
+<p>The policy does not create a segment directory or ensure persistence. An ephemeral
+cache has no segment store, so a value selected for segment representation fails
+publication rather than silently changing policy.</p>
+<h2 id="durability-mode">Durability Mode</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheDurability.java">TrainingCacheDurability.java</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Enum value</th>
+<th>Current cache behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EPHEMERAL</code></td>
+<td>Opens an in-memory database and creates no segment store; does not survive reopen.</td>
+</tr>
+<tr>
+<td><code>RECOVERABLE</code></td>
+<td>Opens persistent storage, uses <code>GROUP_SYNC</code> writes and publishes segments without explicit file/directory force.</td>
+</tr>
+<tr>
+<td><code>DURABLE</code></td>
+<td>Uses <code>SYNC</code> database writes and requests segment file/directory force where supported.</td>
+</tr>
+</tbody>
+</table>
+<p>These are actual selections made in <code>TrainingCache.open</code> and <code>putMany</code>, not a
+universal hardware guarantee. Segment directory synchronization is skipped on
+Windows, and publication failure/cleanup boundaries are described in the cache
+operations reference. This enum has no explicit method declarations.</p>
+<h2 id="tests-and-coverage-limits">Tests and Coverage Limits</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/test/java/io/aetherdb/training/cache/TrainingCacheTest.java">TrainingCacheTest</a>
+checks changed-transform misses, reopen, conflicting immutable writes, duplicate
+publication, competing writers, ephemeral reopen, policy representation and caller
+array independence. These examples do not prove descriptors are complete for
+every transform or that all Python identity formats equal Java's flat-map format.</p>
+<p>The declaration inventory checks every explicit function name in these five files.
+Daemon parsing, Python identity construction, offline bulk publication, and cache
+operations are separate coverage areas.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#reuse-architecture">Reuse Architecture</a><a href="#transformationfingerprint-functions">TransformationFingerprint Functions</a><a href="#cachekey-functions">CacheKey Functions</a><a href="#cacheentry-functions">CacheEntry Functions</a><a href="#storage-representation-policy">Storage Representation Policy</a><a href="#durability-mode">Durability Mode</a><a href="#tests-and-coverage-limits">Tests and Coverage Limits</a></nav></aside>
+  </div>
+</body>
+</html>

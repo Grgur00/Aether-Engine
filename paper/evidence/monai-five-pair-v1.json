@@ -1,0 +1,61 @@
+{
+  "measurementRole": "immutable exploratory reference; not pooled with longitudinal pilot",
+  "sourceCommit": "e6f517372666bc191f5530aff1550f5c2662a8fd",
+  "sourceZipSha256": "d48a89dad8d96a0521082aa33043660a791507512334fc1513debacef03f47d9",
+  "resultsZipSha256": "89a6b8d00b8e81e6cd9d57539ebc74c4ecf100bfb018b2bb7643432f23318a80",
+  "protocolHash": "12f2cbd046613f1159e5b3c8fd77ded2832c8f67b01bcde258b6324fa38f348f",
+  "sourceManifestSha256": "dc2e20d4b613713c7ecdc4f2b71bdfb5eabf983a73e4d5adb2a5c43153fe2456",
+  "verifiedFiles": 88,
+  "verifiedPairedBlocks": 5,
+  "sourceFiles": {
+    "scripts/monai_comparison.py": "d2b0b0d152ad9d3cf159342e0c0ee6596a206b52dcaa1a237eaec62668bd41c6",
+    "scripts/system_campaign.py": "e81ed6e15b2dc5ab33196a6d3100825560d46c811f38cde0dab78a6ae460bdcb"
+  },
+  "summary": {
+    "measurementRole": "exploratory pilot; no confirmatory claim",
+    "comparisons": {
+      "mmap": {
+        "n": 5,
+        "aetherThroughputRatio": 1.0242733891497073,
+        "descriptiveCI95": [
+          1.0060271678077213,
+          1.0428505405141761
+        ],
+        "cumulativeRatios": {
+          "1": 1.0426246867480622,
+          "5": 1.0181086081528992,
+          "10": 1.0208245658457635,
+          "20": 1.0242733891497073
+        }
+      },
+      "monai_persistent": {
+        "n": 5,
+        "aetherThroughputRatio": 1.0417852627267408,
+        "descriptiveCI95": [
+          1.0322614719012042,
+          1.0513969213979322
+        ],
+        "cumulativeRatios": {
+          "1": 1.0491601945375517,
+          "5": 1.0415913216126655,
+          "10": 1.0418207289167887,
+          "20": 1.0417852627267408
+        }
+      },
+      "monai_lmdb": {
+        "n": 5,
+        "aetherThroughputRatio": 1.0159986081699435,
+        "descriptiveCI95": [
+          1.0083959329217602,
+          1.0236586028390429
+        ],
+        "cumulativeRatios": {
+          "1": 1.0407427802970084,
+          "5": 1.0221185034114038,
+          "10": 1.0186878450414552,
+          "20": 1.0159986081699435
+        }
+      }
+    }
+  }
+}

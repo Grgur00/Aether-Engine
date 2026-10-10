@@ -1,0 +1,381 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/PYTHON-TRANSFORM-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Python transform cache and codecs: source-backed contributor documentation for Aether Engine.">
+  <title>Python transform cache and codecs | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html" aria-current="page">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/PYTHON-TRANSFORM-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="python-transform-cache-identity-and-codecs">Python Transform Cache, Identity, and Codecs</h1>
+<p><a href="function-index.html">Function index</a> | <a href="python-dataset-functions.html">Dataset integration</a> | <a href="python-client-functions.html">Low-level client</a></p>
+<p>This reference covers every explicit function in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/transform_cache.py">transform_cache.py</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/identity.py">identity.py</a>, and
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/codecs.py">codecs.py</a>. It describes the active
+checkout, not the separately frozen H2 benchmark worker. These convenience APIs
+do not define the confirmatory campaign's timing boundary or storage configuration.</p>
+<h2 id="architecture-and-responsibility">Architecture and Responsibility</h2>
+<p><code>AetherTransformCache</code> is a deterministic-work adapter above the socket client:</p>
+<pre><code class="language-text">caller supplies source + stable source identity
+  -&gt; namespace / source / transform / artifact schema form CacheKey
+  -&gt; one get_many request for distinct keys within a chunk
+  -&gt; transform and encode only missing distinct keys
+  -&gt; one put_many request for those encoded values
+  -&gt; decode every requested result in original order
+</code></pre>
+<p>The transform produces artifacts, not model predictions. The wrapper does not
+train a network, prove a transform deterministic, hash input files automatically,
+or make a multi-request transaction. The low-level client and Java daemon enforce
+wire limits and publication policy. The artifact codec defines application payload
+bytes; it does not replace SSTable/WAL checksums or the daemon's integrity checks.</p>
+<p>Use a namespace for the artifact family, a source identity that changes when its
+meaningful input changes, and an explicit transform/schema identity that changes
+when preprocessing or serialization changes. Reusing an identity for different
+source content can return stale data without executing the transform at all.</p>
+<h2 id="identity-functions">Identity Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Inputs, output, and failure boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>canonical_identity(value, field)</code></td>
+<td>Bytes become lowercase hexadecimal; a nonempty string passes unchanged. Other values and empty strings raise IdentityError. Empty bytes are accepted and become an empty string despite the error message's nonempty wording. <code>field</code> names the error.</td>
+</tr>
+<tr>
+<td><code>canonical_json(value)</code></td>
+<td>Uses sorted JSON keys, compact separators, ASCII escaping, and rejects NaN/Infinity. Wraps TypeError/ValueError as TransformIdentityError. It is JSON normalization, not a code or library-version hash.</td>
+</tr>
+<tr>
+<td><code>transform_fingerprint(identity)</code></td>
+<td>Canonicalizes dictionaries, normalizes a string/bytes descriptor, then delegates to TransformationFingerprint.from_descriptor for SHA-256. Converts IdentityError to TransformIdentityError.</td>
+</tr>
+<tr>
+<td><code>fingerprint_transform(transform)</code></td>
+<td>Accepts only objects whose class module starts with torchvision.transforms or monai.transforms. Describes supported state recursively and returns canonical JSON, not digest bytes. Arbitrary functions require explicit transform_identity.</td>
+</tr>
+<tr>
+<td><code>fingerprint_transform.describe(value)</code></td>
+<td>Nested recursive helper: retains scalar values, converts list/tuple to lists and dictionary keys to strings; recognized framework objects become type plus public non-callable state. Unsupported parameter objects raise TransformIdentityError.</td>
+</tr>
+<tr>
+<td><code>artifact_key(namespace, source_identity, transform_identity, artifact_schema_version)</code></td>
+<td>Requires a nonempty string namespace, normalizes source/schema, fingerprints a dictionary containing transform identity and schema version, and returns the low-level CacheKey. Does not read source bytes or include the selected codec class automatically.</td>
+</tr>
+<tr>
+<td><code>hashed_identity(value)</code></td>
+<td>SHA-256 of the UTF-8 normalized identity descriptor, returned as hex. Bytes are first converted to hex; this is not SHA-256 directly over the original bytes.</td>
+</tr>
+</tbody>
+</table>
+<p>Automatic descriptions omit private fields and callable state. They do not include
+installed framework versions, code bodies, hidden random state, or every semantic
+parameter. Different dictionaries can also collapse when keys stringify identically.
+Treat the description as a supported convenience, not a determinism certificate.</p>
+<p>There is an important current API distinction: <code>transform_fingerprint</code> directly
+accepts bytes, but <code>artifact_key</code> wraps transform_identity inside JSON first.
+A bytes transform identity, or bytes nested inside a configuration dictionary,
+therefore raises TransformIdentityError during JSON serialization in that path.
+Use explicit string or JSON-compatible dictionary transform identities for this
+cache wrapper. Bytes source identities are normalized before the JSON step.</p>
+<h2 id="cache-construction-and-client-ownership">Cache Construction and Client Ownership</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherTransformCache.__init__(client, transform, ...)</code></td>
+<td>Validates mode and on_cache_error, records the transform and identity callback, chooses explicit identity or automatic fingerprint, defaults codec to AutoCodec, and initializes counters/timing lists. A missing client becomes the lazy lifecycle.create_client factory. No connection or capability handshake is performed here.</td>
+</tr>
+<tr>
+<td><code>AetherTransformCache._client_for_process()</code></td>
+<td>Compares os.getpid to the saved PID. On change, closes a retained client and either invokes the factory or reuses the supplied object, then records the PID. Same PID returns the retained client.</td>
+</tr>
+<tr>
+<td><code>AetherTransformCache._key(source_identity)</code></td>
+<td>Builds the CacheKey from retained namespace, transform identity, schema version, and supplied source identity. Identity validation happens here on use rather than uniformly in construction.</td>
+</tr>
+<tr>
+<td><code>AetherTransformCache.identity_for(source, index)</code></td>
+<td>Requires identity_fn. Uses inspect.signature.bind to choose a two-argument call, falling back to one argument when binding raises TypeError. Exceptions raised by the actual callback are not retried with another arity. Unsupported inspect.signature errors can propagate.</td>
+</tr>
+<tr>
+<td><code>AetherTransformCache.__call__(source, source_identity)</code></td>
+<td>Delegates to get_or_compute; source identity is keyword-only.</td>
+</tr>
+<tr>
+<td><code>AetherTransformCache.get_or_compute(source, source_identity)</code></td>
+<td>Forms a one-entry batch and returns result zero. Uses the same encode/decode path as larger requests.</td>
+</tr>
+<tr>
+<td><code>AetherTransformCache.close()</code></td>
+<td>Closes a retained client, then clears client/PID. If client.close raises, clearing does not execute. Does not close the daemon, clear stored artifacts, or set a permanent wrapper closed flag.</td>
+</tr>
+<tr>
+<td><code>AetherTransformCache.__enter__()</code></td>
+<td>Returns the wrapper; does not connect.</td>
+</tr>
+<tr>
+<td><code>AetherTransformCache.__exit__(exc_type, exc_value, traceback)</code></td>
+<td>Calls close without suppressing an exception from the body.</td>
+</tr>
+</tbody>
+</table>
+<p>A factory can create a fresh connection for each worker process. Supplying one
+already-created client object does not turn it into a factory: after a PID change,
+that same object can be selected again after close. A later call after wrapper.close
+can also recreate/select a client. Factory creation failures remain retryable on a
+later call because the new PID is recorded only after creation succeeds.</p>
+<p>Counters and client selection have no wrapper-level synchronization. Do not infer
+thread-safe transform execution or atomic metrics from a low-level socket lock.</p>
+<h2 id="batch-lookup-and-publication">Batch Lookup and Publication</h2>
+<p><code>AetherTransformCache.get_many_or_compute(sources)</code> materializes the input iterable.
+More than 4,096 entries are processed recursively in consecutive chunks; output
+order is preserved, but duplicate-key coalescing is per chunk, not whole iterable.
+The whole original iterable is already in memory, so this is not streaming input.</p>
+<p>For one enabled chunk, the exact phases are:</p>
+<ol>
+<li>Build keys and preserve first-seen distinct-key order with dict.fromkeys.</li>
+<li>Fetch distinct keys through client.get_many. Successful lookup counters count
+original requested entries, including duplicates, rather than wire key count.</li>
+<li>Reject missing keys in read-only mode before running any transforms.</li>
+<li>Build a key-to-source dictionary. For repeated identities with different source
+objects, the <strong>last</strong> source wins for miss computation. Compute and encode each
+missing distinct key once in first-seen key order.</li>
+<li>Publish all computed payloads with put_many in read-write or populate mode.</li>
+<li>Combine fetched/computed payloads and decode once per original requested entry.
+Freshly computed artifacts are encoded then decoded; they are not returned as
+the original transform objects. Duplicate identities can yield separately copied
+decoded arrays/tensors.</li>
+</ol>
+<p>This wrapper does not reserve misses while computing, deduplicate concurrent
+workers, or roll back earlier chunks if a later chunk fails. A publication error
+does not prove the server committed nothing: transport failure may occur after
+publication. Consult the low-level retry and Java cache publication references.</p>
+<h3 id="modes-and-failures">Modes and Failures</h3>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Setting or phase</th>
+<th>Actual effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>read-write</td>
+<td>Reuses hits and computes/publishes misses.</td>
+</tr>
+<tr>
+<td>populate</td>
+<td>Uses the same lookup/reuse/compute/publish path as read-write. It does not overwrite every existing hit or invoke the offline bulk loader.</td>
+</tr>
+<tr>
+<td>read-only</td>
+<td>Missing distinct keys raise CacheMissError; no transform or publication follows.</td>
+</tr>
+<tr>
+<td>disabled</td>
+<td>Directly transforms every requested source, including duplicates. Skips identity/key building, client, codec, counters, and successful batch/decode timing samples.</td>
+</tr>
+<tr>
+<td>Lookup failure with raise</td>
+<td>Increments cacheErrors, records lookup timing in finally, and raises CacheUnavailableError chained to the original exception.</td>
+</tr>
+<tr>
+<td>Lookup failure with fallback</td>
+<td>Logs a warning and directly transforms every source; does not encode/publish/decode, and does not record successful batch preparation timing. Even read-only can compute in this explicitly selected fallback policy.</td>
+</tr>
+<tr>
+<td>Transform or encode failure</td>
+<td>Propagates the underlying exception; no put_many occurs for that chunk. Previously completed chunks remain published. Not handled by on_cache_error.</td>
+</tr>
+<tr>
+<td>Publication failure with raise</td>
+<td>Increments cacheErrors and raises PublishError. No result decoding follows.</td>
+</tr>
+<tr>
+<td>Publication failure with fallback</td>
+<td>Logs and decodes computed payloads for return. Does not retry publication at this wrapper layer or increment successful publishes.</td>
+</tr>
+<tr>
+<td>Decode failure</td>
+<td>Propagates codec failure, potentially after publication succeeded. No successful decode/batch timing sample is appended.</td>
+</tr>
+</tbody>
+</table>
+<p>An empty enabled batch still passes an empty key list to get_many, so a client
+creation error can occur even with no samples. The wrapper catches Exception for
+lookup/publication, not process termination or every BaseException.</p>
+<h2 id="planning-and-observability">Planning and Observability</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherTransformCache.plan(source_identities, estimated_compute_seconds_per_sample)</code></td>
+<td>Materializes identities, rejects a negative estimate, then checks presence in chunks of 4,096 through contains_many. Counts duplicate requested keys independently. Returns total/reusable/missing/reuseRatio without transforming or publishing. Disabled mode reports all missing without constructing keys. Any client failure is CacheUnavailableError even when fallback is configured.</td>
+</tr>
+<tr>
+<td><code>_with_work_estimate(result, seconds_per_sample)</code></td>
+<td>With no estimate, returns the same dictionary. Otherwise adds reusable * estimate and missing * estimate; these are modeled compute seconds, not measured lifecycle savings.</td>
+</tr>
+<tr>
+<td><code>AetherTransformCache.stats()</code></td>
+<td>Returns a fresh top-level dictionary of existing counters, hitRate, accumulated lookupNs, and summaries of stored timing samples. Zero-valued metric names not yet inserted in Counter may be absent. Does not reset counters or poll server metrics.</td>
+</tr>
+<tr>
+<td><code>_latency_summary(values)</code></td>
+<td>Empty input yields zero count/mean/p95. Otherwise sorts samples and selects min(n-1, int(n * .95)); reports milliseconds. This is the implementation's index rule, not interpolated statistical quantiles.</td>
+</tr>
+<tr>
+<td><code>AetherTransformCache.reproducibility_metadata()</code></td>
+<td>Returns namespace, schema version, str(transform_identity), and literal integrityPolicy=engine-managed. Does not record a verified source commit, runtime versions, actual checksum configuration, or canonical identity digest.</td>
+</tr>
+</tbody>
+</table>
+<p>Timing samples grow for the wrapper's lifetime without a retention cap. Lookup
+timing includes client selection/exchange and failed attempts at this layer.
+Publish samples exist only for successful put_many; decode and batchPreparation
+samples exist only after successful decoding. Counters mix requested-entry units
+(lookups/hits/misses/bytesRead) with distinct-artifact units (publishes/bytesPublished).
+bytesRead counts encoded cached payload bytes per requested occurrence, not socket
+traffic. Cache misses are counted only after all missing transforms encode
+successfully. Read-only miss errors and lookup fallback do not increment misses.</p>
+<p>Presence planning is not a reservation: eviction, another producer, or an input
+identity mistake can change what a later lookup observes. The plan does not verify
+every payload can decode or establish a transactional snapshot of all chunks.</p>
+<h2 id="artifact-codec-functions">Artifact Codec Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Conversion and ownership</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ArtifactCodec.encode(value)</code></td>
+<td>Protocol declaration requiring bytes output; no runtime implementation or validation.</td>
+</tr>
+<tr>
+<td><code>ArtifactCodec.decode(payload)</code></td>
+<td>Protocol declaration accepting bytes/memoryview; caller chooses semantic result type.</td>
+</tr>
+<tr>
+<td><code>BytesCodec.encode(value)</code></td>
+<td>Applies bytes(value), translating TypeError to a bytes-like diagnostic. Conversion is broader than the annotation: integers and integer iterables can also be accepted by Python bytes.</td>
+</tr>
+<tr>
+<td><code>BytesCodec.decode(payload)</code></td>
+<td>Returns bytes(payload); an existing immutable bytes input may be reused, while a memoryview is copied.</td>
+</tr>
+<tr>
+<td><code>NumPyCodec.encode(value)</code></td>
+<td>Lazy imports NumPy, makes a C-contiguous array, JSON-encodes dtype.str and shape, and concatenates AENP1 + big-endian uint32 header length + header + array.tobytes. Array conversion and serialization may copy.</td>
+</tr>
+<tr>
+<td><code>NumPyCodec.decode(payload)</code></td>
+<td>Checks nine-byte minimum/magic/header bounds, parses JSON, uses dtype/frombuffer and reshape, then copy for an independent writable array. Wraps KeyError/TypeError/ValueError as ArtifactDecodeError; missing NumPy is ImportError.</td>
+</tr>
+<tr>
+<td><code>TensorCodec.__init__()</code></td>
+<td>Owns a NumPyCodec delegate, not a tensor/device buffer.</td>
+</tr>
+<tr>
+<td><code>TensorCodec.encode(value)</code></td>
+<td>Calls detach().cpu().numpy() then NumPy encoding. Can synchronize/copy GPU data to host, discards autograd history, and translates AttributeError to a tensor diagnostic. Other unsupported tensor/dtype/layout errors propagate.</td>
+</tr>
+<tr>
+<td><code>TensorCodec.decode(payload)</code></td>
+<td>Imports Torch and wraps the independently copied decoded NumPy array with from_numpy. Returns a CPU tensor sharing that new array, not the original GPU device/storage/gradient state.</td>
+</tr>
+<tr>
+<td><code>TensorDictCodec.encode(value)</code></td>
+<td>Requires a dict with string keys, sorts keys, converts detach-capable values through CPU NumPy, serializes each contiguous array, and records key/dtype/shape/offset/size/tensor flag. Writes AETD1 + header length + JSON entries + concatenated raw payloads.</td>
+</tr>
+<tr>
+<td><code>TensorDictCodec.decode(payload)</code></td>
+<td>Checks header framing, then entry offset lower bounds and payload end upper bounds. Reconstructs and copies each array; tensor-marked entries become CPU Torch tensors. Wraps KeyError/TypeError/ValueError as ArtifactDecodeError. Missing optional libraries may propagate ImportError.</td>
+</tr>
+<tr>
+<td><code>AutoCodec.encode(value)</code></td>
+<td>Selects bytes first, dict second, detach-capable object third, actual NumPy ndarray last. Prepends B/D/T/N to its codec payload. Unsupported values raise TypeError; no pickle fallback.</td>
+</tr>
+<tr>
+<td><code>AutoCodec.decode(payload)</code></td>
+<td>Reads the first-byte tag from a memoryview and delegates on the remainder. Empty/unknown tag raises ArtifactDecodeError. Creates a new codec instance per call.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="format-and-validation-limits">Format and Validation Limits</h3>
+<p>NumPy/tensor payloads contain type and shape metadata but no codec-level checksum.
+Successful cache retrieval does not independently prove this application schema
+is correct. Decode copies deliberately separate returned arrays from encoded cache
+bytes; these codecs are not the mapped zero-copy tensor APIs.</p>
+<p>The dictionary parser does not explicitly enforce unique keys, disjoint/ordered
+regions, exhaustive payload consumption, or nonnegative sizes; malformed shape,
+slice, and dtype failures are partly delegated to NumPy. Duplicate keys overwrite
+earlier decoded dictionary entries. Trailing bytes outside referenced regions may
+be ignored. These are descriptions of existing checks, not guarantees of a hardened
+untrusted-input parser.</p>
+<p>NumPy object dtypes are not explicitly rejected during encode even though raw
+object-array bytes are not a portable serialized object representation. Structured
+dtype descriptions are not preserved in full by dtype.str. Use supported numeric
+arrays/tensors and an explicit schema identity; do not treat non-pickle framing as
+support for arbitrary Python objects, every dtype, or every Torch layout.</p>
+<h2 id="tests-and-source-reading-exercises">Tests and Source-Reading Exercises</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/tests/test_aether_ml.py">test_aether_ml.py</a> covers identity
+component changes, supported/unsupported automatic descriptions, batched miss
+computation and reuse, read-only misses, fallback warnings, planning estimates,
+metrics, codec round trips, and client-factory replacement on a simulated PID
+change. Its MemoryClient fixtures verify wrapper behavior, not actual Java
+durability, network retries, eviction races, or GPU campaign reproducibility.</p>
+<p>Trace a duplicate input through keys, distinct lookup, last-source selection,
+publication, and repeated decode. Then compare disabled, read-only, and fallback
+paths. Explain which counters and timing samples exist after each failure; they
+are intentionally not interchangeable with the H2 lifecycle endpoint.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-responsibility">Architecture and Responsibility</a><a href="#identity-functions">Identity Functions</a><a href="#cache-construction-and-client-ownership">Cache Construction and Client Ownership</a><a href="#batch-lookup-and-publication">Batch Lookup and Publication</a><a href="#planning-and-observability">Planning and Observability</a><a href="#artifact-codec-functions">Artifact Codec Functions</a><a href="#tests-and-source-reading-exercises">Tests and Source-Reading Exercises</a></nav></aside>
+  </div>
+</body>
+</html>

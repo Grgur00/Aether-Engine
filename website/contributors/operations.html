@@ -1,0 +1,340 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/OPERATIONS-AND-DEBUGGING.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Operations and debugging: source-backed contributor documentation for Aether Engine.">
+  <title>Operations and debugging | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html" aria-current="page">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/OPERATIONS-AND-DEBUGGING.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="operations-and-debugging">Operations and Debugging</h1>
+<p><a href="index.html">Onboarding index</a> | <a href="storage.html">Storage engine</a> | <a href="testing.html">Tests</a></p>
+<p>This is a development runbook for the current pre-production implementation, not
+a production deployment guide. Practice on disposable stores. Keep the original
+bytes and logs when diagnosing corruption; a successful repair is not proof that
+every acknowledged application record was recovered.</p>
+<h2 id="ownership-and-shutdown">Ownership and Shutdown</h2>
+<p>The embedded engine owns an exclusive database-directory lock. A sample,
+Workbench, training-cache daemon, bulk importer, or offline tool must not operate
+as a second owner of that directory. The presence of a lock file alone does not
+prove a process is alive, and deleting the file is not a safe way to evict an owner.
+Find the owning process and its logs, then close it normally.</p>
+<p>Keep cursors and snapshots inside the database lifetime, and close them promptly.
+Close releases native resources and file handles as well as the lock. For the
+cache, staged acknowledgement is not durable admission: drain and publish using
+the matching cache API before relying on restart survival. See
+<a href="python.html">training-cache lifetimes</a>.</p>
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
+    Symptom[Failure or unexpected latency] --&gt; Evidence[Save logs, revision, config, paths and timestamps]
+    Evidence --&gt; Owner{Is another process the owner?}
+    Owner --&gt;|Yes| Close[Stop work and close the actual owner]
+    Owner --&gt;|No| Offline[Use locked offline inspection]
+    Close --&gt; Offline
+    Offline --&gt; Kind{What does the evidence show?}
+    Kind --&gt;|Configuration or resources| Config[Check actual consumers and resource limits]
+    Kind --&gt;|Corrupt or missing files| Preserve[Preserve original and investigate a copy]
+    Kind --&gt;|Performance| Profile[Measure a defined workload and timing scope]
+    Preserve --&gt; Recover[Choose an explicit recovery operation]
+    Recover --&gt; Verify[Verify recovered bytes and application invariants]
+</code></pre></details></figure>
+<h2 id="offline-cli">Offline CLI</h2>
+<p>The implementation is <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-tools/src/main/java/io/aetherdb/tools/AetherCli.java">AetherCli</a>.
+From the repository root:</p>
+<pre><code class="language-powershell">.\gradlew.bat :modules:aether-tools:run --args=&quot;--help&quot; --console=plain
+</code></pre>
+<p>Use <code>./gradlew</code> on Bash. The following examples assume you intentionally created
+the disposable <code>build/onboarding-social-db</code> store using the
+<a href="getting-started.html">persistent sample instructions</a> and the sample has exited:</p>
+<pre><code class="language-powershell">.\gradlew.bat :modules:aether-tools:run --args=&quot;inspect build/onboarding-social-db --json&quot; --console=plain
+.\gradlew.bat :modules:aether-tools:run --args=&quot;verify build/onboarding-social-db --level FULL --json&quot; --console=plain
+</code></pre>
+<p>Do not substitute a production directory while learning. Do not combine several
+application <code>run</code> tasks with a single <code>--args</code>: each application may interpret
+the same string differently.</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Purpose and important boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>inspect &lt;directory&gt;</code></td>
+<td>Inventory/metadata inspection; acquires the database lock by default</td>
+</tr>
+<tr>
+<td><code>verify &lt;directory&gt; --level METADATA|CHECKSUMS|FULL</code></td>
+<td>Verification at the selected depth; not an application-level correctness proof</td>
+</tr>
+<tr>
+<td><code>checkpoint &lt;source&gt; &lt;destination&gt;</code></td>
+<td>Creates a separate checkpoint with the source locked; use a fresh destination</td>
+</tr>
+<tr>
+<td><code>restore-verify &lt;checkpoint&gt;</code></td>
+<td>Verifies checkpoint metadata and contents</td>
+</tr>
+<tr>
+<td><code>backup-create &lt;checkpoint&gt; &lt;archive&gt;</code></td>
+<td>Creates a backup from a checkpoint, not a live hot-backup API</td>
+</tr>
+<tr>
+<td><code>backup-restore-preflight &lt;archive&gt; &lt;target&gt;</code></td>
+<td>Validates a restore plan before performing it</td>
+</tr>
+<tr>
+<td><code>backup-restore &lt;archive&gt; &lt;target&gt;</code></td>
+<td>Executes an admitted restore plan; review identity, mode and destination first</td>
+</tr>
+<tr>
+<td><code>backup-restore-drill &lt;archive&gt; &lt;target&gt;</code></td>
+<td>Exercises restore and verification on a disposable target</td>
+</tr>
+<tr>
+<td><code>diagnostics &lt;bundle.zip&gt; [--config &lt;properties&gt;]</code></td>
+<td>Writes environment/configuration diagnostics; not a database-file or JFR bundle</td>
+</tr>
+<tr>
+<td><code>config-validate &lt;properties&gt; [--set name=value] [--json]</code></td>
+<td>Loads and validates configuration; currently implemented even though omitted from top-level help</td>
+</tr>
+<tr>
+<td><code>command-schema [command]</code></td>
+<td>Machine-readable command metadata; inspect the parser too when extending a command</td>
+</tr>
+<tr>
+<td><code>release-certify &lt;manifest&gt;</code></td>
+<td>Evaluates supplied release evidence; does not run all tests or certify a deployment by itself</td>
+</tr>
+</tbody>
+</table>
+<p>For data-changing repair commands, inspect their source and
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-tools/src/test/java/io/aetherdb/tools/AetherCliTest.java">CLI tests</a>
+before use:</p>
+<ul>
+<li><code>repair-tail</code> proposes trimming an eligible invalid WAL tail; without <code>--yes</code> it does not perform the truncation. Keep the default backup behavior.</li>
+<li><code>rebuild-current</code> can reconstruct the current manifest pointer; it is not arbitrary repair of a damaged manifest or missing SSTable.</li>
+<li><code>salvage</code> writes to a separate destination. Its modes differ in which recoverable versions are retained; successful salvage does not establish losslessness.</li>
+</ul>
+<p><code>--unsafe-no-lock</code> is explicitly forensic read-only inspection with potentially
+inconsistent results. It is not the normal workaround for a running service.
+Do not normalize <code>--no-backup</code>, manual file edits, or guessed repair flags into
+an automated recovery script.</p>
+<p>At the CLI level, common statuses are 0 for success, 2 for warnings/failed
+validation or an unperformed proposal, 3 for invalid arguments/data caught as
+<code>IllegalArgumentException</code>, 4 for lock/I/O failures, and 64 for an unknown command.
+Individual commands have their own reports. When invoking through Gradle, a
+nonzero application exit becomes a failed Gradle task; read the application report
+rather than treating the wrapper's exit code as the full diagnosis.</p>
+<h2 id="configuration-declaration-versus-consumption">Configuration: Declaration Versus Consumption</h2>
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart LR
+    Properties[Properties file] --&gt; Loader[AetherConfigLoader]
+    Environment[Recognized environment variables] --&gt; Loader
+    Overrides[Explicit overrides] --&gt; Loader
+    Registry[Registry defaults and validator] --&gt; Loader
+    Loader --&gt; Resolved[Resolved AetherConfiguration]
+    Resolved --&gt; Open[Explicit configured engine open]
+    Open --&gt; Runtime[RuntimeConfiguration reads supported settings]
+    Runtime --&gt; State[Engine state]
+    Registry -. declaration alone does not wire a feature .-&gt; State
+</code></pre></details></figure>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/src/main/java/io/aetherdb/config/AetherConfigLoader.java">AetherConfigLoader</a>
+applies properties, then recognized environment values, then explicit overrides;
+registry defaults fill missing settings when read. Environment names are the
+uppercase dotted key with dots replaced by underscores, for example
+<code>AETHER_MEMTABLE_NATIVE_BYTES</code>. Unknown environment names are not automatically
+forwarded as configuration.</p>
+<p>The application must call the loader and pass the result into
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/Aether.java">Aether.open(path, configuration)</a>.
+The convenience <code>open(path)</code> instead supplies a development-profile configuration;
+it does not automatically locate your properties file or import every environment
+variable. A notebook, daemon or script can have its own explicit flags and
+environment handling, which must be traced separately.</p>
+<p>The current persistent engine's <code>RuntimeConfiguration.from</code> in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/PersistentAetherDatabase.java">PersistentAetherDatabase</a>
+reads these settings:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Runtime use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aether.memtable.native_bytes</code></td>
+<td>Native memtable capacity</td>
+</tr>
+<tr>
+<td><code>aether.wal.segment_bytes</code></td>
+<td>WAL threshold for the integrated flush/rotation path</td>
+</tr>
+<tr>
+<td><code>aether.snapshots.max_open</code></td>
+<td>Maximum open snapshot count</td>
+</tr>
+<tr>
+<td><code>aether.compaction.enabled</code></td>
+<td>Enablement of the integrated compaction worker</td>
+</tr>
+<tr>
+<td><code>aether.storage.disk_pressure.enabled</code></td>
+<td>Disk-pressure admission checks</td>
+</tr>
+<tr>
+<td><code>aether.memtable.immutable_limit</code></td>
+<td>Input to the write-pressure policy</td>
+</tr>
+<tr>
+<td><code>aether.wal.durability_mode</code></td>
+<td>Engine's default write options; explicit call options still matter</td>
+</tr>
+</tbody>
+</table>
+<p>This is not the whole registry. In particular, the engine constructs
+<code>LevelCompactionConfig.defaults()</code> and has its own single-worker implementation;
+declaring a background-job count in the registry does not make that many workers
+run. Likewise, a block-cache size, security flag or hot-reload declaration is not
+proof of a connected runtime feature. Review the actual consumer before documenting
+or benchmarking a configuration change.</p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/src/main/java/io/aetherdb/config/AetherConfigRegistry.java">registry</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/src/main/java/io/aetherdb/config/AetherConfigValidator.java">validator</a>,
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/src/test/java/io/aetherdb/config/AetherConfigLoaderTest.java">loader tests</a>.</p>
+<h2 id="metrics-and-profiling">Metrics and Profiling</h2>
+<p><code>Aether.openWithMetrics(path)</code> and <code>Aether.instrument(database)</code> return an owning
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/MeteredAetherDatabase.java">MeteredAetherDatabase</a>.
+The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/DefaultMeteredAetherDatabase.java">decorator</a>
+measures calls at that API boundary. Scan timing measures obtaining the cursor,
+not a complete later iteration; encoding, preprocessing, startup and model work
+outside the wrapper require their own measurements. Report the measurement scope
+with each number.</p>
+<p><code>Aether.compactionDiagnostics(database)</code> and <code>awaitCompactionIdle(database)</code> work
+on a direct persistent implementation. The helper checks the concrete instance;
+passing a metered decorator does not automatically unwrap it. The diagnostic
+helper returns <code>UNAVAILABLE</code> for other implementations. Preserve access to the
+correct handle when integrating diagnostics instead of assuming an empty report
+means no compaction exists.</p>
+<p>Use <a href="research.html">Experiments and profiling</a> for bounded server
+traces, population-stage timing, JFR artifacts, and what each diagnostic excludes.
+Do not sum nested trace spans as though they were disjoint wall time. CPU samples
+are not an exact allocation/copy count, and synchronous input-wait measurements
+are not direct hardware GPU idle-time measurements.</p>
+<h2 id="troubleshooting-map">Troubleshooting Map</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>First checks</th>
+<th>Avoid</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lock unavailable</td>
+<td>Owning process, normalized path, service/Workbench lifetime</td>
+<td>Deleting a lock file to force concurrent access</td>
+</tr>
+<tr>
+<td>Open/recovery failure</td>
+<td><code>CURRENT</code>, manifest inventory, referenced WAL/SSTable, exact first error</td>
+<td>Silently rebuilding a store or ignoring corruption</td>
+</tr>
+<tr>
+<td>Writes stall/reject</td>
+<td>Admission limits, free space, flush/compaction state, snapshot lifetime</td>
+<td>Disabling durability or bounds before understanding the cause</td>
+</tr>
+<tr>
+<td>Unexpected heap use on open</td>
+<td>SSTableReader's eager verify/decode and retained block entries</td>
+<td>Assuming an open file channel means values stay off-heap</td>
+</tr>
+<tr>
+<td>Native-memory or closed-region error</td>
+<td>Region owner, use-after-close, outstanding cursor/snapshot</td>
+<td>Retaining a borrowed view beyond its owner</td>
+</tr>
+<tr>
+<td>Cache is unexpectedly cold</td>
+<td>Source/transform/schema identity and preprocessing count</td>
+<td>Changing cache keys just to make a benchmark pass</td>
+</tr>
+<tr>
+<td>Bad restart results</td>
+<td>Publication/acknowledgement boundary and referenced files</td>
+<td>Treating a staged response as a durable receipt</td>
+</tr>
+<tr>
+<td>Slow initial population</td>
+<td>Separate preprocessing, encoding, transport, storage and quiescence</td>
+<td>Comparing unmatched representations or omitted work</td>
+</tr>
+<tr>
+<td>Python cannot connect</td>
+<td>Daemon log, actual port, matching protocol/source snapshot</td>
+<td>Confusing the training-cache and general RPC protocols</td>
+</tr>
+<tr>
+<td>A test reports success without work</td>
+<td>Task actions, test count, skip conditions, reports</td>
+<td>Treating an empty task or skipped test as coverage</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="storage.html">Storage engine</a> for current implementation limitations,
+including persistent empty-value handling, instead of assuming every public
+byte-API input already has a fully validated durable round trip.</p>
+<h2 id="security-and-incident-evidence">Security and Incident Evidence</h2>
+<p>The training-cache service is local infrastructure. The general
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-rpc-transport/src/main/java/io/aetherdb/rpc/transport/PlaintextDevelopmentRpc.java">development RPC transport</a>
+is plaintext and explicitly not a production TLS transport. The existence of
+crypto, security, cluster and configuration modules does not establish end-to-end
+encryption, authenticated remote administration or replicated durability.
+Do not expose these development endpoints to untrusted networks.</p>
+<p>Before reporting a defect, collect the source revision and dirty status, exact
+command, JDK/Python/dependency versions, first failure and relevant preceding logs,
+normalized resource paths, free disk/memory information, and the smallest safe
+reproducer. For corruption, retain original file checksums and an immutable copy
+before an approved repair. For experiments, also retain protocol/manifests, stage
+receipts and runtime provenance.</p>
+<p>Review logs and bundles before sharing. <code>diagnostics</code> filters environment variables
+to <code>AETHER_</code> names and redacts names matching sensitive patterns; the loader's
+diagnostic view separately uses registry sensitivity metadata. Neither is a
+guarantee that an arbitrary path, dataset identifier or secret embedded in an
+innocently named value is safe to publish. JFR and heap dumps can expose paths,
+arguments and application data. Never attach credentials or raw medical inputs to
+a public issue.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#ownership-and-shutdown">Ownership and Shutdown</a><a href="#offline-cli">Offline CLI</a><a href="#configuration-declaration-versus-consumption">Configuration: Declaration Versus Consumption</a><a href="#metrics-and-profiling">Metrics and Profiling</a><a href="#troubleshooting-map">Troubleshooting Map</a><a href="#security-and-incident-evidence">Security and Incident Evidence</a></nav></aside>
+  </div>
+</body>
+</html>

@@ -1,0 +1,469 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/OBSERVABILITY-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Observability and database metrics: source-backed contributor documentation for Aether Engine.">
+  <title>Observability and database metrics | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html" aria-current="page">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/OBSERVABILITY-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="observability-and-database-metrics-functions">Observability and Database Metrics Functions</h1>
+<p>The <a href="flush-diagnostic-functions.html">flush diagnostic reference</a> covers request-owned
+write, flush, compaction and SSTable-finish timing, distinct from this registry/export layer.</p>
+<p><a href="function-index.html">Function index</a> | <a href="engine-functions.html">Engine entry points</a> | <a href="operations.html">Operations</a> | <a href="benchmark-metrics-functions.html">Benchmark metrics</a></p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-observability-api/src/main/java/io/aetherdb/observability/api">observability API</a>
+and six engine telemetry files linked below. Covers <strong>50 explicit declarations
+across 14 files</strong>: 17 declarations in eight API files, 33 in six engine files.
+Implicit record accessors/constructors and enum helpers are outside the count;
+their semantics are explained. Factories are covered by the engine reference.</p>
+<h2 id="measurement-architecture">Measurement Architecture</h2>
+<pre><code class="language-text">Aether.instrument / openWithMetrics / openInMemoryWithMetrics
+    -&gt; owning DefaultMeteredAetherDatabase decorator
+    -&gt; cumulative operation counters + rolling latency rings
+    -&gt; DatabaseMetrics snapshot
+    -&gt; explicit DatabaseMetricExporter.export call
+    -&gt; InMemoryMetricRegistry observation history
+</code></pre>
+<p>Instrumentation is opt-in; ordinary opens are not decorated. The wrapper owns
+delegate close. These files do not supply a scheduler, monitoring HTTP endpoint,
+health probe or automatic export loop. Health values describe permissions, not
+an access-enforcement mechanism or running health-state machine.</p>
+<p>Telemetry is not durability evidence. A returned WriteResult still needs outcome
+interpretation; a returned cursor is not a completed scan. Registry observations
+are not aggregated counters or histogram buckets. Registry synchronization does
+not make engine snapshots transactionally consistent under concurrent mutation.</p>
+<h2 id="names-and-label-functions">Names and Label Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-observability-api/src/main/java/io/aetherdb/observability/api/ObservabilityNames.java">ObservabilityNames.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-observability-api/src/main/java/io/aetherdb/observability/api/MetricDescriptor.java">MetricDescriptor.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-observability-api/src/main/java/io/aetherdb/observability/api/MetricLabels.java">MetricLabels.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-observability-api/src/main/java/io/aetherdb/observability/api/MetricKind.java">MetricKind.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ObservabilityNames.ObservabilityNames()</code></td>
+<td>Private empty utility constructor.</td>
+</tr>
+<tr>
+<td><code>ObservabilityNames.requireValidMetricName(name)</code></td>
+<td>Requires nonnull full regex match: aether_ prefix, lowercase letter, lowercase alphanumeric groups separated by single underscores, optional total/seconds/bytes/ratio suffix. Returns original string. No normalization, length cap or name/unit/kind compatibility check. Invalid input raises IllegalArgumentException.</td>
+</tr>
+<tr>
+<td><code>ObservabilityNames.requireValidLabelName(name)</code></td>
+<td>Requires [a-z][a-z0-9_]* and rejects exact forbidden names. Returns original string. Consecutive/trailing underscores allowed. Does not enforce actual cardinality or redact values.</td>
+</tr>
+<tr>
+<td><code>MetricDescriptor.MetricDescriptor(name, kind, unit, labels)</code></td>
+<td>Validates name, requires nonnull kind/list, converts null unit to empty string. List.copyOf owns ordered labels; validates each name. Duplicates allowed, units otherwise unchecked. Null elements fail during copying. Record equality includes unit and label order.</td>
+</tr>
+<tr>
+<td><code>MetricLabels.MetricLabels(values)</code></td>
+<td>Requires map, validates keys, rejects null/blank values or String.length()&gt;128. Copies through TreeMap into Map.copyOf. Final map iteration order is not guaranteed. No label-count or distinct-value cardinality cap.</td>
+</tr>
+<tr>
+<td><code>MetricLabels.of(key, value)</code></td>
+<td>Singleton Map.of then constructor. Nulls can fail in Map.of before custom validation.</td>
+</tr>
+</tbody>
+</table>
+<p>MetricKind COUNTER, GAUGE and HISTOGRAM are descriptive; they do not enforce
+monotonicity, nonnegative values or buckets. MetricLabels.EMPTY is immutable.
+String lengths are UTF-16 code units, not encoded byte lengths. Conventional
+metric suffixes are not mandatory: the main regex already accepts those words.</p>
+<p>Forbidden exact label names: key, value, collection_name, principal_id, token,
+certificate_subject, ip_address, request_id, trace_id, schema_fingerprint,
+exception_message, file_path. Equivalent sensitive data under another allowed
+name is not detected; this is not a general privacy/cardinality enforcement layer.</p>
+<h2 id="observation-registry-functions">Observation Registry Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-observability-api/src/main/java/io/aetherdb/observability/api/MetricObservation.java">MetricObservation.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-observability-api/src/main/java/io/aetherdb/observability/api/InMemoryMetricRegistry.java">InMemoryMetricRegistry.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MetricObservation.MetricObservation(descriptor, labels, value, observedAt)</code></td>
+<td>Requires nonnull descriptor/labels/time and finite double. Supplied labels must be declared; missing declared labels allowed. Negative values, counter decreases and arbitrary timestamps accepted. No instrument/unit behavior enforcement.</td>
+</tr>
+<tr>
+<td><code>InMemoryMetricRegistry.InMemoryMetricRegistry(clock)</code></td>
+<td>Requires Clock; initializes descriptor map and history list. No exporter or scheduler.</td>
+</tr>
+<tr>
+<td><code>InMemoryMetricRegistry.register(descriptor)</code></td>
+<td>Synchronized putIfAbsent by name. Equal descriptor registration is idempotent; conflicting kind/unit/ordered label list raises IllegalArgumentException and preserves prior descriptor. Null descriptor fails naturally.</td>
+</tr>
+<tr>
+<td><code>InMemoryMetricRegistry.observe(descriptor, labels, value)</code></td>
+<td>Synchronized, reentrantly registers, reads clock.instant(), constructs observation and appends. Descriptor registration remains if clock/validation later fails. No rollback, aggregation, deduplication or retention cap.</td>
+</tr>
+<tr>
+<td><code>InMemoryMetricRegistry.snapshot()</code></td>
+<td>Synchronized immutable copy of whole insertion-ordered history. Every snapshot copies history; no clear/drain API.</td>
+</tr>
+<tr>
+<td><code>InMemoryMetricRegistry.descriptors()</code></td>
+<td>Synchronized immutable map copy; LinkedHashMap insertion order is not guaranteed by returned Map.copyOf.</td>
+</tr>
+</tbody>
+</table>
+<p>Record accessors expose owned immutable values/collections; equality is content
+based. Registry operations serialize on one monitor, including Clock callbacks.
+Memory grows with observations and descriptors. Repeated exports of cumulative
+counts must not be summed as interval deltas.</p>
+<h2 id="health-functions">Health Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-observability-api/src/main/java/io/aetherdb/observability/api/HealthState.java">HealthState.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-observability-api/src/main/java/io/aetherdb/observability/api/HealthStatus.java">HealthStatus.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HealthState.HealthState(readsAllowed, writesAllowed)</code></td>
+<td>Stores permission booleans; does not enforce access or state transitions.</td>
+</tr>
+<tr>
+<td><code>HealthState.readsAllowed()</code></td>
+<td>Returns stored read permission.</td>
+</tr>
+<tr>
+<td><code>HealthState.writesAllowed()</code></td>
+<td>Returns stored write permission.</td>
+</tr>
+<tr>
+<td><code>HealthStatus.HealthStatus(state, reasonCode, observedAt, details)</code></td>
+<td>Requires nonnull state/time/details and nonblank reasonCode; Map.copyOf owns details. Validates keys with label rules, values length&lt;=256. Blank/empty detail values allowed. Null entries fail during copying. No detail-count cap, reason vocabulary/length limit or state/reason relationship check.</td>
+</tr>
+<tr>
+<td><code>HealthStatus.of(state, reasonCode)</code></td>
+<td>Uses Instant.now and empty details, not registry Clock.</td>
+</tr>
+</tbody>
+</table>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>State</th>
+<th>Reads</th>
+<th>Writes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>STARTING, RECOVERING, UNHEALTHY</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>READ_ONLY_DEGRADED, FOLLOWER_SERVING, DRAINING</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>SERVING, LEADER_SERVING</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p>HealthStatus is a value, not an authoritative readiness check. No deployment
+probe or reason-code catalog is supplied. Allowed detail values are not sanitized.</p>
+<h2 id="metered-database-functions">Metered Database Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/MeteredAetherDatabase.java">MeteredAetherDatabase.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/DefaultMeteredAetherDatabase.java">DefaultMeteredAetherDatabase.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/DatabaseOperation.java">DatabaseOperation.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and measured boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MeteredAetherDatabase.metrics()</code></td>
+<td>Abstract snapshot contract. Concrete sampling consistency is described below.</td>
+</tr>
+<tr>
+<td><code>MeteredAetherDatabase.resetMetrics()</code></td>
+<td>Abstract fresh-interval contract, without data mutation.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.DefaultMeteredAetherDatabase(delegate)</code></td>
+<td>Delegates using System.nanoTime.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.DefaultMeteredAetherDatabase(delegate, nanoTime)</code></td>
+<td>Requires delegate/supplier; reads clock once for initial Collector in AtomicReference. Does not open/close delegate; throwing supplier prevents construction.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.put(key, value)</code></td>
+<td>Times delegate.put as PUT, without extra byte copying/validation.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.delete(key)</code></td>
+<td>Times delegate.delete as DELETE.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.get(key)</code></td>
+<td>Times GET and returns same LookupResult. Missing key is not a thrown error.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.get(key, snapshot)</code></td>
+<td>Times snapshot lookup in same GET recorder.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.newSnapshot()</code></td>
+<td>Times SNAPSHOT handle creation, not lifetime/release.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.scan(start, end)</code></td>
+<td>Times SCAN cursor creation; cursor itself is not wrapped.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.scan(start, end, snapshot)</code></td>
+<td>Same SCAN recorder for snapshot cursor creation.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.scanAll()</code></td>
+<td>Times full-range cursor creation, not iteration.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.scanAll(snapshot)</code></td>
+<td>Same SCAN recorder for full-range snapshot cursor creation.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.write(batch)</code></td>
+<td>Times one WRITE invocation, not a count per batch mutation.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.write(batch, options)</code></td>
+<td>Times submission, returns unchanged WriteResult. Nonthrowing rejection/failure outcomes do not increment errors.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.isClosed()</code></td>
+<td>Unmetered delegate status call.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.close()</code></td>
+<td>Unmetered delegate close; no collector reset/close metric.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.metrics()</code></td>
+<td>Reads nanoTime before collector reference, snapshots six operations sequentially using elapsed since start; emits Instant.now and nonnegative Duration. No global counter lock. Clock/reset races can produce negative raw elapsed, clamped by interval/throughput calculations.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.resetMetrics()</code></td>
+<td>Allocates new Collector with current clock and atomically replaces reference. In-flight actions keep captured old collector and can complete into discarded interval. No wait/drain; data unchanged.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.measure(operation, Runnable action)</code></td>
+<td>Adapts action to Supplier returning null, delegates.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.measure(operation, Supplier action)</code></td>
+<td>Captures collector/start time, calls action; caught RuntimeException/Error marks failed and rethrows. Finally records max(0,end-start), including failures. Initial clock call is outside try; clock/recording exceptions in finally can replace delegate outcome. Does not track asynchronous completion.</td>
+</tr>
+</tbody>
+</table>
+<p>DatabaseOperation values PUT, DELETE, GET, SCAN, SNAPSHOT and WRITE count completed
+wrapper invocations, including thrown failures. Raw-delegate calls bypass metrics.
+Background flush/compaction, cursor traversal/close, and snapshot release are not
+timed. Factories transfer delegate close ownership to returned decorator.</p>
+<h2 id="collector-and-latency-sample-functions">Collector and Latency Sample Functions</h2>
+<p>Source: nested classes in <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/DefaultMeteredAetherDatabase.java">DefaultMeteredAetherDatabase.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.Collector.Collector(startedNanos)</code></td>
+<td>Creates recorder for all six operations. Each has 16,384-slot AtomicLongArray: 98,304 long slots regardless of activity. Stores interval start.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.Collector.operation(operation)</code></td>
+<td>Retrieves recorder from stable EnumMap, no lazy allocation/validation.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.OperationRecorder.record(latencyNanos, failed)</code></td>
+<td>Reserves atomic cursor position, overwrites slot position&amp;16383, updates total/min/max, increments errors if failed, then count. Independent updates, not one observation transaction; no explicit long-overflow protection.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.OperationRecorder.snapshot(elapsedNanos)</code></td>
+<td>Reads count, copies min(count,16384) slots starting at zero, sorts. Throughput=count/(max(1,elapsedNanos)/1e9); average/extrema cover complete interval, percentiles bounded sample. Empty count gives zero mean/extrema/percentiles. Allocates/sorts sample on every call.</td>
+</tr>
+<tr>
+<td><code>DefaultMeteredAetherDatabase.OperationRecorder.percentile(sorted, quantile)</code></td>
+<td>Empty returns zero; nearest-rank ceil(quantile*length)-1, lower-clamped only. Internal .50/.95/.99 valid; arbitrary oversized quantile can index past end.</td>
+</tr>
+</tbody>
+</table>
+<p>The cyclic ring is not a random reservoir or histogram bucket distribution.
+Sequentially it retains latest 16,384 latencies; count/errors/mean/extrema cover
+whole interval. Concurrent reservations, slot writes and completion increments
+interleave: counters/sample are approximate, slots may change during copy, and
+delayed writers can overwrite newer ring-cycle values. The snapshot is not
+globally atomic or guaranteed exact recent-completion ordering. Sequential
+operation snapshots also span time.</p>
+<h2 id="snapshot-value-functions">Snapshot Value Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/DatabaseMetrics.java">DatabaseMetrics.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/OperationMetrics.java">OperationMetrics.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DatabaseMetrics.DatabaseMetrics(collectedAt, collectionInterval, operations)</code></td>
+<td>Requires nonnull inputs; copies into EnumMap and wraps unmodifiable. Negative duration and null metric values not rejected. Empty ordinary map cannot infer enum key type and can raise IllegalArgumentException; empty EnumMap retains type.</td>
+</tr>
+<tr>
+<td><code>DatabaseMetrics.operation(operation)</code></td>
+<td>Requires enum; returns mapping or newly allocated zero metrics when absent. Present null mapping returns null, not default.</td>
+</tr>
+<tr>
+<td><code>OperationMetrics.errorRate()</code></td>
+<td>Zero count returns 0.0, otherwise double errors/count. No range validation.</td>
+</tr>
+<tr>
+<td><code>OperationMetrics.p99LatencyMillis()</code></td>
+<td>Divides nanoseconds by 1e6, without clamping/validation.</td>
+</tr>
+</tbody>
+</table>
+<p>OperationMetrics has an implicit constructor without validation: caller-supplied
+negative counts, nonfinite rates or unordered percentiles are accepted. Generated
+accessors expose immutable values; DatabaseMetrics.operations is unmodifiable.
+Record equality compares contents. Collector behavior is narrower than record
+acceptance; the records alone do not enforce telemetry invariants.</p>
+<h2 id="exporter-functions">Exporter Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/DatabaseMetricExporter.java">DatabaseMetricExporter.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DatabaseMetricExporter.DatabaseMetricExporter()</code></td>
+<td>Private empty utility constructor.</td>
+</tr>
+<tr>
+<td><code>DatabaseMetricExporter.export(metrics, registry)</code></td>
+<td>Requires inputs; for each operation emits count, errors and p50/p95/p99 seconds, using Locale.ROOT lowercase operation label. Missing metrics yield zero. Observe calls are independently synchronized; export failure leaves earlier observations/descriptors. Uses registry clock, not metrics.collectedAt.</td>
+</tr>
+<tr>
+<td><code>DatabaseMetricExporter.observeLatency(registry, operation, quantile, nanos)</code></td>
+<td>Emits duration with nanos/1e9 double conversion. No separate negative-latency guard.</td>
+</tr>
+</tbody>
+</table>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Descriptor</th>
+<th>Kind/unit/labels</th>
+<th>Actual values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OPERATIONS_TOTAL: aether_db_operations_total</td>
+<td>COUNTER / 1 / operation,result</td>
+<td>Cumulative completed count, result=&quot;completed&quot; includes thrown failures.</td>
+</tr>
+<tr>
+<td>OPERATION_ERRORS_TOTAL: aether_db_operation_errors_total</td>
+<td>COUNTER / 1 / operation</td>
+<td>Cumulative thrown-error count, not all unsuccessful WriteResult outcomes.</td>
+</tr>
+<tr>
+<td>OPERATION_DURATION_SECONDS: aether_db_operation_duration_seconds</td>
+<td>HISTOGRAM / s / operation,quantile</td>
+<td>Three precomputed percentiles p50/p95/p99, not buckets/raw durations.</td>
+</tr>
+</tbody>
+</table>
+<p>Complete export appends 30 observations: five per operation. No average/extrema,
+throughput, interval or collection timestamp export. Reset can decrease later
+counters; registry does not enforce monotonicity/compute deltas. Long-to-double
+counts lose integer precision beyond 2^53. Downstream adapters must preserve
+percentile semantics rather than assume HISTOGRAM means bucket counts.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-observability-api/src/test/java/io/aetherdb/observability/api/ObservabilityApiTest.java">ObservabilityApiTest.java</a>
+has six tests: selected health permissions, name/label rejection, valid details,
+fixed-clock observation and undeclared-label rejection.
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/test/java/io/aetherdb/engine/MeteredAetherDatabaseTest.java">MeteredAetherDatabaseTest.java</a>
+has three: counts/errors/basic timing, reset without data loss, persistent reopen.
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/test/java/io/aetherdb/engine/DatabaseMetricExporterTest.java">DatabaseMetricExporterTest.java</a>
+has one: names, selected labels and GET count export.</p>
+<p>These do not cover ring wrap/concurrency, reset races, nonthrowing write outcomes,
+clock-failure masking, registry conflicts/partial mutation/retention, malformed
+external snapshots or every exported conversion.</p>
+<p>Fresh selected run on 2026-10-09: six observability API tests passed; engine
+exporter and two in-memory metering tests passed. Persistent close/reopen test
+failed at its initial put with RESOURCE_EXHAUSTED / DISK_SPACE admission pressure,
+before close/reopen assertions. That run does not verify persistent reopen.
+No disk-pressure policy override or runtime change was added for documentation.</p>
+<pre><code class="language-powershell">.\gradlew.bat --no-daemon :modules:aether-observability-api:test --rerun
+.\gradlew.bat --no-daemon :modules:aether-engine:test --tests '*MeteredAetherDatabaseTest' --tests '*DatabaseMetricExporterTest' --rerun
+.venv\Scripts\python.exe -m pytest scripts/tests/test_contributor_docs.py -q
+</code></pre>
+<p>Compiler inventories guard declaration omissions, not semantic correctness or
+operational monitoring deployment. Keep training-cache/JFR and research GPU/process
+measurements distinct from these local byte-database metrics.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#measurement-architecture">Measurement Architecture</a><a href="#names-and-label-functions">Names and Label Functions</a><a href="#observation-registry-functions">Observation Registry Functions</a><a href="#health-functions">Health Functions</a><a href="#metered-database-functions">Metered Database Functions</a><a href="#collector-and-latency-sample-functions">Collector and Latency Sample Functions</a><a href="#snapshot-value-functions">Snapshot Value Functions</a><a href="#exporter-functions">Exporter Functions</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

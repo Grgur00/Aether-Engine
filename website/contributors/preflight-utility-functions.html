@@ -1,0 +1,127 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/PREFLIGHT-UTILITY-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Preflight and smoke utilities: source-backed contributor documentation for Aether Engine.">
+  <title>Preflight and smoke utilities | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html" aria-current="page">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/PREFLIGHT-UTILITY-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="preflight-and-smoke-utility-functions">Preflight and Smoke Utility Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="benchmark-training-functions.html">Benchmark training</a> | <a href="research-process-functions.html">Research process ownership</a></p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/checksums.py">checksums.py</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/validate_gpu.py">validate_gpu.py</a>, and
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/artifact_smoke.py">artifact_smoke.py</a>.
+This guide covers <strong>all 4 explicit functions across three complete files</strong>.
+File-qualified names disambiguate CLI entry points.</p>
+<h2 id="architecture-and-evidence-roles">Architecture and Evidence Roles</h2>
+<pre><code class="language-text">local artifact directory -&gt; SHA256SUMS -&gt; recorded-file verification
+CUDA PyTorch host -&gt; capability check -&gt; small matmul -&gt; optional DALI import
+temporary cache workspace -&gt; real Java daemon
+    -&gt; synthetic backend tensors + accounting + worker observations
+    -&gt; CPU segmentation optimization and final-model parity
+    -&gt; generated RGB classification optimization
+    -&gt; correctness reports, never paper block timing
+</code></pre>
+<p>These utilities answer different questions. Checksums detect recorded-file drift;
+GPU validation checks basic host usability; smoke exercises small CPU workflows.
+None independently establishes a complete frozen experiment, authenticates
+provenance, proves GPU training convergence or certifies crash consistency.</p>
+<h2 id="function-reference">Function Reference</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>checksums.main()</code></td>
+<td>Parses root and optional <code>--verify</code>, resolves root and uses <code>root/SHA256SUMS</code>. Recording sorts recursive paths, hashes regular non-symlink files except the manifest, and writes digest plus relative POSIX path lines. Verification splits each line at two spaces, resolves the target, rejects escape outside root, and compares delegated SHA-256. Prints count or success.</td>
+<td>Recording overwrites the manifest directly; no atomic replacement or root creation. Verification checks only recorded files, not extra files or completeness. Empty manifest verifies vacuously; a newline-only manifest from an empty recording fails line parsing. Malformed lines and missing files propagate errors. No signature or independent trusted digest. Recording excludes file symlinks; verification can follow a contained symlink.</td>
+</tr>
+<tr>
+<td><code>validate_gpu.main(argv)</code></td>
+<td>Imports Torch, requires CUDA availability and a CUDA build, obtains current-device properties and requires compute capability major &gt;= 7. Executes a 256x256 CUDA ones matmul and synchronization. Builds version/device/VRAM/capability/sum report; optionally imports DALI and records its version. Queries <code>nvidia-smi</code> and prints JSON.</td>
+<td>Missing Torch/CUDA, old capability, matmul runtime failure and missing required DALI terminate with messages. No expected numeric-sum assertion, memory-capacity minimum, multi-GPU coverage or full model test. DALI import is not pipeline execution. Nonzero <code>nvidia-smi</code> exit becomes <code>unavailable</code>; missing executable raises instead. No explicit subprocess timeout or receipt file.</td>
+</tr>
+<tr>
+<td><code>artifact_smoke.smoke(output, workers, scratch_root, training_epochs)</code></td>
+<td>Requires positive training epochs, creates output, obtains an owned cache workspace and starts a Java daemon. For each worker count, builds a 12-sample 8x8 synthetic workload with batch 4, two epochs, durable Java/mmap and initial 50% hits. Compares scheduled tensors from every backend with raw checksums, requires cache-accounting invariants, and for worker mode requires transport requests and observed lookup counts. Runs CPU segmentation optimization, then generated tiny ImageNet/COCO classification optimization, writing individual correctness reports and final smoke summary with environment.</td>
+<td>Default workers <code>(0, 2)</code>, one training epoch. No GPU training or paper block schema. Does not refuse existing output reports. Successful intermediate reports remain if later stages fail; final success is written only after contexts exit. No automatic resume, rollback or retry. Temporary stores/fixtures are not preserved as evidence.</td>
+</tr>
+<tr>
+<td><code>artifact_smoke.main()</code></td>
+<td>Parses output (default <code>build/artifact-smoke</code>), comma-separated worker counts (<code>0,2</code>), optional scratch root and training epochs, converts workers to integers and invokes <code>smoke</code>.</td>
+<td>Conversion errors propagate; this parser does not deduplicate or explicitly bound worker values. An empty list string fails conversion. Training epoch validation is inside <code>smoke</code>. No separately selectable stage.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="smoke-stages-and-ownership">Smoke Stages and Ownership</h2>
+<p>Tensor/accounting cases use a distinct namespace and mmap directory per worker
+count. The raw reference follows the same scheduled batches; worker mode uses
+<code>worker_batches</code>, while zero workers call the backend context directly. Checksums
+must match as an ordered list. Aether and mmap dynamics must both report passing
+invariants. Worker observations require nonzero request and lookup counts, not a
+specified latency or performance improvement. Each constructed backend context
+closes in <code>finally</code>; construction failure happens before that block.</p>
+<p>The optimizer stage sets Torch CPU threads to one without restoring the previous
+process-wide setting. It runs four synthetic samples with batch two, configured
+training epochs, no warmup and disabled GPU sampling through the shared training
+runner on <code>torch.device('cpu')</code>. Final-model parity is delegated to that runner;
+this wrapper reports CPU correctness rather than independently comparing model
+states itself. Its report is <code>cpu-training-correctness.json</code>.</p>
+<p>Classification fixtures contain two classes with two generated RGB PNGs each.
+ImageNet preparation uses class directories; COCO preparation uses generated
+instance JSON with category IDs 1 and 5. Both classification runs select only
+raw/Aether/mmap, using the bounded-reference path. COCO sets artifact codec to
+<code>zlib</code>. Their reports explicitly say generated-fixture correctness, not real
+dataset evaluation. Final <code>smoke.json</code> records worker cases and training epoch
+count; optimizer details remain in the separate correctness reports.</p>
+<p>The workspace context owns scratch cleanup and the daemon context owns Java
+startup/stop. Output reports remain outside temporary storage. Repeated worker
+counts reuse their namespace/directory names within a single invocation, so the
+default distinct worker list should not be inferred to support arbitrary repeated
+entries with identical accounting expectations.</p>
+<h2 id="verification">Verification</h2>
+<p>The documentation AST test compares all four file-qualified function declarations
+with the table. Offline contract tests exercise checksum drift/extra-file/escape
+behavior and CUDA preflight branches with a fake Torch module. They do not run
+CUDA kernels, DALI pipelines or the real Java artifact smoke campaign. Running
+the latter needs the built Java runtime plus the Python workload dependencies;
+its CPU result remains excluded from research timing regardless of success.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-evidence-roles">Architecture and Evidence Roles</a><a href="#function-reference">Function Reference</a><a href="#smoke-stages-and-ownership">Smoke Stages and Ownership</a><a href="#verification">Verification</a></nav></aside>
+  </div>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "oct5k": {
+    "evolutionSourceManifest": "/kaggle/input/aether-oct5k-pilot/manifests/v2.csv",
+    "evolutionSeed": 20260924,
+    "manifestV1": "/kaggle/working/aether-data/oct5k-75-new/v1.csv",
+    "manifestV2": "/kaggle/working/aether-data/oct5k-75-new/v2.csv",
+    "samplesV1": 1430,
+    "samplesV2": 1505,
+    "expectedReusable": 1430,
+    "imageSize": 256,
+    "split": "train"
+  }
+}

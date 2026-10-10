@@ -1,0 +1,290 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/CANONICAL-RECORD-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Canonical record functions: source-backed contributor documentation for Aether Engine.">
+  <title>Canonical record functions | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html" aria-current="page">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/CANONICAL-RECORD-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="canonical-record-functions">Canonical Record Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="typed-value-functions.html">Typed values</a> | <a href="schemas.html">Schemas</a></p>
+<p>This reference describes the current checkout's generated-codec record framing,
+scalar payload helpers, copies, and validation boundaries. It does not describe
+every generated codec or container codec, and it does not change runtime behavior.</p>
+<h2 id="ownership-and-format">Ownership and Format</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec/src/main/java/io/aetherdb/codec/generated/CanonicalRecordWriter.java">CanonicalRecordWriter</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec/src/main/java/io/aetherdb/codec/generated/CanonicalRecordReader.java">CanonicalRecordReader</a>,
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec/src/main/java/io/aetherdb/codec/generated/WireType.java">WireType</a>.</p>
+<p>A generated value codec assembles an AER1 payload using these helpers. That payload
+is distinct from the outer typed-value envelope, an SSTable entry, and a native
+memtable record. Their checksums and size bounds are separate boundaries.</p>
+<table>
+<thead>
+<tr>
+<th>Bytes</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0..3</td>
+<td><code>AER1</code> magic</td>
+</tr>
+<tr>
+<td>4..7</td>
+<td>Little-endian format version 1 and header length 24, two shorts</td>
+</tr>
+<tr>
+<td>8..19</td>
+<td>Little-endian field count, complete record length, canonical-order marker 2</td>
+</tr>
+<tr>
+<td>20..23</td>
+<td>Little-endian masked CRC32C</td>
+</tr>
+<tr>
+<td>24 onward</td>
+<td>Fields: unsigned-varint ID, one-byte wire type, zero flags, unsigned-varint payload length, payload</td>
+</tr>
+</tbody>
+</table>
+<p>This is a materializing API: the writer keeps encoded field arrays until completion;
+the reader copies the complete record and then copies each visited field. Skipping
+an unknown field at the generated-codec layer still invokes <code>next()</code> and allocates
+that field's payload. It is not the SSTable streaming verifier.</p>
+<h2 id="writer-lifecycle">Writer Lifecycle</h2>
+<h3 id="canonicalrecordwritermaximumbytes">CanonicalRecordWriter(maximumBytes)</h3>
+<p>Requires a bound of at least <code>HEADER_BYTES</code> (24), stores it, and starts with zero
+fields and a 24-byte total. It allocates field buffers as fields are appended;
+the bound is not a pre-reserved memory budget or a concurrency guarantee.</p>
+<h3 id="fieldfieldid-wiretype-payload">field(fieldId, wireType, payload)</h3>
+<p>Requires an ID strictly greater than the previous ID (initially zero) and a non-null
+payload. Encodes framing and payload into a <code>ByteArrayOutputStream</code>, copies that
+buffer into an entry array, adds its length with <code>Math.addExact</code>, checks the record
+bound, and only then records the entry and previous ID.</p>
+<p>The writer does not enforce the reader's maximum ID of 536,870,911, validate the
+wire-type code, or validate the payload's interpretation. <code>write(int)</code> emits only
+the low byte of <code>wireType</code>. Generated callers must supply valid field definitions.</p>
+<p>A size-bound failure occurs after <code>totalBytes</code> has changed but before the entry is
+added. Discard the writer after that failure: calling <code>finish()</code> can produce an
+oversized record with trailing zero bytes, not a rollback to the last valid state.</p>
+<h3 id="finish">finish()</h3>
+<p>Allocates the complete record, writes header and stored entries, calculates the
+checksum, writes it at byte 20, and returns the new array. There is no finished
+latch: repeated calls create fresh arrays, and subsequent <code>field()</code> calls remain
+possible. No storage write, schema compatibility check, or manifest publication
+occurs here.</p>
+<h2 id="reader-lifecycle">Reader Lifecycle</h2>
+<h3 id="canonicalrecordreaderbytes-maximumbytes">CanonicalRecordReader(bytes, maximumBytes)</h3>
+<p>Rejects null, shorter-than-header, and over-bound inputs. Copies the input into
+private storage, then validates magic, version, header length, nonnegative field
+count, exact declared total, order marker, and checksum. Header/checksum validation
+uses the caller's original array, not the private copy: callers must not mutate
+the input concurrently with construction.</p>
+<p>Construction does not parse every field. A valid checksum is not evidence that
+field framing, ordering, or scalar interpretation has been fully validated.</p>
+<h3 id="next">next()</h3>
+<p>Reads an ID, requires increasing IDs in 1..536,870,911, reads wire type and zero
+flags, parses length, checks remaining bytes, copies the payload, and advances the
+field count. When the declared count is exhausted, requires exact end-of-record
+before returning false. Consumers must iterate through that final check to detect
+trailing bytes. Unknown wire codes are retained rather than rejected here.</p>
+<p>There is no reset or invalid-after-failure state. A parsing failure can leave cursor
+state advanced; discard the reader. A successful EOF does not clear the last field.</p>
+<h3 id="fieldid-wiretype-rawpayload-requirewiretypeexpected">fieldId(), wireType(), rawPayload(), requireWireType(expected)</h3>
+<p><code>fieldId()</code> and <code>wireType()</code> expose current metadata (zero before the first field).
+<code>rawPayload()</code> returns another defensive copy; before the first field it encounters
+a null payload. <code>requireWireType()</code> compares the current code and throws on mismatch.
+Scalar decode helpers do not call it automatically. Use these operations only
+after a successful <code>next()</code>; after EOF they still refer to the previous field.</p>
+<h2 id="scalar-payload-functions">Scalar Payload Functions</h2>
+<p>Writer helpers are static and return new payload arrays. Reader helpers interpret
+the current copied payload; they do not decide schema defaults or required fields.</p>
+<table>
+<thead>
+<tr>
+<th>Writer</th>
+<th>Reader</th>
+<th>Representation and checks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bool</code></td>
+<td><code>boolValue</code></td>
+<td>One byte; reader accepts only 0 or 1 with exact length.</td>
+</tr>
+<tr>
+<td><code>signedLong</code></td>
+<td><code>signedLongValue</code></td>
+<td>Zigzag mapping followed by unsigned varint; reader requires payload consumption.</td>
+</tr>
+<tr>
+<td><code>signedByte</code></td>
+<td><code>signedByteValue</code></td>
+<td>One exact signed byte, no zigzag.</td>
+</tr>
+<tr>
+<td><code>signedLong</code> for short values</td>
+<td><code>signedShortValue</code></td>
+<td>Same zigzag representation; reader additionally checks the short range.</td>
+</tr>
+<tr>
+<td><code>character</code></td>
+<td><code>characterValue</code></td>
+<td>Unsigned Java UTF-16 code unit; surrogate code units are representable, not Unicode scalar validation. Reader checks the upper limit only.</td>
+</tr>
+<tr>
+<td><code>fixed32</code></td>
+<td><code>fixed32Value</code></td>
+<td>Four little-endian IEEE-754 bytes. Writer canonicalizes NaN bits; reader accepts any correctly sized bit pattern.</td>
+</tr>
+<tr>
+<td><code>fixed64</code></td>
+<td><code>fixed64Value</code></td>
+<td>Eight little-endian IEEE-754 bytes with the same NaN asymmetry; signed zero is retained.</td>
+</tr>
+<tr>
+<td><code>string</code></td>
+<td><code>stringValue</code></td>
+<td>UTF-8 under a caller-supplied byte bound. Writer allocates before checking and replaces unpaired surrogates; reader reports malformed UTF-8 rather than replacing it.</td>
+</tr>
+<tr>
+<td><code>uuid</code></td>
+<td><code>uuidValue</code></td>
+<td>Two big-endian longs, exact 16-byte reader check; zero UUID is not rejected.</td>
+</tr>
+<tr>
+<td><code>bytes</code></td>
+<td><code>bytesValue</code></td>
+<td>Bounds then defensive copy; empty arrays are valid when the bound permits.</td>
+</tr>
+</tbody>
+</table>
+<p>Object-valued writer helpers reject null. Bounds are byte-length checks, not
+normalization, identity, or checksum checks on the field's logical content.</p>
+<h2 id="temporal-functions">Temporal Functions</h2>
+<table>
+<thead>
+<tr>
+<th>Writer</th>
+<th>Reader</th>
+<th>Components</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>instant</code></td>
+<td><code>instantValue</code></td>
+<td>Zigzag epoch seconds, unsigned nanoseconds.</td>
+</tr>
+<tr>
+<td><code>localDate</code></td>
+<td><code>localDateValue</code></td>
+<td>Zigzag epoch day.</td>
+</tr>
+<tr>
+<td><code>localTime</code></td>
+<td><code>localTimeValue</code></td>
+<td>Unsigned nanoseconds of day.</td>
+</tr>
+<tr>
+<td><code>localDateTime</code></td>
+<td><code>localDateTimeValue</code></td>
+<td>Zigzag epoch day followed by unsigned nanoseconds of day.</td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td><code>durationValue</code></td>
+<td>Zigzag seconds followed by normalized Java duration nanoseconds.</td>
+</tr>
+</tbody>
+</table>
+<p>Two-component readers require complete payload consumption. Instant/duration
+readers reject nanos above 999,999,999; local-time readers reject values at or above
+86,400,000,000,000. Java time factories also enforce their supported date/time
+ranges and may throw their own exceptions. These helpers do not universally wrap
+those exceptions in <code>IllegalArgumentException</code>.</p>
+<p>Unsigned parsing returns a signed Java <code>long</code> bit pattern. These temporal upper
+checks do not themselves reject negative values from malformed unsigned encodings;
+Java factories may reject or normalize those values depending on the type.</p>
+<h2 id="arbitrary-precision-and-nested-values">Arbitrary Precision and Nested Values</h2>
+<h3 id="biginteger--bigintegervalue">bigInteger / bigIntegerValue</h3>
+<p>The writer uses minimal big-endian two's-complement <code>toByteArray()</code> and checks the
+bound after allocation. The reader requires a nonempty bounded payload, constructs
+<code>BigInteger</code>, and compares its re-encoded bytes to reject redundant sign extension.</p>
+<h3 id="bigdecimal--bigdecimalvalue">bigDecimal / bigDecimalValue</h3>
+<p>The writer emits zigzag scale followed by the minimal unscaled integer, then checks
+the complete payload bound. The reader requires an int-range scale and a remaining
+integer, copies that suffix, and verifies minimal two's-complement encoding. Scale
+is preserved: this is not <code>stripTrailingZeros()</code> normalization, so numerically equal
+values with different scales retain distinct representations.</p>
+<h3 id="nested--nestedvalue">nested / nestedValue</h3>
+<p><code>nested()</code> calls the supplied <code>ValueCodec.encode</code>, adds a 24-byte big-endian header
+(schema UUID, writer version, payload length), checks both the field bound and
+<code>maximumEncodedSize(value)</code>, and copies the payload into the wrapper. It does not
+independently validate the codec's UUID or positive version; a null encode result
+fails when its length is accessed.</p>
+<p><code>nestedValue()</code> requires a codec and a field length between 24 and the supplied
+bound, checks schema UUID equality, positive stored version, and exact remaining
+payload length, then copies nested bytes and delegates to <code>codec.decode(version, nested)</code>. It does not compare fingerprints or apply <code>maximumEncodedSize</code>; nested
+compatibility and payload validation belong to the delegated codec.</p>
+<h2 id="framing-helpers-and-wire-codes">Framing Helpers and Wire Codes</h2>
+<p><code>maskedCrc32c()</code> checks bytes 0..19, four zero bytes in place of the CRC field, and
+bytes 24 onward, then rotates right by 15 and adds <code>0xa282ead8</code>. It protects the
+record bytes, not schema identity in an outer envelope, and is not authentication.</p>
+<p><code>writeUnsignedVarint()</code> emits seven-bit groups with logical right shifts, including
+all 64 bits of negative Java long bit patterns. Reader <code>unsignedVarint()</code> overloads
+parse either the record cursor or a supplied array/position; <code>payloadUnsignedVarint()</code>
+overloads either enforce single-value full consumption or advance a shared position
+for composite payloads. <code>requireRemaining()</code> rejects negative lengths and truncated
+fields. <code>invalid()</code> creates an <code>IllegalArgumentException</code> carrying the supplied text.</p>
+<p>The varint parser rejects truncation, continuation past ten bytes, and a redundant
+zero final group, but does not check that the tenth byte's data bits are at most 1.
+Overflowing high bits can be discarded by Java shifts. Do not infer exhaustive
+canonical 64-bit validation from the class description or checksum alone.</p>
+<p><code>WireType</code> is a constants-only class with a private constructor: BOOL=1,
+SIGNED_VARINT=2, UNSIGNED_VARINT=3, FIXED32=4, FIXED64=5, BYTES=6, STRING_UTF8=7,
+UUID128=8, DECIMAL=9, TEMPORAL=10, SIGNED_BYTE=11, CONTAINER=12, ENUM=13, NESTED=14.
+These identifiers are not validators; generated code selects the appropriate
+payload decoder and calls <code>requireWireType()</code> for recognized fields.</p>
+<h2 id="coverage-boundary">Coverage Boundary</h2>
+<p>This page covers every explicit constructor, method, and private parsing/checksum
+helper in the three linked files. Name-inventory tests detect missing names, not
+incorrect overload explanations. Container determinism, generated provider lookup,
+annotation processing, required/default fields, and schema evolution at the generated
+codec layer remain separate documentation work.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#ownership-and-format">Ownership and Format</a><a href="#writer-lifecycle">Writer Lifecycle</a><a href="#reader-lifecycle">Reader Lifecycle</a><a href="#scalar-payload-functions">Scalar Payload Functions</a><a href="#temporal-functions">Temporal Functions</a><a href="#arbitrary-precision-and-nested-values">Arbitrary Precision and Nested Values</a><a href="#framing-helpers-and-wire-codes">Framing Helpers and Wire Codes</a><a href="#coverage-boundary">Coverage Boundary</a></nav></aside>
+  </div>
+</body>
+</html>

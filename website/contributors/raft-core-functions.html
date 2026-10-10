@@ -1,0 +1,329 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/RAFT-CORE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Raft contracts and progress: source-backed contributor documentation for Aether Engine.">
+  <title>Raft contracts and progress | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html" aria-current="page">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/RAFT-CORE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="raft-contracts-and-progress-functions">Raft Contracts and Progress Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="raft-storage-functions.html">Vote and slot codecs</a> | <a href="replication-contract-functions.html">Replication contracts</a> | <a href="replicated-store-functions.html">Log store</a> | <a href="config-loading-functions.html">Configuration</a></p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-api/src/main/java/io/aetherdb/raft/api">aether-raft-api</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-core/src/main/java/io/aetherdb/raft/core">aether-raft-core</a>.
+This guide covers <strong>25 explicit declarations across all 11 implementation files</strong>:
+four declarations in six API files and 21 in five core files. Enums without explicit
+methods contribute files but no declarations. Generated accessors/enum helpers are
+outside the count; relevant enum values and record behavior are explained below.</p>
+<h2 id="actual-architecture">Actual Architecture</h2>
+<pre><code class="language-text">vote request/response values -&gt; separate wire codec
+candidate/local log tip -&gt; LogFreshness.compare -&gt; decision value
+leader caller supplies follower replies -&gt; FollowerProgress
+caller supplies all voter durable matches + term lookup -&gt; RaftCommitTracker
+validated configuration -&gt; timer values + snapshot/admission predicates
+</code></pre>
+<p>These are independent foundations. The core module does not contain a running
+election state machine, vote-granting receiver, AppendEntries handler, heartbeat
+scheduler, network transport, snapshot installer, or state-machine apply loop.
+Role/reason enum names describe protocol intent, not an implementation of those
+operations. No helper automatically wires the replicated-log store into consensus.</p>
+<p>FollowerProgress and RaftCommitTracker are mutable, unsynchronized objects.
+Their owners must serialize mutation/access and validate replies, membership,
+term/session/nonce, and durable acknowledgment truth. Neither class persists
+its state. A commit-index update is not an applied-state update or storage force.</p>
+<h2 id="vote-record-functions">Vote Record Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-api/src/main/java/io/aetherdb/raft/api/VoteRequest.java">VoteRequest.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-api/src/main/java/io/aetherdb/raft/api/VoteResponse.java">VoteResponse.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-api/src/main/java/io/aetherdb/raft/api/VoteKind.java">VoteKind.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VoteKind.VoteKind(code)</code></td>
+<td>Enum constructor stores public final code: PRE_VOTE=1, REQUEST_VOTE=2. No receiver or term transition occurs. There is no explicit fromCode method in this enum; wire decoding is separate.</td>
+</tr>
+<tr>
+<td><code>VoteRequest.VoteRequest(kind, term, candidateId, sessionId, lastLogIndex, lastLogTerm, lastStateSequence, lastEntryHash, nonce, configurationVersion)</code></td>
+<td>Clones hash first, so null hash raises NullPointerException. Then requires term&gt;0, nonce!=0, and hash length=32, otherwise IllegalArgumentException. Negative nonzero nonce is accepted. Does not check kind/UUID nulls, zero UUIDs, nonnegative tip/state/config coordinates, paired empty-log markers, or whether hash matches a log.</td>
+</tr>
+<tr>
+<td><code>VoteRequest.lastEntryHash()</code></td>
+<td>Returns a fresh defensive clone of the owned 32-byte array. Does not authenticate the candidate or recompute a tip hash.</td>
+</tr>
+<tr>
+<td><code>VoteResponse.VoteResponse(kind, granted, reason, term, responderId, sessionId, nonce, lastLogIndex, lastLogTerm, configurationVersion)</code></td>
+<td>Only checks granted equals (reason==GRANTED). A true flag with another/null reason or false with GRANTED raises IllegalArgumentException. A false flag with null reason passes. Does not validate other fields, authenticate responder, correlate session/nonce, or change local election state.</td>
+</tr>
+</tbody>
+</table>
+<p>VoteRequest's generated record equality compares the hash array by identity,
+not contents. Separate requests with identical hash bytes need not compare equal;
+use explicit digest comparison when needed. Its immutable scalar/UUID fields have
+generated accessors. VoteResponse has no array field and uses normal record value
+equality. Constructor acceptance is narrower than full protocol validation.</p>
+<h2 id="role-and-reason-vocabulary">Role and Reason Vocabulary</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-api/src/main/java/io/aetherdb/raft/api/RaftRole.java">RaftRole.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-api/src/main/java/io/aetherdb/raft/api/VoteReason.java">VoteReason.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-api/src/main/java/io/aetherdb/raft/api/AppendEntriesReason.java">AppendEntriesReason.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Vocabulary</th>
+<th>Meaning without automatic behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FOLLOWER, PRE_CANDIDATE, CANDIDATE, LEADER</td>
+<td>Accept replication/votes; probe quorum without advancing term; solicit binding votes; replicate/drive commit. RaftRole merely identifies these roles; it does not transition them.</td>
+</tr>
+<tr>
+<td>PRE_VOTE, REQUEST_VOTE</td>
+<td>Nonbinding availability probe versus binding election request. VoteKind does not itself persist term/vote or enforce the distinction.</td>
+</tr>
+<tr>
+<td>GRANTED, STALE_TERM, ALREADY_VOTED</td>
+<td>Accepted vote, behind term, prior vote for another candidate. VoteResponse only enforces the GRANTED flag relationship.</td>
+</tr>
+<tr>
+<td>LOG_NOT_UP_TO_DATE, LOG_HASH_MISMATCH, RECENT_LEADER_CONTACT</td>
+<td>Tip ordering/hash conflict or recent leader lease contact. No lease timer or voting rule is implemented by VoteReason.</td>
+</tr>
+<tr>
+<td>NOT_VOTER, CANDIDATE_NOT_MEMBER, CONFIGURATION_MISMATCH</td>
+<td>Membership/voter/configuration rejection reasons. No membership lookup is performed by the enum.</td>
+</tr>
+<tr>
+<td>NODE_NOT_ELIGIBLE, STORAGE_UNAVAILABLE, INVALID_REQUEST</td>
+<td>Eligibility, persistence, or protocol rejection labels. They do not catch or convert failures automatically.</td>
+</tr>
+<tr>
+<td>MATCHED, STALE_TERM, NOT_MEMBER, CONFIGURATION_MISMATCH</td>
+<td>AppendEntries acceptance or term/membership/configuration rejection labels. No AppendEntries receiver is supplied here.</td>
+</tr>
+<tr>
+<td>LOG_TOO_SHORT, TERM_MISMATCH, LOG_HASH_MISMATCH, STATE_SEQUENCE_MISMATCH</td>
+<td>Prefix/coordinate/hash/sequence disagreement reasons. Store and receiver integration must establish which applies.</td>
+</tr>
+<tr>
+<td>COMMITTED_CONFLICT, APPLIED_CONFLICT</td>
+<td>Protected progress conflict; enum does not maintain or enforce those boundaries.</td>
+</tr>
+<tr>
+<td>LOG_STORAGE_UNAVAILABLE, FOLLOWER_BUSY, INVALID_REQUEST, SNAPSHOT_REQUIRED</td>
+<td>Storage/admission/protocol/snapshot-repair outcomes. No retry, admission, or snapshot installation is implemented by the label.</td>
+</tr>
+</tbody>
+</table>
+<p>Except VoteKind's explicit codes, these enums have no explicit persistent numeric
+mapping. Do not infer a stable wire code from a source listing without reviewing
+the codec. Enum availability does not imply that each reason has an emitting path.</p>
+<h2 id="freshness-and-quorum-functions">Freshness and Quorum Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-core/src/main/java/io/aetherdb/raft/core/LogFreshness.java">LogFreshness.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-core/src/main/java/io/aetherdb/raft/core/RaftQuorum.java">RaftQuorum.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LogFreshness.LogFreshness()</code></td>
+<td>Private empty utility constructor.</td>
+</tr>
+<tr>
+<td><code>LogFreshness.compare(candidateTerm, candidateIndex, candidateHash, localTerm, localIndex, localHash)</code></td>
+<td>Compares last-log term first, then index only when terms equal. Greater returns UP_TO_DATE, smaller STALE. Only when both coordinates equal calls MessageDigest.isEqual: matching hashes return UP_TO_DATE, different return DIVERGED. Does not validate coordinate sign, paired empty markers or hash length. Unequal coordinates bypass hash comparison entirely. No disk lookup or vote grant occurs.</td>
+</tr>
+<tr>
+<td><code>RaftQuorum.RaftQuorum()</code></td>
+<td>Private empty utility constructor.</td>
+</tr>
+<tr>
+<td><code>RaftQuorum.required(voters)</code></td>
+<td>Requires voters&gt;0, otherwise IllegalArgumentException; returns voters/2+1 using integer division. Strict majority: 1-&gt;1, 2-&gt;2, 3-&gt;2, 4-&gt;3, 5-&gt;3. No identities, deduplication, joint membership or connectivity checks.</td>
+</tr>
+</tbody>
+</table>
+<p>LogFreshness.Decision values are UP_TO_DATE, STALE, DIVERGED. A higher-term
+candidate can be UP_TO_DATE even with a shorter index or a different hash; only
+equal-coordinate hashes are compared. The helper compares supplied tips, not
+entire logs or election terms. A caller still decides eligibility and whether
+to grant a vote based on configuration, prior vote, contact lease and persistence.</p>
+<h2 id="follower-progress-functions">Follower Progress Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-core/src/main/java/io/aetherdb/raft/core/FollowerProgress.java">FollowerProgress.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FollowerProgress.FollowerProgress(leaderLastIndex)</code></td>
+<td>Sets nextIndex=Math.addExact(leaderLastIndex,1); matchIndex defaults 0, mode PROBE. Long.MAX_VALUE raises ArithmeticException. Negative leaderLastIndex is not rejected, so invalid next indexes can be constructed. Does not query leader log.</td>
+</tr>
+<tr>
+<td><code>FollowerProgress.matched(durableIndex)</code></td>
+<td>Ignores input below current match. Otherwise assigns matchIndex, calculates nextIndex=durableIndex+1 with addExact, then selects REPLICATE. Equal match is accepted and can reset mode. MAX_VALUE overflows after assigning matchIndex, leaving old nextIndex/mode: mutation is not exception-atomic. Does not verify reply, voter identity, leader term, or actual force.</td>
+</tr>
+<tr>
+<td><code>FollowerProgress.rejected(suggestedNextIndex)</code></td>
+<td>Sets nextIndex=max(matchIndex+1, suggestion) and selects PROBE. Normal inputs cannot move below known match+1, but can move forward and are not bounded by leader tip. Addition is unchecked; a MAX_VALUE match left by failed matched can wrap. Does not decrease matchIndex or interpret rejection reason.</td>
+</tr>
+<tr>
+<td><code>FollowerProgress.snapshotRequired()</code></td>
+<td>Sets mode SNAPSHOT_REQUIRED without resetting indexes or installing a snapshot. Later matched/rejected can change mode again; this is not terminal state.</td>
+</tr>
+<tr>
+<td><code>FollowerProgress.nextIndex()</code></td>
+<td>Returns current next index without locking or validation.</td>
+</tr>
+<tr>
+<td><code>FollowerProgress.matchIndex()</code></td>
+<td>Returns greatest accepted match under ordinary successful calls; no durable persistence.</td>
+</tr>
+<tr>
+<td><code>FollowerProgress.mode()</code></td>
+<td>Returns PROBE, REPLICATE or SNAPSHOT_REQUIRED. Does not send work or enforce strategy.</td>
+</tr>
+</tbody>
+</table>
+<p>Mode intent: PROBE searches for a matching prefix, REPLICATE permits pipelining
+after match, SNAPSHOT_REQUIRED requests nonincremental repair. These are strategy
+labels; there is no in-flight window, retry timeout, conflict-term search, session
+correlation, or transfer implementation in this class.</p>
+<h2 id="commit-tracking-functions">Commit Tracking Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-core/src/main/java/io/aetherdb/raft/core/RaftCommitTracker.java">RaftCommitTracker.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RaftCommitTracker.RaftCommitTracker()</code></td>
+<td>Empty constructor; commitIndex starts at 0. No restore constructor or persistent election/commit state is read.</td>
+</tr>
+<tr>
+<td><code>RaftCommitTracker.commitIndex()</code></td>
+<td>Returns current in-memory commit index; no synchronization or application check.</td>
+</tr>
+<tr>
+<td><code>RaftCommitTracker.recalculate(durableMatches, currentTerm, termAtIndex)</code></td>
+<td>Empty collection returns prior commit without using lookup. Otherwise copies and sorts descending, takes strict-majority element using collection size, and advances only if candidate&gt;commit and its looked-up term equals currentTerm. Updates commit before persist-independent RAFT_COMMIT_AFTER_MAJORITY_BEFORE_APPLY hook; hook exception leaves advancement in place. Lookup exception before assignment leaves prior commit. No automatic apply/storage force.</td>
+</tr>
+<tr>
+<td><code>RaftCommitTracker.commitContext(commitIndex, currentTerm, voters)</code></td>
+<td>Builds CrashContext with unsigned commit_index/term strings and decimal voters count. Diagnostic context only, not a stored receipt or quorum certificate.</td>
+</tr>
+</tbody>
+</table>
+<p>For matches [8,8,4], majority position is the second value, 8. If termAtIndex(8)
+returns 2 while currentTerm=3, no advancement; if it returns 3, commit becomes 8.
+The helper does not search lower candidates when that selected candidate has a
+different term. Once committed, it never decreases commit on later smaller matches.</p>
+<p>The caller must supply <strong>one match for every voter, including appropriate local
+durable progress</strong>, not merely responders: collection size is the quorum's voter
+count. Omitting unavailable voters shrinks the computed majority. Duplicate values
+are legitimate for different voters but duplicate acknowledgments for the same
+voter are not deduplicated. There are no IDs in this API to enforce that distinction.
+Null collections/elements, invalid terms/indexes, or lookup behavior are not
+prevalidated; ordinary collection/lookup errors propagate. This is a single-set
+majority helper, not joint-consensus quorum intersection or membership management.</p>
+<h2 id="runtime-configuration-functions">Runtime Configuration Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-core/src/main/java/io/aetherdb/raft/core/RaftRuntimeConfiguration.java">RaftRuntimeConfiguration.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RaftRuntimeConfiguration.RaftRuntimeConfiguration(electionTimeoutMin, electionTimeoutMax, heartbeatInterval, snapshotThresholdEntries, maxUncommittedBytes)</code></td>
+<td>Requires nonnull durations (NullPointerException), min/heartbeat positive, max&gt;=min, min strictly greater than 2*heartbeat, threshold/byte cap positive (IllegalArgumentException). Duration multiplication/subtraction may raise ArithmeticException for extreme inputs. Direct construction does not apply registry numeric upper/lower bounds.</td>
+</tr>
+<tr>
+<td><code>RaftRuntimeConfiguration.defaults()</code></td>
+<td>Creates AetherConfiguration with development security profile, then calls from to resolve registry defaults and validate. Does not start timers, choose random election delay, or create a Raft node.</td>
+</tr>
+<tr>
+<td><code>RaftRuntimeConfiguration.from(configuration)</code></td>
+<td>Requires nonnull config, runs default AetherConfigValidator over it, resolves five settings through registry defaults, converts three millisecond longs to Duration, then invokes constructor. Broader config validation can reject fields unrelated to Raft. No dynamic reload/listener is installed.</td>
+</tr>
+<tr>
+<td><code>RaftRuntimeConfiguration.shouldSnapshot(committedEntriesSinceSnapshot)</code></td>
+<td>Returns input&gt;=snapshotThresholdEntries. Negative input simply returns false; no overflow/accounting/storage checks or actual snapshot execution.</td>
+</tr>
+<tr>
+<td><code>RaftRuntimeConfiguration.admitsUncommittedBytes(currentUncommittedBytes, additionalBytes)</code></td>
+<td>Rejects negative inputs, then tests current&lt;=max-additional, avoiding addition overflow. Equality admits exactly cap; additions above cap reject. Pure predicate, no reservation/account update and no protection from concurrent callers all admitting against same count.</td>
+</tr>
+<tr>
+<td><code>RaftRuntimeConfiguration.longValue(configuration, name)</code></td>
+<td>Looks up required registry descriptor, gets explicit/default string, parses signed long. Missing descriptor/parser errors propagate; public from validates first.</td>
+</tr>
+</tbody>
+</table>
+<p>Current registry defaults: election min=300 ms, max=600 ms, heartbeat=100 ms,
+snapshot threshold=100,000 entries, uncommitted cap=256 MiB. Registry limits:
+election endpoints 50..600,000 ms; heartbeat 10..60,000 ms; snapshot count
+1..Long.MAX_VALUE; byte cap 1 MiB..8 GiB. Values are resolved inputs, not evidence
+of an active scheduler or snapshot service. Cross-check the
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/src/main/java/io/aetherdb/config/AetherConfigRegistry.java">registry</a>
+when changing configuration documentation.</p>
+<h2 id="tests-and-remaining-implementation">Tests and Remaining Implementation</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-core/src/test/java/io/aetherdb/raft/core/RaftCoreTest.java">RaftCoreTest.java</a>
+has four tests: majority/current-term gating, ignored regressing follower match,
+configured timer/threshold/admission values, and commit advancement before crash
+hook failure. API has no dedicated test source tree. These tests do not cover
+vote constructor gaps, freshness/hash comparison, rejection/snapshot transitions,
+overflow partial mutation, omitted/duplicate voters, joint consensus or elections.</p>
+<p>Vote codecs and persistent-state slots are the next reference. Persistent format
+availability will still not imply a durable-state manager or complete election
+loop. Runtime and frozen experiment implementations are unchanged by these docs.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#actual-architecture">Actual Architecture</a><a href="#vote-record-functions">Vote Record Functions</a><a href="#role-and-reason-vocabulary">Role and Reason Vocabulary</a><a href="#freshness-and-quorum-functions">Freshness and Quorum Functions</a><a href="#follower-progress-functions">Follower Progress Functions</a><a href="#commit-tracking-functions">Commit Tracking Functions</a><a href="#runtime-configuration-functions">Runtime Configuration Functions</a><a href="#tests-and-remaining-implementation">Tests and Remaining Implementation</a></nav></aside>
+  </div>
+</body>
+</html>

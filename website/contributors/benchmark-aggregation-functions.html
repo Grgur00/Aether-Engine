@@ -1,0 +1,170 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/BENCHMARK-AGGREGATION-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Benchmark aggregation and statistics: source-backed contributor documentation for Aether Engine.">
+  <title>Benchmark aggregation and statistics | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html" aria-current="page">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/BENCHMARK-AGGREGATION-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="benchmark-run-aggregation-and-statistical-helper-functions">Benchmark Run Aggregation and Statistical Helper Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="benchmark-accounting-functions.html">Lifecycle and comparisons</a> | <a href="benchmark-runner-functions.html">Run controller</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/benchmark_gpu_segmentation.py">benchmark_gpu_segmentation.py</a>.
+This page covers <strong>12 explicit declarations</strong>. It is not a complete benchmark
+reference by itself. These helpers summarize already produced per-run reports;
+they do not freeze a protocol, launch experiments or independently establish
+pairing, independence, significance or reproducibility.</p>
+<h2 id="aggregation-architecture">Aggregation Architecture</h2>
+<pre><code class="language-text">per-run backends -&gt; first report copied + selected fields replaced by distributions
+per-run counters -&gt; selected sums and concatenated batch sizes
+per-run comparisons/models/outcomes -&gt; distributions + descriptive status counts
+values -&gt; distribution -&gt; mean/median/sample SD/normal half-width/order-statistic percentiles
+</code></pre>
+<p>Aggregation mixes selected pooled counters, distributions of run summaries and
+first-run representative fields. A distribution of run p95 values is not a pooled
+request/step p95. A mean of run utilization means is not time/sample-count weighted.
+Inspect per-run records and field scope rather than treating the whole aggregate
+as one interchangeable experiment record.</p>
+<h2 id="run-and-backend-aggregators">Run and Backend Aggregators</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aggregate_runs(runs)</code></td>
+<td>Iterates known BACKENDS, gathers runs containing each backend and calls aggregate_backend_runs when present. Aggregates protocol, operation metrics, cache dynamics, comparisons, crossover, admission models and outcomes. Returns input run count even when some backends/fields are absent. Does not reject mismatched configurations, verify parity/validity, preserve original run IDs in every derived field or aggregate every top-level field.</td>
+</tr>
+<tr>
+<td><code>aggregate_backend_runs(backend, backend_runs)</code></td>
+<td>Deep-copies first report, adds count, merges available prefetch metrics when all present ones advertise availability, and replaces lifecycle/steady-state/timing/GPU/process fields with selected aggregate forms. Timing fields missing in another run contribute zero. GPU summaries average available run means/percentiles, take maximum peak and collect sampling statuses/sources/errors/counts. Process numeric fields use distributions of non-null values; runSummaries enumerate the gathered subset, not original IDs. Other copied fields such as steps/layout/checksums/resources remain first-run representatives. Requires nonempty compatible input.</td>
+</tr>
+</tbody>
+</table>
+<p>aggregate_backend_runs replaces lifecycle with only four distribution-valued fields;
+first-run cumulativeByEpochMs and later background-drain fields are not retained
+there. It does not sum the whole lifecycle across runs. The backend parameter is
+not used to validate report names. Prefetch perRun contains original metric
+mappings, and other first-run fields are not evidence of all-run equality.</p>
+<h2 id="counter-and-metric-aggregators">Counter and Metric Aggregators</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aggregate_protocol(protocols)</code></td>
+<td>Sums a fixed list of logical counts/bytes/nanosecond times, concatenates write-batch sizes, derives mean/aliases, and makes walForceCount None if any input has null/missing value, otherwise sums forces. Does not aggregate transport metrics, initial indices, target hit ratios, extra scope labels or arbitrary fields. Empty input yields zero totals/mean and zero WAL forces.</td>
+</tr>
+<tr>
+<td><code>aggregate_cache_dynamics(dynamics_by_run)</code></td>
+<td>Returns distributions for a fixed list of reuse/count/ratio/cost/byte/batch fields, omitting null/missing values per field. Does not carry invariant passed flags, index sets or all configuration fields. Empty values become zero-count distributions, not verified zero activity.</td>
+</tr>
+<tr>
+<td><code>aggregate_operation_metrics(metrics_by_run)</code></td>
+<td>Uses union of operation names, sums counts, takes maximum reported max for positive-count runs, and distributes their mean/p95 values equally by run. Does not pool raw requests or weight by operation counts; count-zero summaries do not contribute mean/p95/max. Assumes valid numeric reported fields.</td>
+</tr>
+<tr>
+<td><code>aggregate_comparisons(comparisons)</code></td>
+<td>Unions comparison names/fields and distributes non-null values from runs that have them. Missing values are omitted, so sample counts can differ by baseline/metric. Does not preserve paired observations for inferential resampling or validate ratio direction.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="crossover-admission-and-outcome-aggregators">Crossover, Admission, and Outcome Aggregators</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aggregate_break_even(values)</code></td>
+<td>Takes non-null epoch fields from truthy crossover mappings; returns None if none qualify, otherwise an epoch distribution plus original rawRuns list. Distribution is conditional on crossings; no-crossing runs are retained only in rawRuns, not counted as infinity/censored data.</td>
+</tr>
+<tr>
+<td><code>aggregate_admission_models(models)</code></td>
+<td>Drops falsey model mappings, returns None if none remain, and distributes seven non-null formula/grid/error/cost fields. Reports count of present models, fixed 1% margin, first model equation and retained raw mappings. Per-field counts can differ and zero-margin fields still coexist with fixed report margin. No model fitting or censoring analysis.</td>
+</tr>
+<tr>
+<td><code>aggregate_outcomes(outcomes)</code></td>
+<td>Counts present status strings and distributes six non-null deltas/ratios. Reports runs=len(all outcomes); flag pass rates count truthy flags over all inputs, so missing flags dilute the rate rather than reducing denominator. Does not choose one aggregate winner, test significance or inspect omitted baselines.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="statistical-helpers">Statistical Helpers</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>distribution(values)</code></td>
+<td>Empty sequence returns count zero and zeros for every statistic. Otherwise computes mean, median, sample standard deviation (zero for singleton), confidence95=1.96*SD/sqrt(n), p50/p95 order statistics and min/max. confidence95 is a normal-approximation half-width, not a confidence interval pair, Student-t/bootstrap or paired-block result. Does not filter None/nonfinite values, test independence or validate workload homogeneity.</td>
+</tr>
+<tr>
+<td><code>percentile(values, pct)</code></td>
+<td>Sorts values and selects clamped index int(pct/100*n+.999)-1. It is a discrete nearest-rank-like rule, not interpolation or necessarily NumPy's percentile convention. Empty input raises IndexError; out-of-range pct selects an endpoint. Does not filter/validate inputs.</td>
+</tr>
+<tr>
+<td><code>mean(values)</code></td>
+<td>Returns statistics.mean for truthy input, otherwise zero. Empty zero is an API fallback, not evidence of a measured zero. Expects a sequence with sensible truthiness; arbitrary generators and arrays can behave differently.</td>
+</tr>
+</tbody>
+</table>
+<p>For two samples, p50 is the lower order statistic while median averages the two.
+One sample has zero reported SD/half-width without establishing certainty. Empty
+distributions also report zero mean/half-width; always inspect count. Repeated
+steps inside one run are correlated, and these summaries are descriptive rather
+than a substitute for H2's paired-block confirmatory analysis.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p>AST checks cover all 12 entries and jointly audit the full benchmark declaration
+inventory against all partitions. Arithmetic fixtures check representative-field
+retention, omitted/missing values, unweighted summary behavior, conditional
+crossover aggregation, flag denominators, percentile boundaries and half-widths.
+No performance claim, scientific result, runtime implementation or frozen campaign
+is changed. Complete function entries for this module do not complete the broader
+repository documentation goal.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#aggregation-architecture">Aggregation Architecture</a><a href="#run-and-backend-aggregators">Run and Backend Aggregators</a><a href="#counter-and-metric-aggregators">Counter and Metric Aggregators</a><a href="#crossover-admission-and-outcome-aggregators">Crossover, Admission, and Outcome Aggregators</a><a href="#statistical-helpers">Statistical Helpers</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/GENERATED-CONTAINER-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Generated containers and codec lookup: source-backed contributor documentation for Aether Engine.">
+  <title>Generated containers and codec lookup | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html" aria-current="page">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/GENERATED-CONTAINER-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="generated-containers-and-codec-lookup">Generated Containers and Codec Lookup</h1>
+<p><a href="function-index.html">Function index</a> | <a href="canonical-record-functions.html">Canonical records</a> | <a href="collection-schema-functions.html">Collection metadata</a></p>
+<p>This reference covers runtime container helpers and generated-codec discovery in
+the current checkout. Annotation processor generation is a separate layer.</p>
+<h2 id="source-and-architecture">Source and Architecture</h2>
+<ul>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec/src/main/java/io/aetherdb/codec/generated/CanonicalContainerCodec.java">CanonicalContainerCodec</a>: container framing, ordering, validation, and copies.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec/src/main/java/io/aetherdb/codec/generated/CanonicalElementCodecs.java">CanonicalElementCodecs</a>: scalar decoding through the record reader.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec/src/main/java/io/aetherdb/codec/generated/GeneratedCodecProvider.java">GeneratedCodecProvider</a>: generated registration contract.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec/src/main/java/io/aetherdb/codec/generated/GeneratedCodecs.java">GeneratedCodecs</a>: immutable service-loaded registry and descriptor checks.</li>
+</ul>
+<p>Generated record codecs select element encoders/decoders and pass explicit count
+and byte bounds to the container helpers. Container payloads have no independent
+magic, schema identifier, or checksum. An enclosing AER1 record checksums their
+bytes; each element codec defines what those bytes mean.</p>
+<p><code>CanonicalContainerCodec</code> and <code>CanonicalElementCodecs</code> have private constructors
+and static operations. <code>ElementCodec.encode()</code> accepts one non-null logical item;
+<code>decode()</code> consumes a complete item payload. Determinism and thread safety are
+implementation contracts, not properties these interfaces enforce.</p>
+<h2 id="optional-functions">Optional Functions</h2>
+<h3 id="optionaloptional-codec-maximumbytes">optional(Optional, codec, maximumBytes)</h3>
+<p>Rejects a null optional or codec. Empty emits the single byte 0 directly, without
+checking <code>maximumBytes</code>. Present emits byte 1, varint item length, and encoded item,
+then checks the completed byte bound. A null encoded result is rejected.
+Thus even the empty encoding can succeed with an invalid bound that decoding rejects.</p>
+<h3 id="optionalencoded-codec-maximumbytes">optional(encoded, codec, maximumBytes)</h3>
+<p>Copies a bounded non-null input. Presence 0 requires exactly one byte and returns
+empty. Presence 1 reads one length-delimited item, requires exact end, delegates
+decode, rejects a null result, and returns present. Other presence values fail.
+Unlike encoding, the decode overload does not explicitly reject a null codec:
+empty input can decode without touching it, while present decoding encounters a
+null dereference.</p>
+<h2 id="list-functions">List Functions</h2>
+<h3 id="listvalues-maximumentries-maximumbytes-codec">list(values, maximumEntries, maximumBytes, codec)</h3>
+<p>Requires non-null list/codec and a nonnegative count within the configured maximum.
+Writes the count followed by length-delimited items in iteration order. Rejects
+null logical items or null encoded arrays. The final byte check happens after
+element encoding and buffer construction, not progressively before allocation.</p>
+<h3 id="listencoded-maximumentries-maximumbytes-codec">list(encoded, maximumEntries, maximumBytes, codec)</h3>
+<p>Copies bounded input, parses and bounds count, preallocates <code>ArrayList(count)</code>,
+decodes each copied item, rejects null decoded values, requires no trailing bytes,
+and returns <code>List.copyOf</code>. The list cannot be structurally mutated; element objects
+are not deep-copied or made immutable. The declared count is bounded by configuration,
+not by a precheck that the payload contains that many complete items.</p>
+<h2 id="set-functions">Set Functions</h2>
+<h3 id="setvalues-maximumentries-maximumbytes-codec">set(values, maximumEntries, maximumBytes, codec)</h3>
+<p>Bounds count, encodes all elements, sorts their arrays using unsigned lexicographic
+comparison, rejects byte-identical adjacent encodings, and writes count/items.
+Ordering follows encoded bytes, not natural Java ordering. Different Java values
+that encode identically are rejected even if the input set considers them distinct.
+Sorting retains all encoded arrays before the final byte bound is applied.</p>
+<h3 id="setencoded-maximumentries-maximumbytes-codec">set(encoded, maximumEntries, maximumBytes, codec)</h3>
+<p>Requires strictly increasing encoded items and also rejects duplicates according
+to decoded Java equality in a <code>LinkedHashSet</code>. Returns an unmodifiable insertion-
+ordered set, with iteration order matching canonical encoded order. Unsorted items
+and identical byte encodings share the duplicate-canonical-key error text.</p>
+<h2 id="map-functions">Map Functions</h2>
+<h3 id="mapvalues-maximumentries-maximumbytes-keycodec-valuecodec">map(values, maximumEntries, maximumBytes, keyCodec, valueCodec)</h3>
+<p>Requires non-null inputs/codecs and bounded count. Encodes every key and value into
+an <code>EntryBytes</code> record, sorts by unsigned key bytes, rejects adjacent identical key
+encodings, and writes count followed by key/value item pairs. Value bytes do not
+affect ordering. <code>EntryBytes</code> retains arrays without cloning; element codecs must
+return stable encoded content throughout the operation.</p>
+<h3 id="mapencoded-maximumentries-maximumbytes-keycodec-valuecodec">map(encoded, maximumEntries, maximumBytes, keyCodec, valueCodec)</h3>
+<p>Copies input, bounds count, requires strictly increasing key bytes, decodes each
+key/value pair, rejects null results and duplicate decoded keys via <code>putIfAbsent</code>,
+and returns an unmodifiable <code>LinkedHashMap</code>. Decoded equality and encoded equality
+are both relevant rejection boundaries. There is no independent schema check.</p>
+<p>Decode overloads for list/set/map do not upfront-check codec arguments; an empty
+container can avoid dereferencing null codecs. No operation synchronizes caller
+collections or element arrays against concurrent mutation.</p>
+<h2 id="container-helpers">Container Helpers</h2>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>header(count)</code></td>
+<td>Creates an output stream and writes count using the record writer's unsigned varint helper.</td>
+</tr>
+<tr>
+<td><code>writeItem(output, item)</code></td>
+<td>Rejects null bytes, writes length, then copies bytes into the stream.</td>
+</tr>
+<tr>
+<td><code>writeLength(output, length)</code></td>
+<td>Delegates varint encoding to <code>CanonicalRecordWriter</code>.</td>
+</tr>
+<tr>
+<td><code>requireItem(item)</code></td>
+<td>Rejects null encoded arrays, otherwise returns the same array.</td>
+</tr>
+<tr>
+<td><code>requireDecoded(value)</code></td>
+<td>Rejects null logical/decoded objects, otherwise returns the same object.</td>
+</tr>
+<tr>
+<td><code>requireCount(count, maximum)</code></td>
+<td>Rejects negative maximum/count or count exceeding maximum.</td>
+</tr>
+<tr>
+<td><code>bounded(bytes, maximum)</code></td>
+<td>Requires maximum at least 1 and byte length within it; returns the same array.</td>
+</tr>
+<tr>
+<td><code>boundedCopy(bytes, maximum)</code></td>
+<td>Rejects null, checks bound, then copies the complete array.</td>
+</tr>
+<tr>
+<td><code>cursor(bytes, maximum)</code></td>
+<td>Constructs a cursor over that defensive copy at offset zero.</td>
+</tr>
+<tr>
+<td><code>capacity(count)</code></td>
+<td>Computes collection capacity as at least 1 and ceiling(count / 0.75). It is not an allocation budget.</td>
+</tr>
+<tr>
+<td><code>rejectDuplicates(values, message)</code></td>
+<td>Compares adjacent sorted arrays for exact equality.</td>
+</tr>
+<tr>
+<td><code>requireIncreasing(previous, current)</code></td>
+<td>Requires strict unsigned ordering when a previous array exists.</td>
+</tr>
+<tr>
+<td><code>invalid(message)</code></td>
+<td>Constructs <code>IllegalArgumentException</code> with the supplied message.</td>
+</tr>
+</tbody>
+</table>
+<p><code>Cursor(bytes, offset)</code> owns its supplied array reference and mutable offset.
+<code>count(maximum)</code> parses a varint, rejects values above int maximum, narrows it, then
+calls <code>requireCount</code>. <code>item()</code> parses length, checks upper limit/remaining space,
+copies the item, and advances. <code>requireEnd()</code> rejects any unconsumed trailing bytes.</p>
+<p><code>unsigned()</code> parses at most ten seven-bit groups, rejecting truncation and redundant
+zero terminal groups. Like the record parser, it does not constrain the tenth
+byte's data bits to 0 or 1. <code>item()</code> also lacks an explicit negative-length check
+before narrowing the signed-long representation. Do not treat these checks as
+exhaustive malformed-varint rejection or promise one exception type for all such
+inputs. This reference records the behavior without changing the parser.</p>
+<h2 id="scalar-element-decoders">Scalar Element Decoders</h2>
+<p><code>CanonicalElementCodecs</code> exposes the following payload-to-value functions:</p>
+<table>
+<thead>
+<tr>
+<th>Functions</th>
+<th>Delegated record reader behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bool</code>, <code>signedByte</code>, <code>signedShort</code>, <code>signedLong</code></td>
+<td>Corresponding Boolean/Byte/Short/Long payload decoders.</td>
+</tr>
+<tr>
+<td><code>signedInt</code></td>
+<td>Decodes signed long then <code>Math.toIntExact</code>; overflow raises <code>ArithmeticException</code>.</td>
+</tr>
+<tr>
+<td><code>fixed32</code>, <code>fixed64</code>, <code>character</code></td>
+<td>Float, double, and Java char payload decoders.</td>
+</tr>
+<tr>
+<td><code>string</code>, <code>bytes</code></td>
+<td>Pass the supplied byte maximum to the bounded scalar decoder.</td>
+</tr>
+<tr>
+<td><code>uuid</code></td>
+<td>UUID payload decoder.</td>
+</tr>
+<tr>
+<td><code>instant</code>, <code>localDate</code>, <code>localTime</code>, <code>localDateTime</code>, <code>duration</code></td>
+<td>Corresponding temporal decoders.</td>
+</tr>
+<tr>
+<td><code>bigInteger</code>, <code>bigDecimal</code></td>
+<td>Pass the supplied maximum to arbitrary-precision decoders.</td>
+</tr>
+</tbody>
+</table>
+<p>Private <code>read(payload, wireType, decoder)</code> rejects null payload/decoder, creates a
+writer with <code>Math.addExact(payload.length, 40)</code>, writes field 16 with the selected
+wire type, finishes a checksummed AER1 record, constructs its reader, advances,
+checks wire type, calls the scalar decoder, then checks final EOF. This deliberately
+reuses record validation but allocates entry/record/copy buffers and calculates CRC
+for each scalar element. It is not direct zero-copy scalar decoding. The wire-type
+check validates the synthesized framing, not a tag supplied in the original raw
+element bytes. Scalar limitations described in the record reference still apply.</p>
+<h2 id="runtime-provider-lookup">Runtime Provider Lookup</h2>
+<h3 id="generatedcodecproviderrecordtype-and-codec">GeneratedCodecProvider.recordType() and codec()</h3>
+<p>Return the registered Java class and codec instance. The registry assumes stable
+provider results: it invokes these methods repeatedly rather than snapshotting
+every result once. The interface alone does not validate annotation presence,
+immutability, thread safety, or that the returned class actually is a record.</p>
+<h3 id="generatedcodecsforrecordrecordtype">GeneratedCodecs.forRecord(recordType)</h3>
+<p>Rejects null, retrieves the installed codec by exact class key, reports
+<code>CODEC_NOT_AVAILABLE</code> when absent, and returns it using an unchecked generic cast.
+It does not generate a codec at runtime or reflectively derive one from components.</p>
+<h3 id="descriptorschemaid-version">descriptor(schemaId, version)</h3>
+<p>Looks up <code>SchemaVersion(UUID, int)</code> and returns empty when absent, otherwise a
+defensive descriptor copy. It does not validate positivity or perform a fresh
+resource/hash check. Only installed providers' current versions are registered.</p>
+<h3 id="load">load()</h3>
+<p>Runs once during static class initialization, using <code>ServiceLoader</code> providers.
+Each descriptor is validated before registration. The same Java class with a
+different schema UUID/version is rejected. Distinct classes claiming the same
+schema UUID/version are rejected. Same-class providers with the same UUID/version
+retain the first codec and descriptor; this branch does not compare their complete
+behavior or fingerprints against each other. Provider ordering is not a conflict-
+resolution policy applications should rely on.</p>
+<p>The resulting <code>Registry</code> holds <code>Map.copyOf</code> maps of codecs and descriptor arrays.
+Maps are immutable, but codec immutability remains a contract; descriptor arrays
+are protected by lookup copies. There is no refresh/reload method. Initialization
+failure prevents ordinary later use of this class in that class loader.</p>
+<h3 id="validatedescriptorprovider">validateDescriptor(provider)</h3>
+<p>Uses the registered class's loader to read
+<code>META-INF/aether/schemas/&lt;schema UUID&gt;/&lt;current version&gt;.aesch</code>, hashes all bytes
+with SHA-256, and requires equality with <code>codec.fingerprint()</code>. Missing resources
+and mismatched fingerprints fail registration. I/O/digest-availability failures
+are wrapped in <code>IllegalStateException</code>. Resource loading has no configured byte
+bound and does not parse descriptor semantics. A matching hash proves agreement
+with the provider fingerprint, not trust in an untrusted provider or schema evolution
+compatibility. A null class loader is not specially handled here.</p>
+<h2 id="remaining-coverage">Remaining Coverage</h2>
+<p>This page covers the four linked runtime files, including their private helpers
+and overloads. Generated annotation-processor code, schema descriptors emitted
+during compilation, enum/container type selection, defaults, and required-field
+rules still need their own detailed source-backed reference.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#source-and-architecture">Source and Architecture</a><a href="#optional-functions">Optional Functions</a><a href="#list-functions">List Functions</a><a href="#set-functions">Set Functions</a><a href="#map-functions">Map Functions</a><a href="#container-helpers">Container Helpers</a><a href="#scalar-element-decoders">Scalar Element Decoders</a><a href="#runtime-provider-lookup">Runtime Provider Lookup</a><a href="#remaining-coverage">Remaining Coverage</a></nav></aside>
+  </div>
+</body>
+</html>

@@ -68,7 +68,7 @@ final class TrainingCacheProtocol {
                     } finally { TrainingCacheRequestTrace.end("dispatch", dispatchStarted); }
                     writeResponse(output, response.status(), response.value());
                     long completedAt = System.nanoTime();
-                    if (operation == GET_MANY && acquired)
+                    if ((operation == GET_MANY || operation == PUT_MANY) && acquired)
                         cache.recordCompletedTrace(TrainingCacheRequestTrace.completed(completedAt));
                 } finally {
                     if (acquired) permits.release();
@@ -80,6 +80,14 @@ final class TrainingCacheProtocol {
 
     private record Decoded(int operation, java.util.List<CacheKey> keys, java.util.List<CacheEntry> entries) {}
     private record Response(int status, byte[] value) {}
+
+    static java.util.List<CacheEntry> decodeBulkEntries(ByteBuffer input) throws IOException {
+        if (input.remaining() < 6 || input.get() != VERSION || input.get() != PUT_MANY)
+            throw new IOException("bulk staging requires a version-1 PUT_MANY body");
+        var entries = decode(PUT_MANY, input).entries();
+        if (input.hasRemaining()) throw new IOException("trailing bulk request bytes");
+        return entries;
+    }
 
     private static Decoded decode(int operation, ByteBuffer input) throws IOException {
         if (operation < GET || operation > DRAIN_TRACES) throw new IOException("unsupported operation");
@@ -104,6 +112,9 @@ final class TrainingCacheProtocol {
                     DiagnosticJson.encode(java.util.Map.of("engine", "java-training-cache",
                             "durability", cache.durability().name(), "pid", ProcessHandle.current().pid(),
                             "cacheEntries", cache.cacheEntries(), "integrityPolicy", cache.integrityPolicy(),
+                            "protocol", VERSION,
+                            "features", java.util.List.of("get-many", "put-many", "contains-many",
+                                "immutable-inline-admission-v1"),
                             "backgroundCompaction", cache.compactionDiagnostics()))
                             .getBytes(StandardCharsets.UTF_8)));
             case DRAIN_TRACES -> new Response(HIT,

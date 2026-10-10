@@ -1,0 +1,234 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/WORKBENCH-WINDOW-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Workbench window and actions: source-backed contributor documentation for Aether Engine.">
+  <title>Workbench window and actions | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html" aria-current="page">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/WORKBENCH-WINDOW-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="workbench-window-and-action-functions">Workbench Window and Action Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="workbench-workspace-functions.html">Workspace</a> | <a href="workbench-record-dialog-functions.html">Record dialog</a> | <a href="workbench-typed-value-functions.html">Typed values</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-workbench/src/main/java/io/aetherdb/workbench/AetherWorkbench.java">AetherWorkbench.java</a>.
+This reference covers <strong>14 explicit declarations in the complete file</strong>, including
+the two anonymous listener methods. Lambdas and the renderer's implicit default
+constructor are not additional explicit method declarations.</p>
+<h2 id="window-architecture">Window Architecture</h2>
+<pre><code class="language-text">main(arguments) -&gt; event thread -&gt; Aether.openInMemory / Aether.open(path)
+open(existing database) -&gt; event thread -&gt; borrowed application database
+    -&gt; AetherWorkbench constructor -&gt; DatabaseWorkspace -&gt; build -&gt; refresh
+    -&gt; Data Explorer / RPC Frame Inspector / Replication Inspector tabs
+
+toolbar or double-click -&gt; selected view row -&gt; model row -&gt; RecordDialog
+    -&gt; DatabaseWorkspace write/encoding -&gt; refresh rows and status
+windowClosed -&gt; DatabaseWorkspace.close -&gt; close database only when owned
+</code></pre>
+<p>The class assembles Swing controls and dispatches actions. Storage operations,
+display-key indexing and typed encoding belong to the workspace. Inspectors are
+local codec demonstrations, not connections to RPC or replication services.
+There is no background scan, connection pool, distributed node or schema editor
+inside this window. Each window creates its own workspace/model/table/status.</p>
+<h2 id="startup-and-ownership-functions">Startup and Ownership Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>What It Does</th>
+<th>Failure and Ownership Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherWorkbench.AetherWorkbench(database, ownsDatabase, persistent, sessionDescription)</code></td>
+<td>Creates the workspace with explicit ownership, stores the UI mode/description, builds controls and synchronously performs the first <code>refresh(&quot;Ready&quot;)</code>.</td>
+<td>Ownership and UI mode are separate booleans. Does not open the database itself or close it in a constructor-failure cleanup block. Swing fields, including JFrame, initialize before the constructor body.</td>
+</tr>
+<tr>
+<td><code>AetherWorkbench.main(arguments)</code></td>
+<td>Schedules standalone startup using <code>SwingUtilities.invokeLater</code>. Attempts system look-and-feel, ignoring the listed reflection/unsupported-look-and-feel failures. No arguments opens an owned in-memory database; otherwise normalizes the first argument into an absolute directory and opens an owned persistent database. Shows the window after initialization.</td>
+<td>Extra arguments are ignored; no option parser. Runtime startup failures show an error dialog. Opening and initial scanning occur on the event thread. A failed initialization after acquiring a database is not paired with an explicit close here. Requires a graphical environment.</td>
+</tr>
+<tr>
+<td><code>AetherWorkbench.open(database)</code></td>
+<td>Rejects null synchronously, then schedules a window borrowing the application's database. Sets <code>ownsDatabase=false</code>, <code>persistent=false</code>, and description <code>attached application session</code>.</td>
+<td>Does not infer storage persistence from the supplied database or change look-and-feel. Unlike <code>main</code>, the deferred constructor is not wrapped in the startup error handler. The application must keep the database usable while attached. Closing the window must not be interpreted as closing a borrowed database.</td>
+</tr>
+</tbody>
+</table>
+<p>The attached mode's nonpersistent flag controls both the add workflow and the
+heading notice. It does not make an attached persistent database in-memory.
+The notice about discarding data on window close is therefore not a reliable
+ownership or durability description for borrowed sessions. Follow the workspace
+ownership flag and actual database implementation, not this label.</p>
+<p>The Gradle application entry is configured in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-workbench/build.gradle.kts">aether-workbench/build.gradle.kts</a>.
+The <code>run</code> task uses the repository root as working directory, so relative path
+arguments resolve there. A desktop JVM is required; headless workspace tests do
+not exercise JFrame construction or native window events.</p>
+<h2 id="layout-and-callback-functions">Layout and Callback Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>What It Does</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherWorkbench.build()</code></td>
+<td>Configures dispose-on-close, minimum 760 by 500 and initial 980 by 640 window sizes, platform location and close listener. Builds heading/notice, Add/Edit/Delete/Refresh toolbar, single-selection auto-sorted JTable, shared cell renderer, scroll pane/status and three tabs.</td>
+<td>Edit/Delete remain enabled even without selection; actions show a selection warning instead. Four preferred column widths are 270/150/430/90; row height is 26. Refresh button calls the same synchronous reload path. No asynchronous operation state or retry queue.</td>
+</tr>
+<tr>
+<td><code>AetherWorkbench.anonymous.windowClosed(event)</code></td>
+<td>Delegates to <code>workspace.close()</code> after disposal.</td>
+<td>Workspace decides whether to close the underlying database. The callback adds no confirmation, exception handler or wait-for-background-work policy. Does not call <code>System.exit</code>.</td>
+</tr>
+<tr>
+<td><code>AetherWorkbench.anonymous.mouseClicked(event)</code></td>
+<td>Calls <code>editRecord()</code> when the click count is exactly two.</td>
+<td>Uses the table's selected row, not coordinates from the event. Does not filter mouse buttons or open an independent row editor. Higher click counts do not satisfy this condition.</td>
+</tr>
+</tbody>
+</table>
+<p>Toolbar listeners are inline lambdas rather than separate declared methods.
+They call the same action methods described below; clicking Refresh invokes
+<code>refresh(&quot;Refreshed&quot;)</code>. Storage latency blocks the event thread during these
+calls, including the full workspace row materialization on refresh.</p>
+<h2 id="add-and-edit-functions">Add and Edit Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>What It Does</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherWorkbench.addRecord()</code></td>
+<td>In persistent UI mode requires a selected entry whose display key starts with <code>collection/</code>; opens a template/schema-based dialog with a suggested field key and blank structured values, then calls <code>workspace.addTypedEntry</code> and refreshes. Otherwise opens an empty plain dialog, checks for an existing display key, calls <code>workspace.put</code>, then refreshes.</td>
+<td>Persistent mode cannot add the first typed record without an existing template. Prefix checking is a preliminary UI test; workspace validates the template/envelope. Persistent insertion catches <code>IllegalArgumentException</code>; the plain path does not wrap its put/refresh. Cancellation performs no write.</td>
+</tr>
+<tr>
+<td><code>AetherWorkbench.suggestedKey(selected)</code></td>
+<td>Parses <code>selected.field()</code> as a UUID; if successful, generates a fresh random UUID string. If parsing throws <code>IllegalArgumentException</code>, returns <code>new-key</code>.</td>
+<td>Does not copy the UUID, inspect descriptors or check collisions. UUID parseability is a display-text heuristic, not evidence of an application key type. Workspace remains responsible for insertion checks.</td>
+</tr>
+<tr>
+<td><code>AetherWorkbench.editRecord()</code></td>
+<td>Requires selection and <code>workspace.canEdit</code>; warns if the value is not editable. Opens a dialog with selected display key/value and the workspace's <code>keyEditable</code> decision, then calls <code>workspace.edit</code> and refreshes.</td>
+<td>Catches <code>IllegalArgumentException</code> around edit/refresh only. Dialog acceptance is not schema validation or proof of a successful write outcome. Selection and cached values can become stale if another actor changes the database.</td>
+</tr>
+</tbody>
+</table>
+<p>The persistent add path preserves an existing collection/schema template, not
+an arbitrary newly declared schema. <code>blankStructuredValues</code> removes prior values
+but can leave fields empty that the later encoder rejects. The typed-value and
+dialog guides explain those defaults and encoding constraints.</p>
+<p>The nonpersistent add path is also used by <code>open(database)</code>, including borrowed
+persistent databases. It is selected by the window flag, not by a runtime probe.
+Key duplicate checking uses the workspace display-key index. Binary-key fidelity,
+rename rules and ignored database write-result limitations belong to the workspace
+contract; this class does not fix or independently revalidate them.</p>
+<h2 id="selection-delete-and-status-functions">Selection, Delete and Status Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>What It Does</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherWorkbench.deleteRecord()</code></td>
+<td>Requires a selected row and modal OK confirmation; then calls <code>workspace.delete(selected.key())</code> and refreshes with a deletion message.</td>
+<td>Cancel leaves storage unchanged. No delete/refresh exception catch or typed-envelope editability test is added. The status message reflects action flow, not inspection of the database write result.</td>
+</tr>
+<tr>
+<td><code>AetherWorkbench.selectedRow()</code></td>
+<td>Reads the selected JTable view index; if negative, shows <code>Select a record first</code> and returns null. Otherwise converts the view index through the sorter and returns <code>model.row(modelIndex)</code>.</td>
+<td>Correctly distinguishes sorted view order from model order. Does not rescan storage or verify the record still exists.</td>
+</tr>
+<tr>
+<td><code>AetherWorkbench.refresh(message)</code></td>
+<td>Replaces model rows using <code>workspace.rows()</code>, then updates status with the supplied message, workspace record count and session description.</td>
+<td>Full synchronous reload; no timer or external-change subscription. Replacing model data does not explicitly restore selection. If loading fails, there is no local catch or fallback model.</td>
+</tr>
+<tr>
+<td><code>AetherWorkbench.showError(message)</code></td>
+<td>Displays a modal warning titled <code>Aether Workbench</code>, attached to the frame.</td>
+<td>No stack trace, log artifact or structured failure result. Startup errors in <code>main</code> use a separate error dialog.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="grouped-row-rendering">Grouped Row Rendering</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>What It Does</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherWorkbench.GroupedRowRenderer.getTableCellRendererComponent(source, value, selected, focused, viewRow, viewColumn)</code></td>
+<td>Converts current and preceding view rows to model rows, detects the first visible row or changed group, and suppresses repeated group text in view column zero. Calls the superclass with the adjusted value. For unselected cells chooses a pale alternate background when the group hash parity is even, otherwise the table background. Adds a top separator at group starts and bold group-column text, normal font elsewhere.</td>
+<td>Selection background remains the superclass's. Grouping follows adjacent rows in current sorted view order; it does not sort/group the model. Same parity can give adjacent groups the same color. Uses view column zero without converting column order, so movable JTable columns are a renderer limitation.</td>
+</tr>
+</tbody>
+</table>
+<p>The renderer reuses one component, resetting background where unselected,
+border and font on each call. Color selection is deterministic by group string
+hash, not by alternating group ordinal. Sorting another column can split a group
+into several visible runs; each run receives a heading and separator. Rendering
+does not mutate record data or materialize a new storage snapshot.</p>
+<h2 id="tests-and-verification-scope">Tests and Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-workbench/src/test/java/io/aetherdb/workbench/DatabaseWorkspaceTest.java">DatabaseWorkspaceTest</a>
+covers in-memory workspace/helper behavior, not JFrame startup, action clicks,
+native close events, the grouped renderer or attached-mode labels. There is no
+dedicated main-window test class in the current module. Compiler-tree inventory
+checks all 14 explicit declarations, including the anonymous callbacks; it does
+not validate thread responsiveness or desktop interaction.</p>
+<p>Together with the workspace, typed-value and dialog references, function-name
+inventory now spans <strong>86 declarations across all seven implementation files</strong> in
+this module. That coverage does not establish that every Swing path has a test,
+that attached labels are accurate, or that all database failures are handled.
+Package documentation and the module build descriptor are contextual artifacts,
+not additional Java function bodies.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#window-architecture">Window Architecture</a><a href="#startup-and-ownership-functions">Startup and Ownership Functions</a><a href="#layout-and-callback-functions">Layout and Callback Functions</a><a href="#add-and-edit-functions">Add and Edit Functions</a><a href="#selection-delete-and-status-functions">Selection, Delete and Status Functions</a><a href="#grouped-row-rendering">Grouped Row Rendering</a><a href="#tests-and-verification-scope">Tests and Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

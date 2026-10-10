@@ -1,0 +1,335 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/PYTHON-PIPELINE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Python loading, workers and prefetch: source-backed contributor documentation for Aether Engine.">
+  <title>Python loading, workers and prefetch | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html" aria-current="page">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/PYTHON-PIPELINE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="python-loading-workers-and-prefetch-functions">Python Loading, Workers, and Prefetch Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="python-mapping-functions.html">Mapped views</a> | <a href="python-store-adapter-functions.html">Store adapters</a></p>
+<p>This reference follows three different loading mechanisms, rather than treating
+every <code>AetherDataLoader</code> name as the same API. It covers all 25 explicit functions
+in <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_training_cache/dataset.py">dataset.py</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_training_cache/loader_workers.py">loader_workers.py</a>,
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_training_cache/prefetch.py">prefetch.py</a>, including
+private properties and the nested percentile helper. It also describes the two
+functions in the benchmark's <code>prepared_batches</code> subtree. The rest of that large
+benchmark module remains outside this page's declaration inventory.</p>
+<h2 id="select-the-actual-loading-path">Select the Actual Loading Path</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Surface</th>
+<th>Preparation and ownership</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aether_training_cache.dataset.AetherDataLoader</code></td>
+<td>Caller-owned cache/segment registry; optional pool of threads sharing them</td>
+<td>Lists of mapped reference views, or explicitly pinned tensor copies</td>
+</tr>
+<tr>
+<td><code>BoundedPrefetchIterator</code></td>
+<td>Caller-owned preparation callback/client; exactly one producer at positive depth</td>
+<td>Ordered PrefetchedBatch objects carrying the original task and payload</td>
+</tr>
+<tr>
+<td><code>loader_workers.worker_batches</code></td>
+<td>Benchmark-specific Torch DataLoader, spawned processes, worker-local Java clients and mmap stores</td>
+<td>Prepared benchmark batches plus process/transport observations</td>
+</tr>
+<tr>
+<td><code>aether_ml.torch.AetherDataLoader</code></td>
+<td>Delegates to the framework's DataLoader</td>
+<td>Framework-defined collation and worker semantics</td>
+</tr>
+<tr>
+<td><code>aetherml.AetherDataLoader</code></td>
+<td>Separate filesystem/provenance prototype</td>
+<td>Not the Java-backed paths in this reference</td>
+</tr>
+</tbody>
+</table>
+<p>The higher-level <a href="python-framework-functions.html">framework reference</a> covers the
+Torch facade. The <a href="python-dataset-functions.html">dataset reference</a> covers deterministic
+transform reuse; that is a different boundary from segment-reference loading.</p>
+<pre><code class="language-text">Reference loader: keys -&gt; GET_MANY_REFS -&gt; local registry views -&gt; optional pinned copy
+
+Benchmark, workers = 0:
+  depth = 0 -&gt; yield schedule metadata -&gt; train_step prepares its own batch
+  depth &gt; 0 -&gt; caller materializes one epoch -&gt; one producer -&gt; bounded ready queue
+               -&gt; ordered consumer -&gt; join/close -&gt; next epoch
+
+Benchmark, workers &gt; 0:
+  one epoch schedule -&gt; spawn DataLoader -&gt; worker-local context/client/mmap
+  -&gt; prepared result and per-worker counters -&gt; parent aggregation -&gt; next epoch
+</code></pre>
+<h2 id="reference-batch-loader-functions">Reference-Batch Loader Functions</h2>
+<p>The package exports <code>AetherDataLoader</code> and its literal alias <code>AetherBatchLoader</code>
+from dataset.py. This loader expects segment references; it is not the packed
+inline-value loader used by every ML or benchmark path.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherDataLoader.__init__(cache, keys, mapped_segments, batch_size=32, dtype=&quot;int32&quot;, shape=None, workers=0, prefetch_batches=0, pin_memory=False)</code></td>
+<td>Materializes keys, retains caller-owned cache/registry, stores batching/tensor settings and initializes counters. Rejects negative worker/prefetch values, but does not validate positive/integer batch size or reject Boolean/fractional worker settings itself. Does not open a socket or mapping here.</td>
+</tr>
+<tr>
+<td><code>AetherDataLoader._load(batch_keys)</code></td>
+<td>Requests references for the batch, maps present references in requested order, and silently omits keys absent from the response. With pinning enabled, converts each view to a CPU tensor and then copies into pinned storage. On normal completion accumulates elapsed latency and increments samples by <strong>requested</strong> key count, not delivered view count. Failed loads do not record these counters and have no local view-cleanup finally block.</td>
+</tr>
+<tr>
+<td><code>AetherDataLoader.__iter__()</code></td>
+<td>Materializes all key slices. With zero workers prepares synchronously; otherwise submits <code>_load</code> to a ThreadPoolExecutor and yields futures in submission order, not completion order. Submits before checking its pending-future bound. Finally waits for executor shutdown and records this iteration's total duration. It does not close the caller's cache/registry or cancel outstanding requests on early termination.</td>
+</tr>
+<tr>
+<td><code>AetherDataLoader.__len__()</code></td>
+<td>Returns ceiling key count divided by batch size. Does not fetch keys or account for misses. Invalid batch sizes can raise here or in iteration rather than being rejected at construction.</td>
+</tr>
+<tr>
+<td><code>AetherDataLoader.metrics()</code></td>
+<td>Sorts successful load latencies, returns accumulated batch/requested-sample counts, their timing sums and percentile observations. Divides accumulated load duration by the most recently finalized iteration duration for inputWaitPercent. Does not reset counters, poll the daemon or lock around concurrent updates.</td>
+</tr>
+<tr>
+<td><code>AetherDataLoader.metrics.percentile(value)</code></td>
+<td>Nested helper returns zero for no observations; otherwise selects a clamped nearest-rank-style element using the implemented integer expression. No interpolation or separate statistical sampling.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="queue-and-lifetime-limits">Queue and Lifetime Limits</h3>
+<p>The threaded loader retains up to <code>max(1, prefetch_batches + 1)</code> futures after
+yielding; it transiently submits one more before waiting for the oldest. With
+<code>prefetch_batches=0</code> and positive workers it still submits lookahead work. This
+is not the exact-depth queue of BoundedPrefetchIterator. The same low-level client
+serializes its own requests, and mapped registries have their separate ownership
+limitations; a thread count is not evidence of concurrent network throughput.</p>
+<p>Views borrow local mapped storage, so keep the registry/file lifetime valid and
+release views before cleanup. Pinning makes a tensor copy; it does not send data
+to CUDA. No missing-value exception guarantees one returned result per input key.
+Duplicate requested keys can generate repeated views of the same reference.</p>
+<p>On early exit, explicitly close the iterator or ensure its generator is finalized.
+Executor shutdown waits for submitted work without a timeout and does not invoke
+the low-level client's cancellation API. A blocked load can therefore delay cleanup.
+After several iterations, latency/sample counters remain cumulative while total
+duration is replaced by the last iteration. Parallel load-duration sums can exceed
+wall time, so <code>inputWaitPercent</code> is not a bounded measure of training-thread stall.</p>
+<h2 id="ordered-prefetch-records-and-functions">Ordered Prefetch Records and Functions</h2>
+<p>The frozen dataclasses have no explicit methods: <code>PreparedBatch(value, lookup_ns=0, decode_ns=0)</code> reports completed callback stages; <code>PrefetchedBatch(batchIndex, task, value, consumerWaitNs=0)</code> is a successful delivery; <code>PrefetchFailure(batchIndex, exception)</code> transports the original producer error. Frozen fields do not deep-copy
+or make the contained task/payload immutable. Timing values are caller-supplied,
+not validated as nonnegative integers.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>merge_prefetch_metrics(snapshots, prefetch_depth)</code></td>
+<td>Materializes snapshots, sums the declared total counters, takes maximum recorded queue depth and computes mean occupancy from total/samples. Adds the supplied depth and definition string. Does not average epoch means, validate a shared depth, or calculate a time-weighted occupancy integral. Missing counters contribute zero.</td>
+</tr>
+<tr>
+<td><code>BoundedPrefetchIterator.__init__(schedule, prepare, prefetch_depth=0, *, metrics_callback=None, cancel_callback=None, join_timeout=35.0)</code></td>
+<td>Rejects Boolean/noninteger/negative depth and nonpositive/nonfinite join timeout. Materializes the entire finite schedule into a tuple on the constructing thread, stores callbacks, creates condition/counters and, at positive depth, a queue of exactly that capacity plus one named daemon producer. Depth zero starts no thread and defers preparation to next(). Task objects themselves are not copied.</td>
+</tr>
+<tr>
+<td><code>BoundedPrefetchIterator.metrics()</code></td>
+<td>Property. Under the condition, constructs a fresh merged snapshot so callers do not mutate internal counters. Derived means are recomputed. No polling of the callback's client or device.</td>
+</tr>
+<tr>
+<td><code>BoundedPrefetchIterator.worker_alive()</code></td>
+<td>Property reporting whether a producer thread exists and is alive. No producer means false; a done flag alone is not the liveness test.</td>
+</tr>
+<tr>
+<td><code>BoundedPrefetchIterator._sample_depth()</code></td>
+<td>Private helper samples <code>_ready_depth</code> into count/total/max. Callers hold the condition. Counts successful ready payloads only, not failure markers or in-flight preparation.</td>
+</tr>
+<tr>
+<td><code>BoundedPrefetchIterator._prepare_one(index, entry)</code></td>
+<td>Under the condition, returns None if closed or increments requested count before invoking the callback. Raw payloads are wrapped using optional same-thread metrics extraction; PreparedBatch results bypass that extraction. Adds supplied lookup/decode timings and returns a PrefetchedBatch. A raw payload of None is a valid wrapped payload, not exhaustion. Counters may include completed but unconsumed lookahead.</td>
+</tr>
+<tr>
+<td><code>BoundedPrefetchIterator._enqueue(item)</code></td>
+<td>Under the condition, waits while a live queue is full, records that blocked duration, returns false after closure, or queues the item and wakes waiters. Only successful PrefetchedBatch objects increment ready depth and occupancy samples; a failure still occupies queue capacity.</td>
+</tr>
+<tr>
+<td><code>BoundedPrefetchIterator._produce()</code></td>
+<td>Visits the frozen schedule in order with at most one active preparation callback. On callback/metrics BaseException, queues one failure behind earlier successes and stops. Stops on closure/enqueue rejection. Finally sets done and wakes consumers even after producer failure.</td>
+</tr>
+<tr>
+<td><code>BoundedPrefetchIterator.__iter__()</code></td>
+<td>Returns this single-consumer iterator, not an independent traversal or reset.</td>
+</tr>
+<tr>
+<td><code>BoundedPrefetchIterator.__next__()</code></td>
+<td>At depth zero prepares the next task inline; otherwise waits for a ready item/failure/done condition and dequeues in order. Records wait time for successful and failed deliveries, but not terminal exhaustion. Re-raises original failures, translates callback StopIteration to RuntimeError, rejects batch-index mismatch, advances successful consumed count, and returns a dataclass replacement with this call's consumerWaitNs. Exhaustion/failure closes the iterator.</td>
+</tr>
+<tr>
+<td><code>BoundedPrefetchIterator.close()</code></td>
+<td>Marks closed and wakes waiters. On the first early close with a live producer and incomplete consumption, invokes optional cancellation outside the condition, then attempts join in finally. Raises if the producer remains alive after join_timeout; a later close can retry joining. After successful join drains queued items and clears schedule/callback references, preserving counters. Never closes the callback's client by itself.</td>
+</tr>
+<tr>
+<td><code>BoundedPrefetchIterator.__enter__()</code></td>
+<td>Returns the iterator; positive-depth preparation may already have begun at construction.</td>
+</tr>
+<tr>
+<td><code>BoundedPrefetchIterator.__exit__(exc_type, exc_value, traceback)</code></td>
+<td>Calls close; does not suppress a body exception. A cancellation/join error can replace the body exception during exit.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cancellation-and-measurement">Cancellation and Measurement</h3>
+<p>One producer and one consumer are supported. Queue capacity is exactly depth;
+one additional batch may be in preparation or waiting to enqueue. The full schedule
+tuple and payload sizes are not bounded by that queue capacity. Closing clears queued
+references after joining; it does not call a payload-specific release function.</p>
+<p>Normal exhaustion, including consumption of the final batch before a terminal
+next(), does not call cancellation. Early close calls it at most once and only when
+the producer is live. It can irreversibly disable a caller's client; the caller still
+owns that client and should close the iterator <strong>before</strong> closing it. If cancellation
+raises, joining/draining is still attempted. If join also times out, that error can
+replace the cancellation error. Without a cancellation callback, pending I/O/retries
+must fit the configured join budget. A daemon thread is not a substitute for joining.</p>
+<p><code>queueEmptyWaitNs</code> and <code>queueFullWaitNs</code> cover condition waiting, including reacquire.
+<code>consumerWaitNs</code> covers obtaining an item; at depth zero it includes preparation.
+Lookup/decode values come from completed callbacks, including lookahead later
+discarded by an early close. <code>batchesRequested</code> counts callback starts and
+<code>batchesConsumed</code> successful deliveries. Queue occupancy is sampled after successful
+enqueue/dequeue events, excludes failures/drains/in-flight work and is weighted
+by <code>queueDepthSamples</code> across epochs, not by elapsed time.</p>
+<h2 id="spawned-worker-functions">Spawned Worker Functions</h2>
+<p>This is benchmark-specific code, not the aether_ml Torch adapter. The worker
+uses JavaArtifactStore even though the benchmark also has a separate Python-store
+option elsewhere. It should not be described as a general backend-independent
+worker factory.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>identity_collate(value)</code></td>
+<td>Returns an already prepared item unchanged. With framework batch_size=None, avoids default conversion/collation of this composite result.</td>
+</tr>
+<tr>
+<td><code>PreparedBatchDataset.__init__(context, backend, schedule)</code></td>
+<td>Shallow-copies args, retains source metadata and mmap root, materializes schedule, retains ram_ready only for RAM_READY, and sets worker context to None. Does not carry the parent's live client/mmap owner in its context field. Retained source/args/RAM contents still must be spawn-serializable.</td>
+</tr>
+<tr>
+<td><code>PreparedBatchDataset.__len__()</code></td>
+<td>Returns scheduled <strong>batch</strong> count, not sample count or training epochs.</td>
+</tr>
+<tr>
+<td><code>PreparedBatchDataset._open()</code></td>
+<td>Lazily constructs a BackendContext using <strong>new</strong> without running its full population constructor. Supplies args/NumPy/sources and worker fields, creates a Java client adapter and a shared mmap store, then registers both closes with atexit and installs the context. Creates both owners even for other selected backends. This path does not run the parent's full daemon identity/durability validation, and partial setup lacks a comprehensive cleanup finally block.</td>
+</tr>
+<tr>
+<td><code>PreparedBatchDataset.__getitem__(index)</code></td>
+<td>Opens worker context on first fetch, resets protocol/store/mmap counters, obtains the scheduled indices/epoch, snapshots resources around context.batch, and returns preparation duration plus backend, transport, operation and process observations. Framework wait, imports/open/reset/schedule lookup and serialization are outside that preparation duration. Invalid indices may be discovered only after lazy open/reset.</td>
+</tr>
+<tr>
+<td><code>worker_batches(context, backend, schedule)</code></td>
+<td>Groups consecutive tasks by epoch, creates a fresh PreparedBatchDataset/Torch DataLoader for each group with spawn, batch_size=None, identity collation, configured positive worker count, prefetch_factor=max(1, configured depth) and no persistent workers. Times each next(iterator), aggregates resources by PID, aggregates Aether transport/operations or mmap counters as applicable, then yields indices/epoch/prepared/wait_ms. StopIteration ends a group; other errors propagate.</td>
+</tr>
+</tbody>
+</table>
+<p>Each epoch's worker pool is exhausted before the next is constructed. Grouping
+is by adjacent epoch values, not a sort or validation of the supplied schedule;
+interleaved epoch IDs would make separate groups. <code>prefetch_factor</code> belongs to
+Torch's per-worker scheduling, not BoundedPrefetchIterator's queue-depth metric.
+Persistent workers are explicitly disabled. There is no explicit worker shutdown
+finally block here on an early break; cleanup relies on framework iterator lifetime
+and process exit/atexit. Do not infer the single-producer join/cancel guarantees.</p>
+<p>Per-worker requests/connections are reset for each batch. Parent aggregation skips
+the benchmark protocol's synthetic <code>connectionsOpened</code> field and uses transport
+observations instead. Resource counter deltas add only when both values are
+available; missing values remain null. RSS endpoint/high-water values are replaced
+by the latest worker observation, not summed into a measured simultaneous peak.
+Parent next() wait includes worker/IPC delay; it is distinct from worker preparation.</p>
+<h2 id="benchmark-routing-functions">Benchmark Routing Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/benchmark_gpu_segmentation.py">benchmark_gpu_segmentation.py</a>.
+These are routing functions from that module, not a complete function reference
+for preprocessing, training, scheduling or result analysis.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>prepared_batches(context, backend, schedule, *, metrics=None)</code></td>
+<td>Initializes metrics. Routes positive worker counts to worker_batches and marks queue metrics unavailable. With no workers/nonpositive depth, yields schedule metadata with no prepared payload; train_step performs preparation later. With positive depth, freezes one epoch's metadata, constructs an ordered iterator, forwards deliveries and finally closes/merges its metrics before entering the next epoch. For Java AETHER_CACHE only, supplies the client's irreversible pending-request cancellation callback for early exit.</td>
+</tr>
+<tr>
+<td><code>prepared_batches.prepare(task)</code></td>
+<td>Nested positive-depth callback calls context.batch, returns its batch/counters/elapsed duration as PreparedBatch, and derives nanosecond lookup/decode fields from the existing millisecond stage counters. Aether lookup and mmap read are included in lookup; artifact decode excludes later CPU tensor construction. It does not schedule the next epoch, train or perform CUDA transfer.</td>
+</tr>
+</tbody>
+</table>
+<p>The benchmark's depth-zero wrapper deliberately differs from constructing a
+depth-zero BoundedPrefetchIterator directly: the former leaves preparation to
+train_step; the latter executes its callback inline on next(). This distinction
+preserves the existing synchronous timing boundary. A multiprocess run explicitly
+reports queue metrics unavailable rather than inventing zeros.</p>
+<h2 id="verification-and-remaining-boundaries">Verification and Remaining Boundaries</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/tests/test_prefetch.py">test_prefetch.py</a> exercises order,
+single-producer ownership, lazy depth zero, queue bounds, original error delivery,
+StopIteration translation, join/cancellation, weighted metrics, epoch transitions
+and fixed-artifact array/CPU tensor parity. These require no GPU/server; mocked
+cancellation is not a socket/server integration result.</p>
+<p>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_pipeline_documented_contracts.py">documented-contract tests</a>
+additionally check reference-loader omissions and
+cumulative counters, Java adapter copy/batch limits, and selected worker routing
+and resource aggregation with test doubles. Such tests do not launch a Torch
+worker process, prove IPC behavior under failure, or establish a GPU speedup.
+Source inventory and website tests check entries/rendering; runtime implementation
+and the frozen H2 protocol are not changed for this reference.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#select-the-actual-loading-path">Select the Actual Loading Path</a><a href="#reference-batch-loader-functions">Reference-Batch Loader Functions</a><a href="#ordered-prefetch-records-and-functions">Ordered Prefetch Records and Functions</a><a href="#spawned-worker-functions">Spawned Worker Functions</a><a href="#benchmark-routing-functions">Benchmark Routing Functions</a><a href="#verification-and-remaining-boundaries">Verification and Remaining Boundaries</a></nav></aside>
+  </div>
+</body>
+</html>

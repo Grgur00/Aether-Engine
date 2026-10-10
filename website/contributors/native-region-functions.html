@@ -1,0 +1,219 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/NATIVE-REGION-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Native regions and allocation: source-backed contributor documentation for Aether Engine.">
+  <title>Native regions and allocation | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html" aria-current="page">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/NATIVE-REGION-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="native-region-and-allocation-functions">Native Region and Allocation Functions</h1>
+<p>This reference describes the current checkout, including development changes that
+may not yet be published on <code>main</code>. Start with the <a href="native-memtable-functions.html">native memtable</a>
+to see which owner freezes and retires these regions. No runtime behavior changes
+are made by this guide.</p>
+<h2 id="ownership-map">Ownership Map</h2>
+<p><code>DefaultNativeRegionFactory.create</code> reserves capacity from a shared budget, opens
+a shared FFM arena, and allocates one zero-filled contiguous segment.
+<code>FfmNativeRegion</code> owns that arena and reservation. Its monotonic allocator returns
+integer offsets into the segment; it neither creates independent arenas nor frees
+individual records. Retirement releases the entire region after its users finish.</p>
+<p>There are two separate accounting boundaries:</p>
+<table>
+<thead>
+<tr>
+<th>Boundary</th>
+<th>What is charged</th>
+<th>When it is released</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NativeMemoryBudget</code></td>
+<td>Full region capacity, including unused space</td>
+<td>Region close or factory rollback</td>
+</tr>
+<tr>
+<td><code>MonotonicNativeAllocator</code></td>
+<td>Payload and alignment padding after the first 64 bytes</td>
+<td>Never individually; region destruction ends validity</td>
+</tr>
+</tbody>
+</table>
+<p>These regions are process-local memory, not a persistent file format. A region
+offset is meaningful only with its owning live region. A shared arena permits
+cross-thread access; it does not supply application-level reader leases.</p>
+<h2 id="capacity-rules">Capacity Rules</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/RegionConfig.java">RegionConfig.java</a>.</p>
+<h3 id="regionconfig-and-validatecapacitycapacity"><code>RegionConfig()</code> and <code>validateCapacity(capacity)</code></h3>
+<p>The private constructor prevents utility instances. <code>validateCapacity</code> accepts
+1 MiB through 1 GiB inclusive, in multiples of 4 KiB; everything else raises
+<code>IllegalArgumentException</code>. Default capacity is 64 MiB, default alignment is 8,
+and the first allocatable offset is 64. The reserved prefix keeps zero available
+as a null-link sentinel. This validator does not consult the memory budget.</p>
+<h2 id="shared-capacity-budget">Shared Capacity Budget</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/NativeMemoryBudget.java">NativeMemoryBudget.java</a>.</p>
+<h3 id="nativememorybudget-and-nativememorybudgetlimitbytes"><code>NativeMemoryBudget()</code> and <code>NativeMemoryBudget(limitBytes)</code></h3>
+<p>The no-argument constructor uses a 256 MiB limit. The explicit constructor
+rejects nonpositive limits and initializes atomic accounting counters at zero.
+The budget tracks reservations, not operating-system resident memory or heap use.</p>
+<h3 id="tryreservebytes"><code>tryReserve(bytes)</code></h3>
+<p>Rejects nonpositive sizes and sizes larger than the entire limit as invalid
+requests. For valid sizes, a CAS loop checks remaining capacity without overflowing
+the addition. Exhaustion returns <code>false</code> and increments <code>reservationFailures</code>;
+successful reservation increments <code>reservedBytes</code>, raises <code>peakReservedBytes</code>
+with an atomic maximum, and increments <code>regionCount</code>.</p>
+<p>CAS contention retries without counting a failure. The reservation and diagnostic
+counter updates are separate operations, so simultaneous observers need not see
+one coherent snapshot. The budget does not remember reservation identities.</p>
+<h3 id="releasebytes"><code>release(bytes)</code></h3>
+<p>Rejects nonpositive sizes, subtracts from reserved capacity, and decrements the
+region counter. If the subtraction goes negative, it restores the subtraction
+and throws <code>IllegalStateException</code> before decrementing <code>regionCount</code>.</p>
+<p>The caller must release exactly one successful reservation once. This is not an
+ownership-token API: a positive release of the wrong size can still succeed if
+the aggregate balance stays nonnegative. Correct pairing belongs to the factory
+and region owner. The subtract-and-restore error path is not a transaction across
+other concurrent budget operations.</p>
+<h3 id="budget-observations">Budget observations</h3>
+<p><code>limitBytes()</code> returns the fixed limit. <code>reservedBytes()</code> reads current reserved
+capacity; <code>availableBytes()</code> subtracts that reading from the limit.
+<code>peakReservedBytes()</code> reads the high-water mark, which never falls on release.
+<code>regionCount()</code> counts successful reservations minus releases, not reachable Java
+objects. <code>reservationFailures()</code> counts valid requests refused for exhaustion,
+not invalid arguments or physical arena-allocation failures.</p>
+<h2 id="region-factory">Region Factory</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/NativeRegionFactory.java">NativeRegionFactory.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/DefaultNativeRegionFactory.java">DefaultNativeRegionFactory.java</a>.</p>
+<h3 id="defaultnativeregionfactorybudget"><code>DefaultNativeRegionFactory(budget)</code></h3>
+<p>Stores the supplied budget without a null check. A null budget fails when <code>create</code>
+tries to reserve; construction alone does not allocate memory.</p>
+<h3 id="createcapacitybytes-ownerid"><code>create(capacityBytes, ownerId)</code></h3>
+<p>Implements <code>NativeRegionFactory.create</code>. Validates capacity and a nonnull,
+nonblank owner identifier, then reserves the whole capacity. Budget exhaustion
+throws <code>NativeAllocationException</code> before opening an arena.</p>
+<p>After reservation it opens <code>Arena.ofShared()</code>, allocates an 8-byte-aligned segment,
+zero-fills it, and constructs <code>FfmNativeRegion</code>. Zero-fill is real work proportional
+to region capacity; it is not postponed until each record is inserted.</p>
+<p>On <code>RuntimeException</code> or <code>OutOfMemoryError</code> in that allocation block, it attempts
+arena close, attaches any runtime close failure as suppressed, and releases the
+reservation. An original <code>Error</code> is rethrown; an original runtime exception is
+wrapped in <code>NativeAllocationException</code>. The catch does not cover every possible
+<code>Error</code>, and rollback itself can throw if its ownership assumptions are violated.</p>
+<h2 id="region-lifetime">Region Lifetime</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/NativeRegion.java">NativeRegion.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/FfmNativeRegion.java">FfmNativeRegion.java</a>.</p>
+<h3 id="ffmnativeregionownerid-capacity-arena-root-budget"><code>FfmNativeRegion(ownerId, capacity, arena, root, budget)</code></h3>
+<p>Package-private construction stores its owning resources and creates a
+<code>MonotonicNativeAllocator</code>. Initial state is <code>OPEN</code>. The constructor relies on
+factory validation; it does not independently check capacities or null resources.</p>
+<h3 id="capacitybytes-state-allocator-and-rootsegment"><code>capacityBytes()</code>, <code>state()</code>, <code>allocator()</code>, and <code>rootSegment()</code></h3>
+<p>The first two return capacity and atomic state, even after close. <code>allocator()</code>
+and <code>rootSegment()</code> call <code>ensureAlive()</code> before returning their existing objects.
+They remain available while <code>FROZEN</code>, allowing reads but no new allocation.
+Returning the root segment does not make it read-only: freezing is an allocation
+policy, not a hardware or FFM write-protection operation.</p>
+<h3 id="freeze"><code>freeze()</code></h3>
+<p>Throws if its initial state reading is <code>CLOSED</code>, otherwise attempts the
+<code>OPEN</code> to <code>FROZEN</code> CAS. Already-frozen calls normally do nothing. It does not
+wait for in-flight allocations or acquire a lock against close. Higher-level
+owners must establish the lifetime boundary before freezing.</p>
+<h3 id="close"><code>close()</code></h3>
+<p>Already-closed calls return. An <code>OPEN</code> region cannot be closed directly and throws
+an owner-labelled <code>IllegalStateException</code>. One caller wins the <code>FROZEN</code> to <code>CLOSED</code>
+CAS, closes the arena, and releases capacity once in a <code>finally</code> block guarded
+by <code>budgetReleased</code>. Other callers do not repeat that work.</p>
+<p>State becomes <code>CLOSED</code> before arena destruction completes. Capacity is released
+even if arena close throws; close failure is not retried by later calls. There
+is no lease count in this class, so the caller must ensure outstanding segment
+users have finished. Previously returned segments follow FFM arena lifetime checks.</p>
+<h3 id="ensureopenforallocation-and-ensurealive"><code>ensureOpenForAllocation()</code> and <code>ensureAlive()</code></h3>
+<p>The first requires exactly <code>OPEN</code>; the second rejects only <code>CLOSED</code>. These are
+atomic-state checks, not locks or retained ownership. A successful check does
+not guarantee the state stays unchanged for the rest of a caller's operation.</p>
+<h2 id="monotonic-allocation">Monotonic Allocation</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/NativeAllocator.java">NativeAllocator.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/MonotonicNativeAllocator.java">MonotonicNativeAllocator.java</a>.</p>
+<h3 id="monotonicnativeallocatorregion"><code>MonotonicNativeAllocator(region)</code></h3>
+<p>Stores its region and initializes the atomic cursor at offset 64. Payload,
+padding, allocation, and failure counters start at zero. There is no reset,
+free-list, rollback, or individual deallocation operation.</p>
+<h3 id="tryallocatesizebytes-alignmentbytes"><code>tryAllocate(sizeBytes, alignmentBytes)</code></h3>
+<p>Checks the region is open first, then validates positive size no larger than
+<code>Integer.MAX_VALUE</code> and supported alignment. In a CAS loop it aligns the current
+cursor and calculates the end using checked addition. A request beyond capacity
+returns <code>Allocation.full()</code> and increments the failure counter without moving
+the cursor. End overflow is wrapped as <code>IllegalArgumentException</code>.</p>
+<p>Successful cursor reservation adds payload bytes, alignment padding, and one
+allocation to separate atomic counters, then returns <code>Allocation.at(offset, length)</code>. CAS contention recomputes alignment from the new cursor. The region's
+1 GiB limit keeps successful offsets representable as integers.</p>
+<p>The open-state check precedes the loop and is not repeated inside it. Concurrent
+freeze or close is therefore not an allocation barrier by itself. Serialize those
+lifetime transitions at the owner, as the native memtable does for insertion
+and freeze. Allocation reserves space; it does not initialize a record or publish
+a skip-list link.</p>
+<h3 id="alignupvalue-alignment-and-supportedalignment"><code>alignUp(value, alignment)</code> and <code>supported(alignment)</code></h3>
+<p><code>supported</code> recognizes only 1, 2, 4, 8, 16, 32, and 64. <code>alignUp</code> rejects other
+alignments, uses checked addition of <code>alignment - 1</code>, then clears low bits.
+It does not validate a nonnegative input; the allocator supplies its own cursor.
+Overflow in this helper propagates as <code>ArithmeticException</code>.</p>
+<h3 id="allocator-observations">Allocator observations</h3>
+<p><code>usedBytes()</code> is cursor minus 64, including alignment padding but excluding the
+reserved prefix. <code>remainingBytes()</code> is capacity minus cursor. They do not check
+region liveness and can still report counters after close.
+<code>allocatedPayloadBytes()</code>, <code>alignmentPaddingBytes()</code>, <code>allocationCount()</code>, and
+<code>failedAllocationCount()</code> read their individual counters. Invalid requests and
+overflow do not count as capacity failures. Separate readings during allocation
+need not satisfy an instantaneous accounting equation.</p>
+<h3 id="allocationfull-and-allocationatoffset-length"><code>Allocation.full()</code> and <code>Allocation.at(offset, length)</code></h3>
+<p><code>NativeAllocator.Allocation</code> is a record with <code>allocated</code>, <code>offset</code>, and <code>length</code>
+accessors. <code>full</code> returns <code>(false, 0, 0)</code>; <code>at</code> returns <code>(true, offset, length)</code>.
+Neither factory nor the implicit record constructor validates supplied offsets
+or lengths. A returned allocation is a descriptor, not a lease or memory segment.</p>
+<h2 id="allocation-errors">Allocation Errors</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/NativeAllocationException.java">NativeAllocationException.java</a>.</p>
+<p><code>NativeAllocationException(message)</code> preserves a message;
+<code>NativeAllocationException(message, cause)</code> also preserves its cause. Budget
+exhaustion and physical region creation use this exception; ordinary bump-allocator
+capacity exhaustion is a returned <code>Allocation.full()</code>, not this exception.</p>
+<h2 id="reading-checklist">Reading Checklist</h2>
+<p>Before changing this layer, trace reservation ownership through factory rollback
+and region close; trace lifetime coordination through the memtable's freeze,
+retirement, and lease release. Do not infer record validity from a successful
+allocation. Record encoding and checked reads form a separate boundary described
+in the <a href="native-record-functions.html">native record reference</a>.
+Function-name inventory tests detect missing names, not incorrect descriptions,
+race freedom, or allocation correctness.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#ownership-map">Ownership Map</a><a href="#capacity-rules">Capacity Rules</a><a href="#shared-capacity-budget">Shared Capacity Budget</a><a href="#region-factory">Region Factory</a><a href="#region-lifetime">Region Lifetime</a><a href="#monotonic-allocation">Monotonic Allocation</a><a href="#allocation-errors">Allocation Errors</a><a href="#reading-checklist">Reading Checklist</a></nav></aside>
+  </div>
+</body>
+</html>

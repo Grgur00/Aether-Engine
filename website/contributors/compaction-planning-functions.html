@@ -1,0 +1,210 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/COMPACTION-PLANNING-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Compaction planning: source-backed contributor documentation for Aether Engine.">
+  <title>Compaction planning | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html" aria-current="page">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/COMPACTION-PLANNING-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="compaction-planning-functions">Compaction Planning Functions</h1>
+<p><a href="persistent-internals.html">Persistent orchestration</a> | <a href="manifest-version-functions.html">Manifest versions</a></p>
+<p>This guide describes current source, including local development changes not
+necessarily published on <code>main</code>. The picker chooses metadata; it does not open
+tables, discard records, write output, commit a manifest, or delete input files.</p>
+<h2 id="architecture">Architecture</h2>
+<p>The engine converts its live version into a <code>VersionInventory</code>, calculates scores,
+and asks <code>CompactionPickerV1</code> for one plan. A range registration can prevent jobs
+sharing levels and key ranges. The coordinator still owns input retention,
+snapshot boundaries, output creation, stale-plan checks, and durable publication.
+A plan is not a lease or proof that its inputs remain live.</p>
+<p>There are seven levels, L0 through L6. Only L0 through L5 have downward compaction
+scores. L0 files may overlap; nonzero levels require sorted, disjoint inclusive
+user-key ranges. All key comparisons here are unsigned lexical comparisons.</p>
+<h2 id="sizing-policy">Sizing Policy</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/compaction/LevelCompactionConfig.java">LevelCompactionConfig.java</a>.</p>
+<h3 id="levelcompactionconfiglevel1targetbytes-levelsizemultiplier-and-defaults"><code>LevelCompactionConfig(level1TargetBytes, levelSizeMultiplier)</code> and <code>defaults()</code></h3>
+<p>The compact record constructor requires L1 target from 128 MiB through 8 GiB
+and multiplier from 2 through 20. <code>defaults</code> selects 512 MiB and multiplier 10.
+<code>LEVEL_COUNT</code> is 7; <code>MIB</code> and <code>GIB</code> are binary size constants. This policy is
+separate from the initial bulk-loader SSTable target used in ML experiments.</p>
+<h3 id="targetbyteslevel"><code>targetBytes(level)</code></h3>
+<p>For L1 through L6, repeatedly multiplies the L1 target by the growth factor.
+Returns <code>Long.MAX_VALUE</code> rather than overflowing. This is total target bytes
+for a level, not the size of one output file.</p>
+<h3 id="targetoutputfilebyteslevel-and-requirelevellevel-minimum-maximum"><code>targetOutputFileBytes(level)</code> and <code>requireLevel(level, minimum, maximum)</code></h3>
+<p>Output targets are 64 MiB for L1/L2, 128 MiB for L3, 256 MiB for L4, and 512 MiB
+for L5/L6. They do not vary with the two record configuration fields.
+Both sizing functions call the private inclusive-range validator and reject
+invalid levels with <code>IllegalArgumentException</code>.</p>
+<h2 id="file-metadata">File Metadata</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/compaction/CompactionFile.java">CompactionFile.java</a>.</p>
+<h3 id="compactionfilefilenumber-level-smallestuserkey-largestuserkey-filesize"><code>CompactionFile(fileNumber, level, smallestUserKey, largestUserKey, fileSize)</code></h3>
+<p>Requires positive number, level 0 through 6, nonnull ordered bounds, and nonnegative
+size. Copies both bounds. Zero size and empty user keys are allowed. No file is
+read, and declared ranges are not verified against table contents.</p>
+<h3 id="filenumber-level-filesize-smallestuserkey-and-largestuserkey"><code>fileNumber()</code>, <code>level()</code>, <code>fileSize()</code>, <code>smallestUserKey()</code>, and <code>largestUserKey()</code></h3>
+<p>Return scalar metadata or defensive bound copies. This class does not override
+<code>equals</code> or <code>hashCode</code>: list membership and equality use object identity, not file
+number or byte content.</p>
+<h3 id="overlapssmallest-largest-and-containskey"><code>overlaps(smallest, largest)</code> and <code>contains(key)</code></h3>
+<p>Test inclusive interval overlap or point membership directly against stored bounds.
+Touching endpoints overlap. These helpers do not validate a proposed range or add
+custom null guards. They are metadata filters, not Bloom tests or content lookup.</p>
+<h2 id="inventory-snapshot">Inventory Snapshot</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/compaction/VersionInventory.java">VersionInventory.java</a>.</p>
+<h3 id="versioninventorylevels-and-versioninventorylevels-pointers"><code>VersionInventory(levels)</code> and <code>VersionInventory(levels, pointers)</code></h3>
+<p>The first supplies six null pointers using <code>emptyPointers</code>. The second requires
+exactly seven level lists and six nullable pointer arrays. Copies the lists,
+checks each file's level matches its containing list, and rejects duplicate
+file numbers globally. Nonzero levels are validated without sorting them.
+Pointer arrays are cloned and their nullable list made unmodifiable.</p>
+<h3 id="validatenonoverlappingfiles-and-emptypointers"><code>validateNonOverlapping(files)</code> and <code>emptyPointers()</code></h3>
+<p>The private validator requires each previous largest key to be strictly below
+the next smallest key. Shared endpoints fail. File constructors validate each
+individual range; this helper enforces list order and cross-file disjointness.
+<code>emptyPointers</code> creates a six-element list of nulls for L0 through L5.</p>
+<h3 id="levellevel-and-pointerlevel"><code>level(level)</code> and <code>pointer(level)</code></h3>
+<p>Return an immutable file list or a cloned pointer, preserving null when absent.
+Invalid indices fail through list bounds checks. The inventory never mutates
+pointers itself; it represents one snapshot, not a live scheduler.</p>
+<h3 id="levelbyteslevel-overlapslevel-smallest-largest-and-containsfilenumber"><code>levelBytes(level)</code>, <code>overlaps(level, smallest, largest)</code>, and <code>containsFile(number)</code></h3>
+<p><code>levelBytes</code> uses checked addition and throws on overflow. <code>overlaps</code> filters the
+chosen level in its existing order and returns an unmodifiable result list.
+<code>containsFile</code> scans all levels for number membership. None performs disk I/O.</p>
+<h2 id="scores-and-debt">Scores and Debt</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/compaction/CompactionScoreCalculator.java">CompactionScoreCalculator.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/compaction/CompactionScores.java">CompactionScores.java</a>.</p>
+<h3 id="compactionscorecalculatorconfig-and-calculateversion"><code>CompactionScoreCalculator(config)</code> and <code>calculate(version)</code></h3>
+<p>Construction rejects null configuration. <code>calculate</code> creates six scores: L0 file
+count divided by 4.0, then L1 through L5 bytes divided by configured target bytes.
+There is no L6 score. Inventory sum overflow still throws; score calculation does
+not pin the version or reserve an execution slot.</p>
+<h3 id="estimateddebtbytesversion"><code>estimatedDebtBytes(version)</code></h3>
+<p>L0 debt is files above four multiplied by integer average file size. Nonzero
+debt sums bytes above target for L1 through L5. This is a backlog estimate, not
+predicted physical write amplification or elapsed time. It ignores L6 and the
+destination bytes that a selected compaction may also read.</p>
+<h3 id="saturatingadd-saturatingmultiply-and-listmathaverage"><code>saturatingAdd</code>, <code>saturatingMultiply</code>, and <code>ListMath.average()</code></h3>
+<p>The private arithmetic helpers saturate nonnegative debt terms at <code>Long.MAX_VALUE</code>.
+The nested <code>ListMath</code> record holds count and bytes; <code>average</code> returns zero for
+zero count, otherwise integer division. Per-level byte sums are computed before
+these helpers and can still throw on overflow.</p>
+<h3 id="compactionscoresvalues-values-and-scorelevel"><code>CompactionScores(values)</code>, <code>values()</code>, and <code>score(level)</code></h3>
+<p>Construction requires a nonnull six-element array and clones it. <code>values</code> returns
+another clone; <code>score</code> indexes the stored array. Scores are not checked for finite,
+nonnegative, or inventory-consistent values. Callers can supply values that the
+calculator would not produce; record equality on the array is not content equality.</p>
+<h2 id="picker-entry-point">Picker Entry Point</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/compaction/CompactionPickerV1.java">CompactionPickerV1.java</a>.</p>
+<h3 id="compactionpickerv1config-pickversion-scores-oldestsnapshotsequence-and-selectedlevel"><code>CompactionPickerV1(config)</code>, <code>pick(version, scores, oldestSnapshotSequence)</code>, and <code>selectedLevel</code></h3>
+<p>Construction requires nonnull configuration. <code>selectedLevel</code> forces L0 at 12 or
+more files. Otherwise it scans L0 through L5 for scores at least 1, choosing the
+highest with lower-level tie priority. Below threshold returns no selection.
+<code>pick</code> returns an empty optional in that case; otherwise it builds a plan.</p>
+<p>Selected L0 at 20 or more files is labelled <code>WRITE_STOP</code>, at 12 or more
+<code>URGENT_L0</code>; other plans use <code>SCORE</code>. These are reason labels, not write admission
+actions. The picker does not emit <code>MANUAL</code>. An externally supplied high score for
+an empty level can select it and subsequently fail seed selection; use scores
+calculated from the same inventory. A negative snapshot is rejected only when
+constructing a selected plan, not when returning empty.</p>
+<h2 id="input-selection">Input Selection</h2>
+<h3 id="pickl0version-score-snapshot-reason"><code>pickL0(version, score, snapshot, reason)</code></h3>
+<p>Seeds with the smallest file number in L0, then repeatedly adds overlapping L0
+files and overlapping L1 files. Both sets can widen the inclusive range; widening
+causes another pass. This reaches stable overlap closure across the two levels,
+including L0 files connected through an L1 range. Primary inputs retain seed-first
+and discovery order, not a sorted-by-key or sorted-by-number order.</p>
+<p>The overlap loop uses identity membership in the inventory's existing objects.
+It does not impose a byte budget on L0 closure or consult active range registrations.</p>
+<h3 id="picknonzeroversion-level-score-snapshot-reason"><code>pickNonzero(version, level, score, snapshot, reason)</code></h3>
+<p>Starts with the first source file. If a pointer exists, selects the first file
+whose largest key is strictly greater than it, wrapping to the first if none is.
+Finds destination overlaps. If any exist, widens a candidate range to their bounds
+and considers additional source overlaps.</p>
+<p>Expansion is accepted only when destination overlap list stays equal and expanded
+input bytes are at most <code>max(512 MiB, 2 * initial input bytes)</code>. This is a bounded
+single expansion, not L0's repeated closure. The stored range becomes the combined
+seed/destination range; it is not recomputed from potentially wider outer bounds
+of every expanded source file. Review that distinction when consuming plan ranges.</p>
+<h3 id="plan-bytes-minimum-and-maximum"><code>plan</code>, <code>bytes</code>, <code>minimum</code>, and <code>maximum</code></h3>
+<p><code>plan</code> chooses output level immediately below input, finds overlapping grandparents
+one level below output (none for L6 output), sets configured output target and a
+grandparent overlap limit of ten times target, and sums source plus destination
+bytes as an estimate. Pointer update is the largest key of the last primary list
+element, not a separate maximum over all primary bounds.</p>
+<p><code>bytes</code> uses checked accumulation within a list. Some additions combining two list
+sums and the expansion's doubled size use ordinary long arithmetic, not saturation.
+<code>minimum</code> and <code>maximum</code> compare unsigned arrays and return one supplied reference;
+plan construction subsequently clones stored bounds. Grandparent metadata and
+limits do not themselves split an output file.</p>
+<h2 id="plan-contract">Plan Contract</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/compaction/CompactionPlan.java">CompactionPlan.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/compaction/CompactionReason.java">CompactionReason.java</a>.</p>
+<h3 id="compactionplan-and-defensive-accessors"><code>CompactionPlan(...)</code> and defensive accessors</h3>
+<p>The compact constructor copies all three lists and clones both bounds and pointer.
+It requires nonempty primary inputs, adjacent input/output levels, and nonnegative
+oldest snapshot. It does not independently validate level bounds, file-level
+membership, ordered plan bounds, positive targets, finite score, or nonnull reason.
+The picker supplies those under its normal inventory/configuration assumptions.</p>
+<p><code>smallestUserKey()</code>, <code>largestUserKey()</code>, and <code>pointerUpdate()</code> return fresh clones.
+Other record accessors expose immutable lists or scalar fields. Array components
+retain Java record array-identity equality semantics. Reasons are <code>SCORE</code>,
+<code>URGENT_L0</code>, <code>WRITE_STOP</code>, and <code>MANUAL</code>; their presence does not execute an action.</p>
+<h2 id="active-range-registry">Active Range Registry</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/compaction/CompactionRangeRegistry.java">CompactionRangeRegistry.java</a>.</p>
+<h3 id="compactionrangeregistry-register-and-activecount"><code>CompactionRangeRegistry()</code>, <code>register</code>, and <code>activeCount()</code></h3>
+<p>Construction starts empty. Synchronized <code>register(inputLevel, outputLevel, smallest, largest)</code> clones bounds, rejects reversed range, rejects a conflicting
+job, then stores the proposed range and returns a registration. It does not
+validate level numbers or adjacency. Null bounds fail on cloning.
+Synchronized <code>activeCount</code> returns current registrations, not worker threads.</p>
+<h3 id="rangeconflictsother-and-releaserange"><code>Range.conflicts(other)</code> and <code>release(range)</code></h3>
+<p>Two ranges conflict when either input/output level is shared and inclusive key
+ranges overlap. Disjoint keys can run on shared levels; overlapping keys on wholly
+distinct levels do not conflict. The private synchronized <code>release</code> removes the
+registered range and throws if it is missing. Registry ownership does not verify
+that selected files remain part of the live manifest.</p>
+<h3 id="registrationowner-range-and-close"><code>Registration(owner, range)</code> and <code>close()</code></h3>
+<p>The package-private constructor stores owner and range. Synchronized close clears
+its owner then releases the range once; subsequent closes return. If release
+throws, owner is already cleared and another close will not retry. The registration
+is a job-conflict guard, not a table-reader lease.</p>
+<h2 id="review-boundaries">Review Boundaries</h2>
+<p>Keep inventory ordering, inclusive endpoints, snapshot retention, and pointer
+updates visible when changing selection. Validate plans against the live version
+before installation, not merely against their construction snapshot. Pure picker
+tests and function-name coverage do not prove durable publication, record-dropping
+safety, or conflict-free execution in the coordinator.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture">Architecture</a><a href="#sizing-policy">Sizing Policy</a><a href="#file-metadata">File Metadata</a><a href="#inventory-snapshot">Inventory Snapshot</a><a href="#scores-and-debt">Scores and Debt</a><a href="#picker-entry-point">Picker Entry Point</a><a href="#input-selection">Input Selection</a><a href="#plan-contract">Plan Contract</a><a href="#active-range-registry">Active Range Registry</a><a href="#review-boundaries">Review Boundaries</a></nav></aside>
+  </div>
+</body>
+</html>

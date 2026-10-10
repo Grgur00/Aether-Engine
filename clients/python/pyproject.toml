@@ -9,9 +9,14 @@ description = "Python client for the local Aether training-data cache"
 requires-python = ">=3.10"
 dependencies = ["numpy", "Pillow>=9", "tiktoken>=0.14,<0.15"]
 
+[project.optional-dependencies]
+torch = ["torch>=2"]
+monai = ["monai", "torch>=2"]
+
 [project.scripts]
 aether-bench = "aether_bench:main"
 build-oct5k-manifest = "build_oct5k_manifest:main"
+aether-ml = "aether_ml.cli:main"
 
 [tool.setuptools]
 py-modules = [
@@ -23,4 +28,4 @@ py-modules = [
     "oct_segmentation_workload",
     "reproduce_aetherml",
 ]
-packages = ["aether_cache", "aether_training_cache", "aetherml"]
+packages = ["aether_cache", "aether_ml", "aether_ml.monai", "aether_ml.torch", "aether_training_cache", "aetherml"]

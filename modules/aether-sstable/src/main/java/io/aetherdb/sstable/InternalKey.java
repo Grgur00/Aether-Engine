@@ -142,6 +142,30 @@ public final class InternalKey implements Comparable<InternalKey> {
                 | Byte.toUnsignedLong(bytes[offset + 7]) << 56;
     }
 
+    /** Validates a borrowed internal-key range and returns its sequence without allocation. */
+    public static long sequence(byte[] encoded, int offset, int length) {
+        if (encoded == null || offset < 0 || length < 9 || length > 65_545
+                || (long) offset + length > encoded.length)
+            throw new SSTableCorruptionException("invalid internal-key range");
+        long sequence = readLongLittleEndian(encoded, offset + length - 9);
+        byte type = encoded[offset + length - 1];
+        if (sequence <= 0 || type < 1 || type > 2)
+            throw new SSTableCorruptionException("invalid internal key");
+        return sequence;
+    }
+
+    /** Validates and compares two borrowed internal-key ranges without allocation. */
+    public static int compareEncoded(byte[] left, int leftOffset, int leftLength,
+            byte[] right, int rightOffset, int rightLength) {
+        long leftSequence = sequence(left, leftOffset, leftLength);
+        long rightSequence = sequence(right, rightOffset, rightLength);
+        int order = compare(left, leftOffset, leftLength - 9, right, rightOffset, rightLength - 9);
+        if (order != 0) return order;
+        order = Long.compare(rightSequence, leftSequence);
+        return order != 0 ? order : Byte.compare(left[leftOffset + leftLength - 1],
+                right[rightOffset + rightLength - 1]);
+    }
+
     private static void writeLongLittleEndian(byte[] bytes, int offset, long value) {
         bytes[offset] = (byte) value;
         bytes[offset + 1] = (byte) (value >>> 8);

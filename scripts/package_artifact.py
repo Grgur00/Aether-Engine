@@ -9,7 +9,7 @@ from pathlib import Path
 
 from paper_common import ROOT, capture, sha256
 
-EXCLUDED = {".git", ".gradle", ".venv", "__pycache__", "node_modules", "build", "bin", ".idea", ".vscode", ".pytest_cache", ".mypy_cache"}
+EXCLUDED = {".git", ".gradle", ".build", ".venv", "__pycache__", "node_modules", "build", "bin", ".idea", ".vscode", ".pytest_cache", ".mypy_cache"}
 DIRECTORIES = ("build-logic", "gradle", "modules", "examples", "clients/python", "scripts", "configs", "env", "docker", "paper", "kaggle", "docs/evaluation")
 ROOT_FILES = ("README.md", "LICENSE", "CITATION.cff", "Makefile", "build.gradle.kts", "settings.gradle.kts",
               "gradle.properties", "gradlew", "gradlew.bat", ".dockerignore", ".editorconfig", ".gitattributes", ".gitignore")

@@ -1,0 +1,258 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/TRAINING-DAEMON-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Training cache daemon lifecycle: source-backed contributor documentation for Aether Engine.">
+  <title>Training cache daemon lifecycle | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html" aria-current="page">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/TRAINING-DAEMON-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="training-cache-daemon-lifecycle-functions">Training Cache Daemon Lifecycle Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="training-cache-functions.html">Cache operations</a> | <a href="training-protocol-functions.html">Protocol and tracing</a></p>
+<p>This reference covers every explicit constructor and function in the TCP, Unix
+and TLS training-cache daemons. They are local wrappers around the same Java cache
+and request handler, not the general Java client/RPC/Raft service. Persistent ML
+experiments can reuse one daemon process; that lifecycle is chosen by orchestration,
+not automatically enforced by these listener classes.</p>
+<h2 id="shared-architecture">Shared Architecture</h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Ownership and behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Daemon instance</td>
+<td>Owns cache, listener, worker executor, request semaphore and protocol counters</td>
+</tr>
+<tr>
+<td>Accept task</td>
+<td>Accepts connections and submits one serve task per connection</td>
+</tr>
+<tr>
+<td>Connection task</td>
+<td>Owns its socket/channel; optionally handshakes TLS; delegates streams to <code>TrainingCacheProtocol.serve</code></td>
+</tr>
+<tr>
+<td>Protocol loop</td>
+<td>Sequentially reads, decodes, dispatches and responds on a connection; multiple connections may operate concurrently</td>
+</tr>
+<tr>
+<td>Cache owner</td>
+<td>Handles immutable publication, integrity, accounting, segments and database lifetime</td>
+</tr>
+</tbody>
+</table>
+<p>Each daemon uses 128 request permits shared across its connections. The protocol
+tries to acquire a permit <strong>after</strong> allocating/reading a frame and decoding keys
+and values. This limits admitted dispatches, not accepted connection count, TLS
+handshakes, idle connections, frame allocation, or total request bytes in memory.
+The default semaphore is nonfair; saturation returns an error rather than waiting.</p>
+<p>Accepted sockets are not retained in a shutdown registry. Worker interruption
+does not by itself establish that every blocked connection has finished before
+cache closure, and the close methods do not join workers. No listener installs
+per-connection read/idle timeouts or per-namespace authorization in these files.</p>
+<h2 id="loopback-tcp-daemon">Loopback TCP Daemon</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheDaemon.java">TrainingCacheDaemon.java</a>.</p>
+<h3 id="constructors-and-accessors">Constructors and Accessors</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TrainingCacheDaemon(directory, port, maximumBytes)</code></td>
+<td>Delegates with RECOVERABLE durability.</td>
+</tr>
+<tr>
+<td><code>TrainingCacheDaemon(directory, port, maximumBytes, durability)</code></td>
+<td>Requires directory, opens cache, binds <code>ServerSocket</code> with backlog 128 to JVM-selected loopback, creates a cached platform-thread pool and submits accept task.</td>
+</tr>
+<tr>
+<td><code>port()</code></td>
+<td>Returns listener's actual local port; port 0 selects an ephemeral port.</td>
+</tr>
+<tr>
+<td><code>protocolMetrics()</code></td>
+<td>Returns the protocol counter snapshot, not cache payload counters.</td>
+</tr>
+</tbody>
+</table>
+<p>The public <code>DEFAULT_PORT</code> is 0, not the Python client's default port or the
+general RPC registry's port. The caller must use the selected listening address
+and returned port. This constructor exposes durability but not storage policy;
+cache open defaults to AUTO.</p>
+<p>The cache is opened before socket binding. A later bind/initialization failure
+has no constructor cleanup wrapper closing earlier resources. The listener is
+loopback-only, not a configurable bind-host consumer. Legacy VERSION/GET/PUT/status
+and frame constants declared in this class do not implement request dispatch;
+the shared protocol class is the authoritative handler.</p>
+<h3 id="acceptloop-and-serve">acceptLoop and serve</h3>
+<p>Private <code>acceptLoop()</code> continues until the server is closed. Each accepted socket
+is submitted to the same cached executor. An accept <code>IOException</code> during normal
+shutdown is ignored; while still open it is wrapped in <code>IllegalStateException</code>.
+The submitted task's future is not retained, so a failed accept task is not
+automatically surfaced through <code>main</code> or restarted.</p>
+<p>Private <code>serve(socket)</code> owns the socket with try-with-resources, enables TCP_NODELAY,
+then calls the shared protocol with streams/cache/permits/counters. It silently
+catches <code>Exception</code>; there is no per-connection error log here. This does not catch
+all <code>Error</code> subclasses. Stream lifetime is also closed by the protocol wrapper.</p>
+<h3 id="main-and-close">main and close</h3>
+<p><code>main(arguments)</code> requires one to four arguments:</p>
+<pre><code class="language-text">&lt;directory&gt; [port] [maximumBytes] [durability]
+</code></pre>
+<p>It parses numbers, defaults port to 0 and maximum to 10 GiB, parses the durability
+with exact enum <code>valueOf</code>, constructs a daemon, prints its actual port, then calls
+<code>Thread.currentThread().join()</code> to wait indefinitely. It does not poll a shutdown
+file or expose a wire STOP operation. Interruption/normal unwinding executes the
+try-with-resources close; abrupt process termination is a different boundary.</p>
+<p><code>close()</code> closes listener, calls <code>workers.shutdownNow()</code>, then closes cache in that
+order. It has no <code>finally</code> structure ensuring all cleanup stages run after a prior
+failure, no explicit idempotence state, and no await-termination barrier.</p>
+<h2 id="unix-domain-daemon">Unix-Domain Daemon</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheUnixDaemon.java">TrainingCacheUnixDaemon.java</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TrainingCacheUnixDaemon(directory, socketPath, maximumBytes)</code></td>
+<td>Converts path to absolute normalized form, deletes anything already at that path, opens default RECOVERABLE/AUTO cache, opens UNIX server channel, binds and submits accept task.</td>
+</tr>
+<tr>
+<td><code>socketPath()</code></td>
+<td>Returns the normalized bound path.</td>
+</tr>
+<tr>
+<td><code>protocolMetrics()</code></td>
+<td>Returns counter snapshot.</td>
+</tr>
+<tr>
+<td><code>acceptLoop()</code></td>
+<td>Accepts channels while server is open; submits connection tasks to a virtual-thread-per-task executor. Accept I/O failure while still open becomes an exception in the submitted accept task.</td>
+</tr>
+<tr>
+<td><code>serve(socket)</code></td>
+<td>Owns channel, adapts streams with <code>Channels</code>, calls shared protocol, silently catches <code>Exception</code>.</td>
+</tr>
+<tr>
+<td><code>main(arguments)</code></td>
+<td>Requires directory/socket path and optional maximum; prints bound path and self-joins indefinitely in a try-with-resources scope. No durability option.</td>
+</tr>
+<tr>
+<td><code>close()</code></td>
+<td>Closes listener, interrupts workers, closes cache, then deletes socket path; earlier failure can skip later stages.</td>
+</tr>
+</tbody>
+</table>
+<p>The constructor does not prove an existing socket is stale before deleting it and
+does not restrict deletion to socket file types. The supplied path must be a
+dedicated endpoint, not an arbitrary existing file or another active daemon's path.
+It does not create socket parent directories, set restrictive socket permissions,
+check peer credentials, or install an application authorization policy. Availability
+depends on the platform's UNIX channel support. Virtual threads do not change the
+protocol's post-decode admission boundary.</p>
+<h2 id="loopback-tls-daemon">Loopback TLS Daemon</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheTlsDaemon.java">TrainingCacheTlsDaemon.java</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TrainingCacheTlsDaemon(directory, port, maximumBytes, context, requireClientAuthentication)</code></td>
+<td>Requires directory, opens default cache, requires SSLContext, creates loopback SSL server with backlog 128, sets need-client-auth flag, submits accept task on virtual-thread executor.</td>
+</tr>
+<tr>
+<td><code>port()</code></td>
+<td>Returns actual listening port.</td>
+</tr>
+<tr>
+<td><code>protocolMetrics()</code></td>
+<td>Returns shared protocol counters.</td>
+</tr>
+<tr>
+<td><code>acceptLoop()</code></td>
+<td>Accepts SSL sockets and submits serve tasks; same open-versus-closed accept failure distinction.</td>
+</tr>
+<tr>
+<td><code>serve(socket)</code></td>
+<td>Owns SSL socket, enables TCP_NODELAY, explicitly completes handshake, then serves cache requests. Silently catches <code>Exception</code>, including handshake failures.</td>
+</tr>
+<tr>
+<td><code>close()</code></td>
+<td>Closes listener, interrupts executor and closes cache sequentially without joining connection tasks.</td>
+</tr>
+</tbody>
+</table>
+<p>There is no <code>main</code> in this class. An embedding caller constructs the SSLContext
+with key/trust material. Cipher/version defaults come from that context/JVM; these
+functions do not configure credential files, hostname verification, or map client
+certificates to namespace permissions. Client authentication is optional via the
+constructor flag. Handshake happens before <code>TrainingCacheProtocol.serve</code>, so failed
+handshakes are not counted by the protocol's connection counter.</p>
+<p>TLS construction opens the cache before checking context or binding; later failure
+has no explicit resource rollback. This listener's TLS is independent of the
+general config registry's production security flags. Opening its cache still uses
+the training cache's local development configuration.</p>
+<h2 id="shutdown-and-persistent-experiment-boundaries">Shutdown and Persistent Experiment Boundaries</h2>
+<p>The daemons provide no shared multi-version training scheduler. A research runner
+must start one process, keep its store/endpoint stable across versions, and stop it
+after all training/update work. Restarting the process reopens the cache and runs
+its validation/index reconstruction, so it changes the lifecycle being measured.</p>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/paper_common.py">paper_common.py</a> contains a TCP-daemon launch path;
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_training_cache/client.py">client.py</a> contains Python
+endpoint/connection ownership. Those callers are not inventoried by this page.
+Do not infer process cleanup guarantees solely from these Java <code>close</code> methods.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p>The compiler-tree documentation check covers all explicit declarations in these
+three files. <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/test/java/io/aetherdb/training/cache/TrainingCacheTraceTest.java">TrainingCacheTraceTest</a>
+exercises the shared handler with in-memory streams, not actual listener shutdown,
+port binding, Unix endpoint permissions, TLS certificates, or idle-connection limits.
+Those are distinct runtime integration checks; documentation link/layout tests do
+not establish them.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#shared-architecture">Shared Architecture</a><a href="#loopback-tcp-daemon">Loopback TCP Daemon</a><a href="#unix-domain-daemon">Unix-Domain Daemon</a><a href="#loopback-tls-daemon">Loopback TLS Daemon</a><a href="#shutdown-and-persistent-experiment-boundaries">Shutdown and Persistent Experiment Boundaries</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

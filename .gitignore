@@ -7,7 +7,9 @@ build-logic/.build/
 *.iml
 .vscode/
 .DS_Store
-/Docs/
+/Docs/*
+!/Docs/onboarding/
+!/Docs/Aether_Engine_Documentation_Index.md
 **/data/
 hs_err_pid*
 *.hprof

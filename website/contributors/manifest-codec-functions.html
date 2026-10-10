@@ -1,0 +1,229 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/MANIFEST-CODEC-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Manifest wire formats: source-backed contributor documentation for Aether Engine.">
+  <title>Manifest wire formats | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html" aria-current="page">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/MANIFEST-CODEC-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="manifest-wire-format-functions">Manifest Wire Format Functions</h1>
+<p><a href="manifest-version-functions.html">Publication and versions</a> | <a href="sstable-block-functions.html">Block codecs</a></p>
+<p>These codecs turn validated metadata into canonical bytes and decode bytes back
+into field-validated objects. They perform no disk writes, force, atomic rename,
+version installation or SSTable verification. Those operations belong to
+<code>VersionSet</code>. A valid checksum is not proof that a file is authoritative.</p>
+<h2 id="format-layers">Format Layers</h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Fixed prefix</th>
+<th>Variable content</th>
+<th>Checksum coverage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CURRENT</code></td>
+<td>128 bytes total</td>
+<td>None; filename occupies a padded fixed region.</td>
+<td>First 124 bytes; stored in final four.</td>
+</tr>
+<tr>
+<td>Manifest header</td>
+<td>96 bytes in a 4 KiB region</td>
+<td>None.</td>
+<td>First 92 bytes; remaining region is separately checked for zero padding.</td>
+</tr>
+<tr>
+<td>Physical record</td>
+<td>24-byte header</td>
+<td>One complete edit payload.</td>
+<td>Bytes from offset four to record end; stored in first four.</td>
+</tr>
+<tr>
+<td>Edit payload</td>
+<td>64-byte header</td>
+<td>Addition descriptors and deletion descriptors.</td>
+<td>Covered by enclosing physical record; no separate payload CRC.</td>
+</tr>
+</tbody>
+</table>
+<p>All multi-byte numeric fields here are little-endian. UUIDs are stored as two
+little-endian longs in most-significant/least-significant order, not as textual
+UUID strings. The permitted payload maximum is 4 MiB, excluding its 24-byte
+physical header.</p>
+<h2 id="current-pointer-codec">CURRENT Pointer Codec</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/manifest/CurrentFileV1.java">CurrentFileV1.java</a>.</p>
+<h3 id="currentfilev1-and-manifestnamegeneration"><code>CurrentFileV1()</code> And <code>manifestName(generation)</code></h3>
+<p>The private constructor prevents utility instantiation. <code>manifestName</code> requires a
+positive generation and returns <code>MANIFEST-%020d.aeman</code> using <code>Locale.ROOT</code>. It does
+not resolve paths, check filesystem containment or check whether the file exists.</p>
+<h3 id="encodedatabaseid-generation"><code>encode(databaseId, generation)</code></h3>
+<p>Requires non-null identity and obtains a canonical name through <code>manifestName</code>.
+Allocates a zero-filled 128-byte array and writes magic <code>AETHCUR1</code>, version one,
+declared size, zero flags, generation, name length, reserved zero and name bytes.
+The 64-byte name region starts at offset 28. UUID occupies offsets 92 through 107;
+a repeated publication generation occupies 108 through 115. Reserved bytes remain
+zero, and masked CRC32C of bytes 0 through 123 is stored at 124.</p>
+<p>It returns bytes only. Calling encode does not publish <code>CURRENT</code> or authorize a
+manifest generation.</p>
+<h3 id="decodeencoded-expecteddatabaseid"><code>decode(encoded, expectedDatabaseId)</code></h3>
+<p>Requires exact size and expected identity, checks checksum, magic/version/size and
+zero prefix flags, then reads generation and the declared filename length. The
+name must occupy one through 64 bytes; unused name-region bytes must be zero.
+It decodes ASCII, reads UUID and repeated generation, and requires trailing
+reserved bytes to be zero.</p>
+<p>Finally it matches UUID, repeated generation and canonical filename for the
+leading generation. It returns a <code>Pointer</code>, not a file handle or decoded manifest.
+Most failures use <code>ManifestCorruptionException</code>; a nonpositive generation reaching
+<code>manifestName</code> can instead throw its plain <code>IllegalArgumentException</code>. This method
+does not normalize every possible invalid input to one exception subtype.</p>
+<h3 id="pointer-little-putuuid-getuuid-and-corrupt"><code>Pointer</code>, <code>little</code>, <code>putUuid</code>, <code>getUuid</code> And <code>corrupt</code></h3>
+<p><code>Pointer(generation, manifestName)</code> is a record with generated scalar/string
+accessors and no explicit validating constructor. The decoder establishes its
+invariants; direct record construction does not perform those checks.</p>
+<p>Private <code>little(value)</code> wraps an array in a little-endian buffer, without copying.
+<code>putUuid(target, value)</code> writes the UUID's two long components;
+<code>getUuid(source)</code> reconstructs them in the same order. Both rely on valid buffer
+position/capacity supplied by callers. <code>corrupt(message)</code> constructs descriptive
+pointer-format exceptions.</p>
+<h2 id="manifest-header-region">Manifest Header Region</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/manifest/ManifestHeaderV1.java">ManifestHeaderV1.java</a>.</p>
+<h3 id="manifestheaderv1"><code>ManifestHeaderV1(...)</code></h3>
+<p>Requires database identity, positive manifest number and initial-next-file counter,
+nonnegative creation time and initial-last-sequence. These are header diagnostics;
+the constructor does not require next-file counter beyond generation or compare
+its diagnostics with a snapshot record. Publication and recovery add those checks.</p>
+<h3 id="encoderegion"><code>encodeRegion()</code></h3>
+<p>Allocates the entire zero-filled 4 KiB region. Writes <code>AETHMAN1</code>, version one,
+96-byte fixed-header declaration, flags zero, identity, manifest number,
+comparator identifier one, seven-level declaration, creation time and initial
+counters. Bytes 72 through 91 remain reserved zero. It stores masked CRC32C of
+the first 92 bytes at offset 92. The remaining region is zero padding.</p>
+<p>Unlike the SSTable header's <code>encode</code>, this method returns the complete reserved
+region, not just the fixed prefix.</p>
+<h3 id="decoderegionregion-little-and-corrupt"><code>decodeRegion(region)</code>, <code>little</code> And <code>corrupt</code></h3>
+<p>Requires exactly 4 KiB, valid fixed-header checksum/prefix, supported comparator
+and level count, zero reserved fixed fields and zero region padding. Constructs
+the validated header from decoded fields, wrapping invalid constructor fields
+as <code>ManifestCorruptionException</code> with their cause. Padding is enforced explicitly,
+not covered by the fixed-header checksum.</p>
+<p>Private <code>little</code> is a borrowing byte-buffer wrapper. <code>corrupt</code> constructs direct
+format errors. Generated record accessors return immutable identity or scalars;
+they do not replay edits or establish pointer authority.</p>
+<h2 id="physical-record-functions">Physical Record Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/manifest/ManifestCodecV1.java">ManifestCodecV1.java</a>.</p>
+<h3 id="manifestcodecv1-and-encoderecordedit"><code>ManifestCodecV1()</code> And <code>encodeRecord(edit)</code></h3>
+<p>The private utility constructor prevents instantiation. <code>encodeRecord</code> requires an
+edit, calls <code>encodePayload</code>, allocates header plus payload and writes a 24-byte
+header. At offset four are payload length, version one, kind one for snapshot or
+two for delta, flags zero, edit/record number and reserved zero. It appends the
+payload and writes masked CRC32C over all bytes after the checksum field.</p>
+<p>The duplicated outer/inner kind and edit number are deliberate consistency fields,
+not independent transaction IDs. The function does not choose or increment numbers.</p>
+<h3 id="decoderecordrecord"><code>decodeRecord(record)</code></h3>
+<p>Requires at least a physical header plus edit header and verifies checksum over
+the exact supplied record. It then requires payload length in the allowed range,
+exact record size, version one, flags/reserved zero and positive record number.
+It copies the payload and delegates to <code>decodePayload</code>, then matches outer kind
+and record number with the decoded edit.</p>
+<p>This expects exactly one record. Passing concatenated records is not stream replay;
+their aggregate length/checksum will not satisfy this contract.</p>
+<h3 id="physicalrecordbytesheader"><code>physicalRecordBytes(header)</code></h3>
+<p>Requires exactly 24 bytes, reads the payload-length field and checks it is between
+64 bytes and 4 MiB. Returns that length plus 24. It does <strong>not</strong> validate checksum,
+version, kind, flags or record number. Recovery uses it to decide whether enough
+bytes remain to attempt full decode; its successful return is only a size probe.</p>
+<p>If a tail contains a length-valid header declaring more bytes than are available,
+replay classifies it as incomplete without validating the other header fields.
+If a complete record is available, <code>decodeRecord</code> supplies full validation.</p>
+<h2 id="edit-payload-functions">Edit Payload Functions</h2>
+<h3 id="encodepayloadedit"><code>encodePayload(edit)</code></h3>
+<p>Private encoding computes 64 bytes plus 16 per deletion and, per addition, 64 fixed
+bytes plus both encoded key-bound lengths. It uses checked addition for addition
+sizes and rejects totals above 4 MiB before allocating the payload. Accessing key
+bounds takes defensive copies, including during sizing.</p>
+<p>The header writes total length, header size/version, kind/flags/reserved fields,
+edit number, next-file counter, assigned sequence, persisted watermark, minimum
+WAL number and addition/deletion counts. Additions encode file number, level,
+size/count/sequence extrema, bound lengths, reserved zero and bound bytes.
+Deletions encode number, level and reserved zero. Input list order is preserved;
+the codec does not sort additions or construct a live inventory.</p>
+<h3 id="decodepayloadpayload"><code>decodePayload(payload)</code></h3>
+<p>Private decoding validates total length, fixed header size/version, kind code,
+flags/reserved fields and plausible nonnegative counts. Each addition requires
+its fixed prefix, zero flags/reserved long and two key bounds of at least nine
+bytes whose lengths fit remaining input. It allocates bound arrays and constructs
+<code>ManifestFileMetadata</code>, which performs internal-key and field checks and clones
+those bounds again.</p>
+<p>Each deletion requires 16 remaining bytes and reserved zero, then constructs a
+validated <code>ManifestDeletion</code>. Any unconsumed trailing bytes are corruption.
+Finally <code>ManifestEdit</code> validates counters and duplicate/contradictory operations
+and takes immutable list copies. This is field/record validation, not verification
+that deletions name live files or that additions exist on disk.</p>
+<p>Existing <code>ManifestCorruptionException</code> is rethrown. <code>IllegalArgumentException</code> and
+<code>ArithmeticException</code> from field validation become manifest corruption with their
+cause. The catch does not list <code>BufferUnderflowException</code>; fixed-prefix and length
+checks are what prevent truncated inputs from reaching unchecked buffer reads.</p>
+<h3 id="littlevalue-and-corruptmessage"><code>little(value)</code> And <code>corrupt(message)</code></h3>
+<p>Private <code>little</code> wraps the supplied array without copying and selects byte order.
+<code>corrupt</code> constructs the dedicated exception; neither performs recovery or repair.</p>
+<h2 id="shared-checksum-functions">Shared Checksum Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-format/src/main/java/io/aetherdb/format/checksum/MaskedCrc32c.java">MaskedCrc32c.java</a>.</p>
+<p>The private <code>MaskedCrc32c()</code> constructor makes this a utility. <code>crc(bytes, offset, length)</code> creates a Java <code>CRC32C</code>, updates it over the range and returns the 32-bit
+value as an <code>int</code>; Java's checksum API validates the supplied range.
+<code>masked(...)</code> composes <code>crc</code> with <code>mask</code>. <code>mask(crc)</code> rotates right by 15 and adds
+the fixed delta <code>0xA282EAD8</code>, with Java integer wraparound. <code>unmask(stored)</code>
+subtracts that delta and rotates left by 15 to invert the transform.</p>
+<p>Masking is a storage representation transform, not encryption or authentication.
+CRC32C detects accidental corruption; it does not prove identity, authorization,
+freshness or resistance to a deliberate attacker able to recompute checksums.
+Identity and structural checks must still run after checksum validation.</p>
+<h2 id="corruption-exception-constructors">Corruption Exception Constructors</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/manifest/ManifestCorruptionException.java">ManifestCorruptionException.java</a>.</p>
+<p><code>ManifestCorruptionException(message)</code> preserves a validation detail.
+<code>ManifestCorruptionException(message, cause)</code> also preserves the originating field
+or transition failure. The class extends <code>IllegalArgumentException</code>, so callers
+catching that superclass also catch manifest corruption. These constructors have
+no filesystem or repair behavior.</p>
+<h2 id="verification-boundary">Verification Boundary</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/test/java/io/aetherdb/sstable/manifest/ManifestFormatV1Test.java">ManifestFormatV1Test</a>
+is the starting point for format regression coverage. A record successfully decoded
+here can still be rejected by <code>Version.apply</code> or inventory verification. Function
+inventory tests catch missing names in this page, not correctness of every wire
+offset or equivalence between malformed-input acceptance paths.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#format-layers">Format Layers</a><a href="#current-pointer-codec">CURRENT Pointer Codec</a><a href="#manifest-header-region">Manifest Header Region</a><a href="#physical-record-functions">Physical Record Functions</a><a href="#edit-payload-functions">Edit Payload Functions</a><a href="#shared-checksum-functions">Shared Checksum Functions</a><a href="#corruption-exception-constructors">Corruption Exception Constructors</a><a href="#verification-boundary">Verification Boundary</a></nav></aside>
+  </div>
+</body>
+</html>

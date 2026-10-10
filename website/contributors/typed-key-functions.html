@@ -1,0 +1,146 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/TYPED-KEY-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Typed keys and namespaces: source-backed contributor documentation for Aether Engine.">
+  <title>Typed keys and namespaces | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html" aria-current="page">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/TYPED-KEY-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="typed-key-and-namespace-functions">Typed Key and Namespace Functions</h1>
+<p><a href="schemas.html">Typed architecture</a> | <a href="function-index.html">Function index</a></p>
+<p>This reference describes current key codec and collection-prefix source. Typed
+keys eventually become ordinary byte-engine keys; their encoding determines
+physical ordering. These helpers do not open a collection, write schema metadata,
+perform a database lookup, or acquire a snapshot.</p>
+<h2 id="codec-contract">Codec Contract</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/typed/KeyCodec.java">KeyCodec.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/typed/OrderedKeyCodec.java">OrderedKeyCodec.java</a>.</p>
+<p><code>codecId()</code> identifies a stable family; <code>encodingVersion()</code> identifies emitted
+encoding; <code>maximumEncodedSize()</code> declares a byte bound; <code>fingerprint()</code> declares
+a defensive 32-byte identity fingerprint. <code>encode(value)</code> and <code>decode(encoded)</code>
+translate logical keys and bytes. <code>OrderedKeyCodec.comparator()</code> declares a logical
+ordering that should agree with unsigned lexical encoded-byte ordering.</p>
+<p>The interfaces do not enforce these promises on arbitrary implementations.
+Maximum size is a declaration, not an allocation limiter; fingerprint is codec
+identity, not a checksum of an individual encoded key. Caller validation matters.</p>
+<h2 id="built-in-factories">Built-In Factories</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec/src/main/java/io/aetherdb/codec/BuiltInKeyCodecs.java">BuiltInKeyCodecs.java</a>.</p>
+<h3 id="builtinkeycodecs-and-utf8string"><code>BuiltInKeyCodecs()</code> and <code>utf8String()</code></h3>
+<p>The utility constructor is private. <code>utf8String</code> creates a new anonymous ordered
+codec with ID <code>aether:utf8</code>, maximum 65,517 bytes, and Java natural string comparator.
+Its <code>encode</code> rejects null and returns UTF-8 bytes; it does not itself reject an
+overlong result. Its <code>decode</code> constructs a Java string from UTF-8 bytes using the
+standard replacement behavior for malformed input, not strict decoding.</p>
+<p>The declared comparator uses UTF-16 code-unit order, while physical bytes use
+UTF-8 order. These differ for some supplementary/BMP comparisons: U+10000 sorts
+before U+E000 under Java natural order but after it under unsigned UTF-8 bytes.
+Unpaired surrogates also undergo replacement during encoding. Do not assume this
+codec is a lossless order-preserving mapping for every possible Java string.
+Ordinary ASCII keys do not encounter those particular differences.</p>
+<h3 id="signedlong"><code>signedLong()</code></h3>
+<p>Creates ID <code>aether:i64</code>, maximum eight bytes, and natural signed-long comparator.
+Its <code>encode</code> XORs the sign bit with <code>Long.MIN_VALUE</code> and writes eight big-endian
+bytes using <code>ByteBuffer</code> default order. This transforms signed numeric order into
+unsigned lexical byte order. Null boxed input fails during unboxing.
+Its <code>decode</code> requires exactly eight bytes, reads big-endian long, and reverses the
+sign-bit transform. It does not accept variable-width integer encodings.</p>
+<h3 id="uuid"><code>uuid()</code></h3>
+<p>Creates ID <code>aether:uuid</code>, maximum sixteen bytes. Its comparator compares most
+significant then least significant 64-bit components unsigned; it is not Java
+UUID's signed-component natural comparator. <code>encode</code> writes those components in
+big-endian order. <code>decode</code> requires exactly sixteen bytes and rebuilds the UUID.
+Null inputs have no explicit custom guard. Every UUID, including zero, is allowed
+as a logical key even though zero collection identity is forbidden separately.</p>
+<h3 id="fortypetype"><code>forType(type)</code></h3>
+<p>Rejects null class, resolves String, boxed or primitive long, and UUID to newly
+created built-ins. Other types raise an <code>IllegalArgumentException</code> containing
+<code>CODEC_NOT_AVAILABLE</code>. It does not invoke service loading, resolve record keys,
+or coerce integer classes. The unchecked generic cast is backed by the class match.</p>
+<h3 id="baseid-max-cmp-and-shared-metadata-methods"><code>Base(id, max, cmp)</code> and shared metadata methods</h3>
+<p>The private nested abstract base stores supplied metadata without validation.
+<code>codecId</code> returns ID, <code>encodingVersion</code> returns 1, <code>maximumEncodedSize</code> returns
+the declaration, and <code>comparator</code> returns the stored comparator.
+<code>fingerprint</code> computes SHA-256 of UTF-8 <code>id + &quot;:v1&quot;</code> on every call, returning a new
+array. Missing SHA-256 becomes <code>IllegalStateException</code>. It is not cached and does
+not hash function implementations, comparator behavior, or encoded key bytes.</p>
+<h2 id="collection-identity">Collection Identity</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/typed/CollectionId.java">CollectionId.java</a>.</p>
+<h3 id="collectionidvalue-and-ofvalue"><code>CollectionId(value)</code> and <code>of(value)</code></h3>
+<p>The compact record constructor rejects null and all-zero UUID. Its implicit
+<code>value()</code> accessor returns the immutable UUID. <code>of</code> calls <code>UUID.fromString</code> then
+the constructor; it adds no independent canonical-text roundtrip check beyond
+the platform parser. Invalid/null text follows that parser's errors.</p>
+<h3 id="fromnamename"><code>fromName(name)</code></h3>
+<p>Requires nonnull, nonblank name of at most 128 UTF-8 bytes. Prepends UTF-8
+<code>io.aetherdb.collection.v1</code> followed by a zero byte, copies the name bytes, and
+uses <code>UUID.nameUUIDFromBytes</code> for deterministic version-three identity.
+Mapping is case-sensitive and performs no trimming or Unicode normalization.
+Renaming changes identity and therefore physical keyspace. Use explicit identity
+when a display name should change without moving keys.</p>
+<h2 id="physical-key-envelope">Physical Key Envelope</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec/src/main/java/io/aetherdb/codec/TypedKeyEnvelope.java">TypedKeyEnvelope.java</a>.</p>
+<h3 id="typedkeyenvelope-and-prefixdefinition"><code>TypedKeyEnvelope()</code> and <code>prefix(definition)</code></h3>
+<p>Private utility constructor. <code>prefix</code> allocates nineteen bytes: marker <code>0x40</code>,
+sixteen big-endian collection UUID bytes, then two big-endian key-encoding-version
+bytes. It narrows version to short without independently checking its range.
+Collection-definition validation is a separate boundary; this prefix omits codec
+fingerprint, schema identity, collection name, and value-codec version.</p>
+<h3 id="encodedefinition-key"><code>encode(definition, key)</code></h3>
+<p>Calls the key codec, rejects null output or bytes longer than its declared maximum,
+then allocates prefix plus logical bytes and copies both. It does not independently
+apply the engine's total key-size cap or use checked addition for prefix plus
+length. The built-in string declaration leaves nineteen bytes within a 65,536-byte
+key limit. Custom codec correctness and bounds remain caller responsibilities.</p>
+<h3 id="decodedefinition-physical"><code>decode(definition, physical)</code></h3>
+<p>Builds expected prefix, requires sufficient physical length and exact prefix
+match, then copies remaining bytes and delegates to the key codec. Prefix comparison
+also creates an array copy. It does not apply the declared maximum to the suffix,
+validate a value envelope, or consult collection metadata in a database.
+Null definition/bytes have no explicit custom guards.</p>
+<h3 id="prefixenddefinition"><code>prefixEnd(definition)</code></h3>
+<p>Builds prefix and walks backward to the last byte not equal to 255, increments it,
+and returns a copy truncated just after that byte. This is the shortest exclusive
+upper bound for all byte strings with the original prefix, not the next complete
+collection ID. The no-successor exception cannot occur for a normally generated
+prefix because its leading byte is <code>0x40</code>. A collection scan uses prefix inclusive
+and this bound exclusive; a logical range also needs suitable encoded key bounds.</p>
+<h2 id="review-boundaries">Review Boundaries</h2>
+<p>Test logical versus byte ordering, Unicode edge cases, codec size declarations,
+version narrowing, and rename identity. Do not change a stable encoding merely
+to match a comparator without a compatibility/migration decision. Function-name
+coverage checks omissions, not codec injectivity, order preservation, schema
+compatibility, or collection-open behavior.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#codec-contract">Codec Contract</a><a href="#built-in-factories">Built-In Factories</a><a href="#collection-identity">Collection Identity</a><a href="#physical-key-envelope">Physical Key Envelope</a><a href="#review-boundaries">Review Boundaries</a></nav></aside>
+  </div>
+</body>
+</html>

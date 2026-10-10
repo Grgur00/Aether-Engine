@@ -26,6 +26,7 @@
         <nav class="docs-top-nav" aria-label="Documentation links">
           <a href="#quickstart">Quickstart</a>
           <a href="#api-reference">API reference</a>
+          <a href="../contributors/index.html">Contributors</a>
           <a href="https://github.com/Grgur00/Aether-Engine">GitHub <span aria-hidden="true">↗</span></a>
         </nav>
       </div>
@@ -393,6 +394,7 @@ TypedWriteResult result = db.write(batch);
         <article id="byte-api" class="docs-section" data-doc-title="AetherDatabase byte API open in memory put get delete write scan">
           <header><span class="docs-index">16</span><div><p>Core byte API</p><h2><code>AetherDatabase</code></h2></div></header>
           <p>The core contract stores arbitrary byte-array keys and values. Implementations defensively copy inputs and outputs, so callers retain ownership of their arrays.</p>
+          <p><code>ReadDiagnostics</code> provides optional thread-confined stage timings and counters. Attach a <code>ReadDiagnostics.Collector</code> and restore the previous collector after the operation. Nested timings are inclusive, not additive; diagnostics do not change the read ownership or durability contract.</p>
           <div class="code-panel"><div class="code-toolbar"><span>Byte-oriented database</span><button class="copy-button" type="button">Copy</button></div><pre><code><span class="tok-key">import</span> io.aetherdb.engine.Aether;
 <span class="tok-key">import</span> java.nio.charset.StandardCharsets;
 <span class="tok-key">import</span> java.nio.file.Path;

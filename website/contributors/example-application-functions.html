@@ -1,0 +1,344 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/EXAMPLE-APPLICATION-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Example application functions: source-backed contributor documentation for Aether Engine.">
+  <title>Example application functions | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html" aria-current="page">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/EXAMPLE-APPLICATION-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="example-application-functions">Example Application Functions</h1>
+<p><a href="typed-adapter-functions.html">Typed adapter</a> | <a href="generated-container-functions.html">Generated codecs</a> | <a href="module-build-architecture.html">Module builds</a></p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-persistent-notes/src/main/java/io/aetherdb/examples/notes">notes</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-sample-app/src/main/java/io/aetherdb/examples/social">social</a>.
+This reference covers all 44 explicit methods/constructors across eight Java
+classes/records, plus social <code>package-info.java</code> (documentation only).
+Both use typed embedded collections, not the remote Java client or training-cache
+daemon. The application owns its database; repositories borrow it.</p>
+<h2 id="architecture-and-lifetime">Architecture and Lifetime</h2>
+<pre><code class="language-text">Gradle compilation
+  -&gt; annotation processor
+  -&gt; generated record codecs
+application opens database
+  -&gt; repository defines collections
+  -&gt; typed collection reads/writes
+  -&gt; embedded byte engine
+application closes database
+  (repository borrows ownership)
+</code></pre>
+<p>Notes uses a persistent directory, a Swing list model and one UUID-keyed collection.
+Social uses three String-keyed collections and joins their results in application
+memory. It has no SQL query planner, secondary author index, automatic cascade,
+foreign-key constraint in the engine, or uniqueness transaction around prechecks.
+Batch submission groups writes, but preceding reads are not part of a serializable
+read-check-write transaction. These examples are useful API walkthroughs, not a
+concurrent social service implementation.</p>
+<h2 id="notes-record-and-repository">Notes Record and Repository</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Note.Note(id, text)</code></td>
+<td>Requires nonnull UUID and nonblank text; strips leading/trailing whitespace before storing. Version-1 record with text max-length annotation 4096. Constructor does not directly enforce annotated length.</td>
+</tr>
+<tr>
+<td><code>Note.toString()</code></td>
+<td>Returns text for Swing list display; omits UUID.</td>
+</tr>
+<tr>
+<td><code>NotesRepository.NotesRepository(database)</code></td>
+<td>Requires database and defines <code>persistent-notes</code> with UUID keys and Note values. Borrows database lifetime.</td>
+</tr>
+<tr>
+<td><code>NotesRepository.add(text)</code></td>
+<td>Creates random UUID and validated Note, puts it, requires <code>TypedWriteResult.Applied</code>; otherwise throws with result. Returns note only on applied write, not on every normal method return from put.</td>
+</tr>
+<tr>
+<td><code>NotesRepository.findAll()</code></td>
+<td>Materializes scanAll values into a list. Ordering follows collection scan, not note creation time.</td>
+</tr>
+<tr>
+<td><code>NotesRepository.addWelcomeNotesIfEmpty()</code></td>
+<td>Scans for emptiness and sequentially adds two welcome notes. No single batch or concurrency fence: one insertion can succeed before the second fails; concurrent callers can both seed.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="swing-application-functions">Swing Application Functions</h3>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PersistentNotesApplication.PersistentNotesApplication(directory)</code></td>
+<td>Opens persistent database, constructs repository, seeds welcome values, loads list model and builds window. Constructor work can fail after opening; no constructor-level cleanup finally block.</td>
+</tr>
+<tr>
+<td><code>PersistentNotesApplication.main(arguments)</code></td>
+<td>Uses first argument as directory, otherwise <code>examples/aether-persistent-notes/data/aether-notes</code>; schedules opening/showing on Swing event thread and displays RuntimeException message. Extra arguments are ignored.</td>
+</tr>
+<tr>
+<td><code>PersistentNotesApplication.buildWindow(directory)</code></td>
+<td>Configures location label, single-selection list, editor/button and window-close listener; packs frame and requests focus. Button and Enter both call addNote. No edit/delete workflow.</td>
+</tr>
+<tr>
+<td><code>PersistentNotesApplication.anonymous.windowClosing(event)</code></td>
+<td>WindowAdapter callback calls application close; does not use JFrame's automatic close path.</td>
+</tr>
+<tr>
+<td><code>PersistentNotesApplication.addNote()</code></td>
+<td>Calls repository add with input text, appends successful Note to model, clears/refocuses input. Runtime failure shows dialog; no model append before successful add.</td>
+</tr>
+<tr>
+<td><code>PersistentNotesApplication.close()</code></td>
+<td>Closes database, displays RuntimeException if closing fails, disposes frame in finally even on failure. Does not keep window open for retry.</td>
+</tr>
+</tbody>
+</table>
+<p>Storage operations happen on the Swing event thread, so slow open/scan/write/close
+can stall the UI. No background worker or asynchronous state machine is hidden in
+these callbacks. Constructor failure after a database opens can leave ownership
+unreleased; documentation does not promise exception-safe initialization that the
+source does not implement. Gradle run uses root working directory; direct Java
+launches need their own working-directory choice.</p>
+<h2 id="social-domain-records">Social Domain Records</h2>
+<p>All three social records use <code>@AetherRecord(version=1)</code>. Max-length annotations
+are codec/schema constraints, not length checks in these compact constructors.
+Read the generated-codec reference for encoding limits. Constructors validate
+local values, not existence of referenced records.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UserProfile.UserProfile(...)</code></td>
+<td>Requires nonblank id, username, displayName and email; nonnull bio, location and createdAt; ID cannot contain slash; followerCount must be nonnegative. Does not validate email syntax or enforce unique usernames.</td>
+</tr>
+<tr>
+<td><code>UserProfile.requireText(value, name)</code></td>
+<td>Rejects null/blank with IllegalArgumentException; preserves original whitespace and case.</td>
+</tr>
+<tr>
+<td><code>SocialPost.SocialPost(...)</code></td>
+<td>Validates post/author identifiers, nonblank content, nonnull timestamps and updatedAt not before createdAt. Does not trim content or look up author.</td>
+</tr>
+<tr>
+<td><code>SocialPost.requireIdentifier(value, name)</code></td>
+<td>Rejects null/blank or slash-containing identifier.</td>
+</tr>
+<tr>
+<td><code>FollowRelationship.FollowRelationship(followerId, followedId)</code></td>
+<td>Validates both identifiers and rejects self-follow. Does not look up profiles.</td>
+</tr>
+<tr>
+<td><code>FollowRelationship.includes(profileId)</code></td>
+<td>True if either endpoint equals argument; null argument matches neither.</td>
+</tr>
+<tr>
+<td><code>FollowRelationship.requireIdentifier(value, name)</code></td>
+<td>Rejects null/blank or slash-containing identifier to preserve composite-key delimiter meaning.</td>
+</tr>
+</tbody>
+</table>
+<p>UserProfile annotations: id/username 64, displayName/location 256, email 320 and
+bio 4096. SocialPost id/authorId limits are 64 and content 8192; relationship
+identifiers have limit 64. These are not claims that every constructed object
+has already passed encoding-time validation.</p>
+<h2 id="social-repository-functions">Social Repository Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SocialNetworkRepository.SocialNetworkRepository(database)</code></td>
+<td>Requires database; defines <code>social-profiles</code>, <code>social-posts</code>, <code>social-follows</code> with String keys and their respective records. Collection definition does not create engine-level foreign-key enforcement.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.createProfile(profile)</code></td>
+<td>Requires profile nonnull and stored ID absent, then puts and returns write result. Check can race; caller must inspect Applied/non-applied outcome.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.createProfiles(values)</code></td>
+<td>Builds one typed batch, checks each against stored profiles and stages puts; submits once. Duplicate IDs within the same batch are not independently detected by these stored-value checks.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.findProfile(id)</code></td>
+<td>Returns typed get's value Optional; no independent distinction of richer read outcomes here.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.findProfiles()</code></td>
+<td>Scans/materializes all profile values; no explicit sort or pagination.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.updateProfile(profile)</code></td>
+<td>Requires stored ID present then overwrites complete profile. No compare-and-swap or merge; stale caller fields can overwrite changes.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.deleteProfile(id)</code></td>
+<td>Requires profile, scans authored posts and follow edges, refuses deletion while either exists; otherwise deletes. No cascade and no transaction including relation checks.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.createPost(post)</code></td>
+<td>Requires existing author and absent post ID, then puts. These checks occur before write submission.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.findPost(id)</code></td>
+<td>Returns typed get value Optional.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.postsByAuthor(authorId)</code></td>
+<td>Scans every post, filters author, sorts createdAt ascending and materializes. No author index.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.updatePost(id, content, updatedAt)</code></td>
+<td>Requires current post, preserves ID/author/createdAt, builds new validated post and overwrites. Validation may reject timestamp/content before submission.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.deletePost(id)</code></td>
+<td>Requires post present, deletes and returns result; does not update profiles.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.follow(followerId, followedId)</code></td>
+<td>Validates edge and both profiles, requires absent composite edge, then batches edge insertion with followed profile's count plus one. Reads/count calculation precede batch, so concurrent increments can be lost.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.unfollow(followerId, followedId)</code></td>
+<td>Requires edge and followed profile, batches edge delete and decremented count clamped at zero. Does not construct a fresh FollowRelationship or revalidate follower profile.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.followersOf(profileId)</code></td>
+<td>Scans relationships, selects incoming edges, looks up every follower, throws if an edge points to a missing profile. Not a snapshot join across all reads.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.feedFor(profileId)</code></td>
+<td>Collects followed IDs from relationships, scans all posts, filters those authors and sorts newest-first. Does not include own posts unless followed-ID set permits them, nor require queried profile to exist.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.relationships()</code></td>
+<td>Scans/materializes all follow values; private helper reused by joins/deletion check.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.withFollowerCount(profile, count)</code></td>
+<td>Copies all profile fields into a new UserProfile with changed count; record constructor validates nonnegative count. No write itself.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.relationshipKey(followerId, followedId)</code></td>
+<td>Concatenates endpoints with slash. No validation here; follow constructs validated record first, unfollow relies on supplied IDs.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.requireAbsent(value, type, id)</code></td>
+<td>Throws IllegalStateException when Optional is present; only a local guard, not reserved-key insertion.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkRepository.requirePresent(value, type, id)</code></td>
+<td>Returns Optional value or throws descriptive IllegalStateException.</td>
+</tr>
+</tbody>
+</table>
+<p>Only notes' add converts non-Applied writes into exceptions. Social write methods
+return the result to callers, and the demo main often ignores it. Read-before-write
+guards prove intended sequential behavior, not concurrent uniqueness or atomic
+referential integrity. Full scans/materialized lists can grow with dataset size;
+these are not optimized feeds or bounded-memory joins.</p>
+<h2 id="social-console-application">Social Console Application</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SocialNetworkApplication.SocialNetworkApplication()</code></td>
+<td>Private empty constructor prevents ordinary instance construction; main is static.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkApplication.main(arguments)</code></td>
+<td>Opens in-memory database with no arguments, persistent database from first argument otherwise; try-with-resources closes it. Seeds, updates profile/post, creates/deletes draft and prints profiles, author posts, joined feed and deletion check. Assumes seeded IDs exist.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkApplication.seedIfEmpty(social)</code></td>
+<td>Returns if any profile exists; otherwise creates two profiles, two posts and one follow through separate calls. Partial existing data is not repaired; calls are not one transaction and returned write results are not checked.</td>
+</tr>
+<tr>
+<td><code>SocialNetworkApplication.profile(...)</code></td>
+<td>Builds a UserProfile with default bio, zero followers, supplied verified flag and parsed Instant. Parsing errors propagate.</td>
+</tr>
+</tbody>
+</table>
+<p>The fixed demo IDs mean that a persistent store containing unrelated profiles
+can skip seeding and subsequently fail required demo lookups. Existing partial
+seed state can also fail. The sample is a scripted walkthrough, not an idempotent
+migration or recovery routine.</p>
+<h2 id="implicit-and-generated-behavior">Implicit and Generated Behavior</h2>
+<p>Record accessors expose immutable component values: Note id and text; UserProfile
+id, username, displayName, email, bio, location, followerCount, verified and createdAt;
+SocialPost id, authorId, content, createdAt and updatedAt; FollowRelationship
+followerId and followedId. Records also supply component-based equals/hashCode and
+toString, except Note overrides toString for display. These compiler-supplied
+methods are not separate explicit source declarations in the 44-method inventory.
+Generated codec classes/resources come from annotation processing; they are not
+handwritten example source files. Follow generated-container and processor
+references for lookup, version and schema compatibility behavior.</p>
+<h2 id="evidence-and-test-boundaries">Evidence and Test Boundaries</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-persistent-notes/src/test/java/io/aetherdb/examples/notes/NotesRepositoryTest.java">NotesRepositoryTest</a>
+stores one note, closes and reopens the same directory, and checks its text.
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-sample-app/src/test/java/io/aetherdb/examples/social/SocialNetworkRepositoryTest.java">SocialNetworkRepositoryTest</a>
+checks sequential CRUD/joins/counts, related-record deletion refusal, duplicate
+profile/missing-author/missing-followed-profile rejection and generated profile/post
+codec round trips plus unknown-version rejection. These do not test concurrent
+guard races, partial seed recovery, Swing interactions or UI responsiveness.</p>
+<p>Documentation compiler-tree checks match explicit qualified names against all
+example main sources, including the anonymous window callback. Static website
+checks validate links/layout, not execution of these applications. No window or
+persistent store must be opened to inspect this reference.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-lifetime">Architecture and Lifetime</a><a href="#notes-record-and-repository">Notes Record and Repository</a><a href="#social-domain-records">Social Domain Records</a><a href="#social-repository-functions">Social Repository Functions</a><a href="#social-console-application">Social Console Application</a><a href="#implicit-and-generated-behavior">Implicit and Generated Behavior</a><a href="#evidence-and-test-boundaries">Evidence and Test Boundaries</a></nav></aside>
+  </div>
+</body>
+</html>

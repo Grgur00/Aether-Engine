@@ -1,0 +1,171 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/H2-ANALYSIS-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="H2 analysis and figures: source-backed contributor documentation for Aether Engine.">
+  <title>H2 analysis and figures | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html" aria-current="page">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/H2-ANALYSIS-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="h2-analysis-and-figure-functions">H2 Analysis and Figure Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="h2-protocol-functions.html">H2 protocol</a> | <a href="h2-execution-functions.html">H2 execution</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/h2_analysis.py">h2_analysis.py</a>. This page covers all five
+explicit functions, including the nested figure writer. It explains the implemented
+predeclared calculation; it does not change the frozen statistical protocol or
+claim that an experiment has finished. Synthetic test timings are not observations.</p>
+<p>The <a href="h2-session-functions.html">multi-session controller</a> preserves original block
+payloads but does not yet implement final multi-session aggregation. This page's
+calculation is not proof that nested session archives or session effects have
+been validated; the amendment must be disclosed separately in final reporting.</p>
+<h2 id="evidence-to-inference-boundary">Evidence-to-Inference Boundary</h2>
+<pre><code class="language-text">analyze_output (runner): validate archived protocol/preflight/attempts/receipts
+  -&gt; 24 whole paired blocks, all backend permutations, no pilot/preflight timings
+  -&gt; analyze: endpoint consistency + baseline/Aether ratios at V0..V4
+  -&gt; primary: V4 log(mmap/Aether), one-sided paired t-test
+  -&gt; MONAI: descriptive secondary ratios
+  -&gt; raw-result-derived figures + limitations + completion inventory
+</code></pre>
+<p>analyze checks important invariants, but is not the entire receipt validator.
+It does not itself run validate_stages, CUDA/device guards, runtime/source probes
+or seals. Call the archived runner path for campaign evidence. Direct helper
+calls on fabricated dicts can exercise arithmetic without certifying a workload.</p>
+<h2 id="function-reference">Function Reference</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ratios(values)</code></td>
+<td>Converts to a NumPy float array; requires len=24 and every value positive/finite, then logs ratios, calculates mean log, sample standard error with n=24 and t(23) two-sided 95% radius. Returns geometric ratio/CI, reduction, raw/log ratios, wins/ties and log statistics. Assumes a one-dimensional paired vector; does not explicitly enforce ndim. No superiority p-value here.</td>
+</tr>
+<tr>
+<td><code>analyze(blocks)</code></td>
+<td>Requires exactly indices 0..23, all 24 unique backend permutations, confirmatory role, explicit correctness true/technicalFailure false and common source/protocol hashes. Recomputes cumulative phase endpoints, calculates three baselines' ratios at five versions and break-even/lost-advantage summaries. Adds mmap V4 primary t-test, sensitivity results, degeneracy flag and conclusion. No pilot pooling, performance-based exclusions or per-version significance selection.</td>
+</tr>
+<tr>
+<td><code>mean_ci(values)</code></td>
+<td>Computes axis-0 arithmetic means and t(23)*sample-standard-deviation/sqrt(24) bounds. Assumes exactly 24 observations; no independent size/finite/shape validation. Used only after plot/analyze's block-count guard for seconds and paired differences, not geometric ratios.</td>
+</tr>
+<tr>
+<td><code>plot(blocks, directory)</code></td>
+<td>Selects Matplotlib Agg, re-runs analyze, creates output directory, derives five figures directly from blocks/summary and writes PNG/PDF pairs. Uses arithmetic mean CIs for seconds/differences, geometric ratio CIs for relative performance and all 24 primary points for paired scatter. No synthetic smooth curves or omitted slow valid blocks. Existing figure names can be overwritten; save failure can leave partial outputs.</td>
+</tr>
+<tr>
+<td><code>plot.finish(fig, axis, name, title)</code></td>
+<td>Nested helper sets title/y-grid, tightens layout, writes 180-dpi PNG and PDF, then closes figure. No atomic two-file publication or finally close on a save error; caller's campaign completion is written later.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="primary-calculation-and-direction">Primary Calculation and Direction</h2>
+<p>Each paired ratio is baseline cumulative time divided by Aether cumulative time.
+A ratio above one favors Aether. The effect estimate is exp(mean(log ratios)),
+not mean(baseline)/mean(Aether), an arithmetic mean of ratios or a median speedup.
+Percent time reduction is <code>100 * (1 - 1 / geometricMeanRatio)</code>, relative to baseline
+time; it is not <code>100 * (ratio - 1)</code>.</p>
+<p>The primary checkpoint is <strong>V4</strong>. The implemented one-sided statistic is mean log
+ratio divided by its sample standard error, with 23 degrees of freedom and the
+upper-tail t probability. Superiority requires nondegenerate p&lt;0.05 <strong>and</strong> a
+geometric ratio &gt;1. The interval is two-sided 95% on log scale, exponentiated back.
+Other versions describe the recovery trajectory; they do not supply alternative
+primary hypothesis tests when V4 is unfavorable.</p>
+<p>If standard error is at most NumPy float epsilon, tStatistic and oneSidedP become
+None and superiority is false. Even identical favorable ratios have no estimated
+sample variance and are treated as inconclusive, not assigned an infinite t value
+or fabricated significance. ratios itself can still report a zero-width CI; the
+primary conclusion accounts for degeneracy separately.</p>
+<p>Sensitivity output uses a one-sided sign test on nonzero logs, an approximate
+one-sided Wilcoxon test, and Shapiro on nondegenerate logs. All ties yield sign/
+Wilcoxon p=1; Shapiro is None for degenerate data. These are reported diagnostics
+and never replace the primary method. MONAI comparisons are descriptive only.
+The source implements these tests through SciPy, not hand-written approximations.</p>
+<h2 id="break-even-semantics">Break-Even Semantics</h2>
+<p>Per-block firstVersion is the first ratio <strong>&gt;=1</strong>, so a tie qualifies there.
+Aggregate firstVersion is the first geometric mean ratio <strong>&gt;1</strong>, so a tie does not
+qualify. V0 is eligible; no crossing becomes None. advantageLostLater records any
+later ratio &lt;1 after qualifying advantage, rather than asserting permanent savings
+from the first crossing. Aggregate lost advantage uses the aggregate strict &gt;1
+condition. These are observed version checkpoints, not interpolated dataset sizes,
+predicted future epochs or a reuse-rate causal curve.</p>
+<p>Win counts use ratio &gt;1 and ties exact float equality to one. No tolerance-based
+tie policy is applied. Valid elapsed times remain in the analysis even when slow.
+No intermediate 12-block p-value, pilot pooling or optional stopping is implemented.</p>
+<h2 id="figure-outputs">Figure Outputs</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>File stem</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01-cumulative-lifecycle</td>
+<td>Backend arithmetic mean cumulative seconds and 95% CI across V0-V4, with V4 marked</td>
+</tr>
+<tr>
+<td>02-relative-performance</td>
+<td>Baseline/Aether geometric ratios and exponentiated log intervals at each version</td>
+</tr>
+<tr>
+<td>03-paired-blocks</td>
+<td>Every paired block's V4 mmap/Aether ratio, labeled by block index+1</td>
+</tr>
+<tr>
+<td>04-cost-breakdown</td>
+<td>Mean lifecycle seconds split into V0 preparation, update preparation, training, model setup and startup/drain/close</td>
+</tr>
+<tr>
+<td>05-break-even</td>
+<td>Mean paired Aether-minus-mmap cumulative seconds and CI; negative favors Aether</td>
+</tr>
+</tbody>
+</table>
+<p>Each stem has PNG and PDF. Seconds are converted from the archived millisecond
+phases; relative ratios are dimensionless. The cost breakdown has mean components,
+not independent component confidence intervals. Mean timing ribbons and geometric
+ratio ribbons describe different quantities and should not be conflated.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_h2_confirmatory.py">test_h2_confirmatory.py</a> compares
+the primary arithmetic against SciPy's one-sided t-test, checks direction/reduction,
+rejects incomplete/pooled/duplicate/unbalanced/failed/preflight observations, treats
+equal samples as inconclusive, verifies five nonempty PNG/PDF pairs and validates
+archived campaign gating. The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_h2_documented_contracts.py">focused documentation contracts</a> check direct-helper
+limits and exact break-even/tie semantics with synthetic timings. These establish
+calculation behavior, not real GPU superiority or reproducibility of arbitrary data.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#evidence-to-inference-boundary">Evidence-to-Inference Boundary</a><a href="#function-reference">Function Reference</a><a href="#primary-calculation-and-direction">Primary Calculation and Direction</a><a href="#break-even-semantics">Break-Even Semantics</a><a href="#figure-outputs">Figure Outputs</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

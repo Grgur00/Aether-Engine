@@ -1,0 +1,168 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/RELIABILITY-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Reliability and fault injection: source-backed contributor documentation for Aether Engine.">
+  <title>Reliability and fault injection | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html" aria-current="page">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/RELIABILITY-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="reliability-and-fault-injection-functions">Reliability and Fault Injection Functions</h1>
+<p><a href="testing.html">Testing guide</a> | <a href="wal-functions.html">WAL formats</a></p>
+<p>This describes current source in <code>aether-reliability</code>. Test hooks and byte mutations
+are mechanisms for experiments, not evidence by themselves that recovery passes.
+Declared hook names do not prove that every subsystem invokes them.</p>
+<h2 id="architecture-and-failure-models">Architecture and Failure Models</h2>
+<p><code>CrashPointRegistry</code> dispatches named events to one process-local active hook.
+The default hook does nothing. <code>TriggeringCrashPoint</code> throws at a chosen matching
+hit count; Java unwinding and cleanup can still execute. A process-death campaign
+must use a separate process and a terminating hook or external termination, not
+equate this exception with sudden loss of power.</p>
+<p><code>CorruptionMutator</code> instead produces a modified byte array from a deterministic
+plan. It does not write files, repair checksums, terminate a process, or decide
+whether corruption is acceptable. Tests persist the result and exercise the
+appropriate parser or recovery path themselves.</p>
+<h2 id="crash-context-and-callback">Crash Context and Callback</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-reliability/src/main/java/io/aetherdb/reliability/CrashContext.java">CrashContext.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-reliability/src/main/java/io/aetherdb/reliability/CrashPoint.java">CrashPoint.java</a>.</p>
+<h3 id="crashcontextattributes-and-ofkey-value"><code>CrashContext(attributes)</code> and <code>of(key, value)</code></h3>
+<p>Construction requires a nonnull map, nonblank nonnull keys, and nonnull values,
+then copies immutably. <code>EMPTY</code> is a shared empty context. <code>of</code> uses <code>Map.of</code> to
+create a one-attribute context; null arguments can fail there before the constructor's
+custom checks. The implicit <code>attributes()</code> accessor exposes the immutable map.
+Context does not automatically include sequence, path, or durability metadata.</p>
+<h3 id="crashpointhitid-context"><code>CrashPoint.hit(id, context)</code></h3>
+<p>The functional interface supplies an event callback. It defines no filtering,
+thread-affinity, termination, or exception policy. The registry invokes the callback
+synchronously on the hitting thread and does not catch callback exceptions.</p>
+<h2 id="process-global-dispatcher">Process-Global Dispatcher</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-reliability/src/main/java/io/aetherdb/reliability/CrashPointRegistry.java">CrashPointRegistry.java</a>.</p>
+<h3 id="crashpointregistry-and-validateidid"><code>CrashPointRegistry()</code> and <code>validateId(id)</code></h3>
+<p>Private utility constructor. Validation accepts dot-separated lowercase segments
+starting with a letter and continuing with lowercase letters, digits, or underscores.
+At least two segments are required. It returns the same validated string or throws
+<code>IllegalArgumentException</code>. Validation is syntactic, not membership in the standard
+ID catalog; custom valid names are allowed.</p>
+<h3 id="hitid-and-hitid-context"><code>hit(id)</code> and <code>hit(id, context)</code></h3>
+<p>The first supplies <code>CrashContext.EMPTY</code>. The second validates ID, reads the atomic
+active callback, requires nonnull context, and invokes it. Validation still runs
+when injection is disabled. A concurrent installation need not affect a hit that
+already read its callback. No crash evidence is recorded by the registry itself.</p>
+<h3 id="installcrashpoint-and-restoreprevious"><code>install(crashPoint)</code> and <code>restore(previous)</code></h3>
+<p><code>install</code> rejects null, atomically replaces the process-wide active callback, and
+returns a scope holding the previous callback. Package-private <code>restore</code> simply
+sets that previous callback; it does not verify current scope ownership. Hooks are
+not thread-local and nested installations require coordinated LIFO closing.
+Overlapping tests or out-of-order closes can overwrite another test's active hook.</p>
+<h3 id="scopedcrashpointprevious-and-close"><code>ScopedCrashPoint(previous)</code> and <code>close()</code></h3>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-reliability/src/main/java/io/aetherdb/reliability/ScopedCrashPoint.java">ScopedCrashPoint.java</a>.</p>
+<p>Package-private construction stores the previous callback. Close checks a plain
+boolean, marks closed, then restores it. Normally idempotent for one owner, but
+not synchronized or CAS-protected for concurrent close. Closing a scope does not
+cancel a callback already executing.</p>
+<h2 id="counted-exception-trigger">Counted Exception Trigger</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-reliability/src/main/java/io/aetherdb/reliability/TriggeringCrashPoint.java">TriggeringCrashPoint.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-reliability/src/main/java/io/aetherdb/reliability/CrashPointException.java">CrashPointException.java</a>.</p>
+<h3 id="triggeringcrashpointtargetid-triggeronhit"><code>TriggeringCrashPoint(targetId, triggerOnHit)</code></h3>
+<p>Validates target ID and requires a positive trigger count. Its atomic counter starts
+at zero. Construction does not install the hook globally.</p>
+<h3 id="hitid-context-and-hits"><code>hit(id, context)</code> and <code>hits()</code></h3>
+<p>Requires nonnull context even for an unmatched ID. Unmatched events return without
+counting. Matching events increment atomically and throw only when the new count
+equals the configured count. Later matching hits normally continue without another
+exception. <code>hits</code> reads matching-event count; it is not the total number of registry
+events. There is no explicit counter overflow protection or reset operation.</p>
+<h3 id="crashpointexceptioncrashpointid-and-crashpointid"><code>CrashPointException(crashPointId)</code> and <code>crashPointId()</code></h3>
+<p>Construction preserves the supplied ID and formats the exception message; it does
+not independently validate ID or halt the JVM. The accessor returns that ID.
+An exception reaching storage code may follow its ordinary failure fencing and
+cleanup paths, which differs from abrupt process termination.</p>
+<h2 id="standard-id-catalog">Standard ID Catalog</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-reliability/src/main/java/io/aetherdb/reliability/CrashPointIds.java">CrashPointIds.java</a>.</p>
+<h3 id="crashpointids-and-all"><code>CrashPointIds()</code> and <code>all()</code></h3>
+<p>Private utility constructor. <code>all</code> returns the immutable standard set, with no
+promised iteration order. Constants name write sealing/sequence, WAL fragment and
+force, memtable application/ack, flush/manifest, compaction/deletion, checkpoint,
+repair, Raft vote/log/commit, snapshot publication, and security-key activation
+boundaries. The set contains 19 standard IDs and is not an exhaustive inventory
+of all custom hooks used by development code. Read each hit call to establish
+what has actually happened at that boundary.</p>
+<h2 id="corruption-plan">Corruption Plan</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-reliability/src/main/java/io/aetherdb/reliability/CorruptionPlan.java">CorruptionPlan.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-reliability/src/main/java/io/aetherdb/reliability/CorruptionKind.java">CorruptionKind.java</a>.</p>
+<h3 id="corruptionplankind-offset-length-value-bitindex"><code>CorruptionPlan(kind, offset, length, value, bitIndex)</code></h3>
+<p>Requires nonnull kind, nonnegative offset and length, and bit index 0 through 7.
+It cannot check against an input array not yet supplied. It permits zero length
+even for mutation kinds that will reject it on application. Some fields are unused
+for each kind; the constructor does not require canonical values in those fields.
+Implicit accessors expose the plan's scalar fields.</p>
+<h3 id="flipbit-truncate-appendgarbage-overwriterange-and-tornwriteprefix"><code>flipBit</code>, <code>truncate</code>, <code>appendGarbage</code>, <code>overwriteRange</code>, and <code>tornWritePrefix</code></h3>
+<p>Factories select the corresponding kind and conventional unused fields. Flip sets
+length one; truncate and torn-prefix use offset as retained prefix length; append
+uses length and repeated byte; overwrite uses offset, length, and repeated byte.
+Append accepts a zero byte despite the kind comment's nonzero-garbage wording.
+Torn-prefix is a semantic label for the same array truncation operation, not a
+filesystem torn-write simulation with sector or force semantics.</p>
+<h2 id="byte-mutation">Byte Mutation</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-reliability/src/main/java/io/aetherdb/reliability/CorruptionMutator.java">CorruptionMutator.java</a>.</p>
+<h3 id="corruptionmutator-and-applyoriginal-plan"><code>CorruptionMutator()</code> and <code>apply(original, plan)</code></h3>
+<p>Private constructor. <code>apply</code> requires nonnull original and plan, then dispatches
+by kind, treating truncate and torn-prefix identically. Successful mutation returns
+a new array and does not modify the caller's original bytes. Concurrent caller
+mutation during copying is not synchronized.</p>
+<h3 id="flipbitoriginal-offset-bitindex-and-requireoffset"><code>flipBit(original, offset, bitIndex)</code> and <code>requireOffset</code></h3>
+<p>Requires offset within an actual byte, clones the array, and XORs the chosen bit.
+The plan guarantees bit range. <code>requireOffset</code> rejects negative or past-end offsets;
+an empty input cannot be bit-flipped.</p>
+<h3 id="truncateoriginal-prefixlength"><code>truncate(original, prefixLength)</code></h3>
+<p>Requires prefix from zero through original length inclusive, then returns a copied
+prefix. Keeping the full length still creates a new array; zero keeps no bytes.</p>
+<h3 id="appendgarbageoriginal-bytes-value"><code>appendGarbage(original, bytes, value)</code></h3>
+<p>Requires positive byte count, calculates new length using checked addition, copies
+the original, and fills the appended region with the supplied repeated byte.
+Length overflow raises <code>ArithmeticException</code>; allocation can fail separately.</p>
+<h3 id="overwriterangeoriginal-offset-length-value-and-requirerange"><code>overwriteRange(original, offset, length, value)</code> and <code>requireRange</code></h3>
+<p>Requires positive overwrite length and a fully in-bounds range, clones, and fills
+that range. <code>requireRange</code> computes the end using long arithmetic so integer
+addition cannot wrap around its bounds check. These operations do not recognize
+format fields or recompute checksums; tests choose meaningful offsets themselves.</p>
+<h2 id="evidence-boundaries">Evidence Boundaries</h2>
+<p>Keep exception-injection tests distinct from subprocess-death tests and persisted
+corruption tests. Verify callbacks are restored even on assertion failure. Do not
+run overlapping global-hook scopes without explicit coordination. Document the
+expected parser/recovery response and inspect the resulting durable state; reaching
+a named hook alone is not a successful crash-consistency result. Function-name
+coverage checks omissions, not the reliability claim being tested.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-failure-models">Architecture and Failure Models</a><a href="#crash-context-and-callback">Crash Context and Callback</a><a href="#process-global-dispatcher">Process-Global Dispatcher</a><a href="#counted-exception-trigger">Counted Exception Trigger</a><a href="#standard-id-catalog">Standard ID Catalog</a><a href="#corruption-plan">Corruption Plan</a><a href="#byte-mutation">Byte Mutation</a><a href="#evidence-boundaries">Evidence Boundaries</a></nav></aside>
+  </div>
+</body>
+</html>

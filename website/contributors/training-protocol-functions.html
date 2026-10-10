@@ -1,0 +1,368 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/TRAINING-PROTOCOL-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Training cache protocol and traces: source-backed contributor documentation for Aether Engine.">
+  <title>Training cache protocol and traces | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html" aria-current="page">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/TRAINING-PROTOCOL-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="training-cache-protocol-and-trace-functions">Training Cache Protocol and Trace Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="training-daemon-functions.html">Daemon lifecycle</a> | <a href="training-cache-functions.html">Cache operations</a></p>
+<p>This reference covers explicit declarations in <code>TrainingCacheProtocol</code>,
+<code>TrainingCacheProtocolMetrics</code>, <code>TrainingCacheRequestTrace</code>, and <code>DiagnosticJson</code>.
+The protocol is application-specific local cache access, not the general Java RPC
+frame format. Version 2 adds correlated diagnostics to the same cache operations;
+it does not change persistent artifact identity or storage envelopes.</p>
+<h2 id="frame-layout-and-operations">Frame Layout and Operations</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheProtocol.java">TrainingCacheProtocol.java</a>.</p>
+<p>Integers and longs use big-endian order. A request is a four-byte body length
+followed by body: version byte, operation byte, optional 16 trace-ID bytes for
+version 2, then operation arguments. Version 1 has no trace ID. Body length must
+be 2..64 MiB; version-2-specific minimum structure is checked only by actual reads.</p>
+<p>A key is namespace string, sample string and 32 fingerprint bytes. Each string
+has four-byte UTF-8 byte length followed by bytes. PUT payloads have a four-byte
+length followed by raw bytes. Batch operations begin their arguments with a count.</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Operation</th>
+<th>Argument and response semantics</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>GET</td>
+<td>One key; MISS or HIT with payload</td>
+</tr>
+<tr>
+<td>2</td>
+<td>PUT</td>
+<td>One key/value; publication uses <code>putMany</code>; HIT with empty operation body</td>
+</tr>
+<tr>
+<td>3</td>
+<td>GET_REF</td>
+<td>One key; MISS or HIT with segment-reference metadata</td>
+</tr>
+<tr>
+<td>4</td>
+<td>GET_MANY_REF</td>
+<td>Count and keys; HIT with ordered optional references</td>
+</tr>
+<tr>
+<td>5</td>
+<td>GET_MANY</td>
+<td>Count and keys; HIT with packed slot statuses/offsets/lengths/payloads</td>
+</tr>
+<tr>
+<td>6</td>
+<td>PUT_MANY</td>
+<td>Count and key/value pairs; HIT with empty operation body</td>
+</tr>
+<tr>
+<td>7</td>
+<td>INFO</td>
+<td>No operation arguments; HIT with UTF-8 JSON capabilities/identity/diagnostics</td>
+</tr>
+<tr>
+<td>8</td>
+<td>CONTAINS_MANY</td>
+<td>Count and keys; HIT with count and one presence byte per key</td>
+</tr>
+<tr>
+<td>9</td>
+<td>DRAIN_TRACES</td>
+<td>No arguments; HIT with UTF-8 JSON of completed records/drop count</td>
+</tr>
+</tbody>
+</table>
+<p>Response framing is four-byte frame-body length, one status byte, four-byte value
+length, then value. Frame-body length = 5 + value length. Status MISS = 0, HIT = 1,
+ERROR = 2. For traced requests the value includes a diagnostic envelope even on
+MISS/ERROR; &quot;empty operation body&quot; does not imply zero response value bytes.
+There is no response protocol-version byte or general structured exception format.</p>
+<h2 id="connection-loop-and-admission">Connection Loop and Admission</h2>
+<p>The private <code>TrainingCacheProtocol()</code> constructor prevents ordinary utility
+instantiation. Static <code>serve(rawInput, rawOutput, cache, permits, metrics)</code> owns
+DataInputStream and buffered DataOutputStream wrappers and loops over requests.</p>
+<p>Its sequence is:</p>
+<ol>
+<li>Increment connection count. Wait for first header byte; clean EOF returns.
+Timestamp arrival after that byte, excluding preceding idle wait.</li>
+<li>Read remaining length bytes, validate body length, allocate/read the entire body.</li>
+<li>Parse version/operation; for version 2 start trace with its 16 bytes and record
+arrival/read duration. Decode keys/entries and record request decode time.</li>
+<li>Try a semaphore permit without waiting. If unavailable, return ERROR with empty
+operation body. If admitted, count request and dispatch it.</li>
+<li>Encode/write/flush response. For admitted GET_MANY or PUT_MANY, enqueue the
+post-write completed trace when tracing is active.</li>
+<li>In a finally block, release any acquired permit and clear trace context; read
+the next request on this connection.</li>
+</ol>
+<p>The permit is held through response encoding and flush, so slow writes hold
+admission. Reading/decoding and TLS handshake happen outside admission. There is
+no total bytes-in-flight budget, request deadline or cancellation protocol here.
+One connection is sequential; requests from multiple connections may overlap.</p>
+<p>Outer <code>catch (Exception)</code> silently ends serving and closes wrappers. Malformed
+frames, unsupported operations/versions, parser failures, cache conflicts and I/O
+exceptions do not generally produce ERROR replies: they terminate the connection.
+ERROR is the explicit permit-denial path. A client can observe disconnection after
+publication but before acknowledgement; a trace ID is not transaction deduplication.
+<code>Error</code> is not swallowed by this catch, though the inner finally still runs if entered.</p>
+<h2 id="request-decoding-functions">Request Decoding Functions</h2>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and limits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>decode(operation, input)</code></td>
+<td>Requires operation 1..9. Allocates key/entry lists; batches read count 0..4096, single-key operations use one. INFO/DRAIN read no arguments. Returns private <code>Decoded(operation, keys, entries)</code> record.</td>
+</tr>
+<tr>
+<td><code>readKey(input)</code></td>
+<td>Reads two strings, copies 32 fingerprint bytes, constructs copying fingerprint then validated CacheKey. Sample/namespace identity constraints come from CacheKey.</td>
+</tr>
+<tr>
+<td><code>readString(input)</code></td>
+<td>Reads signed length, rejects negative or beyond remaining bytes, copies bytes, decodes UTF-8 with ordinary replacement behavior for malformed sequences. Not strict UTF-8 validation.</td>
+</tr>
+<tr>
+<td><code>readValue(input)</code></td>
+<td>Reads signed length, rejects negative, &gt;64 MiB or beyond remaining; copies payload. <code>CacheEntry</code> then makes another defensive copy.</td>
+</tr>
+<tr>
+<td><code>decodeBulkEntries(input)</code></td>
+<td>Requires version-1 PUT_MANY body and at least six remaining bytes, uses shared decode, then rejects any trailing bytes. Returns entries; no length-prefix socket framing.</td>
+</tr>
+</tbody>
+</table>
+<p>Socket <code>decode</code> does <strong>not</strong> require the operation to consume the whole frame:
+trailing request bytes are ignored, including extra INFO/DRAIN arguments. Bulk
+staging is stricter and version 1 only. Primitive reads can throw buffer underflow
+before explicit length checks. Empty batches are allowed. Frame caps bound the
+incoming body, not the cumulative heap copies or size of a GET_MANY response.
+Duplicate input keys preserve ordered read slots; write deduplication occurs later
+inside the cache owner.</p>
+<h2 id="dispatch-and-response-functions">Dispatch and Response Functions</h2>
+<h3 id="dispatch">dispatch</h3>
+<p><code>dispatch(request, cache)</code> returns the private <code>Response(status, value)</code> record:</p>
+<ul>
+<li>INFO reports engine name, cache durability, process PID, indexed entry count,
+integrity policy, protocol field 1, a limited feature list, and background
+compaction diagnostics. The field remains 1 even though traced requests accept
+version 2; the feature list is not an exhaustive operation enumeration.</li>
+<li>DRAIN_TRACES calls the cache's destructive drain; records are not persisted.</li>
+<li>PUT/PUT_MANY call one cache <code>putMany</code>, then return HIT. Failures propagate to the
+connection loop; this handler has no independent transaction-result encoding.</li>
+<li>GET calls cache <code>get</code> and distinguishes null absence from a zero-length hit.</li>
+<li>GET_MANY calls <code>getManyValuesWire</code> directly: ordered slots and duplicates are
+preserved, slot misses appear inside an overall HIT response.</li>
+<li>GET_REF calls <code>getRef</code> and serializes a found reference; this does not itself
+read/hash segment content.</li>
+<li>GET_MANY_REF loops <code>getRef</code>, emits count, then one Boolean presence byte per
+slot and encoded reference only for present slots.</li>
+<li>CONTAINS_MANY loops metadata-only <code>containsKey</code>, emits count then 0/1 presence
+bytes. Presence is not a fresh payload-integrity result.</li>
+</ul>
+<p>Cache operations and most response construction are wrapped in named trace stages.
+GET_MANY's wire format is described in the <a href="training-cache-functions.html">cache reference</a>.
+Returning a segment reference does not make its file available over the network;
+a mapping client needs compatible access to the segment storage location.</p>
+<h3 id="encodereference-and-writeresponse">encodeReference and writeResponse</h3>
+<p><code>encodeReference(reference)</code> encodes ASCII filename as length/bytes, generation
+(8 bytes), offset (8), payload length (4), checksum (32). It allocates a new array
+and obtains a defensive checksum copy. The reference record validates metadata,
+not actual file bounds or content.</p>
+<p><code>writeResponse(output, status, value)</code> calls the trace <code>envelope</code>, measures that
+as responseEncode, writes outer length/status/value length/value and flushes,
+then records responseWrite. There is no 64 MiB response-cap check here; request
+frame bounds must not be reported as symmetric response bounds. The traced
+envelope snapshots diagnostics before responseEncode's current increment and
+before responseWrite complete, so those final costs are not fully present inside
+the response itself. Completed batch records provide the later boundary.</p>
+<h2 id="protocol-counter-functions">Protocol Counter Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheProtocolMetrics.java">TrainingCacheProtocolMetrics.java</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>connection()</code></td>
+<td>Increments cumulative handler invocations, including connections that later send no valid requests. Not a current-open-connection gauge.</td>
+</tr>
+<tr>
+<td><code>request(operation)</code></td>
+<td>Increments admitted request count and separate counts for GET, PUT, GET_MANY_REF, GET_MANY and PUT_MANY. GET_REF/INFO/CONTAINS_MANY/DRAIN affect only total.</td>
+</tr>
+<tr>
+<td><code>snapshot()</code></td>
+<td>Returns immutable map of LongAdder totals; independent reads are not one atomic concurrent snapshot.</td>
+</tr>
+</tbody>
+</table>
+<p>Requests are counted before dispatch completes. Permit-denied or malformed
+pre-dispatch requests are not counted as requests; a counted operation can still
+fail later. These counters show API usage, not successful artifact count or
+protocol end-to-end latency.</p>
+<h2 id="per-request-trace-functions">Per-Request Trace Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheRequestTrace.java">TrainingCacheRequestTrace.java</a>.</p>
+<p>Trace state is ThreadLocal. Synchronous cache/engine stages on the request thread
+can contribute; ordinary asynchronous work does not automatically inherit the
+trace. Nested durations are inclusive and must not be added as disjoint phases.</p>
+<h3 id="context-and-timing-helpers">Context and Timing Helpers</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Private <code>TrainingCacheRequestTrace(id)</code></td>
+<td>Converts supplied bytes to hex ID, creates flush/read collectors and initial start time. Protocol supplies 16 bytes; constructor does not enforce that length.</td>
+</tr>
+<tr>
+<td><code>begin(id)</code></td>
+<td>Creates trace, attaches both collectors while remembering their predecessors, then installs active trace. No nested active-trace stack.</td>
+</tr>
+<tr>
+<td><code>requestStarted(started, readNs)</code></td>
+<td>When active, replaces total start timestamp and stores requestRead duration. No-op without active trace.</td>
+</tr>
+<tr>
+<td><code>add(stage, durationNs)</code></td>
+<td>Adds supplied duration to named stage when active; no validation of name or duration.</td>
+</tr>
+<tr>
+<td><code>start()</code></td>
+<td>Returns nanosecond timestamp when active, otherwise zero.</td>
+</tr>
+<tr>
+<td><code>end(stage, started)</code></td>
+<td>Adds current time minus supplied timestamp to active stage; assumes callers pair start/end within a consistent trace scope.</td>
+</tr>
+<tr>
+<td><code>clear()</code></td>
+<td>Restores predecessor flush/read collectors if active, then removes active ThreadLocal. Does not restore a previous active trace if begin was nested.</td>
+</tr>
+<tr>
+<td><code>IoWork.run()</code></td>
+<td>Functional callback may return a result or throw IOException.</td>
+</tr>
+<tr>
+<td><code>measureIo(stage, work)</code></td>
+<td>Calls work, records end in finally including failing work; IOException propagates.</td>
+</tr>
+<tr>
+<td><code>measure(stage, work)</code></td>
+<td>Directly calls supplier when inactive; otherwise records elapsed time in finally, including exceptions, using captured trace.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="envelope-and-completed">envelope and completed</h3>
+<p><code>envelope(payload)</code> returns the original array unchanged without active trace.
+With tracing it builds UTF-8 JSON and allocates a new array containing four-byte
+metadata length, JSON, then original payload. It reports trace ID, server duration,
+stage durations, write/read diagnostics, flush/compaction/table-finish records,
+compaction scheduling/debt and <code>responseWriteCompleted: false</code>.</p>
+<p>This snapshot is pre-send. Server duration begins at the first header byte's
+arrival and excludes initial idle wait, TLS handshake and earlier connection setup;
+it does not include a completed response flush. Trace metadata itself adds
+serialization/allocation/copy overhead. Stage names and some nested record strings
+are inserted manually without generic escaping, assuming internal controlled
+diagnostic names rather than arbitrary untrusted text.</p>
+<p><code>completed(completedAt)</code> returns null when inactive. Otherwise it returns a map
+with trace ID, copied stages, totalServerNs, true responseWriteCompleted and read
+diagnostic snapshot. It does not repeat all response-envelope flush/write details.
+The copied stage map is mutable within the returned top-level immutable map; this
+is not a general deeply immutable diagnostic object.</p>
+<p>The protocol enqueues completed records only for admitted GET_MANY/PUT_MANY after
+successful write/flush. Legacy version-1 requests have no active trace and enqueue
+nothing. Single GET, INFO and overload replies can carry traced response envelopes
+but do not produce post-write queue records through this handler. The cache queue
+is bounded and may drop old records; a drain is not a complete durable audit trail.</p>
+<h2 id="diagnostic-json-functions">Diagnostic JSON Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/DiagnosticJson.java">DiagnosticJson.java</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Private <code>DiagnosticJson()</code></td>
+<td>Prevents utility instantiation.</td>
+</tr>
+<tr>
+<td><code>encode(value)</code></td>
+<td>Creates StringBuilder, calls append, returns string. No parser, canonical key sorting, size budget or cycle guard.</td>
+</tr>
+<tr>
+<td><code>append(result, value)</code></td>
+<td>Emits null/Boolean/Number directly; recursively emits maps and Iterables; otherwise quotes toString output, escaping quote/backslash and control characters below 32 as Unicode escapes.</td>
+</tr>
+</tbody>
+</table>
+<p>Map keys are converted with <code>toString</code>; null keys fail. Arrays are not Iterable
+and therefore stringify instead of becoming JSON arrays. Nonfinite Number values
+are not specially rejected or converted, so this is intended for the controlled
+JSON-compatible diagnostic domain, not arbitrary object serialization. Map ordering
+comes from the supplied map and is not canonicalized.</p>
+<h2 id="tests-and-coverage-limits">Tests and Coverage Limits</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/test/java/io/aetherdb/training/cache/TrainingCacheTraceTest.java">TrainingCacheTraceTest</a>
+checks mixed version-1/version-2 requests on one stream, correlated batch put/get,
+misses, permit denial, malformed-operation cleanup, write/flush evidence, and
+fragmented reads with duplicate/missing/segment slots. It checks diagnostic field
+presence and readback, not that all trace stages are additive or overhead-free.</p>
+<p>The declaration inventory covers all explicit functions in these four files,
+including <code>IoWork.run</code> and private codecs. It does not prove bounded connection
+memory, live TLS trust configuration, response-size admission, strict UTF-8 or
+trailing-byte rejection, or every Python retry/cancellation behavior. Those remain
+separate source and integration boundaries.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#frame-layout-and-operations">Frame Layout and Operations</a><a href="#connection-loop-and-admission">Connection Loop and Admission</a><a href="#request-decoding-functions">Request Decoding Functions</a><a href="#dispatch-and-response-functions">Dispatch and Response Functions</a><a href="#protocol-counter-functions">Protocol Counter Functions</a><a href="#per-request-trace-functions">Per-Request Trace Functions</a><a href="#diagnostic-json-functions">Diagnostic JSON Functions</a><a href="#tests-and-coverage-limits">Tests and Coverage Limits</a></nav></aside>
+  </div>
+</body>
+</html>

@@ -1,0 +1,363 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/REPLICATION-CONTRACT-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Replication contracts and applied state: source-backed contributor documentation for Aether Engine.">
+  <title>Replication contracts and applied state | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html" aria-current="page">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/REPLICATION-CONTRACT-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="replication-contracts-and-applied-state-functions">Replication Contracts and Applied-State Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="replication-format-functions.html">Persisted formats</a> | <a href="modules.html">Module guide</a> | <a href="rpc-api-functions.html">RPC contracts</a></p>
+<p>This reference covers <strong>34 explicit declarations across eight files</strong>: all six
+implementation files in aether-replication-api (28 declarations), AppliedState
+(three), and StateSequencePlanner (three). Generated record accessors/equality
+and enum helpers are outside this declaration count; their relevant behavior is
+explained below. Persisted codecs, the concrete log store, and Raft algorithms
+are separate implementation boundaries, not completed by this reference.</p>
+<h2 id="architecture-and-coordinates">Architecture and Coordinates</h2>
+<pre><code class="language-text">caller supplies previous logical sequence + mutation count
+  -&gt; StateSequencePlanner -&gt; inclusive StateSequenceRange
+command encoding + entry codec -&gt; ReplicatedLogEntry
+  -&gt; ReplicatedLogStore contract -&gt; concrete local log implementation
+state-machine integration applies committed commands -&gt; AppliedState value
+</code></pre>
+<p>This is a responsibility map, not an automatically connected runtime pipeline.
+The planner does not reserve sequences, the entry record does not authenticate
+its hashes, and the applied-state record neither executes commands nor publishes
+itself. Consensus commitment, storage force, and application progress are distinct.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Coordinate</th>
+<th>Meaning and owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Log index</td>
+<td>Position of an entry, including non-mutating entries. A nonempty LogPosition or ReplicatedLogEntry uses a positive index.</td>
+</tr>
+<tr>
+<td>Term</td>
+<td>Election/log term associated with an index. Not an MVCC sequence or a timestamp.</td>
+</tr>
+<tr>
+<td>State sequence</td>
+<td>Logical mutation coordinate. A command can consume several sequences; NOOP/BARRIER consume no command range. Cross-entry continuity needs a caller/store check.</td>
+</tr>
+<tr>
+<td>Durable index</td>
+<td>Store-reported force boundary. It is not automatically the consensus commit index or last applied index.</td>
+</tr>
+<tr>
+<td>Applied index</td>
+<td>Last applied log coordinate represented by AppliedState. Its constructor cannot establish that commands were actually applied.</td>
+</tr>
+</tbody>
+</table>
+<p>For example, plan(10, 3) returns sequences 11 through 13 for three mutations in
+one command. That command occupies one log index, not three. A following NOOP
+can occupy the next index while carrying stateSequenceAfter=13 and sequenceStart=0.
+Records alone do not compare that NOOP against its predecessor.</p>
+<h2 id="position-identity-and-entry-kind-functions">Position, Identity, and Entry Kind Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replication-api/src/main/java/io/aetherdb/replication/api/LogPosition.java">LogPosition.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replication-api/src/main/java/io/aetherdb/replication/api/ReplicatedLogStoreIdentity.java">ReplicatedLogStoreIdentity.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replication-api/src/main/java/io/aetherdb/replication/api/ReplicatedEntryType.java">ReplicatedEntryType.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LogPosition.LogPosition(index, term)</code></td>
+<td>Requires nonnegative coordinates and either both zero or both positive. Rejects mixed empty markers and negatives with IllegalArgumentException. Accepts 0/0 for the empty log. Does not compare positions, enforce term monotonicity, or query a log.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreIdentity.ReplicatedLogStoreIdentity(clusterId, nodeId)</code></td>
+<td>Rejects null or all-zero UUIDs with IllegalArgumentException. UUIDs are immutable, so no defensive byte copying is needed. A binding value is not certificate authentication, directory ownership, or validation against a persisted identity file.</td>
+</tr>
+<tr>
+<td><code>ReplicatedEntryType.ReplicatedEntryType(code)</code></td>
+<td>Enum constructor stores the supplied stable integer for each declared constant. It performs no additional validation; callers cannot freely instantiate enum values.</td>
+</tr>
+<tr>
+<td><code>ReplicatedEntryType.code()</code></td>
+<td>Returns the persistent code: NOOP=1, COMMAND=2, CONFIGURATION=3, BARRIER=4. These are explicit codes, not Java enum ordinals.</td>
+</tr>
+<tr>
+<td><code>ReplicatedEntryType.fromCode(code)</code></td>
+<td>Scans the enum values for an exact code match. Unknown codes raise IllegalArgumentException containing the supplied code; no fallback or future-type passthrough.</td>
+</tr>
+</tbody>
+</table>
+<p>NOOP denotes leader-term commitment without mutation; COMMAND denotes an atomic
+state-machine command; CONFIGURATION denotes membership configuration; BARRIER
+denotes coordination without user mutation. These names describe entry intent,
+not execution implemented by this enum.</p>
+<h2 id="decoded-entry-functions">Decoded Entry Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replication-api/src/main/java/io/aetherdb/replication/api/ReplicatedLogEntry.java">ReplicatedLogEntry.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReplicatedLogEntry.ReplicatedLogEntry(type, payloadFormatVersion, index, term, commandId, sequenceStart, stateSequenceAfter, previousEntryHash, entryHash, payload)</code></td>
+<td>Validates the general and entry-kind rules below, then copies both 32-byte hashes and the entire payload. Invalid metadata raises IllegalArgumentException before copying. Does not calculate a hash, verify a predecessor, decode the command, or establish continuity with another entry.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogEntry.previousEntryHash()</code></td>
+<td>Returns a fresh clone. Mutating the returned array cannot alter the stored predecessor hash. Reading this field does not verify a chain.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogEntry.entryHash()</code></td>
+<td>Returns a fresh clone of the supplied entry hash, without recomputing it.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogEntry.payload()</code></td>
+<td>Returns a fresh clone of the exact supplied bytes, including any malformed command body that passed this record's metadata checks. Cost scales with payload length on each call.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogEntry.equals(other)</code></td>
+<td>Identity short-circuit, then checks record type, every scalar/UUID field, and all three arrays by contents. Null or another type returns false. Equality is metadata/payload equality, not proof of validity or equivalent applied state.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogEntry.hashCode()</code></td>
+<td>Hashes scalar/UUID metadata using Objects.hash, then folds in each array's Arrays.hashCode with multiplier 31. Consistent with content-based equals; this Java collection hash is not the persisted cryptographic entryHash.</td>
+</tr>
+</tbody>
+</table>
+<p>General constructor rules: nonnull type and command ID; payloadFormatVersion&gt;=0;
+index and term&gt;=1; sequenceStart and stateSequenceAfter&gt;=0; nonnull hashes exactly
+32 bytes; nonnull payload no longer than <strong>67,108,664 bytes</strong>. No required
+relationship between the two sequence fields exists for every entry kind.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Kind</th>
+<th>Additional record validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>COMMAND</td>
+<td>Nonzero command UUID, payload format exactly 1, sequenceStart&gt;=1, stateSequenceAfter&gt;=sequenceStart, and nonempty payload. Does not check that the payload's operation count matches the implied range.</td>
+</tr>
+<tr>
+<td>NOOP and BARRIER</td>
+<td>Zero command UUID, empty payload, format 0, sequenceStart=0. stateSequenceAfter remains any nonnegative value at this boundary.</td>
+</tr>
+<tr>
+<td>CONFIGURATION</td>
+<td>Zero command UUID. No extra payload-format, emptiness, or sequenceStart restriction beyond the general rules. Configuration-body semantics need another layer.</td>
+</tr>
+</tbody>
+</table>
+<p>Scalar generated accessors return immutable values. The three explicit array
+accessors replace generated accessors to enforce defensive ownership. Construction
+plus repeated access can create several payload copies; immutability does not
+mean a borrowed zero-copy view.</p>
+<h2 id="log-store-contract-functions">Log Store Contract Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replication-api/src/main/java/io/aetherdb/replication/api/ReplicatedLogStore.java">ReplicatedLogStore.java</a>.
+Every method in this table is <strong>abstract</strong>. The interface declares intent; it
+contains no locking, bounds checking, I/O, exception conversion, recovery, or
+thread-safety implementation. Read concrete behavior in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replicated-log/src/main/java/io/aetherdb/replication/log/ReplicatedLogStoreV1.java">ReplicatedLogStoreV1.java</a>
+before relying on empty-range handling, batch atomicity, or failure recovery.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Declared responsibility and limits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReplicatedLogStore.identity()</code></td>
+<td>Returns the immutable cluster/node binding. Does not prescribe authentication or when disk identity is checked.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStore.firstIndex()</code></td>
+<td>Returns first retained index, or zero for empty. Retention and prefix-removal policy are not defined here.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStore.lastIndex()</code></td>
+<td>Returns final retained index, or zero for empty. Append visibility is not force or commitment.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStore.lastTerm()</code></td>
+<td>Returns final retained term, or zero for empty. Does not promise a current election-term register.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStore.lastStateSequence()</code></td>
+<td>Returns final assigned logical mutation sequence. It is not an application-progress accessor.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStore.durableIndex()</code></td>
+<td>Returns greatest index known forced to stable storage. Does not imply quorum replication or state-machine application.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStore.append(entries)</code></td>
+<td>Appends a validated contiguous sequence without forcing. The interface does not implement validation, define partial-failure rollback, or copy the list.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStore.appendAndForce(entries)</code></td>
+<td>Appends and forces a validated contiguous sequence. Concrete implementation determines the I/O and failure boundary.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStore.forceThrough(index)</code></td>
+<td>Forces bytes through an already appended index. Not an append request; bounds and no-op behavior belong to the implementation.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStore.read(index)</code></td>
+<td>Reads one retained entry. Missing-index errors and closed-store behavior are not specified by a method body here.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStore.readRange(startInclusive, endExclusive, byteLimit, entryLimit)</code></td>
+<td>Declares a half-open, bounded range and at least one fitting entry when available. Byte accounting, oversized-first-entry handling, validation, and returned-list ownership need the concrete implementation.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStore.termAt(index)</code></td>
+<td>Looks up the term at a retained index; does not specify missing-index handling.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStore.entryHashAt(index)</code></td>
+<td>Declares a defensive hash result at a retained index. The interface itself cannot enforce copying or integrity.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStore.truncateSuffix(fromIndex, commitIndex, appliedIndex)</code></td>
+<td>Declares removal of an uncommitted/unapplied suffix beginning at a retained index. Caller supplies progress boundaries; this signature cannot verify their truth or establish consensus permission.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStore.close()</code></td>
+<td>Declares forcing and release of lock/channels. Overrides AutoCloseable without checked throws. Idempotency, force failure, resource cleanup and concurrent-close behavior require implementation review.</td>
+</tr>
+</tbody>
+</table>
+<p>None of these signatures contains an automatic RPC call, retry strategy,
+election algorithm, or write to the local engine WAL. The replicated log and
+the engine WAL have different roles and formats.</p>
+<h2 id="sequence-range-and-planner-functions">Sequence Range and Planner Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replication-api/src/main/java/io/aetherdb/replication/api/StateSequenceRange.java">StateSequenceRange.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replicated-log/src/main/java/io/aetherdb/replication/log/StateSequencePlanner.java">StateSequencePlanner.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>StateSequenceRange.StateSequenceRange(first, last)</code></td>
+<td>Requires first&gt;0 and last&gt;=first, otherwise IllegalArgumentException. Range is inclusive and nonempty. No 10,000-operation cap is imposed by the record itself.</td>
+</tr>
+<tr>
+<td><code>StateSequenceRange.operationCount()</code></td>
+<td>Converts last-first+1 to int with Math.toIntExact. Oversized valid ranges raise ArithmeticException. Positive ordered endpoints prevent overflow of the inclusive long calculation.</td>
+</tr>
+<tr>
+<td><code>StateSequencePlanner.StateSequencePlanner()</code></td>
+<td>Private empty constructor prevents ordinary utility-class instantiation; no state or reservation service exists.</td>
+</tr>
+<tr>
+<td><code>StateSequencePlanner.plan(previousStateSequence, operationCount)</code></td>
+<td>Requires previous&gt;=0 and count in 1..10,000, otherwise IllegalArgumentException. Uses Math.addExact for previous+1 and previous+count, raising ArithmeticException on long overflow. Returns the inclusive next range. Pure calculation: repeated calls with the same input return the same range rather than reserving unique allocations.</td>
+</tr>
+<tr>
+<td><code>StateSequencePlanner.validate(previousStateSequence, operationCount, proposed)</code></td>
+<td>Calculates plan and compares using StateSequenceRange value equality. A different or null proposed range raises IllegalArgumentException for noncontiguity. Invalid input and arithmetic overflow propagate from plan; does not alter the proposal or any log.</td>
+</tr>
+</tbody>
+</table>
+<p>The caller must serialize allocation against the authoritative prior sequence.
+Calling plan concurrently is not a safe sequence allocator. validate checks one
+proposed range against supplied coordinates, not whether those coordinates match
+durable, committed, or applied state.</p>
+<h2 id="applied-state-functions">Applied-State Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-state-machine/src/main/java/io/aetherdb/replication/state/AppliedState.java">AppliedState.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AppliedState.AppliedState(index, term, stateSequence, entryHash, appliedHash)</code></td>
+<td>Requires all coordinates nonnegative and both hashes nonnull/exactly 32 bytes, otherwise IllegalArgumentException. Clones both inputs. Unlike LogPosition it accepts a zero index with positive term or the reverse. No prior state is supplied, so it cannot enforce monotonicity. Does not compute either hash, apply a command, persist progress, or atomically publish a value.</td>
+</tr>
+<tr>
+<td><code>AppliedState.entryHash()</code></td>
+<td>Returns a fresh defensive clone of the supplied applied-entry hash. Does not query or verify the log at index.</td>
+</tr>
+<tr>
+<td><code>AppliedState.appliedHash()</code></td>
+<td>Returns a fresh defensive clone of the supplied resulting-state hash. Does not recompute a state digest.</td>
+</tr>
+</tbody>
+</table>
+<p>The class Javadoc describes atomically published deterministic progress and the
+constructor comment says monotonic coordinates. Those are intended integration
+properties, not operations performed here: the body only checks a single value.
+An owner must provide synchronization/publication, prior-state comparison,
+deterministic application, and any durable progress protocol.</p>
+<p>Generated record equality compares its array fields by array identity, unlike
+ReplicatedLogEntry's explicit content equality. Two separately constructed
+AppliedState values with identical hash bytes need not compare equal. Defensive
+accessors also mean comparing returned arrays with == is not a digest comparison;
+use content comparison for that purpose. Runtime behavior is unchanged here.</p>
+<h2 id="verification-and-remaining-boundaries">Verification and Remaining Boundaries</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replicated-log/src/test/java/io/aetherdb/replication/log/ReplicationFormatTest.java">ReplicationFormatTest.java</a>
+contains seven tests for identity/header/entry codec round trips and corruption,
+command mutation order/ranges, and follower sequence discontinuity. These provide
+some planner/entry integration evidence, not exhaustive constructor coverage.
+The API and state-machine modules currently have no dedicated test source trees.
+In particular, AppliedState ownership/equality, planner overflow/null proposals,
+and the complete kind-specific entry validation matrix lack dedicated tests in
+that selected suite. Documentation inventory checks verify declaration presence,
+not semantic correctness or an integrated production cluster.</p>
+<p>Next implementation boundaries are command and entry codecs, identity/segment
+formats, concrete append/force/recovery/truncation, and then Raft commitment and
+application integration. None is certified by constructing these records.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-coordinates">Architecture and Coordinates</a><a href="#position-identity-and-entry-kind-functions">Position, Identity, and Entry Kind Functions</a><a href="#decoded-entry-functions">Decoded Entry Functions</a><a href="#log-store-contract-functions">Log Store Contract Functions</a><a href="#sequence-range-and-planner-functions">Sequence Range and Planner Functions</a><a href="#applied-state-functions">Applied-State Functions</a><a href="#verification-and-remaining-boundaries">Verification and Remaining Boundaries</a></nav></aside>
+  </div>
+</body>
+</html>

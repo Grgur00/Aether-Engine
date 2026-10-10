@@ -1,0 +1,187 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/RESEARCH-ADAPTER-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Research MONAI comparison adapters: source-backed contributor documentation for Aether Engine.">
+  <title>Research MONAI comparison adapters | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html" aria-current="page">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/RESEARCH-ADAPTER-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="research-monai-comparison-and-adapter-functions">Research MONAI Comparison and Adapter Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="longitudinal-worker-functions.html">Longitudinal worker</a> | <a href="research.html">Research tooling</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/monai_comparison.py">monai_comparison.py</a>. All 16 explicit
+functions are covered, plus the nested Aether identity lambda. This is the
+older two-version exploratory comparison and its reusable dataset adapters, not
+the five-version H2 confirmatory controller. Imports load NumPy, PyTorch, MONAI,
+the benchmark workload and both cache clients. Missing optional dependencies can
+fail import before argument parsing. The module sets <code>CUBLAS_WORKSPACE_CONFIG</code>
+only when absent; it does not override a caller's existing setting.</p>
+<h2 id="architecture">Architecture</h2>
+<pre><code class="language-text">declared source identity + canonical transform descriptor
+    -&gt; transform.key -&gt; durable cache adapter
+    -&gt; Aether dataset / incremental mmap / MONAI file cache / MONAI LMDB
+    -&gt; identical float16 images and uint8 masks
+    -&gt; scan admission -&gt; float32 batch -&gt; augmentation -&gt; model training
+    -&gt; compaction drain -&gt; untimed readback digest -&gt; close
+</code></pre>
+<p>The two-version GPU workload grows from 1430 to 1505 sources, adding 75 while
+retaining 1430 identities. V1 populates a store; V2 trains for 20 epochs. The
+primary comparison is V2 preparation plus training and drain, <strong>not</strong> the entire
+initial-plus-update lifecycle. Model setup/warmup, daemon startup, validation and
+close are excluded from <code>measure_stage.totalMs</code>. A separately reported
+<code>fullLifecycleMs</code> adds startup and both stage totals, but still does not include
+those excluded costs. Do not substitute either endpoint for longitudinal/H2.</p>
+<h2 id="transform-and-mmap-functions">Transform and Mmap Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CanonicalTransform.__init__(args)</code></td>
+<td>Stores the argument object by reference, starts a per-instance call counter and constructs a descriptor containing resize, preprocessing passes, output dtypes, pipeline/OCT version and normalization scale/offset. Descriptor values are captured at construction; mutating args afterward can change computation without automatically refreshing identity.</td>
+</tr>
+<tr>
+<td><code>CanonicalTransform.__call__(item)</code></td>
+<td>Increments calls before delegating to workload preprocessing. Converts image to NumPy float16 and mask to uint8, then wraps them with <code>torch.from_numpy</code>. A failing preprocess still counts as a call. No random training augmentation is cached here.</td>
+</tr>
+<tr>
+<td><code>CanonicalTransform.key(item)</code></td>
+<td>Hashes sorted-key JSON of source identity and transform descriptor, returning lowercase SHA-256 hexadecimal as ASCII bytes. Uses the default JSON formatting, not the compact shared evidence digest. Paths and row position are excluded. Including transform identity here is deliberate because the LMDB adapter does not apply <code>hash_transform</code> to database keys.</td>
+</tr>
+<tr>
+<td><code>MmapDataset.__init__(data, transform, directory)</code></td>
+<td>Retains data/transform, opens <code>PersistentMmapStore</code> with durability enabled, and constructs a TensorDictCodec. The store owns files/mappings; construction can fail. This is a benchmark adapter, not the high-level provenance store.</td>
+</tr>
+<tr>
+<td><code>MmapDataset.get_batch(indices)</code></td>
+<td>Computes ordered string keys, looks up payloads, transforms and encodes every missing occurrence, then calls <code>put_many</code> once. Builds a missing-payload lookup and decodes outputs in requested order. Existing payloads skip their four-byte stored envelope with <code>payload[4:]</code>; new payloads already contain codec bytes. No deduplication of repeated missing indices before preprocessing, no all-or-nothing transform/publication guarantee, and no separate bounds check beyond normal indexing.</td>
+</tr>
+<tr>
+<td><code>MmapDataset.close()</code></td>
+<td>Delegates store closure. Does not delete cached artifacts; repeated-close behavior belongs to the store implementation.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="dataset-and-observation-functions">Dataset and Observation Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dataset(backend, data, transform, directory, port=None)</code></td>
+<td>Selects one of four adapters. Aether uses namespace monai-pilot-v1, an explicitly constructed low-level client, the source callback and captured transform descriptor. Mmap uses the local adapter. MONAI PersistentDataset uses directory/hash_func; LMDB uses the same identity and a map-size estimate of max(16 MiB, twice sample count times resize squared times three), with progress disabled. LMDB can populate during construction. Unknown backend raises ValueError. Actual framework allocation/growth and client ownership belong to those implementations.</td>
+</tr>
+<tr>
+<td><code>dataset.&lt;lambda&gt;(item, index)</code></td>
+<td>Returns only the row's source_identity; ignores dataset position. A missing identity raises KeyError. This callback is not a raw-image hashing function.</td>
+</tr>
+<tr>
+<td><code>batches(count, batch_size)</code></td>
+<td>Materializes contiguous ordered index lists, retaining a short final batch. Nonpositive count can yield no batches; zero step raises, and negative step is not validated as a meaningful training configuration. Memory grows with sample count; it is not a lazy shuffled sampler.</td>
+</tr>
+<tr>
+<td><code>fetch(ds, indices)</code></td>
+<td>Dispatches to get_batch when the attribute exists, otherwise indexes one item at a time in order. Does not test callability, normalize outputs, suppress errors or deduplicate indices.</td>
+</tr>
+<tr>
+<td><code>close(ds)</code></td>
+<td>Calls close only when that attribute exists. No framework-specific LMDB teardown is added here; lack of a close method means no operation. Errors propagate.</td>
+</tr>
+<tr>
+<td><code>tensor_digest(items)</code></td>
+<td>Streams values in caller order; for image then mask, hashes name/dtype/shape representation and detached CPU-contiguous bytes. Includes tensor metadata, unlike model_hash in the longitudinal worker. May copy/transfer/synchronize tensors; does not hash all dictionary fields, source paths, transform identity or cache metadata.</td>
+</tr>
+<tr>
+<td><code>disk_usage(directory)</code></td>
+<td>Enumerates regular-file paths recursively, stats them, sums logical bytes/file count and allocated st_blocks times 512 when available on every file. Empty directory gives zero allocated bytes by vacuous all; any nonempty unsupported stat yields None. No owner/path containment guard, symlink rejection, lock or race handling; sampler callers handle selected stat errors. This is occupancy, not bytes written.</td>
+</tr>
+<tr>
+<td><code>drain(port)</code></td>
+<td>None port returns None. Otherwise opens a client, waits for compaction and rejects false drained or a nonzero failure count. Does not independently require state IDLE or zero debt; longitudinal strict_drain adds those checks. Missing report fields can raise ordinary lookup errors.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="measurement-and-controller-functions">Measurement and Controller Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>measure_stage(backend, data, args, directory, device, reference, daemon=None, train=False)</code></td>
+<td>Creates a fresh transform/ordered batches. Optional seeded model/optimizer/warmup occurs before the stage timer. Starts GPU sampling and process snapshots, then times dataset open, complete scan, admission drain, optional synchronous epochs and final drain. Records preparation inclusive of its drain; stops total timing before observations/readback. Validates tensor digest and no additional readback preprocessing, hashes final model state when training, and returns metrics. Finally stops sampling and closes a constructed dataset. Close errors can mask body errors. Does not enforce expected admission counts or pairing by itself; main supplies those checks.</td>
+</tr>
+<tr>
+<td><code>paired_summary(blocks)</code></td>
+<td>Computes baseline V2 total divided by Aether V2 total, geometric means and a descriptive log-scale t interval for multiple blocks. One block has no interval. Reports epoch cumulative ratios at 1/5/10/20 when present in the first Aether block. No explicit empty/positive/finite input validation, identity checks or significance test; empty input and inconsistent epochs can raise, invalid arithmetic can warn/produce nonfinite output rejected later by JSON publication.</td>
+</tr>
+<tr>
+<td><code>main(argv=None)</code></td>
+<td>Parses two-version config, positive epochs/repeats and prefetch restricted to zero. GPU settings require exactly five blocks/20 epochs, MONAI 1.6.0 and LMDB 2.1.1, CUDA and append75 dimensions. CPU fixture allows smaller runs but still pins framework versions. Loads actual sources, checks retained identity set and reusable count, binds protocol/campaign, computes untimed references, shuffles four backend lifecycles with seed 20260925 plus block index, opens an owned workspace, and runs initial population plus V2 training in one backend service context. Checks expected preprocess counts and paired final models, saves backend/paired receipts and descriptive summary. No resume option or automatic technical retry.</td>
+</tr>
+</tbody>
+</table>
+<p><code>measure_stage</code> converts fetched cached tensors to stacked float32 arrays, applies
+deterministic seeded augmentation per batch/epoch, transfers inputs/targets, clears
+gradients, computes BCE-with-logits, backpropagates and steps AdamW. Each batch
+synchronizes the device before its loss is recorded. Input-wait milliseconds
+cover fetch/stack/conversion/augmentation, not device transfer or direct GPU idle.
+Training hit counts are inferred from sample count and epochs; transform-call
+differences are separately reported. Readback checks dtype/shape/value equality,
+not complete backend durability equivalence.</p>
+<p><code>main</code> writes each backend result inside the service context, before daemon exit.
+The later paired receipt adds a final-model equality check but does not compare
+initial-model hashes as the longitudinal runner does. Earlier backend receipts
+can survive a later failure. Framework file caches do not gain Aether's fsync
+guarantee because outputs have equal tensors.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_monai_comparison.py">MONAI integration tests</a> exercise
+real mmap, PersistentDataset and LMDB reuse/invalidation on tiny local images.
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_longitudinal_documented_contracts.py">Workload documentation contracts</a>
+check selected helpers and CPU worker behavior. Optional Java tests and real GPU
+experiments are separate. These entries cover this module, not every function in
+the larger benchmark_gpu_segmentation.py dependency.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture">Architecture</a><a href="#transform-and-mmap-functions">Transform and Mmap Functions</a><a href="#dataset-and-observation-functions">Dataset and Observation Functions</a><a href="#measurement-and-controller-functions">Measurement and Controller Functions</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

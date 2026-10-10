@@ -1,0 +1,244 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/GETTING-STARTED.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Getting started: source-backed contributor documentation for Aether Engine.">
+  <title>Getting started | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html" aria-current="page">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/GETTING-STARTED.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="getting-started">Getting Started</h1>
+<p><a href="index.html">Onboarding index</a> | <a href="architecture.html">Architecture</a> | <a href="testing.html">Testing</a></p>
+<h2 id="prerequisites">Prerequisites</h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Requirement and reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Java</td>
+<td><strong>JDK 21</strong>, not just a JRE. Source uses Java 21 preview features; the conventions compile for release 21 and enable preview for tests/application tasks. Do not assume a later JVM can load preview bytecode from 21.</td>
+</tr>
+<tr>
+<td>Gradle</td>
+<td>Use the checked-in wrapper. <a href="https://github.com/Grgur00/Aether-Engine/blob/main/gradle/wrapper/gradle-wrapper.properties">Wrapper properties</a> pin the distribution and its checksum. No global Gradle install is required.</td>
+</tr>
+<tr>
+<td>Git</td>
+<td>Needed to inspect changes and to capture research provenance.</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>First build may fetch the wrapper, toolchain, plugins and Maven dependencies. An offline build only works with a populated compatible cache.</td>
+</tr>
+<tr>
+<td>Disk</td>
+<td>Leave room for Gradle caches, Java artifacts and temporary test stores. Storage admission tests and experiments can reject writes under disk pressure.</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>Optional for engine-only development. The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/pyproject.toml">client package</a> requires Python &gt;=3.10; research workloads have additional pinned dependencies.</td>
+</tr>
+</tbody>
+</table>
+<p>Build conventions live in <a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/src/main/kotlin/aether.java-base.gradle.kts">aether.java-base</a>.
+They enable <code>--enable-preview</code>, <code>-Xlint:all</code> and <code>-Werror</code>; a warning can therefore
+be a build failure. Set the IDE's project SDK and Gradle JVM consistently.</p>
+<h2 id="first-build-no-dataset-or-credentials">First Build: No Dataset or Credentials</h2>
+<p>From a checkout root, use the command block for your shell. These commands do not
+start a persistent service or write a user database.</p>
+<h3 id="linux-or-macos">Linux or macOS</h3>
+<pre><code class="language-bash">java -version
+./gradlew --version
+./gradlew :examples:aether-sample-app:run
+./gradlew :examples:aether-sample-app:test
+</code></pre>
+<h3 id="windows-powershell">Windows PowerShell</h3>
+<pre><code class="language-powershell">java -version
+.\gradlew.bat --version
+.\gradlew.bat :examples:aether-sample-app:run
+.\gradlew.bat :examples:aether-sample-app:test
+</code></pre>
+<p>If Java selection is wrong, point <code>JAVA_HOME</code> at your <strong>JDK 21 installation</strong> and
+restart the terminal/IDE. Do not copy a machine-specific path from someone else's
+configuration. Wrapper toolchain resolution and the runtime used for manually
+launched <code>java</code> processes are distinct; check both when diagnosing preview errors.</p>
+<p>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-sample-app/src/main/java/io/aetherdb/examples/social/SocialNetworkApplication.java">sample main</a>
+uses <code>AetherEmbedded.openInMemory()</code> when no arguments are provided. Expected
+output includes profiles, posts, a joined feed, and <code>Deleted draft exists: false</code>.
+The relational checks and joins are application code, not SQL or a query optimizer.</p>
+<h2 id="learn-persistence-deliberately">Learn Persistence Deliberately</h2>
+<p>Passing an argument changes the sample to <code>AetherEmbedded.open(path)</code>. Choose a
+new, disposable directory and run the same command twice:</p>
+<pre><code class="language-bash">./gradlew :examples:aether-sample-app:run --args=&quot;./build/onboarding-social-db&quot;
+</code></pre>
+<p>PowerShell uses the same arguments with <code>.\gradlew.bat</code>. The sample seeds only if
+empty, and then performs its demo updates. Database state remains after process
+exit. Do not choose a benchmark store or an existing application's database.
+Persistence tests may refuse to run on a nearly full disk; resolve capacity rather
+than disable safeguards to make a tutorial pass.</p>
+<p>The desktop notes and Workbench examples are optional, interactive applications:</p>
+<pre><code class="language-bash">./gradlew :examples:aether-persistent-notes:run
+./gradlew :modules:aether-workbench:run --args=&quot;./build/onboarding-social-db&quot;
+</code></pre>
+<p>Close any current database owner first. Headless CI should not launch Swing UIs.
+Workbench may treat collections as read-only when the appropriate definitions and
+codecs are unavailable. See <a href="operations.html">operations</a>.</p>
+<h2 id="ide-setup-and-source-navigation">IDE Setup and Source Navigation</h2>
+<p>Import the root as a Gradle project, including the <code>build-logic</code> included build.
+Keep annotation processing enabled or delegate builds to Gradle. Generated codec
+sources are under each module's <code>build/generated/</code> tree; their inputs are Java
+records and committed <code>aether-schemas/</code> locks. Never edit generated output.</p>
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart LR
+    Record[Record source and annotations] --&gt; Processor[Annotation processor]
+    Lock[Committed schema locks] --&gt; Processor
+    Processor --&gt; Generated[Generated codecs and providers]
+    Generated --&gt; Compile[Application compilation]
+    Compile --&gt; Run[Sample or tests]
+</code></pre></details></figure>
+<p>Start with the sample's <a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-sample-app/src/main/java/io/aetherdb/examples/social/SocialNetworkRepository.java">repository</a>,
+follow <code>AetherEmbedded</code> into the typed adapter, then follow its byte database call.
+This is a smaller and more useful first reading exercise than opening every module.</p>
+<p>The <a href="code-tour.html">guided code tour</a> walks that request through the concrete
+classes, then continues through writes, snapshots, flush and recovery. Keep the
+<a href="modules.html">module guide</a> beside the IDE when choosing where a change belongs.</p>
+<h2 id="optional-python-environment">Optional Python Environment</h2>
+<p>Create an environment only if you do not already have a suitable one. An explicit
+interpreter path avoids shell activation-policy issues.</p>
+<pre><code class="language-bash">python3 -m venv .venv
+.venv/bin/python -m pip install -e ./clients/python
+.venv/bin/python -m pip install pytest
+</code></pre>
+<pre><code class="language-powershell">py -3.11 -m venv .venv
+.venv\Scripts\python.exe -m pip install -e ./clients/python
+.venv\Scripts\python.exe -m pip install pytest
+</code></pre>
+<p>The Windows example selects 3.11 if installed; it is not an additional package
+minimum. Editable installation exposes Python code from this checkout but does
+not compile Java. The base package already brings NumPy, Pillow and tokenizer
+dependencies; PyTorch/MONAI are optional extras. The research lockfiles are
+separate from the package's broad dependency ranges.</p>
+<p>Follow <a href="python.html">training cache and Python</a> to build the Java
+runtime classpath and run a local cache example. Follow <a href="research.html">experiments</a>
+for the larger pinned environment; do not install every research dependency just
+to contribute an engine unit test.</p>
+<h2 id="where-output-goes">Where Output Goes</h2>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>modules/&lt;name&gt;/build/classes/</code>, <code>build/generated/</code>, <code>build/libs/</code></td>
+<td>Compiled classes, generated sources and jars</td>
+</tr>
+<tr>
+<td><code>modules/&lt;name&gt;/build/reports/tests/test/</code></td>
+<td>Human-readable Java test reports</td>
+</tr>
+<tr>
+<td><code>modules/&lt;name&gt;/build/test-results/test/</code></td>
+<td>JUnit XML for automation</td>
+</tr>
+<tr>
+<td>Root <code>build/</code></td>
+<td>Local exports, disposable stores, prepared snapshots and tool output; inspect before cleaning</td>
+</tr>
+<tr>
+<td><code>results/</code></td>
+<td>Experiment/profiling evidence; not a blanket cleanup target</td>
+</tr>
+<tr>
+<td><code>aether-schemas/</code> under a project</td>
+<td>Committed durable identities, not generated scratch data</td>
+</tr>
+</tbody>
+</table>
+<p>The full Java suite is <code>./gradlew test</code>; use <a href="testing.html">focused test commands</a>
+for normal edit cycles. The complete suite, research campaigns, publication tasks
+and remote uploads are not required for a first successful build.</p>
+<h2 id="common-setup-failures">Common Setup Failures</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Check first</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Preview class/version mismatch</td>
+<td>Java 21 runtime and preview flags; let Gradle launch Java tasks</td>
+</tr>
+<tr>
+<td>Wrapper cannot download</td>
+<td>Network/proxy/sandbox permissions and the wrapper cache, not application source</td>
+</tr>
+<tr>
+<td>Generated codec missing</td>
+<td>Annotation processor dependency, schema locks and Gradle compilation</td>
+</tr>
+<tr>
+<td>Unknown/mismatched schema</td>
+<td>Read <a href="schemas.html">schema workflow</a>; never accept a proposal without reviewing it</td>
+</tr>
+<tr>
+<td>Database already locked</td>
+<td>Existing daemon, sample or Workbench process owns that exact directory</td>
+</tr>
+<tr>
+<td>Disk admission rejection</td>
+<td>Free space and configured reserve; avoid benchmarking on a near-full disk</td>
+</tr>
+<tr>
+<td>Python import failure</td>
+<td>Interpreter selection, editable install, optional extras and <code>PYTHONPATH</code> for script tests</td>
+</tr>
+<tr>
+<td>Stale Java runtime export</td>
+<td>Rebuild <code>:modules:aether-training-cache:paperRuntimeClasspath</code> after Java source changes</td>
+</tr>
+</tbody>
+</table>
+<p>During this guide's verification the in-memory sample ran successfully on Windows
+with JDK 21. Platform-specific file durability and permissions still need the
+corresponding tests on each deployment platform.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#prerequisites">Prerequisites</a><a href="#first-build-no-dataset-or-credentials">First Build: No Dataset or Credentials</a><a href="#learn-persistence-deliberately">Learn Persistence Deliberately</a><a href="#ide-setup-and-source-navigation">IDE Setup and Source Navigation</a><a href="#optional-python-environment">Optional Python Environment</a><a href="#where-output-goes">Where Output Goes</a><a href="#common-setup-failures">Common Setup Failures</a></nav></aside>
+  </div>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/BENCHMARK-TRAINING-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Benchmark model and training: source-backed contributor documentation for Aether Engine.">
+  <title>Benchmark model and training | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html" aria-current="page">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/BENCHMARK-TRAINING-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="benchmark-model-training-and-device-functions">Benchmark Model, Training, and Device Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="benchmark-data-functions.html">Benchmark data</a> | <a href="python-pipeline-functions.html">Loading and prefetch</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/benchmark_gpu_segmentation.py">benchmark_gpu_segmentation.py</a>.
+This reference covers 25 explicit declarations, including four nested model
+methods. It is not a complete benchmark reference. Backend storage ownership,
+utilization sampler implementation, orchestration and result aggregation have
+separate references linked from the function index.</p>
+<h2 id="execution-architecture">Execution Architecture</h2>
+<pre><code class="language-text">validated arguments + accelerator report -&gt; select device and workload
+source/reference preparation -&gt; matched backend initial state
+backend preparation -&gt; zero-input optimizer warmup (excluded)
+scheduled batches -&gt; inline/queued/worker preparation -&gt; random augmentation
+                 -&gt; checksums -&gt; contiguous CPU tensors -&gt; blocking transfer
+                 -&gt; forward -&gt; loss -&gt; backward -&gt; optimizer (synchronized)
+                 -&gt; measured backend wall stops and resource sampler closes
+                 -&gt; reference sanity check -&gt; final model hash -&gt; report
+</code></pre>
+<p>The original run_training_once creates a fresh model and AdamW optimizer for
+each backend, restores a shared pre-warmup model state, and resets the run seed.
+ImageNet uses CrossEntropyLoss; other workloads use BCEWithLogitsLoss. This is
+not continual fine-tuning of one model across dataset revisions. The H2 worker
+uses a separately frozen orchestration boundary; do not infer its timing protocol
+from every caller of these shared functions.</p>
+<p>For OCT/synthetic segmentation, the model predicts a binary logit at each pixel
+from a one-channel image. The masks come from the preparation path. This is a
+controlled training workload for backend comparison, not evidence of clinical
+accuracy, a validated diagnostic model, or a held-out generalization experiment.</p>
+<h2 id="availability-and-device-functions">Availability and Device Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>import_numpy_status()</code></td>
+<td>Imports NumPy and returns availability/version. Catches ordinary import exceptions and returns their string as an error. Does not perform an array operation, inspect ABI compatibility of other packages or install dependencies.</td>
+</tr>
+<tr>
+<td><code>accelerator_report()</code></td>
+<td>Imports torch, catching import exceptions into an unavailable report. Uses torch.cuda availability and device zero properties even for ROCm, whose PyTorch API uses cuda names. Reports build CUDA/HIP versions, name, count, VRAM and gcnArchName or CUDA major capability. After import, device-query errors propagate. Reports the first device, not a proof that all requested GPUs work; CUDA major alone is not the complete capability pair.</td>
+</tr>
+<tr>
+<td><code>unsupported_reason(numpy_status, accelerator, accelerator_backend, expected_gpu)</code></td>
+<td>Returns the first rejection string in order: NumPy unavailable, device unavailable, backend mismatch, name mismatch; otherwise None. Expects an available field in the NumPy mapping. This precedence can hide later problems and it does not run a kernel.</td>
+</tr>
+<tr>
+<td><code>accelerator_backend_matches(accelerator, accelerator_backend)</code></td>
+<td>Rejects unavailable devices. Auto accepts a CUDA or HIP build version, rocm requires HIP, cuda requires CUDA without HIP, and unknown requests return False. Checks supplied report fields, not runtime kernel execution or the reported backend label alone.</td>
+</tr>
+<tr>
+<td><code>gpu_name_matches(name, expected_gpu)</code></td>
+<td>Empty expected name accepts any device. Otherwise compares case-insensitive substring, with an AMD Radeon RX 7900 family exception that ignores suffix differences. Does not require an exact SKU, count or VRAM; callers normalize missing actual names.</td>
+</tr>
+<tr>
+<td><code>synchronize_device(torch, device)</code></td>
+<td>Calls torch.cuda.synchronize(device) only when device.type is cuda. CPU and other device types do nothing. ROCm devices also use cuda here. Errors propagate; the call waits for device work, not specifically one model operation.</td>
+</tr>
+<tr>
+<td><code>gpu_smoke_test(torch, device)</code></td>
+<td>Allocates a random 1024x1024 tensor, multiplies it by itself, synchronizes and rejects any nonfinite result. Returns True on success. Uses the supplied device, so a CPU call is possible despite its name. Changes RNG state and allocates temporary memory; this is not a full training, storage or multi-GPU health test.</td>
+</tr>
+<tr>
+<td><code>set_seed(torch, seed)</code></td>
+<td>Seeds Python random and torch CPU/all CUDA RNGs, enables deterministic algorithms and disables cuDNN benchmark selection. Does not seed NumPy's global generator, restore earlier global settings or make unsupported deterministic kernels work. Augmentation separately derives a NumPy generator seed.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="model-and-warmup-functions">Model and Warmup Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>create_workload_model(args, torch)</code></td>
+<td>Routes coco/imagenet to the imported vision model factory, otherwise to create_model(args.model_tier, torch). Returns a model without moving it to the device, wrapping DataParallel or choosing a loss. Imported classification architecture is not the segmentation model below.</td>
+</tr>
+<tr>
+<td><code>create_model(tier, torch)</code></td>
+<td>Looks up base channels/depth: small 16/2, medium 32/3, large 64/4. Creates nested Block and SmallUNet classes and returns the latter on its default device. Invalid tier raises KeyError. No pretrained weights, checkpoint loading or model-state reset.</td>
+</tr>
+<tr>
+<td><code>create_model.Block.__init__(self, source, target)</code></td>
+<td>Initializes nn.Module and builds Conv2d(source,target,3,padding=1), in-place ReLU, Conv2d(target,target,3,padding=1), in-place ReLU. Default biases are present; no normalization, dropout, downsampling or residual branch.</td>
+</tr>
+<tr>
+<td><code>create_model.Block.forward(self, value)</code></td>
+<td>Applies the sequential two-convolution block and returns the activation. Requires compatible channels; no separate shape validation, loss or caching.</td>
+</tr>
+<tr>
+<td><code>create_model.SmallUNet.__init__(self)</code></td>
+<td>Builds depth blocks with target channels doubling at each level from one input channel, then a 1x1 convolution to one output channel. Small uses 16 then 32 channels. Despite the class name, there is no encoder/decoder, pooling, upsampling or skip connection.</td>
+</tr>
+<tr>
+<td><code>create_model.SmallUNet.forward(self, value)</code></td>
+<td>Applies all blocks in order, then the head. Padded convolutions preserve spatial dimensions; returns unbounded logits, not sigmoid probabilities or binary masks.</td>
+</tr>
+<tr>
+<td><code>model_metadata(model, args, torch)</code></td>
+<td>Counts parameter elements, reports workload name, tier, fixed fp32 label, first parameter's device, timing mode and validate_device_events result. May synchronize device events as a side effect. The precision label is descriptive, not a dtype inspection or enforcement. A parameterless model raises StopIteration.</td>
+</tr>
+<tr>
+<td><code>validate_device_events(torch)</code></td>
+<td>Records two CUDA timing events on the current stream, synchronizes and calls elapsed_time. Ordinary exceptions return False. Even True only establishes that event timing calls succeeded; measured steps still use wall time plus synchronization, not these events.</td>
+</tr>
+<tr>
+<td><code>run_model_warmup(torch, model, loss_function, optimizer, device, args)</code></td>
+<td>Creates a full zero batch with 3 channels/classification targets or one-channel spatial targets. ImageNet makes target class zero one-hot. Performs warmup_steps zero_grad, forward/loss, backward and optimizer.step calls, then synchronizes even when no steps run. Updates model parameters and optimizer state, so warmup is not merely a dry inference probe. Does not reset state afterward or switch train/eval mode.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="training-and-scheduling-functions">Training and Scheduling Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>run_backend(torch, model, optimizer, loss_function, device, backend, context, measured_steps)</code></td>
+<td>For Aether, captures its cold-start gate and resets operation metrics. Starts GPU sampling, snapshots parent/optional Java resources and resets peak memory for requested CUDA devices. Times iteration through prepared_batches/scheduled_batches and train_step, retaining every step. Closes the iterator and stops sampling in nested finally blocks on iteration failure. On success, performs excluded reference sanity checks, summarizes, hashes sorted final state names/raw CPU bytes, records losses, prefetch and resource scopes, and returns a report. Exceptions before the iteration try, including sampler/resource setup, do not share that cleanup guarantee. No rollback of model/cache updates and no report on training failure.</td>
+</tr>
+<tr>
+<td><code>scheduled_batches(args, total_steps)</code></td>
+<td>Repeats batch_plan's contiguous order, yielding (indices, zero-based epoch) until exactly total_steps. Can truncate the last epoch; does not shuffle or use args.epochs as its own stopping rule. Nonpositive total yields nothing. With positive total and no batches it loops without yielding, so validated positive sample/batch counts are required.</td>
+</tr>
+<tr>
+<td><code>segmentation_sanity_metrics(torch, model, loss_function, device, context)</code></td>
+<td>Empty reference returns None. Stacks the first min(batch_size, reference length) unaugmented samples, normalizes tensors, transfers and runs under no_grad. Classification returns loss/target encoding/logit hash; segmentation thresholds sigmoid and masks at 0.5 and computes pooled intersection Dice and IoU. Empty prediction/target sets score zero via clamped denominators, not one. It does not call eval, restore mode, use held-out samples or compute per-class/per-image mean IoU despite the meanIoU key. Runs after measured training.</td>
+</tr>
+<tr>
+<td><code>train_step(torch, model, optimizer, loss_function, device, backend, context, batch_indices, step, epoch, *, prepared=None, prefetch_wait_ms=0.0)</code></td>
+<td>Inline path obtains context.batch and measures input preparation/wait; prepared path uses its supplied batch/counters/preparation time and reports supplied consumer wait. Augments, hashes training batch, normalizes CPU tensors, then measures blocking transfer, forward, loss, backward and optimizer separately with synchronization. Calls zero_grad before forward and returns counters, layouts, checksum, scalar loss and wall timings. It does not select a loss/optimizer, validate backend equivalence, reset parameters or retain the computational graph in the report. Errors propagate after any already-applied state changes.</td>
+</tr>
+</tbody>
+</table>
+<p>The backend wall includes iterator consumption and final synchronization but
+excludes sampler startup, initial resource snapshots, post-training sanity checks,
+model hashing and report construction. Epoch wall starts after the first yielded
+batch; a later epoch transition is observed after its first batch has been
+prepared. Epoch sums therefore are not a partition of all input waiting in the
+backend wall, especially with prefetch/worker preparation.</p>
+<p>The step wall begins after a prefetched item has been yielded, so consumer waiting
+before yield is reported separately, not automatically included in stepWallMs.
+Checksum and CPU normalization overhead contribute to step wall but lack their
+own full timing fields. batchPrepareMs describes preparation effort; inputWaitMs
+describes consumer wait when prefetched. Do not add those as disjoint costs.</p>
+<p>Synchronized blocking transfers and phase boundaries deliberately constrain GPU
+overlap. The utilization sampler and selected-device-count times wall GPU-hours
+are measurements/descriptive accounting, not billing or proof of saturation.
+Loader resource windows exclude startup, IPC and idle time; Java resources include
+background engine work during the backend window. Final model hashes compare
+model state, not optimizer state, clinical quality or future convergence.</p>
+<h2 id="augmentation-and-tensor-layout-functions">Augmentation and Tensor Layout Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>normalize_cpu_batch(torch, batch)</code></td>
+<td>Wraps NumPy images/masks with torch.from_numpy and makes default contiguous tensors. Rejects noncontiguity or strides unequal to expected_contiguous_stride, then returns tensors plus layout metadata. Does not convert dtype, pin memory, transfer devices or promise a copy: already contiguous arrays may share storage. Negative-stride NumPy arrays can fail before contiguous is called. Its canonical-stride check is stricter than is_contiguous alone for singleton dimensions.</td>
+</tr>
+<tr>
+<td><code>augment_batch(batch, context, batch_indices, step, epoch)</code></td>
+<td>None mode returns the same batch object. Otherwise seeds a new NumPy generator from SHA-256 of sorted JSON containing run_seed (or args.seed), epoch, step, ordered indices and mode. Copies arrays, optionally flips both horizontally, applies random scale/offset/noise to images, clips images to [-8,8], and returns float32 masks. Does not mutate cached originals or cache random augmentation. Any non-none string follows this implementation when called directly; CLI validation owns allowed modes. Assumes spatial four-dimensional masks, so classification shape compatibility belongs to the caller's chosen protocol.</td>
+</tr>
+<tr>
+<td><code>expected_contiguous_stride(shape)</code></td>
+<td>Computes reverse products of integer dimensions, returning canonical row-major strides. Empty shape returns an empty tuple. Does not validate sizes; zero and singleton dimensions can differ from other valid contiguous layouts.</td>
+</tr>
+<tr>
+<td><code>tensor_layout_metadata(torch, tensor)</code></td>
+<td>Reports shape, dtype, actual/expected strides, contiguity, channels-last contiguity for rank four, pinning, storage offset and pointer modulo 64/256. Pinning/channels-last probe exceptions become False; other query errors propagate. These are observations, not alignment guarantees, ownership metadata or a memory-lifetime check. Degenerate shapes can be both contiguous and channels-last; channels-last takes label precedence.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="verification-and-remaining-coverage">Verification and Remaining Coverage</h2>
+<p>Qualified AST checks cover these 25 declarations, not imported vision factories
+or the rest of the 138-declaration module. Local tests exercise actual CPU torch
+model construction, optimizer warmup/steps, tensor layout, augmentation and sanity
+metrics, plus injected device checks and backend cleanup boundaries. They do not
+certify CUDA/ROCm performance, multi-GPU behavior or the frozen H2 campaign.</p>
+<p>The function index links the other partitions, jointly covering all 138 explicit
+benchmark declarations. These training entries are one partition, not evidence
+that the broader repository documentation goal is complete.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#execution-architecture">Execution Architecture</a><a href="#availability-and-device-functions">Availability and Device Functions</a><a href="#model-and-warmup-functions">Model and Warmup Functions</a><a href="#training-and-scheduling-functions">Training and Scheduling Functions</a><a href="#augmentation-and-tensor-layout-functions">Augmentation and Tensor Layout Functions</a><a href="#verification-and-remaining-coverage">Verification and Remaining Coverage</a></nav></aside>
+  </div>
+</body>
+</html>

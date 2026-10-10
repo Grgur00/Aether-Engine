@@ -1,0 +1,319 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/ROOT-BUILD-ARCHITECTURE.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Root build architecture: source-backed contributor documentation for Aether Engine.">
+  <title>Root build architecture | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html" aria-current="page">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/ROOT-BUILD-ARCHITECTURE.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="root-build-architecture-and-actions">Root Build Architecture and Actions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="gradle-plugin-functions.html">Gradle plugin functions</a> | <a href="build-utility-functions.html">Build utilities</a></p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/settings.gradle.kts">settings.gradle.kts</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/build.gradle.kts">build.gradle.kts</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/gradle.properties">gradle.properties</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/gradle/wrapper/gradle-wrapper.properties">wrapper properties</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/settings.gradle.kts">build-logic settings</a> and
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/build.gradle.kts">build-logic build</a>.
+This reference explains the root configuration/action blocks and the <strong>one
+explicit local Kotlin function</strong>, rather than treating Gradle lambdas as named
+Java methods. Module-specific task actions are a separate layer, inventoried in
+the <a href="module-build-architecture.html">module build topology reference</a>.</p>
+<h2 id="configuration-layers">Configuration Layers</h2>
+<pre><code class="language-text">wrapper distribution + checksum -&gt; Gradle invocation
+settings -&gt; plugin repositories + toolchain resolver + project inclusion
+    -&gt; included build-logic -&gt; shared precompiled convention plugins
+root project -&gt; common coordinates + publishing aggregate + schema aggregates
+module build -&gt; convention application + dependencies + specialized tasks
+task graph -&gt; selected task execution, not every registered task
+</code></pre>
+<p>Settings name the root <code>aether-engine</code>, include <code>build-logic</code> and explicitly include
+49 module projects plus two examples. Project inclusion is build topology, not a
+runtime call/dependency graph. Changing the inclusion list does not automatically
+publish the added module or make the root verification placeholders run its tests.</p>
+<p>Plugin resolution uses Gradle Plugin Portal and Maven Central. Foojay resolver
+convention version 1.0.0 supports toolchain resolution. Dependency resolution uses
+Maven Central with <code>FAIL_ON_PROJECT_REPOS</code>: project-added repositories are not an
+approved alternate dependency source. The included build has its own settings
+and repository configuration; it is not a subproject inheriting all root actions.</p>
+<h2 id="root-task-and-configuration-actions">Root Task and Configuration Actions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Action</th>
+<th>Behavior</th>
+<th>Limits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>plugins</code></td>
+<td>Applies <code>base</code> and JReleaser 1.25.0.</td>
+<td>Root is not itself a Java application/library. Plugin application is not release execution.</td>
+</tr>
+<tr>
+<td><code>allprojects</code></td>
+<td>Sets group <code>io.github.grgur00</code> and version from <code>aetherVersion</code>, default <code>0.1.0-SNAPSHOT</code>.</td>
+<td>Included build is separate. Coordinates alone do not create publications.</td>
+</tr>
+<tr>
+<td><code>stageMavenCentral</code></td>
+<td>Depends on staging-publication tasks for the explicit 15-module public set and <code>verifyReleaseVersion</code>.</td>
+<td>Does not include all 49 modules. Does not itself run the Python Maven checker, sign or upload. Dependency ordering is not a guarantee every build action waits behind version validation.</td>
+</tr>
+<tr>
+<td><code>verifyReleaseVersion</code></td>
+<td>Execution-time action rejects uppercase <code>-SNAPSHOT</code> suffix and requires three numeric dot-separated components with optional alphanumeric/dot/hyphen prerelease suffix.</td>
+<td>Regex syntax check, not SemVer precedence or remote uniqueness validation. Default version fails a release stage.</td>
+</tr>
+<tr>
+<td><code>jreleaser</code></td>
+<td>Uses <code>jreleaser.yml</code>, enables Git root search and disables automatic assemble dependency.</td>
+<td>Selected JReleaser tasks/configuration determine actual release effects; root configuration alone is not publication.</td>
+</tr>
+<tr>
+<td><code>integrationTest</code></td>
+<td>Registers verification aggregate depending on included <code>build-logic :check</code>.</td>
+<td>Description says all module integration tests, but this root block does not wire module integration suites. Do not infer coverage from description.</td>
+</tr>
+<tr>
+<td><code>crashTestSmoke</code></td>
+<td>Registers named verification task with fast-fixture description.</td>
+<td>No dependencies or action in this root source; success is not crash-test evidence.</td>
+</tr>
+<tr>
+<td><code>crashTest</code></td>
+<td>Registers named verification task with complete-suite description.</td>
+<td>No dependencies or action in this root source. Actual crash drivers/tests must be invoked separately.</td>
+</tr>
+<tr>
+<td><code>aetherSchemaInit</code></td>
+<td>Root aggregate receives each Java project's initial proposal task.</td>
+<td>Proposal generation, not committed-lock mutation.</td>
+</tr>
+<tr>
+<td><code>aetherSchemaUpdate</code></td>
+<td>Root aggregate receives each Java project's update proposal task.</td>
+<td>Same proposal mechanism as init; not automatic acceptance.</td>
+</tr>
+<tr>
+<td><code>aetherSchemaAccept</code></td>
+<td>Root aggregate receives each Java project's accept task, which depends on update.</td>
+<td>Explicit source-changing operation; review resulting schema locks.</td>
+</tr>
+<tr>
+<td><code>aetherSchemaCheck</code></td>
+<td>Root verification aggregate depends on each Java project's <code>compileJava</code>.</td>
+<td>No independent scanner or project-scoped check task registered by this root block. Processor verification happens through compilation where configured.</td>
+</tr>
+</tbody>
+</table>
+<p>The 15 published modules are API, memory, format, IO, memtable, WAL, SSTable,
+LSM, engine, codec annotations, codec, codec processor, embedded typed adapter,
+Gradle plugin and BOM. The staged Maven checker independently carries its own
+expected set; source agreement should be audited when publication scope changes.</p>
+<h2 id="per-java-project-schema-wiring">Per-Java-Project Schema Wiring</h2>
+<p>The <code>subprojects</code> action waits for the Java plugin through <code>plugins.withId</code>.
+It then resolves main source set and annotationProcessor configuration, uses
+project-local <code>aether-schemas</code> and build-local <code>aether-schema/proposal</code>, and
+registers proposal/accept tasks. This wiring is distinct from the published
+consumer <code>AetherPlugin</code>, although the workflows are similar.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>proposalTask(name, descriptionText)</code></td>
+<td>Registers a JavaCompile task over main Java sources and compile classpath, borrows compileJava's compiler provider and annotation processor path, directs class/generated outputs under build/aether-schema, adds <code>-proc:only</code>, PROPOSE mode and absolute schema/proposal paths, declares optional schema input and proposal output.</td>
+<td>Local closure in each Java subproject. Init/update share output locations and implementation. Provider wiring is not a dependency on finishing ordinary compileJava. No cleanup of stale proposals or atomic source acceptance. No separately explicit preview/release setting here; applicable shared conventions configure JavaCompile tasks.</td>
+</tr>
+</tbody>
+</table>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Project Action</th>
+<th>Behavior</th>
+<th>Limits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>projectInit</code> / <code>projectUpdate</code></td>
+<td>Call proposalTask with corresponding name/description.</td>
+<td>Neither adds a distinct compatibility policy outside processor behavior.</td>
+</tr>
+<tr>
+<td><code>projectAccept doLast</code></td>
+<td>Depends on update; if proposal <code>index.json</code> exists, creates schema directory and copies whole proposal tree into it.</td>
+<td>Silently skips absent index. Copy is not atomic replacement, stale destination removal or independent inventory validation.</td>
+</tr>
+<tr>
+<td><code>schema*.configure</code></td>
+<td>Wires root init/update/accept aggregates to project tasks and root check to compileJava.</td>
+<td>Aggregation does not inspect task output content itself.</td>
+</tr>
+<tr>
+<td><code>afterEvaluate</code></td>
+<td>If annotationProcessor has declared dependencies, adds optional schema-directory input and processor directory argument to compileJava.</td>
+<td>Checks declared dependency collection, not processor discovery/transitive behavior. Up-to-date compile may skip execution; this does not force a fresh schema scan.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="toolchain-and-execution-defaults">Toolchain and Execution Defaults</h2>
+<p>Wrapper selects Gradle 9.6.1 all-distribution with SHA-256 checksum, URL validation
+and 10000-ms network timeout. These are local configuration facts, not a claim
+that this version is latest. Root properties enable parallel execution/build
+caching, disable configuration cache, show all warnings and give Gradle JVM a
+2-GiB maximum heap with UTF-8 encoding. Gradle JVM memory is not Java daemon
+storage-cache or GPU memory configuration.</p>
+<p>Build-logic applies Kotlin DSL, selects Java/Kotlin toolchain 21, and puts output
+under <code>.build/{gradleVersion}</code> to separate generated accessors from concurrent
+different-Gradle-version IDE builds. It has Plugin Portal/Maven Central
+repositories. Shared Java conventions and consumer plugin configuration are
+documented in the Gradle plugin reference; they supply preview/compiler/test
+settings that the root task names do not establish on their own.</p>
+<h2 id="training-cache-module-actions">Training-Cache Module Actions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/build.gradle.kts">training-cache build</a>.
+This module applies <code>aether.java-library</code>, with implementation dependencies on
+API, configuration, engine and SSTable; reliability is a test dependency.
+These build dependencies do not make every engine type a supported training-cache
+API. The task actions below are separate from the root aggregates above.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Task</th>
+<th>Action and Inputs</th>
+<th>Outputs and Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>paperRuntimeClasspath</code></td>
+<td>Depends on <code>classes</code> and runtime-classpath build dependencies. Its <code>doLast</code> exports the main runtime classpath, hashes selected source files and inventories resolved runtime entries.</td>
+<td>Writes <code>paper-runtime-classpath.txt</code> and <code>paper-runtime-build.json</code> under this module's build directory. Not a test, signed attestation or frozen campaign approval.</td>
+</tr>
+<tr>
+<td><code>trainingCacheBenchmark</code></td>
+<td>Runs <code>TrainingCacheBenchmark</code> on main runtime classpath. Ordered arguments: <code>benchmarkDir</code> default <code>build/training-cache-benchmark</code>, <code>samples</code> 1000, <code>payloadBytes</code> 256, <code>output</code> <code>build/training-cache-benchmark.json</code>.</td>
+<td>Executes a benchmark, not model training or the paired H2 campaign. Storage/report paths are application arguments.</td>
+</tr>
+<tr>
+<td><code>trainingCacheCrashCampaign</code></td>
+<td>Runs <code>TrainingCacheCrashCampaign</code>. Ordered arguments: <code>campaignDir</code> default <code>build/training-cache-crashes</code>, <code>trials</code> 1000.</td>
+<td>Starts forced-process recovery trials. Registration alone performs no recovery check; this is distinct from the empty root <code>crashTest</code> task.</td>
+</tr>
+<tr>
+<td><code>trainingCacheDaemon</code></td>
+<td>Runs <code>TrainingCacheDaemon</code>. Ordered arguments: <code>cacheDir</code> default <code>build/training-cache-daemon</code>, <code>port</code> 9484.</td>
+<td>Starts the loopback service. One Gradle invocation does not itself enforce a longitudinal lifetime across dataset versions; the controller owns that lifetime.</td>
+</tr>
+<tr>
+<td><code>trainingCachePopulate</code></td>
+<td>Runs <code>TrainingCachePopulate</code>. Ordered arguments: <code>cacheDir</code> default <code>build/training-cache-daemon</code>, <code>samples</code> 128, <code>payloadBytes</code> 1048576.</td>
+<td>Populates deterministic benchmark values, not external OCT input acquisition or an H2 protocol approval.</td>
+</tr>
+<tr>
+<td><code>trainingCacheTestReport</code></td>
+<td>Depends on <code>test</code>. Reads sorted <code>.xml</code> suite files from <code>test-results/test</code>, totals suite attributes and walks testcase elements.</td>
+<td>Writes <code>reports/training-cache-test.json</code>. A failed dependency can prevent this action; it is not a finally-run failure collector.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="runtime-inventory-and-digest">Runtime Inventory and digest</h3>
+<p>The local <code>digest(file)</code> helper creates SHA-256, reads the input stream in reusable
+1-MiB chunks until EOF and formats the digest as lowercase hexadecimal. <code>use</code>
+closes the stream even on failure. File access errors propagate; the helper does
+not retry, lock files or take an atomic filesystem snapshot.</p>
+<p><code>paperRuntimeClasspath</code> writes the platform-separated classpath before hashing
+it. Selected source inputs are root <code>*.gradle.kts</code>, <code>gradle.properties</code>,
+<code>gradle/**</code>, module build scripts and <code>src/main/**</code>, and build-logic scripts,
+properties and <code>src/**</code>. Paths in the source map are relative to the root with
+invariant separators and sorted before hashing. Python scripts, paper configs,
+example sources and module tests are not included by that source selection.
+Do not treat this receipt as an inventory of every campaign input.</p>
+<p>Runtime entries are keyed by absolute path. A file receives <code>kind=file</code> and a
+digest; a directory receives <code>kind=directory</code> and a sorted relative-file digest
+map; a missing entry receives <code>kind=absent</code>. Directories are not hashed as a
+single file. Absolute paths and the classpath text are host-specific even when
+the class bytes match. Concurrent edits between reads can produce a mixed
+inventory; the action does not validate consistency after writing.</p>
+<p>The JSON has schema <code>aether-java-build-v1</code>, <code>sources</code>, <code>runtime</code>,
+<code>classpathSha256</code> and <code>buildJavaVersion</code>. The latter is the Gradle process's
+<code>java.version</code>, not an assertion about every separately launched JVM. The two
+output writes are direct, not an atomic transaction. This task has no explicit
+input/output declarations for the receipt action in the module script.</p>
+<h3 id="jfr-launch-arguments">JFR Launch Arguments</h3>
+<p>Only benchmark and daemon tasks add the optional JFR configuration here.
+Supplying <code>-PjfrFile=...</code> resolves the path with <code>project.file</code>; it appends <code>.jfr</code>
+unless that exact lowercase suffix already exists. <code>jfrSettings</code> defaults to
+<code>profile</code>. JVM arguments set stack depth 256 and start recording with disk and
+dump-on-exit enabled. The script does not create the destination parent directory
+or verify that the resulting recording contains useful events. Crash/populate
+tasks do not receive those JFR arguments from this block.</p>
+<p>All four JavaExec tasks use main runtime classpath and explicit main classes.
+The module script does not override their working directory; do not interpret
+relative application path arguments as root-relative by looking at examples
+that explicitly set <code>workingDir</code> in their own build files.</p>
+<h3 id="test-report-aggregation">Test Report Aggregation</h3>
+<p>Suite counters parse <code>tests</code>, <code>failures</code>, <code>errors</code> and <code>skipped</code>, falling back to
+zero for missing or unparsable values. Each testcase status prioritizes failure,
+then error, then skipped, then passed; duration falls back to 0.0. Report entries
+store testcase class name as <code>suite</code>, testcase name, status and duration.
+The aggregate <code>passed</code> is <code>tests - failures - errors - skipped</code>, not a recount
+of successful case entries. Suite counters and case lists are not cross-validated.</p>
+<p>If the XML directory is absent or has no matching files, the action can produce
+a zero-test report. Malformed XML propagates a parser exception. The default DOM
+factory is not explicitly hardened for untrusted XML in this source; this is
+local Gradle test output, not a general uploaded-report parser. The report is
+written directly and does not certify coverage, freshness of each suite, or a
+successful scientific experiment.</p>
+<h2 id="verification">Verification</h2>
+<p>Documentation contracts check the explicit included projects, root registered
+task names, one local helper and public-module agreement with the Maven checker.
+These are static source checks, not execution of publishing/schema acceptance or
+proof that placeholder tasks cover module tests. Generated-page equality, link
+audits and browser checks validate the reference's presentation. Module-specific
+build actions outside training-cache are inventoried in the module build topology
+reference; whole-repo semantic coverage remains separate audit work.
+Training-cache contracts enumerate its six registered tasks,
+local digest helper, default properties and receipt fields. They compare source
+and documentation; they do not execute JavaExec tasks, inspect actual JFR files,
+or validate DOM parser behavior against untrusted reports.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#configuration-layers">Configuration Layers</a><a href="#root-task-and-configuration-actions">Root Task and Configuration Actions</a><a href="#per-java-project-schema-wiring">Per-Java-Project Schema Wiring</a><a href="#toolchain-and-execution-defaults">Toolchain and Execution Defaults</a><a href="#training-cache-module-actions">Training-Cache Module Actions</a><a href="#verification">Verification</a></nav></aside>
+  </div>
+</body>
+</html>

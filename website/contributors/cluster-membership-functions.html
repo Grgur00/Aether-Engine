@@ -1,0 +1,491 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/CLUSTER-MEMBERSHIP-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Cluster membership and quorum: source-backed contributor documentation for Aether Engine.">
+  <title>Cluster membership and quorum | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html" aria-current="page">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/CLUSTER-MEMBERSHIP-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="cluster-membership-and-quorum-functions">Cluster Membership and Quorum Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="cluster-codec-functions.html">Cluster codecs</a> | <a href="raft-core-functions.html">Raft progress</a> | <a href="replication-contract-functions.html">Replication contracts</a> | <a href="security-functions.html">Security</a></p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-api/src/main/java/io/aetherdb/cluster/api">cluster API</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-core/src/main/java/io/aetherdb/cluster/core">cluster core</a>.
+This reference covers <strong>73 explicit declarations across all 12 API/core files</strong>:
+68 in the API and five in DualMajority. Generated record accessors and enum
+helpers are outside that count; their ownership and equality rules are included.</p>
+<h2 id="architectural-boundaries">Architectural Boundaries</h2>
+<pre><code class="language-text">cluster/bootstrap identity + node identity
+    -&gt; member values with advertised endpoints
+    -&gt; stable configuration (sorted members, voter set)
+    -&gt; joint configuration (old stable + target stable)
+    -&gt; caller supplies acknowledgments or durable indexes
+    -&gt; independent old/new quorum calculations
+</code></pre>
+<p>These modules contain values and calculations, not node discovery, a join service,
+configuration-log publication, membership-change authorization, catch-up transport,
+an election loop, or state-machine application. Wire codecs live separately in
+aether-cluster-codec. Constructors accept supplied hashes; they do not recompute
+them, authenticate the sender, or verify a real log/history. A TLS scheme value
+does not open or secure a connection.</p>
+<p>Stable configurations expose immutable lists/sets and defensive hash copies.
+JointConfigurationV1 retains the old StableConfiguration interface object rather
+than copying it: a custom mutable implementation can violate the immutability
+contract. Callers must establish membership validity and trustworthy durable
+acknowledgments before using DualMajority. Its return value is not a disk force,
+commit publication, or applied-state update.</p>
+<h2 id="configuration-interfaces">Configuration Interfaces</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-api/src/main/java/io/aetherdb/cluster/api/ClusterConfiguration.java">ClusterConfiguration.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-api/src/main/java/io/aetherdb/cluster/api/StableConfiguration.java">StableConfiguration.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-api/src/main/java/io/aetherdb/cluster/api/JointConfiguration.java">JointConfiguration.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Contract and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ClusterConfiguration.clusterId()</code></td>
+<td>Abstract owning-cluster UUID accessor; interface performs no validation.</td>
+</tr>
+<tr>
+<td><code>ClusterConfiguration.stateVersion()</code></td>
+<td>Abstract configuration-state version; monotonicity is an intended contract, not an interface implementation.</td>
+</tr>
+<tr>
+<td><code>ClusterConfiguration.voters()</code></td>
+<td>Abstract immutable participant set. Joint participants are a union, not permission to use one union-majority threshold.</td>
+</tr>
+<tr>
+<td><code>ClusterConfiguration.hash()</code></td>
+<td>Abstract defensive canonical-hash accessor; no hashing algorithm or validation here.</td>
+</tr>
+<tr>
+<td><code>StableConfiguration.configurationId()</code></td>
+<td>Abstract stable-configuration identity.</td>
+</tr>
+<tr>
+<td><code>StableConfiguration.previousHash()</code></td>
+<td>Abstract preceding-configuration hash accessor; does not verify chain continuity.</td>
+</tr>
+<tr>
+<td><code>StableConfiguration.members()</code></td>
+<td>Abstract immutable member-list accessor.</td>
+</tr>
+<tr>
+<td><code>StableConfiguration.creationEpochMillis()</code></td>
+<td>Abstract epoch-millisecond timestamp accessor, not a clock or ordering check.</td>
+</tr>
+<tr>
+<td><code>JointConfiguration.transitionId()</code></td>
+<td>Abstract transition identity.</td>
+</tr>
+<tr>
+<td><code>JointConfiguration.oldConfiguration()</code></td>
+<td>Abstract outgoing StableConfiguration accessor.</td>
+</tr>
+<tr>
+<td><code>JointConfiguration.targetConfiguration()</code></td>
+<td>Abstract incoming StableConfigurationV2 accessor.</td>
+</tr>
+<tr>
+<td><code>JointConfiguration.proposerNodeId()</code></td>
+<td>Abstract proposer identity; does not authorize or check membership.</td>
+</tr>
+<tr>
+<td><code>JointConfiguration.creationEpochMillis()</code></td>
+<td>Abstract transition timestamp accessor.</td>
+</tr>
+<tr>
+<td><code>JointConfiguration.voters()</code></td>
+<td>Default method copies old voters into HashSet, adds target voters, returns Set.copyOf. Rebuilds an immutable union on each call. Does not calculate independent majorities. Invalid custom implementations can cause null failures.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="endpoint-functions">Endpoint Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-api/src/main/java/io/aetherdb/cluster/api/ClusterEndpoint.java">ClusterEndpoint.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ClusterEndpoint.Scheme.Scheme(c)</code></td>
+<td>Stores wire code: AETHER_TLS=1, AETHER_TCP_DEVELOPMENT=2. These are labels, not transport implementations.</td>
+</tr>
+<tr>
+<td><code>ClusterEndpoint.Scheme.code()</code></td>
+<td>Returns stored scheme code.</td>
+</tr>
+<tr>
+<td><code>ClusterEndpoint.AddressType.AddressType(c)</code></td>
+<td>Stores address code: IPV4=1, IPV6=2, DNS=3.</td>
+</tr>
+<tr>
+<td><code>ClusterEndpoint.AddressType.code()</code></td>
+<td>Returns stored representation code.</td>
+</tr>
+<tr>
+<td><code>ClusterEndpoint.of(scheme, host, port, priority, flags)</code></td>
+<td>Rejects null/blank host and exact wildcard strings 0.0.0.0, ::, *. Strips enclosing brackets; colon-containing candidates use InetAddress and IPV6; four decimal components use explicit IPv4 parsing, rejecting components above 255. Otherwise uses IDN.toASCII with STD3 rules, Locale.ROOT lowercase, strips trailing dots, and emits US-ASCII DNS bytes. Delegates remaining validation to constructor. Does not trim input or check reachability. Invalid IP lookup becomes IllegalArgumentException; oversized decimal components can raise NumberFormatException.</td>
+</tr>
+<tr>
+<td><code>ClusterEndpoint.ClusterEndpoint(scheme, type, address, port, priority, flags)</code></td>
+<td>Requires nonnull fields; port 1..65535, priority 0..65535; nonzero flags restricted to INTERNAL_RPC=1 and CLIENT_RPC=2. Requires IPv4 length 4, IPv6 length 16, DNS length 1..255. Clones address. Binary DNS content is not checked for ASCII, lowercase, grammar or canonical form; all-zero IP addresses are not rejected here.</td>
+</tr>
+<tr>
+<td><code>ClusterEndpoint.scheme()</code></td>
+<td>Returns stored scheme enum.</td>
+</tr>
+<tr>
+<td><code>ClusterEndpoint.addressType()</code></td>
+<td>Returns stored address representation enum.</td>
+</tr>
+<tr>
+<td><code>ClusterEndpoint.address()</code></td>
+<td>Returns a fresh address-byte clone.</td>
+</tr>
+<tr>
+<td><code>ClusterEndpoint.port()</code></td>
+<td>Returns stored port.</td>
+</tr>
+<tr>
+<td><code>ClusterEndpoint.priority()</code></td>
+<td>Returns stored sorting priority; smaller sorts first.</td>
+</tr>
+<tr>
+<td><code>ClusterEndpoint.flags()</code></td>
+<td>Returns traffic-class bitmask.</td>
+</tr>
+<tr>
+<td><code>ClusterEndpoint.compareTo(other)</code></td>
+<td>Delegates to COMPARATOR: priority, scheme code, address-type code, unsigned address bytes, port, then flags. Address comparison obtains defensive clones. Null comparison is not supported.</td>
+</tr>
+<tr>
+<td><code>ClusterEndpoint.equals(o)</code></td>
+<td>True only for an endpoint whose full comparator result is zero. Same host/port with different priority, scheme or flags is not equal.</td>
+</tr>
+<tr>
+<td><code>ClusterEndpoint.hashCode()</code></td>
+<td>Combines both enums, address content, port, priority and flags consistently with full-field equality.</td>
+</tr>
+</tbody>
+</table>
+<p>Wildcard rejection precedes bracket stripping: <code>[::]</code> and expanded zero IPv6
+spellings are not rejected by the exact-string guard. Do not treat of as complete
+advertisability/security validation. An IPv4-mapped IPv6 spelling may yield four
+bytes from InetAddress and fail the constructor's IPV6 length check. Comparator
+ordering is canonical value ordering, not route selection or connection fallback.</p>
+<h2 id="identity-and-member-functions">Identity and Member Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-api/src/main/java/io/aetherdb/cluster/api/ClusterIdentity.java">ClusterIdentity.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-api/src/main/java/io/aetherdb/cluster/api/NodeIdentity.java">NodeIdentity.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-api/src/main/java/io/aetherdb/cluster/api/ClusterMember.java">ClusterMember.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-api/src/main/java/io/aetherdb/cluster/api/MemberRole.java">MemberRole.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ClusterIdentity.ClusterIdentity(clusterId, creationEpochMillis, bootstrapConfigurationId, bootstrapConfigurationHash, compatibilityFingerprint)</code></td>
+<td>Requires nonnull/nonzero cluster and bootstrap UUIDs, nonnegative timestamp, and two nonnull 32-byte arrays. Clones both arrays. Does not validate bootstrap contents, compute hashes or persist trust anchors. Invalid fields raise IllegalArgumentException.</td>
+</tr>
+<tr>
+<td><code>ClusterIdentity.bootstrapConfigurationHash()</code></td>
+<td>Returns defensive bootstrap-hash clone.</td>
+</tr>
+<tr>
+<td><code>ClusterIdentity.compatibilityFingerprint()</code></td>
+<td>Returns defensive format-fingerprint clone; does not compare against the local catalog.</td>
+</tr>
+<tr>
+<td><code>NodeIdentity.NodeIdentity(clusterId, nodeId, creationEpochMillis, initialRole, generation)</code></td>
+<td>Requires nonnull/nonzero UUIDs, timestamp&gt;=0, nonnull role, and generation exactly 1. Invalid input raises IllegalArgumentException. No certificate, disk identity or current-membership check.</td>
+</tr>
+<tr>
+<td><code>MemberRole.MemberRole(code)</code></td>
+<td>Stores VOTER=1 or STAGED_NONVOTER=2. Role describes membership intent; no replication/election behavior is activated.</td>
+</tr>
+<tr>
+<td><code>MemberRole.code()</code></td>
+<td>Returns durable role code.</td>
+</tr>
+<tr>
+<td><code>MemberRole.fromCode(code)</code></td>
+<td>Scans enum values for exact code match; unknown code raises IllegalArgumentException.</td>
+</tr>
+<tr>
+<td><code>ClusterMember.ClusterMember(nodeId, role, flags, generation, addedAtIndex, addedAtTerm, name, identityHash, endpoints)</code></td>
+<td>Requires nonzero/nonnull node UUID and role; generation/index/term&gt;=1; nonnull name at most 128 UTF-8 bytes; nonnull 32-byte identity hash, cloned. Sorts endpoint stream into unmodifiable list; null list becomes empty and is rejected; requires 1..8 and rejects adjacent full-value duplicates. Empty/blank name is accepted. Member flags are not validated; history/hash are not checked against identity or log. Null list elements are not uniformly rejected by a dedicated guard and may cause NullPointerException.</td>
+</tr>
+<tr>
+<td><code>ClusterMember.identityHash()</code></td>
+<td>Returns defensive clone, without recomputing the node identity hash.</td>
+</tr>
+</tbody>
+</table>
+<p>Generated scalar/UUID/enum accessors return immutable values. ClusterMember's
+generated endpoints accessor returns its stored unmodifiable list of immutable
+endpoint objects. ClusterIdentity and ClusterMember generated record equality
+uses array identity, not digest contents, despite their defensive copying.
+Separately constructed byte-identical records need not compare equal. NodeIdentity
+has no arrays and normal record value equality. Positive member history does not
+prove the member was added by a committed entry; initial NodeIdentity generation
+is stricter than ClusterMember's any-positive generation.</p>
+<h2 id="stable-configuration-v1-functions">Stable Configuration V1 Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-api/src/main/java/io/aetherdb/cluster/api/StableConfigurationV1.java">StableConfigurationV1.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>StableConfigurationV1.StableConfigurationV1(clusterId, version, configurationId, previousHash, members, created, hash)</code></td>
+<td>Requires nonnull/nonzero cluster/configuration UUIDs, version&gt;=1, created&gt;=0, and two nonnull 32-byte hashes. Sorts members by unsigned UUID; rejects duplicate node UUIDs and full endpoint values across nodes. Requires 1..31 voters and at most 64 staged members. Stores immutable sorted members and unmodifiable voter-only UUID set; clones both hashes. Null member list/elements can raise NullPointerException. Does not compute hash, validate prior state/version progression, authenticate identities or check history against a log.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV1.compareUuid(a, b)</code></td>
+<td>Compares unsigned most-significant 64 bits, then unsigned least-significant 64 bits. Not UUID's signed-long natural ordering. Null arguments are unsupported.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV1.clusterId()</code></td>
+<td>Returns owning UUID.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV1.stateVersion()</code></td>
+<td>Returns stored positive version; no monotonic tracking.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV1.configurationId()</code></td>
+<td>Returns stable identity.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV1.previousHash()</code></td>
+<td>Returns fresh preceding-hash clone.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV1.members()</code></td>
+<td>Returns stored immutable UUID-sorted list, including staged nonvoters.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV1.creationEpochMillis()</code></td>
+<td>Returns stored nonnegative timestamp.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV1.voters()</code></td>
+<td>Returns stored immutable voter-only set; staged members do not count. Set iteration order is not the canonical member order.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV1.hash()</code></td>
+<td>Returns fresh configuration-hash clone.</td>
+</tr>
+</tbody>
+</table>
+<p>Cross-node endpoint uniqueness uses full endpoint equality, not address/port alone;
+different flags/priority can leave the same network destination accepted. Voter
+set construction filters each ID by scanning the member list, rather than doing
+a single-pass role partition. Configuration classes do not override equals or
+hashCode: they retain object-identity equality, not hash/content equality.</p>
+<h2 id="stable-configuration-v2-functions">Stable Configuration V2 Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-api/src/main/java/io/aetherdb/cluster/api/StableConfigurationV2.java">StableConfigurationV2.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>StableConfigurationV2.StableConfigurationV2(clusterId, version, configurationId, previousHash, completedTransitionId, members, created, changedMembers, hash)</code></td>
+<td>Constructs the validated V1 base first, then requires nonnull transition UUID and changedMembers 0..16. Zero transition UUID is accepted. Does not calculate actual member changes, verify a completed transition or check transition/hash-chain consistency.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV2.completedTransitionId()</code></td>
+<td>Returns supplied transition identity.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV2.changedMemberCount()</code></td>
+<td>Returns supplied bounded count, not a recomputed diff.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV2.clusterId()</code></td>
+<td>Delegates to base owning UUID.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV2.stateVersion()</code></td>
+<td>Delegates to base stored version.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV2.configurationId()</code></td>
+<td>Delegates to base stable identity.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV2.previousHash()</code></td>
+<td>Delegates to base defensive clone.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV2.members()</code></td>
+<td>Delegates to immutable base member list.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV2.creationEpochMillis()</code></td>
+<td>Delegates to base timestamp.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV2.voters()</code></td>
+<td>Delegates to immutable base voter-only set.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationV2.hash()</code></td>
+<td>Delegates to base defensive clone.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="joint-configuration-v1-functions">Joint Configuration V1 Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-api/src/main/java/io/aetherdb/cluster/api/JointConfigurationV1.java">JointConfigurationV1.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JointConfigurationV1.JointConfigurationV1(transition, old, target, proposer, created, hash)</code></td>
+<td>Requires nonnull/nonzero transition/proposer IDs, nonnull old/target, equal cluster IDs, target version=old version+2, timestamp&gt;=0, nonnull 32-byte hash, and nonempty old/target voter intersection. Stores configuration references and clones hash. Version addition is unchecked. Does not authorize proposer, bind target completedTransitionId to transition, calculate changed members or verify previousHash/hash chain.</td>
+</tr>
+<tr>
+<td><code>JointConfigurationV1.clusterId()</code></td>
+<td>Delegates to old configuration's cluster UUID.</td>
+</tr>
+<tr>
+<td><code>JointConfigurationV1.stateVersion()</code></td>
+<td>Returns old version+1 with unchecked long addition.</td>
+</tr>
+<tr>
+<td><code>JointConfigurationV1.transitionId()</code></td>
+<td>Returns stored nonzero transition UUID.</td>
+</tr>
+<tr>
+<td><code>JointConfigurationV1.oldConfiguration()</code></td>
+<td>Returns retained outgoing interface object, not a deep copy.</td>
+</tr>
+<tr>
+<td><code>JointConfigurationV1.targetConfiguration()</code></td>
+<td>Returns retained incoming immutable V2 object.</td>
+</tr>
+<tr>
+<td><code>JointConfigurationV1.proposerNodeId()</code></td>
+<td>Returns stored proposer UUID; membership was not checked.</td>
+</tr>
+<tr>
+<td><code>JointConfigurationV1.creationEpochMillis()</code></td>
+<td>Returns stored transition timestamp.</td>
+</tr>
+<tr>
+<td><code>JointConfigurationV1.hash()</code></td>
+<td>Returns defensive supplied-hash clone.</td>
+</tr>
+</tbody>
+</table>
+<p>The voters method is inherited from JointConfiguration. Version relationship is
+old N, joint N+1, target N+2, but these values alone do not prove the joint entry
+was committed before the target became authoritative. The nonempty intersection
+constructor rule does not substitute for independent majorities during transition.</p>
+<h2 id="dual-majority-functions">Dual Majority Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-core/src/main/java/io/aetherdb/cluster/core/DualMajority.java">DualMajority.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DualMajority.DualMajority()</code></td>
+<td>Private empty utility constructor.</td>
+</tr>
+<tr>
+<td><code>DualMajority.hasMajority(voters, acknowledgements)</code></td>
+<td>Requires nonnull sets and nonempty voters; counts voter IDs contained in acknowledgments and compares with voters.size()/2+1. Outsider acknowledgments are ignored; Set identity semantics deduplicate IDs. Null UUID elements are not rejected and can count when present in both sets. Does not authenticate acknowledgment or test durability.</td>
+</tr>
+<tr>
+<td><code>DualMajority.hasJointMajority(oldVoters, newVoters, acknowledgements)</code></td>
+<td>ANDs two hasMajority calls; each side uses its own denominator. Short-circuit means newVoters validation is skipped when old majority fails. No membership intersection/history validation.</td>
+</tr>
+<tr>
+<td><code>DualMajority.committedIndex(oldVoters, newVoters, durableIndexes)</code></td>
+<td>Returns minimum of each side's majorityIndex. Computes a quorum-supported index only: no current-term restriction, monotonic commit state, log/hash check, force or application. Both sides are evaluated unless the first throws.</td>
+</tr>
+<tr>
+<td><code>DualMajority.majorityIndex(voters, indexes)</code></td>
+<td>Private helper rejects empty voter set, maps each voter to reported index or zero if missing, sorts ascending, selects position length-(length/2+1). Missing voters remain in the denominator. Allocates/sorts one long array per side. Null sets/maps or a present null index can raise NullPointerException; negative indexes are not rejected.</td>
+</tr>
+</tbody>
+</table>
+<p>For old <code>{a,b,c}</code> and target <code>{b,c,d}</code>, acknowledgments <code>{a,b}</code> satisfy old
+majority but fail target majority. <code>{b,c}</code> satisfy both. A majority of the union
+is not equivalent to the two required majorities. With durable indexes a=9,
+b=8, c=7, d=6, old supports 8, target supports 7, so the joint result is 7.
+Missing map entries use zero instead of shrinking the configured voter population.</p>
+<h2 id="verification-and-reading-order">Verification and Reading Order</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-core/src/test/java/io/aetherdb/cluster/core/DualMajorityTest.java">DualMajorityTest.java</a>
+contains one test covering independent-majority rejection/acceptance and the
+9/8/7/6 durable-index example. It does not cover constructor validation, endpoint
+canonicalization/ownership, unknown role codes, missing/negative/null indexes,
+short-circuit validation, overflow or actual durable membership publication.
+No dedicated cluster API test source tree is present in this checkout.</p>
+<pre><code class="language-powershell">.\gradlew.bat --no-daemon :modules:aether-cluster-core:test --rerun
+.venv\Scripts\python.exe -m pytest scripts/tests/test_contributor_docs.py -q
+</code></pre>
+<p>Read identity/member values first, then stable/joint configurations, then
+DualMajority. Review separate wire codecs before trusting encoded hashes or
+decoder acceptance. Review Raft current-term commit rules and durable log/store
+ownership separately before integrating these foundations into a service.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architectural-boundaries">Architectural Boundaries</a><a href="#configuration-interfaces">Configuration Interfaces</a><a href="#endpoint-functions">Endpoint Functions</a><a href="#identity-and-member-functions">Identity and Member Functions</a><a href="#stable-configuration-v1-functions">Stable Configuration V1 Functions</a><a href="#stable-configuration-v2-functions">Stable Configuration V2 Functions</a><a href="#joint-configuration-v1-functions">Joint Configuration V1 Functions</a><a href="#dual-majority-functions">Dual Majority Functions</a><a href="#verification-and-reading-order">Verification and Reading Order</a></nav></aside>
+  </div>
+</body>
+</html>

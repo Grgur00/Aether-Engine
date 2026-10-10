@@ -1,0 +1,164 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/TRANSFORM-EVOLUTION-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Transform evolution checks: source-backed contributor documentation for Aether Engine.">
+  <title>Transform evolution checks | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html" aria-current="page">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/TRANSFORM-EVOLUTION-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="transform-evolution-check-functions">Transform Evolution Check Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="benchmark-backend-functions.html">Benchmark backend functions</a> | <a href="dataset-preparation-functions.html">Dataset preparation</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/transform_evolution.py">transform_evolution.py</a>.
+This reference covers <strong>all 3 explicit declarations</strong>, including the nested
+artifact-construction helper. It is a synthetic correctness check, not the
+longitudinal H2 training workload or a stage-level reuse implementation.</p>
+<h2 id="architecture">Architecture</h2>
+<pre><code class="language-text">temporary store workspace -&gt; one Java daemon -&gt; eight synthetic samples
+base keys and packed artifacts
+    -&gt; unchanged / source-content / normalize / resize / version / codec cases
+    -&gt; separate Java namespace + separate durable mmap directory for each case
+    -&gt; publish base -&gt; query evolved keys -&gt; validate expected hits and bytes
+    -&gt; publish missing evolved artifacts -&gt; compare complete byte readback
+close stores and daemon -&gt; remove temporary stores -&gt; trial JSON
+repeat wrapper -&gt; hash each trial report -&gt; campaign JSON
+</code></pre>
+<p>Identity is delegated to <code>BackendContext.cache_key</code>: sample ID, source identity,
+source hash and deterministic parameters are serialized and hashed. Parameters
+include pipeline version, artifact codec and normalization scale/offset. A codec
+change is deliberately part of key identity; this script does not independently
+prove that its packed byte encoding changes with that parameter.</p>
+<h2 id="function-reference">Function Reference</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>run_once(output)</code></td>
+<td>Creates an output directory and a temporary workspace, starts a Java daemon, parses an eight-sample 8x8 synthetic workload, and constructs base artifacts. Runs six isolated scenarios against Java and durable mmap stores. Requires expected miss counts, equal Java/mmap hit dictionaries, no stale reused bytes and complete evolved byte parity after publishing missing keys. After resource cleanup, writes <code>aether-transform-evolution-v1</code> with scenario results, parameter identities, environment and final-artifact-only reuse caveat. Returns that report.</td>
+<td>No training, throughput, GPU requirement or statistical endpoint. One live JVM across scenarios, no restart/crash check. No direct Java durability-mode assertion here; default daemon configuration is delegated. Output JSON may overwrite an existing trial report when this function is called directly. A failure prevents the success report; no failure receipt is written.</td>
+</tr>
+<tr>
+<td><code>run_once.values(config, inputs)</code></td>
+<td>Allocates a <code>BackendContext</code> with <code>__new__</code>, sets only <code>args</code> and <code>sources</code>, then maps each delegated cache key to preprocessed, tensor-converted, packed bytes.</td>
+<td>Bypasses backend initialization because only key construction is needed. Computes every input eagerly, including would-be hits, so it cannot measure avoided preprocessing. Dictionary construction would collapse duplicate keys; fixed generated inputs supply distinct identities. Packing and preprocessing are delegated, not independent references.</td>
+</tr>
+<tr>
+<td><code>run(output, repeats)</code></td>
+<td>Requires a positive repeat count, creates the output directory and refuses an existing campaign report. For each repetition, refuses an existing <code>trial-NNNN</code> path, calls <code>run_once</code>, hashes its report and appends a relative report receipt. Writes and returns <code>aether-transform-campaign-v1</code> with all-passed status and final-artifact reuse granularity.</td>
+<td>Default one repeat. Repetitions use the same parsed fixture defaults, not newly randomized conditions. Earlier trial reports survive later failure; there is no resume or automatic retry. Campaign/trial publication is not an all-or-nothing transaction. Report hashes are recorded, not verified by a reader in this module.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="scenarios-and-assertions">Scenarios and Assertions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Change</th>
+<th>Expected Reuse</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>unchanged</code></td>
+<td>Same parameters and source objects.</td>
+<td>8 hits, 0 misses.</td>
+</tr>
+<tr>
+<td><code>source-content</code></td>
+<td>Deep-copies sources, XORs the first byte of sample zero with 255, recomputes that source hash.</td>
+<td>7 hits, 1 miss.</td>
+</tr>
+<tr>
+<td><code>normalize</code></td>
+<td>Shallow-copies arguments and sets normalization scale to 2.0.</td>
+<td>0 hits, 8 misses.</td>
+</tr>
+<tr>
+<td><code>resize</code></td>
+<td>Sets resize to 10.</td>
+<td>0 hits, 8 misses.</td>
+</tr>
+<tr>
+<td><code>implementation-version</code></td>
+<td>Sets pipeline version to <code>paper-v2</code>.</td>
+<td>0 hits, 8 misses.</td>
+</tr>
+<tr>
+<td><code>artifact-codec</code></td>
+<td>Sets artifact codec to <code>zlib</code>.</td>
+<td>0 hits, 8 misses.</td>
+</tr>
+</tbody>
+</table>
+<p>Every scenario receives the full base artifact set first. Java isolation uses
+<code>evolution-{name}</code> namespaces; mmap isolation uses separate directories. Java
+publication uses <code>commit_bytes_many</code>; base mmap publication is per-key <code>put</code>,
+while evolved misses use <code>put_many</code>. mmap readback strips its four-byte prefix
+before comparing application payloads. Java batched lookup consumes the evolved
+dictionary as an iterable of keys.</p>
+<p>The first assertion checks miss count and exact hit-dictionary equality. The
+second compares every reused payload with freshly computed evolved bytes. Both
+stores then receive only keys missing from their respective hit dictionaries;
+complete evolved readback must equal the expected dictionary. Superseded base
+keys may remain stored; this check does not implement eviction, garbage
+collection or version-specific inventory counts.</p>
+<h2 id="ownership-and-failures">Ownership and Failures</h2>
+<p>The temporary-directory context owns the physical stores; the daemon context
+owns the JVM. Each scenario opens Java and mmap stores before entering its
+<code>try/finally</code>. If mmap construction fails, Java cleanup is not reached by that
+block. Within <code>finally</code>, Java closes before mmap; a Java close exception can
+prevent the explicit mmap close. Outer contexts still unwind. A failed scenario
+does not roll back already published keys, although the temporary workspace is
+subsequently removed on normal context cleanup.</p>
+<p>Trial environment collection and report writing occur after stores/daemon have
+closed and the temporary directory has exited. The CLI is module-level, with
+<code>--output</code> defaulting to <code>build/transform-evolution</code> and <code>--repeats</code> defaulting to
+1; it directly calls <code>run</code>, with no separate <code>main</code> declaration.</p>
+<h2 id="verification">Verification</h2>
+<p>The AST inventory test checks all three qualified declarations against the
+function table. CPU contract tests exercise actual synthetic preprocessing and
+durable mmap operations with a fake Java store/daemon, including scenario
+counts, repeat receipts and overwrite refusal. They do not establish Java wire
+integration, real JVM durability, daemon cleanup failures, GPU training or crash
+consistency. Real execution of this check additionally needs the built Java
+runtime classpath and an available JVM.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture">Architecture</a><a href="#function-reference">Function Reference</a><a href="#scenarios-and-assertions">Scenarios and Assertions</a><a href="#ownership-and-failures">Ownership and Failures</a><a href="#verification">Verification</a></nav></aside>
+  </div>
+</body>
+</html>

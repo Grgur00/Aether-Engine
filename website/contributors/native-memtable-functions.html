@@ -1,0 +1,248 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/NATIVE-MEMTABLE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Native memtable functions: source-backed contributor documentation for Aether Engine.">
+  <title>Native memtable functions | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html" aria-current="page">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/NATIVE-MEMTABLE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="native-memtable-function-reference">Native Memtable Function Reference</h1>
+<p><a href="mvcc-reference-functions.html">Heap MVCC</a> | <a href="persistent-internals.html">Persistent internals</a> | <a href="native-region-functions.html">Native regions and allocation</a></p>
+<h2 id="architecture-and-ownership">Architecture And Ownership</h2>
+<p><code>NativeSkipListMemTable</code> stores process-local skiplist nodes and native records
+inside one budgeted native region. Nodes use integer offsets, not durable file
+pointers. Key ordering is unsigned user key, descending sequence, then ascending
+record type. The engine owns sequence assignment and visibility; table insertion
+alone does not make a mutation committed or durable.</p>
+<p>Writers serialize through <code>writerLock</code>. Readers traverse acquire-loaded links
+without taking that lock. A writer initializes a node and record, then publishes
+links with release stores. Reference counting protects region lifetime when
+coordinated correctly by the owning engine; methods do not automatically retain
+a lease for each read.</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Mutation behavior</th>
+<th>Read/lifetime behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACTIVE</td>
+<td>Inserts may succeed, be duplicate or run out of space.</td>
+<td>Point/range reads allowed; flush iteration forbidden.</td>
+</tr>
+<tr>
+<td>FROZEN</td>
+<td>Insert returns FROZEN.</td>
+<td>Reads and full internal iteration allowed.</td>
+</tr>
+<tr>
+<td>RETIRED</td>
+<td>Insert returns FROZEN; new retain requests rejected.</td>
+<td>Existing owners/leases may still read until native closure.</td>
+</tr>
+<tr>
+<td>CLOSED</td>
+<td>Insert's state gate returns FROZEN after input validation.</td>
+<td>Read guard rejects access; native region is no longer usable.</td>
+</tr>
+</tbody>
+</table>
+<p>Results materialize owning heap arrays. This table does not expose tensor values
+as lifetime-independent zero-copy native views through its public lookup API.</p>
+<h2 id="construction-and-mutation-functions">Construction And Mutation Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memtable/src/main/java/io/aetherdb/memtable/skiplist/NativeSkipListMemTable.java">NativeSkipListMemTable.java</a>.</p>
+<h3 id="nativeskiplistmemtablebudget-capacitybytes-id-seed"><code>NativeSkipListMemTable(budget, capacityBytes, id, seed)</code></h3>
+<p>Creates a budgeted region, native record reader/writer and deterministic height
+generator. It allocates the 96-byte head at required offset 64, rejecting violation
+of that invariant, and initializes head allocation length, zero record offset,
+height 20, version one and head flag. The table starts ACTIVE with one owner
+reference and maximum linked height one. Constructor failure has no explicit
+region-close cleanup block here; allocation/factory behavior is a separate layer.</p>
+<h3 id="putkey-value-sequence-and-deletekey-sequence"><code>put(key, value, sequence)</code> And <code>delete(key, sequence)</code></h3>
+<p><code>put</code> explicitly rejects null values, then delegates to <code>insert</code> with VALUE type.
+Empty values remain VALUE records. <code>delete</code> delegates with an empty array and
+TOMBSTONE type. Both return <code>InsertResult</code>, not a durable write receipt, and do
+not reserve or advance the database-visible sequence.</p>
+<h3 id="insertkey-value-sequence-type"><code>insert(key, value, sequence, type)</code></h3>
+<p>Private insertion requires non-null key, positive sequence and native-format
+payload lengths before locking. Under the writer lock, non-ACTIVE state returns
+FROZEN. It searches predecessors for the exact internal key; an equal key,
+sequence and type returns DUPLICATE without comparing payload contents.</p>
+<p>It chooses a height, computes node/record allocation and tries an eight-byte-aligned
+allocation. Failure returns FULL. The height generator has already advanced at
+that point; a failed allocation consumes a height draw but no linked entry.</p>
+<p>For success it zeroes the allocated node, writes its header, writes the native
+record and fills outgoing links. It release-publishes level zero first, then
+upper levels, updates volatile maximum height and increments entry count. The
+writer lock is released in <code>finally</code>. There is no per-node deletion/free or
+rollback of an already consumed allocation on an unexpected later exception.</p>
+<p><code>InsertResult</code> distinguishes INSERTED, FULL, DUPLICATE and FROZEN. A duplicate
+VALUE and a TOMBSTONE at the same key/sequence are different internal keys because
+type participates in ordering; global mutation identity is an engine concern.</p>
+<h2 id="lookup-and-materialization">Lookup And Materialization</h2>
+<h3 id="getkey-visiblesequence"><code>get(key, visibleSequence)</code></h3>
+<p>Checks readable state, non-null key and nonnegative visibility. Searches the lower
+bound for that user key and sequence with synthetic type zero, placing the target
+before valid types at the same sequence. No node, a different key or a too-new
+record returns NOT_FOUND. A selected tombstone returns TOMBSTONE; otherwise the
+record value is copied into an owning <code>MemTableLookupResult</code> which clones it again.</p>
+<p>It selects one record, not all history, and does not skip a selected tombstone to
+expose an older value. It does not independently register a snapshot or retain the
+region against concurrent retirement.</p>
+<h3 id="scanstartinclusive-endexclusive-visiblesequence"><code>scan(startInclusive, endExclusive, visibleSequence)</code></h3>
+<p>Requires readable state, non-null bounds and start no greater than end. Starts
+at the first version of the start key using a maximum-sequence lower bound,
+then walks level zero by user-key groups. For each group it retains the first
+record at or below visibility, consumes the rest of that group's versions and
+emits only a selected non-tombstone. The end bound is exclusive; equal bounds
+return no rows. Returned entries own copied bytes in a mutable result list.</p>
+<p>Unlike <code>get</code>, this method does not explicitly reject negative visibility; no
+positive record qualifies. Traversing an ACTIVE table is not a complete snapshot
+isolation protocol by itself; the engine supplies a valid visibility boundary
+and safe table lifetime.</p>
+<h3 id="internalentries"><code>internalEntries()</code></h3>
+<p>Requires readable state and rejects ACTIVE. Walks every level-zero internal record,
+including overwritten values and tombstones, preserving internal ordering. Copies
+key/value bytes into <code>InternalEntry</code> objects and returns <code>List.copyOf</code>. Tombstones
+carry empty values. This materializing flush view is not an iterator over borrowed
+native memory; it can allocate in proportion to all retained payload bytes.</p>
+<h3 id="userkeys"><code>userKeys()</code></h3>
+<p>May run without freezing, but still requires readable state. Copies each record's
+key while traversing and emits only changes from the previous user key. Returned
+list structure is immutable; contained arrays are owning copies and remain mutable
+to the caller. Tombstone-only keys are included because this enumerates distinct
+stored keys, not only visible live values.</p>
+<h2 id="search-and-link-helpers">Search And Link Helpers</h2>
+<h3 id="lowerbound-and-findpredecessors"><code>lowerBound(...)</code> And <code>findPredecessors(...)</code></h3>
+<p><code>lowerBound</code> starts at the head and descends from current maximum linked height,
+advancing while nodes precede the synthetic target. Returns the next base-level
+offset or zero. <code>findPredecessors</code> searches from all twenty possible levels and
+fills the supplied predecessor array for insertion, also returning its base-level
+candidate. Neither allocates sequences or changes links.</p>
+<h3 id="comparenode-recordnode-and-comparebytes"><code>compareNode(...)</code>, <code>record(node)</code> And <code>compareBytes(...)</code></h3>
+<p><code>compareNode</code> opens a checked native record, compares user bytes, then compares
+the target sequence against the node sequence to implement descending order,
+then compares unsigned types. <code>record</code> reads the node's stored record offset and
+delegates to <code>NativeRecordReader.openChecked</code>. It does not independently validate
+every skiplist node header field. <code>compareBytes</code> delegates to unsigned array
+comparison for copied user-key arrays.</p>
+<h3 id="nextnode-level-and-setnextreleasenode-level-target"><code>next(node, level)</code> And <code>setNextRelease(node, level, target)</code></h3>
+<p><code>next</code> acquire-loads the integer link at the format-derived offset.
+<code>setNextRelease</code> release-stores it. A zero link is the end sentinel. Their ordering
+supports seeing a fully initialized node after publication; it does not ensure
+that the region cannot be closed concurrently by an incorrectly coordinated owner.</p>
+<h2 id="state-and-lifetime-functions">State And Lifetime Functions</h2>
+<h3 id="freeze"><code>freeze()</code></h3>
+<p>Takes the writer lock. Only ACTIVE transitions to FROZEN and freezes the native
+region; other states are left alone. The lock excludes an insertion while making
+that transition. Freeze does not flush, force a file or advance a manifest watermark.</p>
+<h3 id="retain-and-lease"><code>retain()</code> And <code>Lease(...)</code></h3>
+<p>Rejects RETIRED/CLOSED, then CAS-increments the reference counter and constructs a
+private owner-bound lease. The state check and counter increment are not one atomic
+state/refcount transition: the owning engine must coordinate retention against
+retirement. This implementation should not be advertised as closing that race
+for arbitrary unsynchronized callers. Counter increment also has no explicit
+overflow guard.</p>
+<h3 id="retire-release-and-close"><code>retire()</code>, <code>release()</code> And <code>close()</code></h3>
+<p><code>retire</code> freezes, sets RETIRED and releases the initial owner reference. Private
+<code>release</code> decrements, rejects negative count and closes the region when zero is
+reached in RETIRED state, then marks CLOSED. Direct repeated <code>retire</code> is not
+idempotent: it repeats the owner release. Public <code>close</code> skips retire if already
+RETIRED/CLOSED, providing a state-guarded owner shutdown rather than forcibly
+invalidating outstanding leases.</p>
+<p>If region closure throws, the subsequent CLOSED assignment does not occur. These
+functions do not repair counters or retry every failed native cleanup operation.</p>
+<h3 id="leasetable-and-leaseclose"><code>Lease.table()</code> And <code>Lease.close()</code></h3>
+<p><code>table</code> requires an open lease and returns its owner; it does not add another
+reference. <code>close</code> clears the owner reference before invoking release, so a normal
+second close does nothing. Leases themselves are not synchronized for concurrent
+use/close. The last outstanding release may trigger physical native closure after
+retirement.</p>
+<h3 id="accessors-and-ensurereadable">Accessors And <code>ensureReadable()</code></h3>
+<p><code>state()</code> returns the volatile lifecycle state. <code>entryCount()</code> returns a plain
+long updated under the writer lock; the accessor itself is not synchronized.
+<code>nativeUsedBytes()</code> and <code>nativeRemainingBytes()</code> delegate to allocator accounting.
+<code>headOffset()</code> returns the fixed offset. These are observations, not reservations.
+<code>ensureReadable</code> rejects CLOSED only, not RETIRED with outstanding references.</p>
+<h3 id="maximuminsertionbyteskeybytes-valuebytes"><code>maximumInsertionBytes(keyBytes, valueBytes)</code></h3>
+<p>Computes native record length, node allocation at maximum height and seven extra
+bytes for worst-case eight-byte alignment, using checked arithmetic. This is a
+conservative admission estimate, not the actual random-height allocation size
+and not a guarantee of table capacity after other writes.</p>
+<h2 id="heap-result-records">Heap Result Records</h2>
+<p><code>Entry(key, value)</code> clones both arrays on construction and access. It has no
+explicit null/length validation beyond those clone operations. <code>InternalEntry</code>
+also clones arrays, requires positive sequence and forbids nonempty tombstone
+payloads; generated sequence/tombstone accessors return scalars. Generated record
+equality for these array fields is identity-based, not content-based.</p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memtable/src/main/java/io/aetherdb/memtable/skiplist/MemTableLookupResult.java">MemTableLookupResult.java</a>.</p>
+<p><code>MemTableLookupResult(kind, value)</code> clones a non-null payload but does not enforce
+kind/payload consistency or non-null kind. Custom <code>value()</code> returns another copy
+or null. Factories <code>value(bytes)</code>, <code>tombstone()</code> and <code>notFound()</code> select VALUE,
+TOMBSTONE and NOT_FOUND; the latter two carry null. Direct construction can bypass
+those intended combinations. Generated <code>kind()</code> reports the tag, which callers
+must use to distinguish absence, deletion and a legitimate empty value.</p>
+<h2 id="node-layout-functions">Node Layout Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memtable/src/main/java/io/aetherdb/memtable/skiplist/NativeSkipListNodeFormat.java">NativeSkipListNodeFormat.java</a>.</p>
+<p>Private <code>NativeSkipListNodeFormat()</code> prevents instantiation. The 16-byte prefix
+contains allocation length, record offset, height, version, flags and reserved
+fields, followed by four-byte link offsets and padding. Head offset is 64; head
+allocation is 96 bytes, enough for twenty links.</p>
+<ul>
+<li><code>prefixBytes(height)</code> requires height one through twenty and rounds header plus links up to eight-byte alignment.</li>
+<li><code>allocationBytes(height, recordBytes)</code> adds that aligned prefix and record bytes with checked addition. It does not independently validate a negative record length.</li>
+<li><code>linkOffset(level)</code> requires level zero through nineteen and returns <code>16 + 4 * level</code>. It validates against global maximum, not an individual node's height.</li>
+</ul>
+<p>This layout is process-local state, not an SSTable or WAL format to write directly
+to durable storage.</p>
+<h2 id="height-generator-functions">Height Generator Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memtable/src/main/java/io/aetherdb/memtable/skiplist/SkipListHeightGenerator.java">SkipListHeightGenerator.java</a>.</p>
+<p>Construction records the seed. <code>nextHeight()</code> starts at one, obtains private
+<code>nextLong()</code> output and promotes for each successive two-bit zero pair up to
+twenty, giving one-quarter promotion probability. <code>nextLong</code> advances SplitMix64
+state and applies its fixed mixing constants with long wraparound. It is
+deterministic for a seed/call sequence, not cryptographic or thread-safe by itself;
+the table calls it under the writer lock.</p>
+<h2 id="integration-boundary">Integration Boundary</h2>
+<p>The <a href="persistent-internals.html">persistent reference</a> explains when tables freeze,
+flush and retire. Function-name coverage catches omitted declared helpers; it
+does not prove every retain/retire interleaving, allocation failure or concurrency
+property. Native memory codecs and allocators are separate contracts below this
+table and must be read alongside it for bounds and budget behavior.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-ownership">Architecture And Ownership</a><a href="#construction-and-mutation-functions">Construction And Mutation Functions</a><a href="#lookup-and-materialization">Lookup And Materialization</a><a href="#search-and-link-helpers">Search And Link Helpers</a><a href="#state-and-lifetime-functions">State And Lifetime Functions</a><a href="#heap-result-records">Heap Result Records</a><a href="#node-layout-functions">Node Layout Functions</a><a href="#height-generator-functions">Height Generator Functions</a><a href="#integration-boundary">Integration Boundary</a></nav></aside>
+  </div>
+</body>
+</html>

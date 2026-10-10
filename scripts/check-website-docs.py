@@ -55,11 +55,17 @@ def audit_page(path: Path) -> list[str]:
         if not urlparse(reference).scheme and not reference.startswith("#")
     ]
     for reference in local:
-        target = (path.parent / reference).resolve()
-        if reference.endswith("/"):
+        parsed = urlparse(reference)
+        target = (path.parent / parsed.path).resolve()
+        if parsed.path.endswith("/"):
             target /= "index.html"
         if reference and not target.exists():
             errors.append(f"{path.relative_to(ROOT)}: missing local resource {reference}")
+        elif parsed.fragment and target.is_file() and target.suffix == ".html":
+            linked = PageAudit()
+            linked.feed(target.read_text(encoding="utf-8"))
+            if parsed.fragment not in linked.ids:
+                errors.append(f"{path.relative_to(ROOT)}: missing linked anchor {reference}")
     return errors
 
 
@@ -83,7 +89,7 @@ def public_api_files() -> list[Path]:
 
 def main() -> int:
     errors: list[str] = []
-    pages = [WEBSITE / "index.html", DOCS]
+    pages = sorted(WEBSITE.rglob("*.html"))
     for page in pages:
         errors.extend(audit_page(page))
 

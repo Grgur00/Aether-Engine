@@ -1,0 +1,563 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/TRAINING-CACHE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Training cache operations and segments: source-backed contributor documentation for Aether Engine.">
+  <title>Training cache operations and segments | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html" aria-current="page">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/TRAINING-CACHE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="training-cache-operations-and-segment-functions">Training Cache Operations and Segment Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="training-identity-functions.html">Artifact identity</a> | <a href="python.html">Python and training cache</a></p>
+<p>This reference covers all explicit declarations in six files: <code>TrainingCache</code>,
+<code>TrainingCacheSegmentStore</code>, <code>SegmentReference</code>, <code>BatchValueResult</code>,
+<code>TrainingCacheLatency</code>, and <code>TrainingCacheMetrics</code>. The primary implementation is
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCache.java">TrainingCache.java</a>.
+Daemon/protocol, offline bulk writer, request tracing, and experiment drivers are
+separate implementations, not fully inventoried by this page.
+See <a href="training-driver-functions.html">Java diagnostic drivers</a> for complete benchmark
+and forced-process campaign contracts.</p>
+<h2 id="architecture-and-state">Architecture and State</h2>
+<p>The cache owns an <code>AetherDatabase</code>, an optional segment-file store, a two-thread
+prefetch executor, an access-ordered metadata map, and an in-process single-flight
+map. Values are immutable per currently existing key. The application envelope
+adds payload SHA-256 and CRC32C checks above database/WAL/SSTable integrity.</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Ownership and use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>entries</code></td>
+<td>Base64 storage key to accounted bytes; guarded by its own monitor; governs namespace operations and eviction</td>
+</tr>
+<tr>
+<td><code>diskBytes</code></td>
+<td>Sum of accounted live envelopes plus segment payload sizes; not total physical directory usage</td>
+</tr>
+<tr>
+<td><code>inflight</code></td>
+<td>Concurrent map of identity to computation promise; coalesces overlapping computations in this cache instance</td>
+</tr>
+<tr>
+<td>Counters and latency</td>
+<td>Instance-local diagnostics; not a persisted history or uniformly instrumented account of all APIs</td>
+</tr>
+<tr>
+<td>Completed traces</td>
+<td>Cache-object monitor guards bounded queue and dropped-record count, separate from <code>entries</code> lock</td>
+</tr>
+</tbody>
+</table>
+<p>Logical cache bytes exclude key bytes, WAL/SSTable framing, obsolete database data,
+orphan segments, temporary files and filesystem allocation overhead. Eviction can
+reduce this accounting before underlying storage reclaims physical space.</p>
+<h2 id="opening-reopen-and-closing">Opening, Reopen and Closing</h2>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>open(directory)</code></td>
+<td>Uses 10 GiB maximum, RECOVERABLE durability and AUTO storage.</td>
+</tr>
+<tr>
+<td><code>open(directory, maximumBytes)</code></td>
+<td>Selects the supplied maximum and the same durability/storage defaults.</td>
+</tr>
+<tr>
+<td><code>open(directory, maximumBytes, durability)</code></td>
+<td>Adds supplied durability, retains AUTO policy.</td>
+</tr>
+<tr>
+<td><code>open(directory, maximumBytes, durability, storagePolicy)</code></td>
+<td>Requires positive maximum and non-null modes. EPHEMERAL opens in-memory and ignores directory; other modes require directory and open persistent Aether with development profile and disk-pressure checks disabled.</td>
+</tr>
+<tr>
+<td>Package constructors <code>TrainingCache(database, maximumBytes)</code> and <code>(database, maximumBytes, durability)</code></td>
+<td>Delegate to the full constructor with AUTO and no segment directory; do not repeat public open's validation.</td>
+</tr>
+<tr>
+<td>Full <code>TrainingCache(database, maximumBytes, durability, storagePolicy, directory)</code></td>
+<td>Retains fields, creates optional segment store and two-thread pool, then calls <code>loadIndex</code>. No cleanup wrapper if initialization fails after resources are created.</td>
+</tr>
+<tr>
+<td><code>close()</code></td>
+<td>Calls executor <code>shutdownNow</code>, then database <code>close</code>; does not await prefetch termination or explicitly unmap returned mappings. No cache-level closed flag or idempotence guard.</td>
+</tr>
+</tbody>
+</table>
+<p>Private <code>loadIndex()</code> scans the whole database, obtains key/value copies, decodes
+and validates every entry, accounts its envelope and segment file size, then
+evicts if over capacity. It is <strong>not metadata-only reopen</strong>: inline decoding copies
+payloads and segment decoding reads/hashes payload files, discarding returned bytes.
+It catches <code>IllegalArgumentException</code> as corruption, deletes the database key and
+corresponding segment, and increments corruption count. Other failures propagate.
+Reconstructed access order follows scan insertion, not the previous process's LRU
+history. The scan covers the whole backing database, not a dedicated key prefix.</p>
+<h2 id="single-value-reads">Single-Value Reads</h2>
+<h3 id="get-and-map">get and map</h3>
+<p><code>get(key)</code> requires a key, derives storage bytes and performs <code>traceLookup</code>. Its
+get-latency sample covers only that lookup, before application decoding/copying.
+Absence increments misses. A valid found value is decoded, returned as caller-owned
+bytes, counted as a hit/bytes served, and touches the metadata map's access order.</p>
+<p>An <code>IllegalArgumentException</code> during decoding increments corruption and misses,
+deletes the database key and removes its accounting. It does not delete the segment
+file in this path. Storage deletion failures can propagate; exceptions are not
+universally converted into misses.</p>
+<p><code>map(key)</code> returns a read-only payload view: inline bytes borrow the immutable
+lookup representation; segment bytes use validated file mapping or a read fallback.
+It counts hits/misses/bytes and uses the same corruption deletion/accounting path
+as <code>get</code>, but does not record get latency or touch LRU order. For segment detection
+it first calls <code>LookupResult.value()</code>, copying the encoded representation even for
+an inline value; mapping is not synonymous with zero allocation.</p>
+<h3 id="presence-and-references">Presence and References</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>containsKey(key)</code></td>
+<td>Returns database logical presence only. Does not decode, verify payload integrity, touch LRU, or update hit/miss counters.</td>
+</tr>
+<tr>
+<td><code>getRef(key)</code></td>
+<td>Looks up an entry, returns null for absence/non-segment, copies metadata, checks metadata CRC/name and constructs generation 1, offset 0 reference. Catches runtime parsing failures, counts corruption and returns null.</td>
+</tr>
+<tr>
+<td><code>getManyRefs(keys)</code></td>
+<td>Repeatedly calls <code>getRef</code>, returning a mutable linked map containing only non-null references. Duplicate keys collapse.</td>
+</tr>
+<tr>
+<td><code>getMany(keys)</code></td>
+<td>Repeatedly calls <code>get</code>, returning a mutable linked map of hits with payload copies. Duplicate keys collapse; get's counters/LRU behavior still runs per input occurrence.</td>
+</tr>
+</tbody>
+</table>
+<p><code>getRef</code> is not full <code>decodeValueView</code> validation: it reads but does not check the
+encoded version, does not require exact metadata-envelope length, and does not
+read/hash the segment payload or prove the file exists. A reference is therefore
+not a fresh payload integrity result. This API neither deletes malformed entries
+nor updates normal hit/miss/served/LRU diagnostics.</p>
+<h2 id="ordered-packed-reads">Ordered Packed Reads</h2>
+<p>Private <code>collectValueParts(keys)</code> preserves one result slot per input, including
+duplicates and misses. Each lookup is decoded to a private value view. Corruption
+increments the corruption counter and deletes the database key, then becomes MISS;
+this branch does not remove metadata accounting or delete a segment file. Valid
+results receive HIT_INLINE or HIT_SEGMENT and their lengths contribute through
+<code>Math.addExact</code> to the total. It does not update ordinary hits, misses, served-byte
+counters, LRU or get latency. Private <code>ValueParts</code> holds statuses, nullable views,
+and total bytes; it has no explicit validating constructor.</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Packing behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>getManyValues(keys)</code></td>
+<td>Collects views, allocates a contiguous payload buffer, fills per-slot offsets/lengths, copies non-null views, flips buffer, returns <code>BatchValueResult</code>. Measures <code>batchPack</code>.</td>
+</tr>
+<tr>
+<td><code>getManyValuesWire(keys)</code></td>
+<td>Allocates the complete existing protocol body and packs views directly into it, avoiding an intermediate packed payload. Checked arithmetic computes body size; measures response encoding, packing and artifact copy.</td>
+</tr>
+<tr>
+<td>Private <code>isSegmentValue(encoded)</code></td>
+<td>Tests at least eight bytes and segment magic; currently not called elsewhere in this class.</td>
+</tr>
+</tbody>
+</table>
+<p>The wire body's big-endian layout is count (4 bytes), count one-byte statuses,
+count four-byte offsets, count four-byte lengths, then concatenated payloads.
+MISS is 0 and either hit representation is 1: the wire does not preserve the
+inline/segment distinction. Empty hits and misses may both have length zero but
+different statuses. This layer does not impose a batch-count/response-size cap;
+protocol admission must be checked separately.</p>
+<h3 id="batchvalueresult">BatchValueResult</h3>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/BatchValueResult.java">BatchValueResult.java</a>.</p>
+<p><code>BatchValueResult(statuses, offsets, lengths, payload)</code> requires non-null fields
+and matching slot counts; copies the status list and both arrays and creates a
+read-only payload view. It does not validate offset/length ranges against payload
+size or status consistency. <code>ValueStatus</code> includes HIT_INLINE, MISS, CORRUPT and
+HIT_SEGMENT; current cache collection reports corruption as MISS, not CORRUPT.</p>
+<p>Implicit <code>offsets()</code> and <code>lengths()</code> expose the record's copied arrays directly,
+not fresh clones. Implicit <code>payload()</code> exposes the same buffer object, whose
+position/limit can change even though its bytes are read-only. Construction shares
+the source buffer's storage; an arbitrary caller can still mutate an original
+writable buffer. Normal cache construction owns its packed bytes privately, so
+these metadata mutations do not change the stored database artifact.</p>
+<h2 id="publication-and-immutable-key-checks">Publication and Immutable-Key Checks</h2>
+<p><code>put(key, payload)</code> requires both arguments, constructs a copying <code>CacheEntry</code>,
+then delegates to <code>putMany</code>.</p>
+<p><code>putMany(values)</code> holds the metadata-map lock through validation, file creation,
+database write, accounting and eviction. Its stages are:</p>
+<ol>
+<li>Call <code>CacheEntry.value()</code> once per entry, deduplicate by <code>CacheKey</code>, and reject
+duplicate keys containing different bytes before modifying files.</li>
+<li>Look up each unique key. Existing entries are decoded/copied and compared;
+different bytes are rejected. Equal existing values are idempotent and omitted
+from publication. Invalid existing values propagate rather than automatically
+becoming replaceable in this path.</li>
+<li>If nothing is pending, return without put-latency sample or written-byte count.
+Otherwise reach <code>before-data-write</code>, encode each pending value (including any
+segment publication), and put its envelope into one <code>WriteBatch</code>.</li>
+<li>Reach <code>before-index-commit</code>, call database <code>write</code> with SYNC for DURABLE or
+GROUP_SYNC otherwise, a 30-second admission timeout and fail-fast false; reach
+<code>after-index-commit-before-ack</code>. This method does not inspect the returned write
+result separately.</li>
+<li>Add pending keys/byte accounting, count newly published payload bytes, evict
+over-capacity entries, and record total put latency including lock wait.</li>
+</ol>
+<p>Conflicts are checked for the whole batch before file modifications. That does
+not make segment files and database metadata one rollback transaction: files may
+exist after a later encoding/write/hook failure, and an exception after database
+commit can precede in-memory accounting. The method has no explicit rollback of
+already published segments. The <a href="engine-functions.html">engine reference</a> describes
+the separate database write contract.</p>
+<h2 id="encoding-and-integrity-helpers">Encoding and Integrity Helpers</h2>
+<p>Both envelopes are big-endian. Inline magic is <code>0xAE7CA001</code>, version 1, length,
+32-byte payload SHA-256, payload, then four-byte CRC32C covering preceding bytes:
+48 bytes of overhead. Segment magic is <code>0xAE7CA002</code>, version 1, payload length,
+32-byte payload SHA-256, 68 ASCII bytes of segment filename, and CRC32C: 116 bytes.
+CRC32C here is a raw integer, not the SSTable block masked-checksum format.</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and ownership</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>encode(payload, storageKey)</code></td>
+<td>Computes payload SHA-256 and admission diagnostics. Policy-selected segments require a store, publish the file, then encode metadata/CRC; otherwise delegates to inline encoding.</td>
+</tr>
+<tr>
+<td><code>inlineEnvelope(payload, digest)</code></td>
+<td>Allocates the full envelope, writes header/digest/payload, computes CRC, and returns its array. Relies on internal callers for valid 32-byte digest; no independent input contract checks.</td>
+</tr>
+<tr>
+<td><code>traceLookup(storageKey)</code></td>
+<td>Wraps database <code>get</code> in nested <code>databaseLookup</code> and legacy <code>indexLookup</code> trace stages. Both include the same database API boundary.</td>
+</tr>
+<tr>
+<td><code>decode(encoded, storageKey)</code></td>
+<td>Traces <code>valueDecodeAndValidate</code> around <code>decodeValue</code>.</td>
+</tr>
+<tr>
+<td><code>decodeValue(encoded, storageKey)</code></td>
+<td>Calls <code>decodeValueView</code>, then <code>copyPayload</code>.</td>
+</tr>
+<tr>
+<td><code>copyPayload(view)</code></td>
+<td>Transfers the array when an array-backed whole standalone payload is supplied; otherwise allocates and copies remaining bytes, advancing that view's position.</td>
+</tr>
+<tr>
+<td><code>digest(input)</code></td>
+<td>Creates SHA-256, updates from the buffer's remaining bytes (advancing position), and returns digest; unavailable algorithm becomes <code>IllegalStateException</code>.</td>
+</tr>
+<tr>
+<td><code>segmentName(storageKey)</code></td>
+<td>SHA-256 of full storage key, formatted as 64 lowercase hex characters plus <code>.seg</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="decodeview-and-inline-admission">decodeView and Inline Admission</h3>
+<p><code>decodeView(result, storageKey)</code> obtains a read-only lookup view. Inline magic
+uses <code>LookupResult.validateOnce</code> with a private opaque identity and
+<code>validateInlineIntegrity</code>; successful validation is attached to that exact immutable
+lookup object, not to a key. It records admission/reuse diagnostics and returns
+a read-only slice of the validated payload. Non-inline values take a defensive
+encoded-value copy and go through <code>decodeValueView</code>.</p>
+<p><code>validateInlineIntegrity(encoded)</code> checks minimum envelope length, inline magic,
+version, nonnegative/exact payload length, CRC32C and payload SHA-256. CRC failure
+short-circuits the SHA comparison. The validation marker is installed only after
+success. A new lookup representation must validate again; a retained SSTable
+lookup can reuse its marker, whereas newly materialized native values validate
+again. These application checks are separate from authoritative SSTable inventory
+verification and its streaming scanner.</p>
+<h3 id="decodevalueview-and-validatemappedsegment">decodeValueView and validateMappedSegment</h3>
+<p><code>decodeValueView(encoded, storageKey)</code> validates inline length/version/checksums
+and returns a read-only slice. Segment form requires version 1, exact metadata
+length and a store, checks metadata CRC and the filename derived from storage key,
+reads the entire segment into a new array, and checks payload length/SHA-256.
+Its returned segment view is writable internally over that fresh payload array;
+<code>copyPayload</code> can transfer ownership to a byte-array caller without another copy.</p>
+<p><code>validateMappedSegment(metadata, storageKey)</code> validates exact metadata framing,
+CRC/name, attempts <code>mapReadOnly</code>, and on <code>IllegalArgumentException</code> falls back to
+reading and wrapping the file read-only. It checks mapped/read length and hashes
+all payload bytes before returning. This fallback is not restricted to Windows
+errors. The initial header read can throw buffer-underflow exceptions for severely
+truncated metadata; <code>map</code> only catches <code>IllegalArgumentException</code>, not every parser
+exception. A read-only mapping is not protection against external file modification
+after validation, and there is no explicit mapping lease/unmap API here.</p>
+<h2 id="segment-file-store">Segment File Store</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheSegmentStore.java">TrainingCacheSegmentStore.java</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TrainingCacheSegmentStore(directory)</code></td>
+<td>Requires root, resolves <code>segments</code>, creates directories; I/O failure becomes <code>IllegalStateException</code>.</td>
+</tr>
+<tr>
+<td><code>publish(name, payload, durable)</code></td>
+<td>Creates a UUID-suffixed temporary file, writes fully, optionally forces it, closes it, reaches fault hook, atomically replaces target, optionally forces directory.</td>
+</tr>
+<tr>
+<td><code>read(name)</code></td>
+<td>Reads the whole file with a trace stage; wraps I/O failure as <code>IllegalArgumentException</code> so retrieval can treat an unavailable segment as corruption.</td>
+</tr>
+<tr>
+<td><code>mapReadOnly(name)</code></td>
+<td>Rejects Windows explicitly; otherwise maps the entire file read-only while closing the channel. I/O failure becomes <code>IllegalArgumentException</code>.</td>
+</tr>
+<tr>
+<td><code>size(name)</code></td>
+<td>Returns <code>Files.size</code>; I/O failure becomes <code>IllegalArgumentException</code>.</td>
+</tr>
+<tr>
+<td><code>delete(name)</code></td>
+<td>Deletes if present; I/O failure becomes <code>IllegalStateException</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Atomic-move unavailability fails publication; there is no non-atomic fallback.
+Directory force is requested for durable mode except on Windows. The
+<code>after-data-fsync</code> hook is reached after writing/closing even when durable is false,
+so its name alone does not prove a force occurred. IOException cleanup attempts
+to remove the temporary file, ignoring cleanup I/O failure; non-I/O hook exceptions
+do not take that catch path. Failure after target replacement does not roll back
+the target. Names are resolved directly without path-security validation; ordinary
+cache calls supply derived safe hex filenames, not arbitrary user paths.</p>
+<h3 id="segmentreference">SegmentReference</h3>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/SegmentReference.java">SegmentReference.java</a>.</p>
+<p><code>SegmentReference(segmentId, generation, offset, length, checksum)</code> requires a
+nonblank ID, generation &gt;= 1, offset/length &gt;= 0 and 32 checksum bytes; clones the
+checksum. <code>checksum()</code> returns a fresh clone; <code>sameChecksum(value)</code> uses
+<code>Arrays.equals</code> against supplied bytes, not SHA-256 of a payload. Other implicit
+accessors expose fields. Construction does not verify path safety, file bounds,
+or file content, and generation/offset are fixed to 1/0 by current <code>getRef</code>.</p>
+<h2 id="namespace-operations-eviction-and-single-flight">Namespace Operations, Eviction and Single Flight</h2>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>namespaces()</code></td>
+<td>Under entries lock, decodes all indexed namespaces into an immutable distinct set. The local start-time variable does not produce a latency measurement.</td>
+</tr>
+<tr>
+<td><code>namespaceStats()</code></td>
+<td>Under the same lock, counts indexed entries per decoded namespace and returns an immutable map. Not a database integrity scan.</td>
+</tr>
+<tr>
+<td><code>invalidateNamespace(namespace)</code></td>
+<td>Requires a namespace and delegates to <code>deleteNamespace</code>.</td>
+</tr>
+<tr>
+<td><code>deleteNamespace(namespace)</code></td>
+<td>Iterates indexed matches under lock, deletes each database key then segment (if a store exists), subtracts bytes and removes entry. Not a single multi-key transaction; failure can stop midway.</td>
+</tr>
+<tr>
+<td><code>evictIfNeeded()</code></td>
+<td>Removes least-recent indexed entries while accounted bytes exceed maximum; deletes key/segment, updates accounting and eviction count. Called under entries lock or during construction. An oversized new entry can be evicted immediately.</td>
+</tr>
+<tr>
+<td><code>removeIndex(key)</code></td>
+<td>Removes indexed entry and subtracts its size if present; no disk operation or eviction counter. Caller provides synchronization.</td>
+</tr>
+<tr>
+<td><code>keyString(key)</code></td>
+<td>Encodes bytes as URL-safe Base64 without padding for map identity.</td>
+</tr>
+<tr>
+<td><code>decodeKey(key)</code></td>
+<td>Decodes that Base64 string back to bytes.</td>
+</tr>
+<tr>
+<td><code>namespaceOf(key)</code></td>
+<td>Decodes key, reads big-endian namespace length, checks 1..remaining length and decodes UTF-8; does not validate complete digest framing.</td>
+</tr>
+<tr>
+<td><code>prefetch(keys)</code></td>
+<td>Submits independent <code>get</code> tasks to the two-thread executor; ignores futures and does not bound the executor's queue or expose completion/failure.</td>
+</tr>
+</tbody>
+</table>
+<p><code>getOrCompute(key, computation)</code> requires both arguments and installs a promise
+by encoded identity. A follower joins the existing promise and receives a clone.
+The leader calls <code>get</code>; on miss it invokes the supplier, requires a non-null result
+and calls <code>put</code>. It completes the promise with a clone but returns its own original
+result. Runtime exceptions/errors complete the promise exceptionally and propagate;
+finally removes only its own promise. Followers can receive completion-wrapped
+exceptions. Coalescing is in-process, per cache owner, not durable distributed
+deduplication. Once removed, later calls depend on storage presence; eviction can
+cause recomputation. It does not hold namespace deletion and supplier execution
+as one transaction.</p>
+<h2 id="diagnostics-and-measurement-functions">Diagnostics and Measurement Functions</h2>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>recordCompletedTrace(record)</code></td>
+<td>Cache-monitor synchronized; ignores null, keeps up to 16384 records, dropping oldest/counting overflow. Stores the supplied map reference rather than copying its contents.</td>
+</tr>
+<tr>
+<td><code>drainCompletedTraces()</code></td>
+<td>Under same monitor, copies queue into an immutable list with dropped count, clears queue and resets drop count atomically. Does not deep-copy record maps.</td>
+</tr>
+<tr>
+<td><code>cacheEntries()</code></td>
+<td>Returns metadata-map size under entries lock.</td>
+</tr>
+<tr>
+<td><code>metrics()</code></td>
+<td>Under entries lock, samples LongAdder totals, accounting and six percentiles into a record; concurrent read increments mean it is not one atomic global event snapshot.</td>
+</tr>
+<tr>
+<td><code>durability()</code></td>
+<td>Returns selected enum.</td>
+</tr>
+<tr>
+<td><code>integrityPolicy()</code></td>
+<td>Returns an immutable descriptive policy map for inline/native/segment/write validation; not a verifier invocation or guarantee that a particular read path ran.</td>
+</tr>
+<tr>
+<td><code>compactionDiagnostics()</code></td>
+<td>Delegates to engine diagnostics for the owned database.</td>
+</tr>
+<tr>
+<td><code>benchmarkDatabase()</code></td>
+<td>Package-private raw database exposure for layer-one benchmarking, bypassing artifact APIs.</td>
+</tr>
+<tr>
+<td><code>awaitCompactionIdle()</code></td>
+<td>Package-private engine wait delegate; interruption propagates.</td>
+</tr>
+</tbody>
+</table>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheMetrics.java">TrainingCacheMetrics.java</a>
+is a record of counters, live accounting and get/put percentiles with no explicit
+constructor validation. Its implicit accessors have no side effects. Batch value
+reads/reference reads do not update the same counters as <code>get</code>, so ratios must be
+interpreted in the workload's API context. Newly published payload bytes are counted,
+not total physical bytes written by WAL, compaction or segment metadata.</p>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheLatency.java">TrainingCacheLatency.java</a>
+has synchronized <code>record(nanos)</code>, retaining at most 100000 samples and overwriting
+slots after capacity. <code>percentile(percentile)</code> returns zero when empty, copies and
+sorts retained samples, uses ceil-rank and clamps the index. It does not validate
+the percentile range or nanos, and each percentile call independently copies/sorts.
+Get percentiles exclude envelope/hash/copy cost; put percentiles include publication
+and eviction for nonempty pending batches. They are not protocol end-to-end latency.</p>
+<h2 id="opt-in-fault-boundary-hook">Opt-In Fault Boundary Hook</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheFaultHooks.java">TrainingCacheFaultHooks.java</a>
+is package-private main-source instrumentation for process-death tests. It does
+not inject failure during ordinary calls unless the exact fault property matches.</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and Failure Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TrainingCacheFaultHooks.TrainingCacheFaultHooks()</code></td>
+<td>Private empty constructor prevents ordinary instance construction; hook is static.</td>
+</tr>
+<tr>
+<td><code>TrainingCacheFaultHooks.reach(point)</code></td>
+<td>Compares point with <code>aether.training.test.fault</code>; returns on mismatch/unset property. On exact match, requires <code>aether.training.test.marker</code>, writes point into that path, then sleeps repeatedly in one-second intervals until externally killed or interrupted.</td>
+</tr>
+</tbody>
+</table>
+<p>Marker writes use Files.writeString: create/truncate default behavior, no parent
+creation, explicit force, atomic rename or durable marker guarantee. Missing marker
+property throws IllegalStateException; IO failure is wrapped as cannot-announce
+failure. Interrupted sleep restores interrupt status and throws an interruption
+exception. Matching with a null point fails before property comparison because
+the method calls point.equals; actual call sites supply literal boundary names.
+There is no built-in timeout, acknowledgment channel or normal return after marker
+publication. Do not enable this property on a normal daemon expecting progress.</p>
+<p>TrainingCache calls it at <code>before-data-write</code>, <code>before-index-commit</code> and
+<code>after-index-commit-before-ack</code>; segment storage calls <code>after-data-fsync</code> after its
+force operation; the fault probe calls <code>after-ack</code> after receiving an applied put.
+The external campaign owns marker observation and process termination. Reaching
+a marker identifies that code boundary, not a simulation of power loss or proof
+that every OS/device buffer reached durable media.</p>
+<h2 id="tests-and-remaining-coverage">Tests and Remaining Coverage</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/test/java/io/aetherdb/training/cache/TrainingCacheTest.java">TrainingCacheTest</a>
+exercises conflicts before publication, idempotence, competing writers, reopen,
+single flight/retry, namespaces, eviction, ephemeral mode, prefetch, segment
+corruption, mapping, storage selection and batch byte ownership.
+It does not exhaust malformed metadata framing, returned batch-metadata mutability,
+mixed storage failure cleanup, reopen cost, or each API's diagnostic differences.</p>
+<p>The syntax-tree documentation test checks explicit function names in these six
+files, including private helpers. It is an omission check, not runtime testing or
+proof of each overload's behavior. Continue with the
+<a href="training-daemon-functions.html">daemon lifecycle</a> and
+<a href="training-protocol-functions.html">protocol/trace reference</a> for listener and wire
+boundaries. Python client batching and offline bulk install remain separate areas
+for further function-reference coverage.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-state">Architecture and State</a><a href="#opening-reopen-and-closing">Opening, Reopen and Closing</a><a href="#single-value-reads">Single-Value Reads</a><a href="#ordered-packed-reads">Ordered Packed Reads</a><a href="#publication-and-immutable-key-checks">Publication and Immutable-Key Checks</a><a href="#encoding-and-integrity-helpers">Encoding and Integrity Helpers</a><a href="#segment-file-store">Segment File Store</a><a href="#namespace-operations-eviction-and-single-flight">Namespace Operations, Eviction and Single Flight</a><a href="#diagnostics-and-measurement-functions">Diagnostics and Measurement Functions</a><a href="#opt-in-fault-boundary-hook">Opt-In Fault Boundary Hook</a><a href="#tests-and-remaining-coverage">Tests and Remaining Coverage</a></nav></aside>
+  </div>
+</body>
+</html>

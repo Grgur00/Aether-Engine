@@ -1,0 +1,308 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/MANIFEST-VERSION-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Manifest publication and versions: source-backed contributor documentation for Aether Engine.">
+  <title>Manifest publication and versions | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html" aria-current="page">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/MANIFEST-VERSION-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="manifest-publication-and-versions">Manifest Publication And Versions</h1>
+<p><a href="persistent-internals.html">Persistent internals</a> | <a href="sstable-read-functions.html">SSTable verification</a></p>
+<p><a href="manifest-codec-functions.html">Manifest wire format functions</a> describes the
+pointer, header and record codecs used by these publication paths.</p>
+<p>This reference describes the local development checkout, including streaming
+inventory verification and owner-bound verified additions. Published <code>main</code> may
+not yet expose all these functions.</p>
+<h2 id="authority-and-lifetimes">Authority And Lifetimes</h2>
+<p><code>Version</code> is an immutable inventory and set of recovery counters. It does not
+own table readers or file handles. <code>VersionSet</code> owns the append-only manifest
+writer and current version. <code>CURRENT</code> selects a manifest generation; individual
+manifest deltas append to that selected file without rewriting <code>CURRENT</code>.</p>
+<p>Building or forcing an SSTable does not make it live. The normal delta path first
+validates the candidate inventory transition and added files, then appends and
+forces a complete record before replacing the in-memory version. A crash after
+force but before that replacement can recover the new record on restart.
+That ambiguity must be handled by the engine; an append exception is not proof
+that no durable state changed.</p>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Table verification</th>
+<th>Mutates storage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>create</code></td>
+<td>Snapshot additions before publishing <code>CURRENT</code>.</td>
+<td>Creates/forces manifest and publishes pointer.</td>
+</tr>
+<tr>
+<td><code>recover</code></td>
+<td>Terminal live inventory before cleanup.</td>
+<td>Can repair incomplete tail and delete obsolete tables.</td>
+</tr>
+<tr>
+<td><code>inspect</code></td>
+<td>Terminal live inventory.</td>
+<td>No manifest truncation or table cleanup.</td>
+</tr>
+<tr>
+<td><code>inspectMetadata</code></td>
+<td>No referenced-table verification.</td>
+<td>No manifest truncation or table cleanup.</td>
+</tr>
+<tr>
+<td><code>inspectManifest</code></td>
+<td>Candidate's terminal inventory.</td>
+<td>Does not consult or change <code>CURRENT</code>.</td>
+</tr>
+<tr>
+<td><code>logAndApply(delta)</code></td>
+<td>Only new additions; existing live files are not reverified here.</td>
+<td>Appends/forces record, then swaps current version.</td>
+</tr>
+</tbody>
+</table>
+<p>Inspection still reads files and validates the root through shared path-security
+code. Its non-mutating guarantee here concerns manifest repair/publication and
+table deletion, not an assertion about every external filesystem side effect.</p>
+<h2 id="versionset-construction-and-initial-publication">VersionSet Construction And Initial Publication</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/manifest/VersionSet.java">VersionSet.java</a>.</p>
+<h3 id="private-versionset">Private <code>VersionSet(...)</code></h3>
+<p>Stores validated root/identity, selected manifest path, append writer and current
+immutable version. Construction itself performs no verification or publication.
+The owner must keep the instance and its writer lifetime coordinated with the
+engine's database lock; this class does not acquire that lock independently.</p>
+<h3 id="createroot-databaseid-manifestgeneration-snapshot-creationepochmillis"><code>create(root, databaseId, manifestGeneration, snapshot, creationEpochMillis)</code></h3>
+<p>Requires a snapshot edit numbered one, positive manifest generation and a next-file
+counter beyond that generation. It validates the root, derives a managed canonical
+manifest path and refuses an existing target or <code>CURRENT</code>.</p>
+<p>It encodes header and snapshot, exclusively writes a uniquely named temporary
+manifest, forces it, atomically moves it to the canonical name and syncs the
+directory. It then verifies snapshot additions, publishes <code>CURRENT</code>, opens the
+manifest append writer and constructs the version set. The temporary path is
+deleted in <code>finally</code>.</p>
+<p>The order matters: the canonical manifest can remain if inventory verification
+or pointer publication fails. Cleanup is not a transaction rollback of every
+already created file. Header creation time is diagnostic, not a logical commit
+sequence. <code>Version.fromSnapshot</code> supplies inventory-transition validation.</p>
+<h3 id="publishcurrentroot-databaseid-generation"><code>publishCurrent(root, databaseId, generation)</code></h3>
+<p>Writes encoded pointer bytes into a unique <code>CURRENT.tmp-*</code> file, forces and closes
+it, atomically moves it to <code>CURRENT</code>, hits the pointer-before-directory-sync crash
+point and syncs the directory. <code>finally</code> deletes the temporary path if it remains.
+This selects a manifest; it does not append edits or verify DATA content itself.</p>
+<h2 id="recovery-and-inspection">Recovery And Inspection</h2>
+<h3 id="recoverroot-databaseid"><code>recover(root, databaseId)</code></h3>
+<p>Validates root and <code>CURRENT</code>, resolves its canonical managed manifest and reads
+the entire manifest into memory. It requires a complete header with matching
+database identity and generation, then replays complete records starting after
+the 4 KiB header region.</p>
+<p>Record numbers must be contiguous from one. The first complete record must be a
+snapshot; its allocation/sequence diagnostics must match the header. Later edits
+must form valid deltas. Invalid version transitions become
+<code>ManifestCorruptionException</code> with their original cause.</p>
+<p>A tail shorter than a physical record header, or a length-valid physical header
+declaring more bytes than remain, ends replay as incomplete. The preliminary
+header probe checks length only; other fields wait for full decode. A complete header
+with an invalid declared length,
+checksum mismatch or invalid complete edit fails instead of being silently cut
+off. A file without any complete snapshot is rejected.</p>
+<p>For an incomplete tail, recovery writes and forces a full backup of original
+bytes, hits the repair crash point, truncates the manifest to the complete-record
+boundary, forces the repaired file and syncs the directory. It then verifies the
+terminal live inventory, removes obsolete tables and opens the append writer.
+Repair can already have happened before a later table-verification failure.</p>
+<h3 id="inspectroot-databaseid-and-inspectmetadataroot-databaseid"><code>inspect(root, databaseId)</code> And <code>inspectMetadata(root, databaseId)</code></h3>
+<p><code>inspect</code> resolves <code>CURRENT</code> and delegates to <code>inspectResolved</code> with referenced
+table verification enabled. <code>inspectMetadata</code> uses the same pointer/replay route
+but disables those table reads, supporting explicit forensic workflows where
+damaged tables are handled separately. Metadata inspection still requires valid
+pointer, header, complete record checksums and version transitions.</p>
+<p>Neither truncates an incomplete tail or performs obsolete-table cleanup. They
+return terminal complete-record metadata plus tail accounting, not an open writer.</p>
+<h3 id="inspectmanifestroot-databaseid-manifest"><code>inspectManifest(root, databaseId, manifest)</code></h3>
+<p>Requires a filename matching <code>MANIFEST-</code> plus twenty decimal digits and <code>.aeman</code>,
+resolves it beneath the validated root and requires the caller's normalized
+absolute path to equal that candidate. It parses the generation and inspects
+with table verification enabled, without reading or updating <code>CURRENT</code>.
+Canonical spelling alone does not make a candidate authoritative.</p>
+<h3 id="inspectresolved"><code>inspectResolved(...)</code></h3>
+<p>Shares the replay rules above: matching header identity/generation, contiguous
+records, initial snapshot and valid transitions. It records the consumed boundary,
+optionally verifies live files and returns <code>ManifestInspection</code>. It leaves trailing
+incomplete bytes intact. Whole-file <code>readAllBytes</code> and per-record copies make this
+a materializing metadata replay, not a streaming manifest reader.</p>
+<h3 id="backupmanifestbeforerepair-and-repaircontext"><code>backupManifestBeforeRepair(...)</code> And <code>repairContext(...)</code></h3>
+<p><code>backupManifestBeforeRepair</code> exclusively writes and forces all original bytes to
+a sibling <code>.repair-backup-*</code> file, then returns its path. It does not itself sync
+the directory or delete the backup. <code>repairContext</code> supplies manifest/backup names,
+valid end offset and original byte count to crash instrumentation; it makes no
+repair decision.</p>
+<h2 id="delta-publication-functions">Delta Publication Functions</h2>
+<h3 id="logandapplydelta"><code>logAndApply(delta)</code></h3>
+<p>Synchronized on the version set: checks open state, computes <code>current.apply(delta)</code>,
+verifies the additions and delegates to <code>appendAndPublish</code>. Deletions remove files
+from the candidate inventory; this method does not delete their physical files.
+Verification failure before append leaves the in-memory version unchanged.</p>
+<h3 id="appendandpublishdelta-candidate"><code>appendAndPublish(delta, candidate)</code></h3>
+<p>Encodes a physical record, loops writes to the append writer, calls <code>force(true)</code>,
+hits the manifest-after-append-before-current crash point and assigns <code>current</code>.
+Returns the new immutable version. It does not rewrite <code>CURRENT</code>, trim an uncertain
+tail on failure or permanently fence its own writer after an I/O failure. Its
+engine owner must handle indeterminate publication and unsafe subsequent reuse.</p>
+<h3 id="logandapplymeasureddelta-timings"><code>logAndApplyMeasured(delta, timings)</code></h3>
+<p>The synchronized bulk diagnostic path implements the same candidate, verification,
+encode, append, force and in-memory install order directly. It fills <code>candidateNs</code>,
+<code>inventoryVerificationNs</code>, <code>encodeNs</code>, <code>writeNs</code>, <code>forceNs</code> and <code>installNs</code> as each
+stage finishes. A failing stage can leave a partial timings map.</p>
+<p>It hits bulk before/after-verification and append/force crash points, increments
+the inventory-call trace and surrounds stages with optional coarse JFR events.
+The inventory interval includes its adjacent crash instrumentation, not only the
+verifier body. The regular <code>logAndApply</code> path does not increment that specific
+measured-boundary counter. No timing field relaxes verification or durability.</p>
+<h3 id="verifiedadditions-verifyadditionsfiles-and-token-based-logandapply"><code>VerifiedAdditions</code>, <code>verifyAdditions(files)</code> And Token-Based <code>logAndApply</code></h3>
+<p>Private <code>VerifiedAdditions(owner, files)</code> stores owner identity and an immutable
+list of already verified metadata. <code>verifyAdditions</code> freezes the supplied list,
+verifies its files outside the publication monitor and returns the owner-bound
+token. It does not itself call <code>ensureOpen</code> or reserve an edit number.</p>
+<p>Synchronized <code>logAndApply(delta, verified)</code> checks open state, requires the token's
+owner to be this exact version set and its list to equal <code>delta.additions()</code>, then
+validates the current delta transition and appends without another inventory pass.
+Files must remain immutable and exclusively owned between verification and use.
+The token is not a content hash, file handle or single-use capability.</p>
+<p><code>ManifestFileMetadata</code> uses generated record equality for this list comparison:
+its array fields compare by identity, not byte content. An independently rebuilt
+but content-equivalent list need not match. <code>contentEquals</code> is a separate API and
+is not called by this token check.</p>
+<h2 id="inventory-cleanup-and-resource-helpers">Inventory, Cleanup And Resource Helpers</h2>
+<h3 id="verifyinventoryroot-databaseid-files"><code>verifyInventory(root, databaseId, files)</code></h3>
+<p>For each descriptor, derives its canonical SSTable name under a managed path,
+requires a regular non-symlink file with exact recorded size, then invokes
+<code>SSTableVerifier.verify</code>. Every referenced addition gets a full authoritative
+streaming pass; merely finding files is not enough. There is no retained decoded
+reader cache or protection against external file mutation built into this helper.</p>
+<h3 id="cleanupobsoletetablesroot-version"><code>cleanupObsoleteTables(root, version)</code></h3>
+<p>Builds the live canonical filename set and scans root entries. It deletes canonical
+SSTables not in that set and canonical <code>.aess.tmp-</code> files with 32 lowercase hex
+suffixes. Matching paths must be regular files and not symlinks; unsafe paths fail
+cleanup instead of being followed. Other names, including repair backups, are left
+alone. A directory sync follows if deletion occurred. Recovery invokes this only
+after verifying live inventory.</p>
+<h3 id="current-databaseid-manifestpath-and-close"><code>current()</code>, <code>databaseId()</code>, <code>manifestPath()</code> And <code>close()</code></h3>
+<p>Synchronized <code>current</code> checks open state and returns the current immutable version.
+<code>databaseId</code> and <code>manifestPath</code> return immutable stored references without an open
+check. Synchronized <code>close</code> is idempotent after its first invocation: marks closed,
+forces the writer and then closes it. There is no <code>finally</code> around that force;
+if force throws, the following close does not execute and subsequent calls return
+because the flag is already set. Resource cleanup callers must account for that
+existing failure behavior.</p>
+<h3 id="sstablename-atomicmove-syncdirectory-writefully-ensureopen-and-manifestcontext"><code>sstableName</code>, <code>atomicMove</code>, <code>syncDirectory</code>, <code>writeFully</code>, <code>ensureOpen</code> And <code>manifestContext</code></h3>
+<ul>
+<li><code>sstableName(fileNumber)</code> requires a positive number and formats <code>SST-%020d.aess</code> with <code>Locale.ROOT</code>.</li>
+<li><code>atomicMove(source, target)</code> requests <code>ATOMIC_MOVE</code> with no non-atomic fallback.</li>
+<li><code>syncDirectory(directory)</code> opens/forces the directory, suppressing <code>AccessDeniedException</code> and <code>UnsupportedOperationException</code>. It does not establish identical directory durability on every platform; other I/O errors propagate.</li>
+<li><code>writeFully(channel, bytes)</code> writes until the buffer is consumed; it has no explicit timeout or zero-progress bound.</li>
+<li><code>ensureOpen()</code> rejects a closed version set.</li>
+<li><code>manifestContext(edit)</code> constructs crash attributes for edit number, next file number and sequence/watermark counters; it does not alter the edit.</li>
+</ul>
+<h2 id="immutable-version-functions">Immutable Version Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/manifest/Version.java">Version.java</a>.</p>
+<h3 id="version-fromsnapshot-and-applydelta"><code>Version(...)</code>, <code>fromSnapshot(...)</code> And <code>apply(delta)</code></h3>
+<p>Private construction stores immutable level lists and counters copied from the
+edit. <code>fromSnapshot</code> requires snapshot kind and a positive generation, then calls
+<code>applyTo</code> without a base. It does not itself require edit number one; VersionSet's
+initial publication/replay paths enforce that sequencing.</p>
+<p>Instance <code>apply</code> requires delta kind and calls <code>applyTo</code> against this version,
+preserving generation. It returns a new object; no current inventory is mutated.</p>
+<h3 id="applytobase-edit-generation"><code>applyTo(base, edit, generation)</code></h3>
+<p>Copies live descriptors into a file-number map, applies deletions only when they
+name an existing file at the stated level, then rejects additions reusing a live
+number. Against a base, it requires the next contiguous edit and nondecreasing
+allocation, assigned-sequence, persisted-watermark and minimum-WAL counters.</p>
+<p>It rebuilds seven immutable level lists. L0 sorts descending by file number and
+may overlap. L1 through L6 sort by smallest user key and undergo non-overlap
+validation. This function does not open files, assign new file numbers or verify
+that metadata sequence extrema correspond to every stored entry.</p>
+<h3 id="validatenonoverlappinglevel"><code>validateNonOverlapping(level)</code></h3>
+<p>Requires the prior file's largest user key to be strictly less than the next
+file's smallest user key. Equal endpoints are rejected, not treated as disjoint.
+User-bound accessors decode and copy keys, so sorting/validation is not an
+allocation-free range comparison over encoded bound arrays.</p>
+<h3 id="inventory-and-counter-accessors">Inventory And Counter Accessors</h3>
+<p><code>files(level)</code> requires level zero through six and returns its immutable list.
+<code>allFiles()</code> builds an immutable flattened list in level order. <code>nextFileNumber()</code>,
+<code>lastAssignedSequence()</code>, <code>persistedSequenceWatermark()</code>, <code>minimumWalFileNumber()</code>,
+<code>manifestGeneration()</code> and <code>manifestEditNumber()</code> return scalar metadata. They
+neither reserve counters nor prove the physical state of files at call time.</p>
+<h2 id="edit-and-descriptor-contracts">Edit And Descriptor Contracts</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/manifest/ManifestEdit.java">ManifestEdit</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/manifest/ManifestFileMetadata.java">ManifestFileMetadata</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/manifest/ManifestDeletion.java">ManifestDeletion</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/manifest/ManifestInspection.java">ManifestInspection</a>.</p>
+<h3 id="manifestedit"><code>ManifestEdit(...)</code></h3>
+<p>Requires kind, positive edit/allocation counters, nonnegative assigned/watermark
+sequences with watermark no greater than assigned, and nonnegative minimum WAL.
+Deltas require minimum WAL greater than zero; snapshots may use zero and cannot
+contain deletions. Addition/deletion lists become immutable copies.</p>
+<p>It rejects duplicate added numbers, additions at or beyond the next-file counter,
+duplicate deletions and a number both added and deleted in one edit. It does not
+check a deletion against a live version; <code>Version.applyTo</code> does. Generated accessors
+return immutable lists and scalars. <code>Kind</code> distinguishes <code>SNAPSHOT</code> from <code>DELTA</code>.</p>
+<h3 id="manifestfilemetadata-and-key-accessors"><code>ManifestFileMetadata(...)</code> And Key Accessors</h3>
+<p>Requires positive number/size/counts, level zero through six and ordered positive
+sequence bounds. It decodes both internal-key bounds, checks semantic key order
+and requires each bound key's sequence within the recorded sequence extrema.
+It clones the encoded bounds. This is stricter than <code>TableFileMetadata</code>'s basic
+field constructor but still not full table verification.</p>
+<p><code>smallestInternalKey()</code> and <code>largestInternalKey()</code> return clones. <code>smallestUserKey()</code>
+and <code>largestUserKey()</code> decode the stored keys and obtain copied user portions.
+<code>contentEquals(other)</code> explicitly compares every scalar and key-array content,
+returning false for null. It does not override generated <code>equals</code> or <code>hashCode</code>.</p>
+<h3 id="manifestdeletion-and-manifestinspection"><code>ManifestDeletion(...)</code> And <code>ManifestInspection(...)</code></h3>
+<p>Deletion construction validates positive number and level zero through six;
+the generated accessors identify a removal request, not evidence it was applied.
+Inspection construction requires path/header/version, positive complete-record
+count, at least a header region of physical bytes and a nonnegative tail no larger
+than total bytes. It does not independently replay or verify those observations.
+Generated accessors expose immutable references and scalar accounting.</p>
+<h2 id="test-starting-point">Test Starting Point</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/test/java/io/aetherdb/sstable/manifest/ManifestFormatV1Test.java">ManifestFormatV1Test</a>
+is the format/publication starting point. Crash hooks describe instrumented
+boundaries, not proof that every failure mode was exercised. The documentation
+function-name inventory catches omissions but does not certify recovery semantics.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#authority-and-lifetimes">Authority And Lifetimes</a><a href="#versionset-construction-and-initial-publication">VersionSet Construction And Initial Publication</a><a href="#recovery-and-inspection">Recovery And Inspection</a><a href="#delta-publication-functions">Delta Publication Functions</a><a href="#inventory-cleanup-and-resource-helpers">Inventory, Cleanup And Resource Helpers</a><a href="#immutable-version-functions">Immutable Version Functions</a><a href="#edit-and-descriptor-contracts">Edit And Descriptor Contracts</a><a href="#test-starting-point">Test Starting Point</a></nav></aside>
+  </div>
+</body>
+</html>

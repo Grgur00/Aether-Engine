@@ -82,10 +82,20 @@ public final class SSTableBuilder {
 
     /** Writes identical table bytes with optional internal stage timings. */
     public TableFileMetadata finish(SSTableFinishTrace trace) throws IOException {
+        return finishInternal(trace, true);
+    }
+
+    // Only BulkInstallSupport crosses the engine/module boundary for an empty-store install.
+    TableFileMetadata finishForBulkInstall(SSTableFinishTrace trace) throws IOException {
+        return finishInternal(trace, false);
+    }
+
+    private TableFileMetadata finishInternal(SSTableFinishTrace trace, boolean verifyImmediately)
+            throws IOException {
         if (trace != null) trace.start(entries.size());
         boolean completed = false;
         try {
-            TableFileMetadata result = finishBody(trace);
+            TableFileMetadata result = finishBody(trace, verifyImmediately);
             completed = true;
             return result;
         } finally {
@@ -93,7 +103,7 @@ public final class SSTableBuilder {
         }
     }
 
-    private TableFileMetadata finishBody(SSTableFinishTrace trace) throws IOException {
+    private TableFileMetadata finishBody(SSTableFinishTrace trace, boolean verifyImmediately) throws IOException {
         requireOpen();
         if (entries.isEmpty()) throw new IllegalStateException("normal SSTable cannot be empty");
         state = State.FINISHED;
@@ -185,12 +195,14 @@ public final class SSTableBuilder {
         }
         SSTableFinishTrace.enter(trace, "metadataResult");
         TableFileMetadata metadata = metadata(metrics, dataBlocks.size(), table.length);
-        SSTableFinishTrace.enter(trace, "verificationOpenAndRead");
-        try (SSTableReader verified = SSTableReader.open(path, metadata)) {
-            try {
-                verified.metadata();
-            } finally {
-                SSTableFinishTrace.enter(trace, "verificationClose");
+        if (verifyImmediately) {
+            SSTableFinishTrace.enter(trace, "verificationOpenAndRead");
+            try (SSTableReader verified = SSTableReader.open(path, metadata)) {
+                try {
+                    verified.metadata();
+                } finally {
+                    SSTableFinishTrace.enter(trace, "verificationClose");
+                }
             }
         }
         SSTableFinishTrace.enter(trace, "other");

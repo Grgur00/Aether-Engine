@@ -32,8 +32,9 @@ def save(figure, output, name):
     plt.close(figure)
 
 
-def generate(blocks, output, *, raw_label="raw", confirmatory=False):
-    analysis = analyze_blocks(blocks, confirmatory=confirmatory)
+def generate(blocks, output, *, raw_label="raw", confirmatory=False, confirmatory_design=None):
+    analysis = analyze_blocks(blocks, confirmatory=confirmatory, confirmatory_design=confirmatory_design)
+    superiority = confirmatory and "primarySuperior" in analysis["groups"][0]["aetherOverMmap"]
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     groups = collections.defaultdict(list)
@@ -83,11 +84,11 @@ def generate(blocks, output, *, raw_label="raw", confirmatory=False):
         writer.writeheader()
         writer.writerows(rows)
     write_json(output / "analysis.json", analysis)
-    label = "TOST" if confirmatory else "TOST Holm"
+    label = "One-sided" if superiority else "TOST" if confirmatory else "TOST Holm"
     latex = [r"\begin{tabular}{lrrrr}", f"Condition & $n$ & A/R & A/M & {label} $p$ " + r"\\", r"\hline"]
     for group in analysis["groups"]:
         a, m = group["aetherOverRaw"], group["aetherOverMmap"]
-        p = m["tost"]["p"] if confirmatory else m["holmP"]
+        p = m["pairedTTestGreaterP"] if superiority else m["tost"]["p"] if confirmatory else m["holmP"]
         latex.append(f"{group['conditionId']} & {a['n']} & {a['geometricMeanRatio']:.4f} & {m['geometricMeanRatio']:.4f} & {p:.4g} " + r"\\")
     latex.append(r"\end{tabular}")
     (output / "primary-table.tex").write_text("\n".join(latex) + "\n", encoding="utf-8")
@@ -131,4 +132,5 @@ if __name__ == "__main__":
     parser.add_argument("--output", type=Path, default=Path("figures"))
     args = parser.parse_args()
     protocol = json.loads((args.input / "protocol.json").read_text(encoding="utf-8"))
-    generate(load_blocks(args.input), args.output, confirmatory=protocol.get("confirmatory") is True)
+    generate(load_blocks(args.input), args.output, confirmatory=protocol.get("confirmatory") is True,
+             confirmatory_design=protocol.get("confirmatoryDesign"))

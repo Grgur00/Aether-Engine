@@ -1,0 +1,217 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/BACKUP-ARCHIVE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Backup manifests and archives: source-backed contributor documentation for Aether Engine.">
+  <title>Backup manifests and archives | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html" aria-current="page">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/BACKUP-ARCHIVE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="backup-manifest-and-archive-functions">Backup Manifest and Archive Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="filesystem-identity-functions.html">Filesystem identity</a> | <a href="operations.html">Operations</a></p>
+<p>This reference covers portable backup inventory and ZIP serialization in the
+current checkout. Archive integrity, restore eligibility, and destination publication
+are separate boundaries; see <a href="backup-restore-functions.html">restore functions</a> for
+preflight and restore writing.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-io/src/main/java/io/aetherdb/io/BackupManifestV1.java">BackupManifestV1</a>: inventory metadata and binary codec.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-io/src/main/java/io/aetherdb/io/BackupManifestObject.java">BackupManifestObject</a>: object path/kind/length/hash model.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-io/src/main/java/io/aetherdb/io/BackupObjectKind.java">BackupObjectKind</a>: durable kind IDs.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-io/src/main/java/io/aetherdb/io/BackupArchiveV1.java">BackupArchiveV1</a>: ZIP writer/reader and object verification.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-io/src/main/java/io/aetherdb/io/BackupArchiveContents.java">BackupArchiveContents</a>: defensive in-memory contents holder.</li>
+</ul>
+<h2 id="inventory-object-functions">Inventory Object Functions</h2>
+<h3 id="backupmanifestobject-constructor">BackupManifestObject constructor</h3>
+<p>Validates/normalizes path, requires a kind, nonnegative length, a 32-byte SHA-256
+array, and required format version 1..65,535. Clones the checksum. Null encryption
+metadata reference becomes empty; NUL in it is rejected. Other strings/scalars
+are retained. It does not hash object data or establish that kind matches filename.</p>
+<h3 id="validatepathpath-checksum-checksumequalsother">validatePath(path), checksum(), checksumEquals(other)</h3>
+<p><code>validatePath()</code> replaces backslashes with slashes, rejects blank/leading-slash/
+trailing-slash/double-slash/NUL forms, and rejects components exactly <code>.</code> or <code>..</code>.
+It does not forbid drive-like colons, platform device names, or every destination-
+specific unsafe path. This is a portable object-key check, not proof of safe
+filesystem extraction. <code>checksum()</code> clones the stored array; package-private
+<code>checksumEquals()</code> compares contents using Arrays.equals, not a constant-time
+authentication check.</p>
+<h3 id="backupobjectkind-constructor-code-fromcodecode">BackupObjectKind constructor, code(), fromCode(code)</h3>
+<p>The enum stores stable IDs: DATABASE_IDENTITY=1, FORMAT_OPTIONS=2,
+CHECKPOINT_METADATA=3, CURRENT=4, MANIFEST=5, SSTABLE=6, WAL=7, SECURITY_METADATA=8,
+RAFT_METADATA=9, BACKUP_REPORT=10. <code>code()</code> returns the ID. <code>fromCode()</code> scans values
+and rejects unknown IDs; Java enum ordinal is not the serialized identity.</p>
+<h2 id="manifest-construction-and-access">Manifest Construction and Access</h2>
+<h3 id="backupmanifestv1-constructor">BackupManifestV1 constructor</h3>
+<p>Requires nonzero backup/database UUIDs, nonnegative creation time and sequence,
+positive format epoch, and Raft index/term either both absent (-1) or both
+nonnegative. Cluster UUID is optional and not checked for nonzero; zero encodes
+as the same sentinel as null and decodes to null.</p>
+<p>Requires nonblank, NUL-free creator-version/hash-algorithm text and exactly SHA-256
+as the algorithm. Requires a nonempty copied object list and unique normalized
+object paths. Null encryption epoch array becomes empty; otherwise it is cloned
+and every epoch must be positive. Epoch uniqueness/order is not enforced.
+Clones a required 32-byte compatibility fingerprint.</p>
+<p><code>validateObjectInventory()</code> rejects duplicate path strings, not missing mandatory
+object kinds or inconsistent database/Raft state. <code>validateText()</code> performs the
+text checks; <code>requireNonzero()</code> checks required UUIDs. Nulls passed to their
+Objects.requireNonNull paths produce NullPointerException rather than uniformly
+IllegalArgumentException.</p>
+<h3 id="accessors-objectcount-totalbytes">Accessors, objectCount(), totalBytes()</h3>
+<p><code>encryptionKeyEpochs()</code> and <code>compatibilityFingerprint()</code> return clones. The objects
+accessor returns an immutable copied list of immutable object records whose hash
+accessors clone. <code>objectCount()</code> returns list size. <code>totalBytes()</code> sums declared
+object lengths with a long stream sum; it does not use checked addition, inspect
+payloads, or measure compressed ZIP size.</p>
+<h2 id="binary-manifest-functions">Binary Manifest Functions</h2>
+<h3 id="encode">encode()</h3>
+<p>Computes a total allocation size and emits a little-endian image with a 160-byte
+header: AETHBKM1, version/header length/total length, body CRC slot, three UUIDs,
+creation time, epoch, Raft index/term, sequence watermark, object count/total bytes,
+compatibility fingerprint, and zero reserved int.</p>
+<p>The body stores length-prefixed UTF-8 creator version/algorithm, encryption epochs,
+and object records. Each object includes path, one-byte kind, zero reserved byte,
+unsigned-short required version, long length, 32-byte hash, and encryption reference.
+Object/list/epoch order follows caller order; encoding is repeatable for the same
+ordered model, not canonical sorting of arbitrary equivalent inventories.</p>
+<p>Writes masked CRC32C of the body (excluding the final trailer) into header offset
+16, then masked CRC32C of the entire image excluding the final four bytes into its
+trailer. These checks detect byte corruption, not maliciously recomputed metadata.
+There is no signature, object encryption, or disk durability barrier here.</p>
+<p>Size arithmetic includes one multiplyExact for epoch bytes but ordinary int
+additions elsewhere; no independent manifest-size cap or fully checked aggregate
+allocation budget is enforced. Repeated checksum accessor calls clone hash arrays.</p>
+<h3 id="decodeencoded">decode(encoded)</h3>
+<p>Requires minimum 164 bytes, exact magic/version/header/declared total, matching
+body CRC and complete-image trailer CRC. Parses UUIDs (zero cluster means absent),
+counters/fingerprint, zero reserved int, strings, epoch array, and object inventory.
+Requires zero object reserved bytes, recognized kinds, exact parsing end before
+CRC trailer, constructor validity, and matching declared object/byte totals.</p>
+<p>It does not verify payload hashes because payload bytes are not in this manifest.
+Counts are constrained against remaining bytes, but object count uses a one-byte
+minimum rather than full minimum record framing before preallocating the list.
+Individual ByteBuffer reads can still raise BufferUnderflowException for malformed
+framing; not every malformed image yields one normalized error type.</p>
+<h3 id="string-count-and-uuid-helpers">String, count, and UUID helpers</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>utf8(value)</code></td>
+<td>Encodes UTF-8, with Java replacement behavior for unpaired surrogates.</td>
+</tr>
+<tr>
+<td><code>sized(value)</code></td>
+<td>Returns four length bytes plus payload length using int arithmetic.</td>
+</tr>
+<tr>
+<td><code>putString(bytes, value)</code></td>
+<td>Writes int byte length then bytes.</td>
+</tr>
+<tr>
+<td><code>getString(bytes, allowEmpty)</code></td>
+<td>Reads bounded length, optionally rejects empty, copies bytes, and constructs UTF-8 String with replacement on malformed input.</td>
+</tr>
+<tr>
+<td><code>readCount(bytes, field)</code></td>
+<td>Requires four available bytes, nonnegative count, and count no larger than remaining bytes.</td>
+</tr>
+<tr>
+<td><code>readElementCount(bytes, field, minimumBytesPerElement)</code></td>
+<td>Further constrains count by remaining/minimum element size.</td>
+</tr>
+<tr>
+<td><code>putUuid</code>, <code>getUuid</code></td>
+<td>Write/read two longs in the buffer's little-endian order.</td>
+</tr>
+</tbody>
+</table>
+<p>UTF-8 parsing is not strict canonical-text validation. The decoder borrows the
+argument during parsing/checksumming; callers must keep it stable during the call.</p>
+<h2 id="zip-archive-functions">ZIP Archive Functions</h2>
+<h3 id="backuparchivev1-constructor-and-writeoutput-manifest-objects">BackupArchiveV1 constructor and write(output, manifest, objects)</h3>
+<p>The private constructor prevents instances. <code>write()</code> requires an output, validates
+all objects before creating its ZIP wrapper, writes AETHER-BACKUP-MANIFEST.v1 first,
+then each object in manifest order, finishes, and closes the wrapper. Despite the
+Javadoc's &quot;left open&quot; wording, closing ZipOutputStream closes the underlying caller
+output. A failure after writing starts can leave a partial archive; there is no
+rollback/publication rename or file force.</p>
+<p>Inputs are not snapshotted against concurrent mutation between validation and
+writing. A hash check followed by caller mutation is not protected by this helper.
+Object paths are not independently checked against the reserved manifest entry
+name; a collision can fail ZIP entry creation.</p>
+<h3 id="readinput">read(input)</h3>
+<p>Requires input, reads every ZIP entry, rejects directory entries and duplicate
+names, fully decompresses each entry, and stores manifest/object arrays. Closing
+ZipInputStream closes the caller input, again contrary to &quot;left open&quot; Javadoc.
+Only after reading/closing does it require the manifest, decode it, validate object
+inventory/lengths/hashes, and construct defensive contents.</p>
+<p>There is no configured compressed-size, decompressed-byte, object-count, or memory
+budget in this archive reader. Unlisted data is rejected eventually, but can already
+have consumed allocation during decompression. It does not extract entries to disk.
+IllegalArgumentException from manifest/object validation is wrapped as IOException;
+other unchecked parser/allocation failures are not universally wrapped.</p>
+<h3 id="putentry-readall-validateobjects-sha256">putEntry(), readAll(), validateObjects(), sha256()</h3>
+<p><code>putEntry()</code> sets entry timestamp to zero, opens the entry, writes its full array,
+and closes the entry. It does not promise cross-JDK ZIP byte identity.
+<code>readAll()</code> transfers input into ByteArrayOutputStream and returns a copied array.
+<code>validateObjects()</code> requires every manifest path to have nonnull bytes of the exact
+declared length and SHA-256, then requires exact map-key membership with no extras.
+<code>sha256()</code> returns the digest and treats missing SHA-256 as AssertionError.</p>
+<p>These checks verify agreement with the supplied manifest, not trust in that
+manifest or semantic validity of SSTable/WAL/identity objects. Restore preflight
+performs further checks; no decryption occurs here.</p>
+<h2 id="contents-holder-functions">Contents Holder Functions</h2>
+<p><code>BackupArchiveContents(manifest, objects)</code> requires a manifest and deep-copies the
+map/arrays. It does not call archive verification: direct construction alone does
+not prove &quot;verified&quot; contents despite the class description. <code>objects()</code> deep-
+copies every payload again; <code>objectBytes(path)</code> clones one known object or rejects
+an unknown path. <code>deepCopy()</code> rejects null map keys/arrays, clones all values, and
+returns Map.copyOf. The manifest accessor returns the immutable manifest reference.</p>
+<p>Large reads retain decompressed arrays and then copy them into this holder, so
+peak memory exceeds just final archive-content size. Consumers should account for
+accessor copies too; this is not a streaming archive interface.</p>
+<h2 id="coverage-boundary">Coverage Boundary</h2>
+<p>All explicit functions/constructors in these five files are covered, with implicit
+record accessors described where relevant. Backup eligibility, required object
+kinds, key availability, destination paths, restore publication, and rollback
+are covered separately as <a href="backup-restore-functions.html">preflight/writer responsibilities</a>.
+No runtime fixes or backup security
+certification accompany this documentation.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#sources">Sources</a><a href="#inventory-object-functions">Inventory Object Functions</a><a href="#manifest-construction-and-access">Manifest Construction and Access</a><a href="#binary-manifest-functions">Binary Manifest Functions</a><a href="#zip-archive-functions">ZIP Archive Functions</a><a href="#contents-holder-functions">Contents Holder Functions</a><a href="#coverage-boundary">Coverage Boundary</a></nav></aside>
+  </div>
+</body>
+</html>

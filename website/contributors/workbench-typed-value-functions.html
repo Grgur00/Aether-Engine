@@ -1,0 +1,258 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/WORKBENCH-TYPED-VALUE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Workbench universal typed values: source-backed contributor documentation for Aether Engine.">
+  <title>Workbench universal typed values | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html" aria-current="page">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/WORKBENCH-TYPED-VALUE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="workbench-universal-typed-value-functions">Workbench Universal Typed Value Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="workbench-workspace-functions.html">Workspace</a> | <a href="canonical-record-functions.html">Canonical records</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-workbench/src/main/java/io/aetherdb/workbench/UniversalTypedValue.java">UniversalTypedValue.java</a>.
+This reference covers <strong>20 explicit declarations in the complete file</strong>, including
+both display overloads and nested Envelope helpers. Generated record members are
+excluded. The package-private utility operates without application record classes.</p>
+<h2 id="architecture-and-editing-contract">Architecture and Editing Contract</h2>
+<pre><code class="language-text">AETV bytes -&gt; Envelope.read -&gt; copied header/payload
+    -&gt; AER1 magic? CanonicalRecordReader -&gt; field text
+    -&gt; otherwise scalar UTF-8 / hex text
+
+Original envelope + edited text
+    -&gt; AER1? new CanonicalRecordWriter from submitted fields
+    -&gt; otherwise scalar encoder selected by original payload
+    -&gt; Envelope.withPayload -&gt; preserved outer header + updated payload length
+</code></pre>
+<p>This is a schema-independent inspection utility, not an application ValueCodec or
+schema evolution engine. Record edits replace the whole payload; omitted fields
+are removed rather than merged. Outer schema UUID/version stay unchanged even if
+field IDs/types change. Descriptor names are display hints, not validation rules.
+The backing workspace writes returned bytes; this utility does not access storage.</p>
+<h2 id="entry-and-dispatch-functions">Entry and Dispatch Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Validation boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UniversalTypedValue.UniversalTypedValue()</code></td>
+<td>Private utility constructor.</td>
+<td>No instance state.</td>
+</tr>
+<tr>
+<td><code>UniversalTypedValue.isTyped(value)</code></td>
+<td>True for nonnull value at least AETV header size with first four bytes AETV.</td>
+<td>Heuristic only: does not check envelope version, flags, length or schema.</td>
+</tr>
+<tr>
+<td><code>UniversalTypedValue.display(value)</code></td>
+<td>Calls descriptor overload with empty descriptor bytes.</td>
+<td>No names, but same structural parsing.</td>
+</tr>
+<tr>
+<td><code>UniversalTypedValue.display(value, descriptor)</code></td>
+<td>Reads copied envelope; non-AER1 payload rendered as scalar. AER1 payload read with 64 MiB record bound; emits each field as ID:optional-name:type=escaped-value followed by LF.</td>
+<td>Reader validates canonical structure/checksum. Does not validate envelope schema against descriptor or application class. No independent bound on expanded text or descriptor size. Malformed recognized record errors propagate to caller.</td>
+</tr>
+<tr>
+<td><code>UniversalTypedValue.reencode(original, edited)</code></td>
+<td>Reads original envelope; chooses new record or scalar payload by original AER1 magic; installs replacement under preserved header.</td>
+<td>Original record is not fully decoded/validated before rebuilding. No merge, schema-constraint check or descriptor argument. Null edited text fails downstream.</td>
+</tr>
+<tr>
+<td><code>UniversalTypedValue.isAer1(payload)</code></td>
+<td>Checks &gt;= CanonicalRecordWriter.HEADER_BYTES (24) and AER1 magic.</td>
+<td>No format/version/checksum validation at dispatch. Scalar bytes that happen to satisfy this signature are treated as records.</td>
+</tr>
+</tbody>
+</table>
+<p>The 64 MiB constant bounds CanonicalRecordReader/Writer and string field helpers.
+It is not a global envelope/scalar/text-input bound. Envelope copying and scalar
+UTF-8/hex conversion can allocate large arrays/strings before backing database
+limits apply. This helper does not implement streaming edits.</p>
+<h2 id="record-text-parsing-and-names">Record Text Parsing and Names</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Limits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UniversalTypedValue.encodeRecord(edited)</code></td>
+<td>Splits using regex line breaks, preserving trailing empty lines; skips blank lines and lines whose stripped-leading text begins hash. Parses first colon and following equals. Field ID stripped and parsed as int; final colon-delimited metadata component is stripped type. Unescapes value, encodes field and appends to new canonical writer, then finish.</td>
+<td>Submitted order must have strictly increasing positive IDs via writer; duplicates/out-of-order rejected, not sorted. Names before final type are ignored. Value text is not stripped. All fields can be omitted, producing empty record. Original fields are not retained.</td>
+</tr>
+<tr>
+<td><code>UniversalTypedValue.descriptorFieldNames(descriptor)</code></td>
+<td>Null/empty returns empty map. Decodes UTF-8 with replacement, requires exact AETHER_SCHEMA_DESCRIPTOR_V1 plus LF prefix; accepts field= lines with exactly four pipe components and parseable ID, stores second component as name. Returns immutable map.</td>
+<td>Duplicate IDs last-wins; malformed lines/IDs skipped. Does not verify descriptor fingerprint, schema/version, field types/bounds or positive ID. No trim/control/name-escaping policy. CRLF header fails exact prefix check.</td>
+</tr>
+<tr>
+<td><code>UniversalTypedValue.displayField(reader)</code></td>
+<td>BOOL =&gt; boolean; SIGNED_VARINT =&gt; long; FIXED64 =&gt; double; STRING_UTF8 =&gt; bounded string; UUID128 =&gt; UUID; TEMPORAL =&gt; Instant; everything else raw-payload lowercase hex.</td>
+<td>Wire type alone does not establish application type. All temporal payloads are interpreted by instantValue, not descriptor-specific LocalDate/time/duration. Unknown/container types have no semantic editor here.</td>
+</tr>
+<tr>
+<td><code>UniversalTypedValue.encodeField(type, value)</code></td>
+<td>bool/long/double/string/uuid/instant use canonical scalar helpers. Other wire-N types parse raw hex. Catches IllegalArgumentException and wraps with type/value text.</td>
+<td>Whole supplied value appears in error message. Instant parsing can throw DateTimeParseException outside this IllegalArgumentException wrapper. No descriptor field limits except shared 64 MiB string bound. Unsupported type rejected.</td>
+</tr>
+</tbody>
+</table>
+<p>Text grammar accepts both <code>16:string=Ada</code> and <code>16:name:string=Ada</code>. Equals after
+the first delimiter belongs to the value; colons in metadata before the final
+type are discarded as names. Display names are not escaped: names containing
+equals or line breaks can make generated text fail to parse as intended.</p>
+<p>Canonical writer supplies field ordering, record framing and checksum. Rebuilding
+can normalize representations and discard original record flags/extensions; outer
+envelope preservation does not imply byte-identical no-op round-trip. Raw wire-N
+fields delegate payload structure responsibility to downstream readers.</p>
+<h2 id="scalar-type-mapping">Scalar Type Mapping</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Limits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UniversalTypedValue.parseBoolean(value)</code></td>
+<td>Accepts exactly lowercase true or false.</td>
+<td>No stripping, case folding or numeric aliases. Other text throws IllegalArgumentException.</td>
+</tr>
+<tr>
+<td><code>UniversalTypedValue.typeName(wireType)</code></td>
+<td>Known six codes map to bool, long, double, string, uuid, instant; others become wire-N.</td>
+<td>Descriptive wire mapping, not schema interpretation.</td>
+</tr>
+<tr>
+<td><code>UniversalTypedValue.wireType(type)</code></td>
+<td>Maps the six case-sensitive names back to constants; otherwise requires wire- prefix and Integer.parseInt suffix.</td>
+<td>Does not bound parsed integer to one byte or recognized codes; CanonicalRecordWriter writes its low byte. Malformed suffix wrapped as invalid wire type.</td>
+</tr>
+</tbody>
+</table>
+<p>Double.parseDouble accepts Java floating syntax, including NaN/infinities; any
+additional numeric policy belongs to canonical scalar helpers/application codec.
+UUID/Instant parsing use their standard parsers. Unknown raw types do not become
+validated structured containers merely because a record checksum can be generated.</p>
+<h2 id="scalar-display-and-editing">Scalar Display and Editing</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Round-trip rules</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UniversalTypedValue.displayScalar(payload)</code></td>
+<td>Strict UTF-8 decode; permits printable text plus LF/CR/tab, escapes accepted text. Otherwise emits hex: followed by lowercase hex.</td>
+<td>Unlike generic workspace display, does not force 16 bytes into UUID form. Text starting hex: remains plain text if original payload is displayable.</td>
+</tr>
+<tr>
+<td><code>UniversalTypedValue.encodeScalar(original, edited)</code></td>
+<td>If original is displayable UTF-8, unescapes edited text and UTF-8 encodes it. Otherwise requires hex: prefix, strips remaining text and parses hex, wrapping malformed hex.</td>
+<td>Original payload decides mode, not edited prefix. Text mode cannot switch to binary merely by writing hex:. Binary mode can produce printable bytes, changing mode on next edit. No scalar size cap.</td>
+</tr>
+<tr>
+<td><code>UniversalTypedValue.isDisplayableUtf8(payload)</code></td>
+<td>Same strict decoding/control rule as displayScalar; returns false on CharacterCodingException.</td>
+<td>No schema-type check. Empty bytes qualify as text.</td>
+</tr>
+<tr>
+<td><code>UniversalTypedValue.escapeText(value)</code></td>
+<td>Escapes backslash first, then LF and CR.</td>
+<td>Tabs stay literal. Other Unicode line separators remain literal; encodeRecord splits on regex line breaks, so such string content need not round-trip through record text.</td>
+</tr>
+<tr>
+<td><code>UniversalTypedValue.unescapeText(value)</code></td>
+<td>Stateful scanner accepts backslash-n, backslash-r and double backslash; appends unescaped chars directly.</td>
+<td>Unknown escape or terminal backslash throws IllegalArgumentException. Does not support backslash-t or Unicode escape syntax.</td>
+</tr>
+</tbody>
+</table>
+<p>For ordinary scalar text, escaping keeps newline/backslash edits reversible. It
+does not promise reversibility for all Unicode text embedded in line-oriented
+record editing, nor semantic correctness for arbitrary schema IDs.</p>
+<h2 id="envelope-helpers-and-byte-layout">Envelope Helpers and Byte Layout</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>What it trusts</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UniversalTypedValue.Envelope.read(value)</code></td>
+<td>Requires isTyped; big-endian version short=1 at offset 4, header length short=40 at 6. Reads flags at 28, payload length at 32, reserved at 36; requires zero flags/reserved, nonnegative exact remaining payload length. Copies 40-byte header and payload into record.</td>
+<td>Schema UUID bytes 8..23 and schema version int at 24 are not validated. No maximum total size or outer checksum. Copy ownership prevents mutating original input through returned arrays, but generated record accessors themselves do not clone.</td>
+</tr>
+<tr>
+<td><code>UniversalTypedValue.Envelope.withPayload(replacement)</code></td>
+<td>Copies header into new header+payload array, updates big-endian length at 32 and copies replacement bytes at header end.</td>
+<td>Retains UUID/version/other accepted header fields. Does not revalidate replacement, enforce size bound or use checked addition for array length. Null/overflow/allocation failures propagate.</td>
+</tr>
+</tbody>
+</table>
+<p>Envelope is a private array-bearing record, not an immutable-by-content public
+value. In this flow its arrays originate from copies. Generated array equality is
+reference-based. AER1 checksum belongs to the inner record reader/writer, not the
+AETV envelope helper. See <a href="typed-value-functions.html">typed value functions</a> for the
+application codec's separate schema identity and decode contract.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-workbench/src/test/java/io/aetherdb/workbench/DatabaseWorkspaceTest.java">DatabaseWorkspaceTest</a>
+exercises typed scalar display/edit, 16-byte text handling, template insertion,
+generated record editing and descriptor labels through workspace integration.
+There is no dedicated UniversalTypedValue test class. Existing tests do not cover
+all wire codes, magic collisions, malformed envelope fields, descriptor trust,
+unknown escapes, Unicode separators, raw wire-number narrowing, omitted fields,
+scalar mode transitions or large-input allocation. Declaration inventory checks
+names and overload presence, not semantic round-trip correctness.</p>
+<p>See <a href="workbench-record-dialog-functions.html">record dialog functions</a> for the
+separate text-to-widget selector and modal acceptance rules.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-editing-contract">Architecture and Editing Contract</a><a href="#entry-and-dispatch-functions">Entry and Dispatch Functions</a><a href="#record-text-parsing-and-names">Record Text Parsing and Names</a><a href="#scalar-type-mapping">Scalar Type Mapping</a><a href="#scalar-display-and-editing">Scalar Display and Editing</a><a href="#envelope-helpers-and-byte-layout">Envelope Helpers and Byte Layout</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

@@ -9,7 +9,8 @@
         "--repeats",
         "24",
         "--confirmatory",
-        "--epochs", "10",
+        "--epochs", "20",
+        "--seed-base", "20260924",
         "--prefetch-depth", "0"
       ]
     },

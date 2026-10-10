@@ -1,0 +1,293 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/RPC-API-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="RPC API and admission: source-backed contributor documentation for Aether Engine.">
+  <title>RPC API and admission | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html" aria-current="page">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/RPC-API-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="rpc-api-and-admission-functions">RPC API and Admission Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="rpc-frame-functions.html">RPC codecs</a> | <a href="modules.html">Module guide</a></p>
+<p>Source package: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-rpc-api/src/main/java/io/aetherdb/rpc/api">aether-rpc-api</a>.
+This guide covers all <strong>33 explicit declarations</strong> in the package, including
+abstract interface methods. Generated record accessors/equality and enum
+values/valueOf are outside that count. Three policy enums have no explicit methods.</p>
+<h2 id="contract-architecture">Contract Architecture</h2>
+<pre><code class="language-text">caller -&gt; endpoint + operation descriptor + call options + body
+  -&gt; RpcClient.call -&gt; asynchronous RpcResponse
+server -&gt; operation registry -&gt; admitted, assembled RpcServerRequest
+  -&gt; RpcHandler.handle -&gt; RpcResponder.success / fail
+admission helpers -&gt; resource charges / outcome mapping
+  (controller acquisition, lease release and dispatch belong to implementations)
+</code></pre>
+<p>The API separates immutable metadata/byte ownership from transport execution.
+It does not open sockets, authenticate a node, schedule retries, deduplicate
+mutations, enforce an executor policy or acquire admission resources by itself.
+This is the general Java RPC path, not the Python training-cache wire protocol.</p>
+<h2 id="endpoints-and-call-policy">Endpoints and Call Policy</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RpcEndpoint.RpcEndpoint(host, port, expectedNodeId)</code></td>
+<td>Rejects null/blank host, NUL/control characters, slash, @ or ://, port outside 1..65535 and an explicitly zero expected UUID. Strips outer whitespace before storing. Null expected identity means no node pin. Does not resolve DNS, normalize case or fully parse an IPv6/domain literal.</td>
+</tr>
+<tr>
+<td><code>RpcEndpoint.of(host, port)</code></td>
+<td>Constructs validated endpoint with null expectedNodeId; no authentication guarantee.</td>
+</tr>
+<tr>
+<td><code>RpcEndpoint.canonical()</code></td>
+<td>Returns host:port, surrounding host with brackets whenever it contains a colon. Pure formatting: already-bracketed input can receive another pair and distinct accepted spellings need not produce one canonical identity.</td>
+</tr>
+<tr>
+<td><code>RpcOperationDescriptor.RpcOperationDescriptor(operationCode, requestLimit, responseLimit, retryClass, executionPolicy, defaultTimeout)</code></td>
+<td>Requires positive operation code, request/response limits 0..64 MiB, nonnull policy/class/timeout and positive timeout. Invalid code/limits/duration raise IllegalArgumentException; null metadata raises NullPointerException. Does not cap timeout at one hour or check registry uniqueness.</td>
+</tr>
+<tr>
+<td><code>RpcCallOptions.RpcCallOptions(timeout, automaticRetry, backpressureMode)</code></td>
+<td>Requires nonnull, positive duration &lt;=1 hour and nonnull backpressure mode, otherwise IllegalArgumentException. Stores retry preference without checking operation safety. Does not start a timer or convert duration to an absolute deadline.</td>
+</tr>
+<tr>
+<td><code>RpcCallOptions.defaults(operation)</code></td>
+<td>Rejects null operation, takes declared defaultTimeout, disables automatic retries and selects FAIL_FAST. A descriptor with a positive timeout &gt;1 hour is valid itself but fails here through call-options validation.</td>
+</tr>
+</tbody>
+</table>
+<p>RpcBackpressureMode has FAIL_FAST and WAIT_UNTIL_DEADLINE. These are caller policy
+labels, not a queue implementation. RpcRetryClass has NEVER, IDEMPOTENT and
+DEDUP_REQUIRED: server deduplication must actually exist before that last label
+can make retries safe. RpcExecutionPolicy has CONTROL, STORAGE_READ and
+STORAGE_WRITE; executor separation and write admission are transport/server work.
+The operation-specific limits can be stricter than the global record limits.</p>
+<h2 id="client-registry-and-handler-interfaces">Client, Registry and Handler Interfaces</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RpcClient.call(peer, operation, body, options)</code></td>
+<td>Abstract unary asynchronous call returning CompletableFuture&lt;RpcResponse&gt;. Implementation owns input validation, body retention/copying, connection selection, deadlines, admission, retry and terminal completion. Interface supplies no default algorithm or cancellation mapping.</td>
+</tr>
+<tr>
+<td><code>RpcClient.close()</code></td>
+<td>Abstract AutoCloseable lifecycle contract to drain/release owned connections. Interface does not specify a concrete wait duration, idempotency or fate of outstanding futures.</td>
+</tr>
+<tr>
+<td><code>RpcServer.register(operation, handler)</code></td>
+<td>Abstract contract to register a unique operation before or while serving. Duplicate handling, concurrency and descriptor/handler validation must be inspected in implementation.</td>
+</tr>
+<tr>
+<td><code>RpcServer.endpoint()</code></td>
+<td>Abstract getter for actual bound endpoint, including any assigned ephemeral port. RpcEndpoint itself requires a positive port; ephemeral binding therefore precedes constructing this result.</td>
+</tr>
+<tr>
+<td><code>RpcServer.close()</code></td>
+<td>Abstract contract to stop admission gracefully and release listener; no transport shutdown algorithm here.</td>
+</tr>
+<tr>
+<td><code>RpcHandler.handle(request, responder)</code></td>
+<td>Functional-interface callback for an admitted request, contractually completing responder once. No return value or built-in exception handling; handler blocking/cancellation/error mapping depends on server execution.</td>
+</tr>
+<tr>
+<td><code>RpcResponder.success(body)</code></td>
+<td>Abstract bounded successful completion. Interface does not copy bytes or guard duplicate completion itself.</td>
+</tr>
+<tr>
+<td><code>RpcResponder.fail(status, detail)</code></td>
+<td>Abstract completion with non-OK status and bounded safe detail. Enforcement of non-OK, detail sanitization and exactly-once behavior belongs to concrete responder.</td>
+</tr>
+</tbody>
+</table>
+<p>Do not infer persistence or exactly-once mutation execution from exactly-once
+response completion. A handler can mutate storage and then lose its response;
+retry safety requires operation semantics and, where applicable, durable dedup.</p>
+<h2 id="request-and-response-ownership">Request and Response Ownership</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RpcServerRequest.RpcServerRequest(operationCode, invocationId, body, deadline, cancellation)</code></td>
+<td>Requires positive code, nonzero UUID, nonnull body &lt;=64 MiB and nonnull deadline/token. Invalid fields raise IllegalArgumentException. Copies body. Does not require deadline to be future, compare body to registered operation limit or authenticate invocation identity.</td>
+</tr>
+<tr>
+<td><code>RpcServerRequest.body()</code></td>
+<td>Returns a new array copy on every call; no borrowed buffer.</td>
+</tr>
+<tr>
+<td><code>RpcResponse.RpcResponse(status, invocationId, body, errorDetail)</code></td>
+<td>Requires status, nonzero UUID, nonnull body &lt;=64 MiB and nonnull detail &lt;=4096 Java characters, then copies body. Does not enforce operation response limit, restrict body/detail by status or sanitize detail.</td>
+</tr>
+<tr>
+<td><code>RpcResponse.body()</code></td>
+<td>Returns a fresh copy of exact stored bytes each time.</td>
+</tr>
+<tr>
+<td><code>RpcResponse.ok(invocationId, body)</code></td>
+<td>Constructs validated OK response with empty detail; constructor copies payload and enforces global bounds.</td>
+</tr>
+</tbody>
+</table>
+<p>Record byte copies isolate later caller mutation, but the cancellation token is a
+shared behavior object and can change state. Instant/UUID/Duration metadata are
+immutable. The 4096-character detail bound is not a UTF-8 byte bound or proof that
+secrets/control characters were removed. Generated record equality compares array
+components by their usual reference equality, not deep byte content; use explicit
+byte comparisons where content equality matters.</p>
+<h2 id="cooperative-cancellation">Cooperative Cancellation</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RpcCancellationToken.isCancelled()</code></td>
+<td>Abstract observation of requested cancellation. Memory visibility and synchronization depend on implementation.</td>
+</tr>
+<tr>
+<td><code>RpcCancellationToken.onCancel(callback)</code></td>
+<td>Abstract registration contract, calling immediately if already cancelled. Interface does not prescribe null handling, callback execution thread, ordering or exception policy.</td>
+</tr>
+<tr>
+<td><code>RpcCancellationToken.throwIfCancelled()</code></td>
+<td>Default method observes isCancelled once and throws RpcCancelledException with fixed message if true. Otherwise returns normally; does not interrupt a thread, roll back storage or prevent later cancellation.</td>
+</tr>
+<tr>
+<td><code>RpcCancelledException.RpcCancelledException(message)</code></td>
+<td>Delegates to unchecked RuntimeException, with fixed serialVersionUID=1. Does not itself complete a future or send CANCELLED on wire.</td>
+</tr>
+</tbody>
+</table>
+<p>Cancellation is best effort and cooperative. A non-cancelled observation can race
+with a subsequent request; concrete handlers must choose safe interruption points.</p>
+<h2 id="admission-charges-and-outcome-mapping">Admission Charges and Outcome Mapping</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RpcAdmission.RpcAdmission()</code></td>
+<td>Private constructor for static charge-builder utility.</td>
+</tr>
+<tr>
+<td><code>RpcAdmission.outboundRequest(operation, bodyBytes, outboundPermits, draining)</code></td>
+<td>Rejects null operation, negative byte/permit counts or bytes above requestLimit. Creates charges for outbound bytes, one inflight stream and optional positive virtual-thread permits, then AdmissionRequest with supplied draining flag. Does not charge frame headers, responses or connection count.</td>
+</tr>
+<tr>
+<td><code>RpcAdmission.inboundRequest(operation, bodyBytes, draining)</code></td>
+<td>Checks nonnull operation and nonnegative bytes within requestLimit, then delegates to the byte-only overload.</td>
+</tr>
+<tr>
+<td><code>RpcAdmission.inboundRequest(bodyBytes, draining)</code></td>
+<td>Rejects negative bytes; creates inbound-byte and one-inflight-stream charges. Has no operation/global message-size check, so caller must validate length separately.</td>
+</tr>
+<tr>
+<td><code>RpcAdmissionMapper.RpcAdmissionMapper()</code></td>
+<td>Private constructor for static outcome mapper.</td>
+</tr>
+<tr>
+<td><code>RpcAdmissionMapper.status(decision)</code></td>
+<td>Rejects null. Maps ACCEPTED to OK, REJECTED_BEFORE_ACK/RESOURCE_EXHAUSTED to RESOURCE_EXHAUSTED, DRAINING_REJECTED to UNAVAILABLE and UNCERTAIN to FAILED_PRECONDITION. Reasons and retry-after are not encoded by this function.</td>
+</tr>
+<tr>
+<td><code>RpcAdmissionMapper.retryable(decision)</code></td>
+<td>Rejects null. True only for REJECTED_BEFORE_ACK, DRAINING_REJECTED or RESOURCE_EXHAUSTED; false for ACCEPTED/UNCERTAIN. This is admission classification, not permission to retry a particular operation or evidence of deduplication.</td>
+</tr>
+</tbody>
+</table>
+<p>Builders create accounting requests, not acquired leases. A controller must accept
+the request and the owner must release resources on every completion/failure path.
+The caller supplies draining rather than these helpers reading server state.
+UNCERTAIN is deliberately not classified retryable: it can reflect an outcome
+that cannot safely be treated as a clean rejection.</p>
+<h2 id="stable-status-functions">Stable Status Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RpcStatus.RpcStatus(code)</code></td>
+<td>Private enum constructor stores frozen wire code.</td>
+</tr>
+<tr>
+<td><code>RpcStatus.code()</code></td>
+<td>Returns code without encoding, mapping an exception or emitting a response.</td>
+</tr>
+<tr>
+<td><code>RpcStatus.fromCode(code)</code></td>
+<td>Scans statuses for exact code and returns match; unknown code raises IllegalArgumentException, not codec RpcProtocolException.</td>
+</tr>
+</tbody>
+</table>
+<p>Codes are OK=0, CANCELLED=1, INVALID_ARGUMENT=2, DEADLINE_EXCEEDED=3, NOT_FOUND=4,
+ALREADY_EXISTS=5, RESOURCE_EXHAUSTED=6, FAILED_PRECONDITION=7, UNAVAILABLE=8,
+INTERNAL=9, UNAUTHENTICATED=10 and PROTOCOL_ERROR=11. Status names describe outcomes;
+they do not implement authentication, error sanitation or retry schedules.</p>
+<h2 id="coverage-and-verification">Coverage and Verification</h2>
+<p>Compiler-tree coverage checks all <strong>33/33 explicit declarations (100%; 0%
+remaining)</strong> across all 17 implementation files, including both inbound overloads.
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-rpc-api/src/test/java/io/aetherdb/rpc/api/RpcAdmissionTest.java">RpcAdmissionTest</a>
+checks charges, operation bounds, status mapping and retry classification. Those
+five tests do not exercise a network server, handler execution or all record
+constructor boundaries. Concrete transport behavior is documented separately in
+the <a href="rpc-server-functions.html">server</a> and <a href="rpc-client-functions.html">client</a> references;
+this guide is not proof of a production cluster.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#contract-architecture">Contract Architecture</a><a href="#endpoints-and-call-policy">Endpoints and Call Policy</a><a href="#client-registry-and-handler-interfaces">Client, Registry and Handler Interfaces</a><a href="#request-and-response-ownership">Request and Response Ownership</a><a href="#cooperative-cancellation">Cooperative Cancellation</a><a href="#admission-charges-and-outcome-mapping">Admission Charges and Outcome Mapping</a><a href="#stable-status-functions">Stable Status Functions</a><a href="#coverage-and-verification">Coverage and Verification</a></nav></aside>
+  </div>
+</body>
+</html>

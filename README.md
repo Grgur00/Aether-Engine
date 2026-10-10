@@ -2,10 +2,19 @@
 
 Aether Engine is a modular Java storage-engine project built around LSM-tree, replication, RPC, Raft, and typed application API foundations.
 
-The current release includes a deterministic in-memory engine and a first local persistent embedded path. The persistent path provides WAL-backed close/reopen durability and atomic checkpoint recovery, but remains pre-production.
+The current checkout includes a deterministic in-memory engine and a local persistent embedded path. The persistent path combines WAL-backed writes, foreground memtable flushes, atomic manifest publication and background compaction, but remains pre-production. The current checkout may contain features not present in a published release.
 
 > **Status:** `0.1.0` is available from Maven Central. Aether remains pre-1.0;
 > do not use it for irreplaceable production data yet.
+
+**New contributors: start with [Developer onboarding](Docs/onboarding/README.md).**
+It covers setup, architecture diagrams, storage internals, typed schemas,
+Python/ML integration, testing, operations and experiment methodology against
+the current source tree.
+
+For a hands-on source-reading session, follow the [guided code tour](Docs/onboarding/CODE-TOUR.md).
+Use the [49-module reference](Docs/onboarding/MODULE-GUIDE.md) to locate entry classes,
+dependency boundaries and the right place for a contribution.
 
 **[Developer documentation](https://grgur00.github.io/Aether-Engine/docs/)** — setup,
 typed collections, schema evolution, the byte API, durability, metrics, limits, and operational
@@ -28,14 +37,16 @@ behavior.
 
 ## Requirements
 
-- JDK 21 or newer
+- JDK 21 with preview support (configured by the build)
 - The checked-in Gradle wrapper
 
-A global Gradle installation is not required.
+A global Gradle installation is not required. Java 21 preview bytecode requires
+a compatible runtime; do not assume a later JVM can load it. See
+[Getting started](Docs/onboarding/GETTING-STARTED.md) for Windows and POSIX setup.
 
 ## Build and test
 
-Clone the repository and run the complete test suite:
+Clone the repository and run the Java test tasks:
 
 ```bash
 git clone https://github.com/Grgur00/Aether-Engine.git
@@ -43,11 +54,16 @@ cd Aether-Engine
 ./gradlew test
 ```
 
-Run all verification tasks with:
+Run the configured Gradle verification tasks with:
 
 ```bash
 ./gradlew check
 ```
+
+These commands do not run the Python suites, every standalone crash harness or
+remote experiments. Some task names are currently placeholders; see
+[Testing and contributing](Docs/onboarding/TESTING-AND-CONTRIBUTING.md) for the
+actual coverage and focused commands.
 
 ## Runtime latency metrics
 
@@ -119,10 +135,14 @@ AETHER_CACHE_MODE=cold-open ./scripts/cv-benchmark.sh
 
 macOS displays its standard administrator authorization dialog immediately
 before the purge. Run on AC power; the purge may temporarily slow other
-applications. The current persistent implementation materializes its complete
-checkpoint into heap during `open()`, so cold-open mode measures cold database
-open/recovery cost; point reads afterward are heap-resident and are deliberately
-not presented as cold-disk reads.
+applications. Cold-open mode measures database open/recovery after that purge,
+not a separately controlled cold-disk read workload. The current SSTable reader
+eagerly verifies every data block during open and retains the decoded entries in
+per-reader heap caches, even though it also retains a file channel. Subsequent
+SSTable lookups use those cached entries, and the benchmark additionally warms
+the read path. Do not describe these later read percentiles as cold-disk
+performance. See
+[Storage internals](Docs/onboarding/STORAGE-ENGINE.md) for the current read path.
 
 ## Typed API quick start
 
@@ -248,7 +268,7 @@ The typed social-network sample demonstrates:
 
 - profile and post CRUD;
 - three related collections for profiles, posts, and follows;
-- foreign-key and uniqueness validation;
+- application-level foreign-key and uniqueness validation;
 - atomic relationship and follower-count updates;
 - one-to-many queries and a joined social feed; and
 - compile-time generated, versioned value codecs.
@@ -281,6 +301,10 @@ Deleted draft exists: false
 ```
 
 See [the sample README](examples/aether-sample-app/README.md) and its [main class](examples/aether-sample-app/src/main/java/io/aetherdb/examples/social/SocialNetworkApplication.java).
+
+The sample's read/check/write rules and joins are ordinary Java application code,
+not database-enforced relational constraints or serializable transactions. The
+batch itself is atomic; concurrent application invariants need separate design.
 
 ### Persistent notes desktop demo
 
@@ -326,12 +350,15 @@ The persistent view recognizes typed record envelopes and displays text payloads
 
 ## Current limitations
 
-- The persistent path uses one WAL segment plus atomic checkpoint/manifest publication; WAL rotation and reclamation are not yet integrated.
-- Checkpoints are published during graceful close; size-triggered background MemTable flush is not yet integrated.
-- Leveled compaction and obsolete checkpoint reclamation are not yet integrated.
-- TCP/TLS cluster clients and servers are not yet complete.
+- The persistent engine has one active WAL; a foreground flush publishes an SSTable and replacement WAL through the manifest, then reclaims the old WAL. Flush work can therefore add write latency.
+- Background leveled compaction is integrated, but its current single-worker implementation is not a production scalability guarantee. Configuration declarations do not imply every tuning option is connected to the runtime.
+- A development TCP transport and remote client exist; they are not an integrated, secured production cluster service. Do not expose the plaintext development transport or local training-cache protocol to untrusted networks.
 - Dynamic membership foundations exist, but full runtime orchestration is incomplete.
 - API and persistent formats may change before the first stable release.
+
+See [Architecture](Docs/onboarding/ARCHITECTURE.md) for implemented boundaries and
+[Operations and debugging](Docs/onboarding/OPERATIONS-AND-DEBUGGING.md) before
+opening, repairing or moving a persistent store.
 
 ## Contributing
 

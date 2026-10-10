@@ -4,8 +4,10 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 import zipfile
 from pathlib import Path
 
@@ -49,6 +51,32 @@ def write(path, value):
     path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
 
 
+def verified_submission(value):
+    """Bind this submission to downloaded, byte-verified source archives."""
+    state = json.loads(cli("datasets", "status", value["sourceDataset"],
+                           "--format", "json(status,current_version_number)", capture=True))
+    version = state.get("current_version_number")
+    if state.get("status") != "ready" or type(version) is not int or version < 1:
+        raise ValueError("Source dataset has no ready version to pin")
+    pinned = f"{value['sourceDataset']}/{version}"
+    destination = Path(tempfile.mkdtemp(prefix="submission-", dir=WORK))
+    names = ("candidate-source.bin",) if value["mode"] == "population-candidate-jfr" else ("candidate-source.bin", "baseline-source.bin")
+    for name in names:
+        cli("datasets", "download", pinned, "-f", name, "-p", destination)
+        downloaded = destination / name
+        if not downloaded.is_file() or hashlib.sha256(downloaded.read_bytes()).digest() != hashlib.sha256((WORK / "source" / name).read_bytes()).digest():
+            raise ValueError(f"Remote source mismatch: {pinned}/{name}; no notebook submitted")
+    notebook = destination / "notebook"
+    shutil.copytree(WORK / "notebook", notebook)
+    metadata = json.loads((notebook / "kernel-metadata.json").read_text())
+    metadata["dataset_sources"] = [pinned, *value["datasetSources"]]
+    write(notebook / "kernel-metadata.json", metadata)
+    write(destination / "receipt.json", {"sourceDataset": pinned,
+          "sourceManifestSha256": value["sourceManifestSha256"],
+          "files": {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in notebook.iterdir()}})
+    return notebook
+
+
 def config():
     path = WORK / "config.json"
     if not path.is_file():
@@ -71,6 +99,11 @@ def validate_prepared(value):
         if not path.is_relative_to(WORK.resolve()) or hashlib.sha256(path.read_bytes()).hexdigest() != expected:
             raise ValueError("Prepared files changed; run Prepare again before uploading or running")
     allowed = {"dataset-metadata.json", "aether-paper-artifact.zip", "aether-paper-artifact.zip.sha256"}
+    if value["mode"] == "population-candidate-jfr":
+        allowed.add("candidate-source.bin")
+    if value["mode"] in {"population-verification", "population-streaming"}:
+        allowed.add("baseline-source.zip")
+        allowed.update({"candidate-source.bin", "baseline-source.bin"})
     if {p.name for p in (WORK / "source").iterdir()} != allowed:
         raise ValueError("Unexpected files in source upload folder; inspect before preparing again")
     metadata = json.loads((WORK / "notebook/kernel-metadata.json").read_text())
@@ -111,22 +144,90 @@ def prepare(args):
              "scratchRoot": args.scratch_root or previous.get("scratchRoot"),
              "datasetSources": args.dataset_source if args.dataset_source is not None else previous.get("datasetSources", [])}
     if mode == "primary":
-        if epochs not in (None, 10) or prefetch_depth not in (None, 0) or getattr(args, "server_trace", None) is True:
-            raise ValueError("primary is frozen at 10 epochs, prefetch depth 0, server tracing off")
-        value.update(epochs=10, prefetchDepth=0, serverTrace=False)
-    if value["mode"] in {"pilot", "primary", "all"} and not value["datasetConfig"]:
+        if epochs not in (None, 20) or prefetch_depth not in (None, 0) or getattr(args, "server_trace", None) is True:
+            raise ValueError("primary is frozen at 20 epochs, prefetch depth 0, server tracing off")
+        from confirmatory import PRIMARY_CONFIG
+        value.update(epochs=20, prefetchDepth=0, serverTrace=False)
+        value["datasetConfig"] = args.dataset_config or PRIMARY_CONFIG
+    if mode == "monai":
+        if epochs not in (None, 20) or prefetch_depth not in (None, 0) or getattr(args, "server_trace", None) is True:
+            raise ValueError("MONAI pilot is fixed at 20 epochs, prefetch depth 0, server tracing off")
+        if getattr(args, "pilot_repeats", None) not in (None, 5):
+            raise ValueError("MONAI pilot requires 5 fresh paired blocks")
+        value.update(epochs=20, prefetchDepth=0, serverTrace=False, pilotRepeats=5)
+        value["datasetConfig"] = args.dataset_config or "configs/paper/oct5k-pilot-20ep.json"
+    if mode in {"population", "population-bulk", "population-layout", "population-jfr", "population-verification", "population-candidate-jfr", "population-streaming"}:
+        repeats = 5 if mode == "population-streaming" else 3
+        if epochs is not None or getattr(args, "pilot_repeats", None) not in (None, repeats):
+            raise ValueError("population diagnostic has no training epochs and requires three repetitions")
+        if args.dataset_config is not None or prefetch_depth not in (None, 0):
+            raise ValueError("population uses the frozen V0 manifest and no prefetch")
+        value.update(epochs=None, prefetchDepth=None, serverTrace=False, pilotRepeats=repeats, datasetConfig=None)
+        value["scratchRoot"] = args.scratch_root or "/kaggle/working/aether-population-stores"
+        from longitudinal_manifests import verify
+        receipt, _ = verify(ROOT / "configs/paper/oct5k-longitudinal")
+        value["populationManifestSha256"] = receipt["manifestSha256"][0]
+        if mode == "population-candidate-jfr":
+            if getattr(args, "pilot_repeats", None) is not None:
+                raise ValueError("candidate-only JFR has exactly one recording and no repetitions option")
+            value.update(pilotRepeats=1, candidateOnly=True, priorPerformanceGate="failed; unchanged")
+    baseline = getattr(args, "bulk_baseline", None)
+    if mode in {"population-verification", "population-streaming"}:
+        if baseline is None:
+            raise ValueError("population-verification requires --bulk-baseline frozen source ZIP")
+        baseline = Path(baseline).resolve()
+        with zipfile.ZipFile(baseline) as archive:
+            names = archive.namelist()
+            if len(names) != len(set(names)) or any(
+                    "\\" in name or Path(name).is_absolute() or ".." in Path(name).parts for name in names):
+                raise ValueError("unsafe baseline archive inventory")
+            raw = archive.read("artifact-provenance.json")
+            files = json.loads(raw)["files"]
+            if not files or set(names) != {*files, "artifact-provenance.json"}:
+                raise ValueError("baseline archive differs from its provenance")
+            for name, expected in files.items():
+                if hashlib.sha256(archive.read(name)).hexdigest() != expected:
+                    raise ValueError(f"baseline checksum mismatch: {name}")
+            value["bulkBaselineManifestSha256"] = hashlib.sha256(raw).hexdigest()
+        value["bulkBaselineSha256"] = hashlib.sha256(baseline.read_bytes()).hexdigest()
+    elif baseline is not None:
+        raise ValueError("--bulk-baseline requires population-verification mode")
+    if mode in {"longitudinal", "longitudinal-persistent"}:
+        if epochs not in (None, 20) or prefetch_depth not in (None, 0) or getattr(args, "server_trace", None) is True:
+            raise ValueError("longitudinal pilot requires 20 epochs/update, prefetch 0 and tracing off")
+        if getattr(args, "pilot_repeats", None) not in (None, 5):
+            raise ValueError("longitudinal pilot requires five fresh paired blocks")
+        value.update(epochs=20, prefetchDepth=0, serverTrace=False, pilotRepeats=5)
+        value["datasetConfig"] = args.dataset_config or (
+            "configs/paper/oct5k-longitudinal-persistent-pilot.json" if mode == "longitudinal-persistent" else
+            "configs/paper/oct5k-longitudinal-pilot.json")
+        value["scratchRoot"] = args.scratch_root or "/kaggle/working/aether-longitudinal-stores"
+        from longitudinal_comparison import validate_config
+        from longitudinal_manifests import verify
+        specification = json.loads((ROOT / value["datasetConfig"]).read_text())
+        validate_config(specification)
+        expected_lifecycle = "persistent-per-block" if mode == "longitudinal-persistent" else "restart-per-version"
+        if specification.get("serviceLifecycle", "restart-per-version") != expected_lifecycle:
+            raise ValueError("selected Kaggle mode and service lifecycle differ")
+        if mode == "longitudinal-persistent":
+            value["serviceLifecycle"] = expected_lifecycle
+        receipt, _ = verify(ROOT / specification["manifestDirectory"])
+        if receipt["counts"] != specification["versions"] or receipt["seed"] != specification["seed"]:
+            raise ValueError("longitudinal manifests differ from the frozen configuration")
+        value["longitudinalManifestSha256"] = receipt["manifestSha256"]
+    if value["mode"] in {"pilot", "primary", "all", "monai", "longitudinal", "longitudinal-persistent"} and not value["datasetConfig"]:
         raise ValueError("pilot/primary/all require --dataset-config with its path inside Kaggle")
     if value["trainingEpochs"] < 1:
         raise ValueError("--training-epochs must be positive")
     if value["epochs"] is not None:
         if value["epochs"] < 1:
             raise ValueError("--epochs must be positive")
-        if mode not in {"pilot", "primary"}:
+        if mode not in {"pilot", "primary", "monai", "longitudinal", "longitudinal-persistent"}:
             raise ValueError("--epochs applies to pilot/primary runs")
     if value["pilotRepeats"] < 1:
         raise ValueError("--pilot-repeats must be positive")
     if value["prefetchDepth"] is not None and (
-            value["prefetchDepth"] < 0 or (value["mode"] not in {"pilot", "primary"} and value["prefetchDepth"] != 1)):
+            value["prefetchDepth"] < 0 or (value["mode"] not in {"pilot", "primary", "monai", "longitudinal", "longitudinal-persistent"} and value["prefetchDepth"] != 1)):
         raise ValueError("custom --prefetch-depth is available only for pilot/primary and must be non-negative")
     if value["mode"] == "pilot" and value["pilotRepeats"] != 10 and not value["serverTrace"]:
         raise ValueError("custom pilot repeats require --server-trace")
@@ -142,9 +243,18 @@ def prepare(args):
     package(source_dir / "aether-paper-artifact.zip")
     with zipfile.ZipFile(source_dir / "aether-paper-artifact.zip") as archive:
         provenance = json.loads(archive.read("artifact-provenance.json"))
-        if mode == "primary" and provenance.get("sourceClean") is not True:
-            raise ValueError("prepare primary requires a clean committed source snapshot")
+        if mode in {"primary", "monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout", "population-jfr", "population-verification", "population-candidate-jfr", "population-streaming"} and provenance.get("sourceClean") is not True:
+            raise ValueError(f"prepare {mode} requires a clean committed source snapshot")
         value["sourceManifestSha256"] = hashlib.sha256(archive.read("artifact-provenance.json")).hexdigest()
+    if mode == "population-candidate-jfr":
+        shutil.copy2(source_dir / "aether-paper-artifact.zip", source_dir / "candidate-source.bin")
+    if baseline is not None:
+        shutil.copy2(baseline, source_dir / "baseline-source.zip")
+        # Kaggle expands .zip uploads; opaque names preserve the exact two archives.
+        shutil.copy2(source_dir / "aether-paper-artifact.zip", source_dir / "candidate-source.bin")
+        # Distinct bytes prevent Kaggle reusing its previously expanded ZIP blob.
+        (source_dir / "baseline-source.bin").write_bytes(b"AETHER-BASELINE-ARCHIVE-V1\n" + baseline.read_bytes())
+        value["bulkBaselineTransportSha256"] = hashlib.sha256((source_dir / "baseline-source.bin").read_bytes()).hexdigest()
     write(source_dir / "dataset-metadata.json", {"id": value["sourceDataset"], "title": "Aether Engine Source",
           "licenses": [{"name": "apache-2.0"}]})
     write(notebook_dir / "kernel-metadata.json", {"id": value["notebook"], "title": "Aether Engine VS Code",
@@ -164,6 +274,11 @@ def prepare(args):
     write(WORK / "config.json", value)
     files = ["config.json", "source/dataset-metadata.json", "source/aether-paper-artifact.zip",
              "source/aether-paper-artifact.zip.sha256", "notebook/kernel-metadata.json", "notebook/aether.ipynb"]
+    if baseline is not None:
+        files.append("source/baseline-source.zip")
+        files.extend(["source/candidate-source.bin", "source/baseline-source.bin"])
+    if mode == "population-candidate-jfr":
+        files.append("source/candidate-source.bin")
     write(WORK / "prepared.json", {name: hashlib.sha256((WORK / name).read_bytes()).hexdigest() for name in files})
     print(f"Prepared private notebook {value['notebook']} in mode {value['mode']}; nothing uploaded")
 
@@ -172,7 +287,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=["setup", "prepare", "login", "check", "doctor", "upload-source", "source-status", "run", "status", "outputs", "logs"])
     parser.add_argument("--user")
-    parser.add_argument("--mode", choices=["smoke", "profile", "pilot", "primary", "all"])
+    parser.add_argument("--mode", choices=["smoke", "profile", "pilot", "primary", "all", "monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout", "population-jfr", "population-verification", "population-candidate-jfr", "population-streaming"])
+    parser.add_argument("--bulk-baseline", type=Path, help="Frozen pre-optimization source ZIP for the verification comparison")
     parser.add_argument("--training-epochs", type=int, help="Epochs per CPU training fixture in smoke mode")
     parser.add_argument("--epochs", type=int, default=None, help="Epochs per training block for pilot/primary runs")
     parser.add_argument("--server-trace", action=argparse.BooleanOptionalAction, default=None, help="Enable diagnostic pilot flush tracing")
@@ -194,6 +310,7 @@ def main():
         args.request_sizes is not None, args.prefetch_depths is not None,
         args.hit_warmup_epochs is not None, args.dataset_config is not None,
         args.dataset_source is not None, args.scratch_root is not None,
+        args.bulk_baseline is not None,
     ))
     if prepare_options_used and args.action != "prepare":
         parser.error("configuration options apply to prepare; prepare, upload/update source, then run")
@@ -239,7 +356,8 @@ def main():
         if uploaded != {"dataset": value["sourceDataset"], "manifestSha256": value["sourceManifestSha256"]}:
             raise ValueError("upload the freshly prepared source dataset before running this notebook")
         require_source_ready(value)
-        cli("kernels", "push", "-p", WORK / "notebook", "--accelerator", value["accelerator"])
+        notebook = verified_submission(value) if value["mode"] in {"population-verification", "population-candidate-jfr", "population-streaming"} else WORK / "notebook"
+        cli("kernels", "push", "-p", notebook, "--accelerator", value["accelerator"])
     elif args.action == "status":
         cli("kernels", "status", value["notebook"])
     elif args.action == "outputs":

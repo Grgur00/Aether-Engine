@@ -1,0 +1,511 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/STORAGE-ENGINE.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Storage engine: source-backed contributor documentation for Aether Engine.">
+  <title>Storage engine | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html" aria-current="page">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/STORAGE-ENGINE.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="storage-engine-internals">Storage Engine Internals</h1>
+<p><a href="index.html">Onboarding index</a> | <a href="architecture.html">Architecture</a> | <a href="operations.html">Operations</a></p>
+<p>This guide explains the current Java implementation, not a future LSM design. Start here when changing persistence, reads, recovery, compaction, or bulk loading. Paths are relative to this document and point to the implementation or its tests.</p>
+<p>Jump to <a href="#2-public-contract-and-ownership">ownership</a>, <a href="#3-online-write-path">writes</a>,
+<a href="#5-read-and-scan-paths">reads</a>, <a href="#6-files-and-authority">files</a>,
+<a href="#8-recovery-and-close">recovery</a>, <a href="#9-background-compaction-and-concurrency">compaction</a>,
+<a href="#10-experimental-empty-store-bulk-loading">bulk loading</a>, or <a href="#12-tests-and-safe-extension-workflow">tests</a>.</p>
+<h2 id="1-the-mental-model">1. The Mental Model</h2>
+<p>Aether is an embedded, byte-oriented, versioned key/value database. A persistent database owns a local directory exclusively. Its online write path appends a complete logical batch to the write-ahead log (WAL), inserts its mutations into an off-heap memtable, and acknowledges according to the requested durability mode. A flush checkpoints the active memtable into an immutable sorted-string table (SSTable). The manifest determines which tables and WAL are authoritative.</p>
+<p>Do not infer current behavior from a generic LSM diagram:</p>
+<ul>
+<li>There is one active native memtable in <code>PersistentAetherDatabase</code>, not an asynchronous queue of immutable memtables.</li>
+<li>Flushes run synchronously in the foreground write/close path. They happen on memtable capacity, WAL size pressure, and close, not only at close.</li>
+<li>Flushes rotate the required WAL segment. Recovery opens the segment named by the manifest; it does not replay every WAL file it finds.</li>
+<li>Compaction is integrated and asynchronous, with one worker and coalesced scheduling requests.</li>
+<li>Persistent scans materialize their result rows. They are not streaming merge iterators over pinned SSTable files.</li>
+<li>The empty-store bulk loader is a separate, explicitly experimental offline path.</li>
+</ul>
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
+    App[Application] --&gt; API[AetherDatabase byte API]
+    API --&gt; Engine[PersistentAetherDatabase]
+    Engine --&gt; Commit[Commit coordinator]
+    Commit --&gt; WAL[Checksummed WAL]
+    Commit --&gt; Mem[Active off-heap memtable]
+    Mem --&gt; Flush[Synchronous flush]
+    Flush --&gt; L0[L0 SSTables]
+    L0 --&gt; Compact[Background compaction]
+    Compact --&gt; Levels[L1 through L6 SSTables]
+    Flush --&gt; Manifest[VersionSet and manifest]
+    Compact --&gt; Manifest
+    Manifest --&gt; Inventory[Authoritative file inventory]
+    Engine --&gt; Read[Snapshot-aware lookup]
+    Read --&gt; Mem
+    Read --&gt; L0
+    Read --&gt; Levels
+</code></pre></details></figure>
+<h3 id="source-map">Source Map</h3>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Start reading here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Supported construction entry points</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/Aether.java">Aether</a></td>
+</tr>
+<tr>
+<td>Byte API and ownership contract</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/AetherDatabase.java">AetherDatabase</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/WriteBatch.java">WriteBatch</a></td>
+</tr>
+<tr>
+<td>Persistent composition, locking, reads, writes, flush, recovery</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/PersistentAetherDatabase.java">PersistentAetherDatabase</a></td>
+</tr>
+<tr>
+<td>In-memory semantic reference</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/InMemoryAetherDatabase.java">InMemoryAetherDatabase</a></td>
+</tr>
+<tr>
+<td>Native allocation and record lifetime</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/NativeMemoryBudget.java">NativeMemoryBudget</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/FfmNativeRegion.java">FfmNativeRegion</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/NativeRecordFormatV1.java">NativeRecordFormatV1</a></td>
+</tr>
+<tr>
+<td>Memtable representation</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memtable/src/main/java/io/aetherdb/memtable/skiplist/NativeSkipListMemTable.java">NativeSkipListMemTable</a></td>
+</tr>
+<tr>
+<td>WAL encoding and validation</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-wal/src/main/java/io/aetherdb/wal/format/WalLogicalGroupCodec.java">WalLogicalGroupCodec</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-wal/src/main/java/io/aetherdb/wal/format/WalFragmentCodec.java">WalFragmentCodec</a></td>
+</tr>
+<tr>
+<td>Immutable table construction and lookup</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableBuilder.java">SSTableBuilder</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableReader.java">SSTableReader</a></td>
+</tr>
+<tr>
+<td>Durable inventory and publication</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/manifest/VersionSet.java">VersionSet</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/manifest/Version.java">Version</a></td>
+</tr>
+<tr>
+<td>Compaction scheduling and retention</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/CompactionCoordinator.java">CompactionCoordinator</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/compaction/CompactionDroppingIterator.java">CompactionDroppingIterator</a></td>
+</tr>
+<tr>
+<td>Offline initial ingestion prototype</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/EmptyStoreBulkLoader.java">EmptyStoreBulkLoader</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-public-contract-and-ownership">2. Public Contract and Ownership</h2>
+<p>Use <code>Aether.open(path, configuration)</code> for a persistent database or <code>Aether.openInMemory()</code> for an ephemeral implementation. The no-configuration persistent overload constructs a development-profile configuration; do not describe it as a production security preset. The persistent implementation class is package-private, so callers should normally depend on <code>AetherDatabase</code> and the <code>Aether</code> composition root.</p>
+<p>The byte API protects mutable-array ownership: <code>WriteBatch</code> copies incoming arrays, its mutation accessors return copies, and <code>LookupResult.value()</code> returns a copy. The explicit <code>LookupResult.readOnlyValue()</code> alternative exposes a read-only buffer over privately owned immutable bytes, not a mutable array. Resident SSTable lookups can reuse that immutable result. This is not end-to-end zero-copy storage; performance work must preserve each boundary unless a new API explicitly documents different ownership.</p>
+<p>Keys use unsigned lexicographic byte ordering. The byte API accepts empty keys and empty values; <code>null</code> is not. The current batch limits are 10,000 mutations, 32 MiB estimated encoded bytes, 65,536 bytes per key, and 16 MiB per value. Persistent admission adds another constraint: the complete batch must fit one configured memtable. Meeting the API byte limit alone therefore does not guarantee admission.</p>
+<p>Known implementation limitation: <code>SSTableReader.DataBlockEntry</code> currently classifies a zero-length value as a tombstone instead of checking its internal-key type. Do not rely on persistent empty-value round trips as a working guarantee. The table round-trip test includes an empty value but does not assert its lookup result; such an assertion is needed before claiming this edge case is covered.</p>
+<p>Close the database, snapshots, cursors, and write batches with try-with-resources. A snapshot belongs to one database instance and records a sequence boundary, not a timestamp or a durable checkpoint. Reopening a directory creates a different owner; handles from the old instance cannot be reused. Closing the database invalidates its snapshots.</p>
+<h3 id="write-outcomes">Write Outcomes</h3>
+<p>The one-shot batch state is useful when diagnosing failures:</p>
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">stateDiagram-v2
+    [*] --&gt; OPEN
+    OPEN --&gt; SEALED: writer claims batch
+    OPEN --&gt; CLOSED: close before submission
+    SEALED --&gt; FAILED: definite pre-submission failure
+    SEALED --&gt; SUCCEEDED: empty batch
+    SEALED --&gt; SUBMITTED: before WAL append
+    SUBMITTED --&gt; SUCCEEDED: requested barrier completed
+    SUBMITTED --&gt; INDETERMINATE: submission or force failure
+</code></pre></details></figure>
+<p>An exception after submission does not prove that the write was absent. The engine can fence subsequent writes and report an indeterminate outcome. Recover the store and inspect state before deciding whether an application-level operation can be retried. Do not retry the same <code>WriteBatch</code> instance; it is one-shot even after failure.</p>
+<p>The in-memory reference cannot perform a disk barrier. <code>WriteResult</code> reports the requested durability mode and whether a barrier actually occurred; a mode name alone is not evidence of persistence.</p>
+<h2 id="3-online-write-path">3. Online Write Path</h2>
+<p>Read <code>CommitCoordinator.submit</code>, <code>processCommitGroup</code>, <code>admitWrite</code>, and <code>applyBatch</code> in <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/PersistentAetherDatabase.java">PersistentAetherDatabase</a> together.</p>
+<ol>
+<li>Each caller enqueues a request. A caller becomes the leader when there is no active leader.</li>
+<li>The leader uses a nominal 200-microsecond gather delay and takes at most 64 queued requests. Actual scheduling delay is not guaranteed. This is caller-thread coordination, not a dedicated WAL writer thread.</li>
+<li><code>processCommitGroup</code> holds the database state monitor. It seals each batch, calculates native-space requirements, flushes if necessary, and applies write-pressure admission.</li>
+<li>A nonempty batch receives a contiguous sequence range. Each mutation receives one increasing sequence number, in batch order.</li>
+<li><code>WalLogicalGroupCodec</code> encodes the batch; <code>WalFragmentCodec</code> encodes its physical fragments. The batch is marked submitted immediately before the physical WAL write.</li>
+<li>The WAL bytes are appended before mutations enter the active memtable. <code>lastVisibleSequence</code> advances under the same state monitor.</li>
+<li>If any successfully prepared request requires synchronization, the group forces the WAL. Successful requests are marked succeeded and their waiting callers are released.</li>
+</ol>
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">sequenceDiagram
+    participant Caller
+    participant Queue as Commit coordinator
+    participant DB as Database state monitor
+    participant WAL
+    participant Mem as Active memtable
+    Caller-&gt;&gt;Queue: write(batch, options)
+    Queue-&gt;&gt;DB: leader processes gathered requests
+    DB-&gt;&gt;DB: seal, admit, assign sequence range
+    opt capacity or WAL threshold reached
+        DB-&gt;&gt;DB: synchronous flush and WAL rotation
+    end
+    DB-&gt;&gt;WAL: append checksummed logical group fragments
+    DB-&gt;&gt;Mem: apply mutations
+    DB-&gt;&gt;DB: update visible sequence under monitor
+    opt any prepared request requires sync
+        DB-&gt;&gt;WAL: force
+    end
+    DB--&gt;&gt;Queue: result or indeterminate failure
+    Queue--&gt;&gt;Caller: acknowledge or throw
+</code></pre></details></figure>
+<p>Public reads also hold the state monitor. They cannot observe the intermediate mutations of a group while the writer is inside this critical section. Do not move visibility or lock boundaries casually when optimizing WAL construction or memtable insertion.</p>
+<h3 id="durability-modes-contract-versus-current-implementation">Durability Modes: Contract Versus Current Implementation</h3>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Current persistent write behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ASYNC_WAL</code></td>
+<td>Does not itself request a force before acknowledgement. It can share a force requested by another member of the gathered group.</td>
+</tr>
+<tr>
+<td><code>GROUP_SYNC</code></td>
+<td>Requests a WAL force before a successful return; concurrently gathered requests can share it. This is the default <code>WriteOptions</code> mode.</td>
+</tr>
+<tr>
+<td><code>SYNC</code></td>
+<td>Currently follows the same <code>forceRequested</code> group path as <code>GROUP_SYNC</code>. The enum Javadoc says dedicated barrier, but <code>CommitCoordinator</code> does not split it into a dedicated group. Do not assume a separate fsync per <code>SYNC</code> request.</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/WriteOptions.java">WriteOptions</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/DurabilityMode.java">DurabilityMode</a>, and the implementation before changing any guarantee. A successful Java <code>force</code> call is not, by itself, evidence about every filesystem, device, or physical power-loss scenario.</p>
+<h3 id="backpressure-is-part-of-correctness">Backpressure Is Part of Correctness</h3>
+<p>The engine uses <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/pressure/WritePressureController.java">WritePressureController</a> to combine native capacity, WAL size, L0 file count, level debt, and available disk information. Current persistent pressure input has zero queued immutable memtables because flushes are synchronous.</p>
+<p><code>NORMAL</code> admits. <code>SLOWDOWN</code> can delay when the caller allows it and the delay fits the admission timeout. Stopped or failed admission rejects. The timeout is not a general queue-until-capacity guarantee: inspect <code>admitWrite</code> before assuming a rejected write will wait for background compaction. Disk-pressure rejections are not a reason to disable safety limits to obtain a passing test.</p>
+<h2 id="4-memtable-and-visibility">4. Memtable and Visibility</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memtable/src/main/java/io/aetherdb/memtable/skiplist/NativeSkipListMemTable.java">NativeSkipListMemTable</a> stores versioned records off-heap. Its own writers are serialized with a <code>ReentrantLock</code>; linked-node publication uses acquire/release operations. The persistent engine additionally serializes its public read/write state with its monitor. Do not equate the skip list's publication primitives with a lock-free public database API.</p>
+<p>An internal record contains a user key, sequence, and value-or-tombstone type. Newer versions sort first for the same key. A tombstone is a deletion record; an absent lookup and a tombstone cannot be treated interchangeably when merging storage layers.</p>
+<p>The memtable lifecycle is <code>ACTIVE -&gt; FROZEN -&gt; RETIRED -&gt; CLOSED</code>. Flush iteration requires the table to be frozen. The table starts with an owning reference; leases increment its reference count, retirement drops the owner, and native storage is released when the retired table's remaining references reach zero. The current persistent flush replaces the active table after publishing its durable replacement.</p>
+<p>Internal-key ordering must agree across memtables, SSTables, and compaction:</p>
+<ol>
+<li>User key: unsigned lexicographic ascending.</li>
+<li>Sequence: descending.</li>
+<li>Type byte: ascending for otherwise equal identities.</li>
+</ol>
+<p>Use <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/InternalKey.java">InternalKey</a>, not a raw byte-array comparator, for encoded SSTable internal keys. Their sequence trailer is little-endian; raw lexicographic ordering of the encoded bytes is not the semantic ordering.</p>
+<h2 id="5-read-and-scan-paths">5. Read and Scan Paths</h2>
+<p>Point lookup first queries the active memtable at the requested visible sequence. A visible value is returned immediately; a visible tombstone terminates the lookup as not found. If the memtable has no visible record, the engine checks its open SSTables and chooses the candidate with the highest visible sequence, including tombstones.</p>
+<p>Within one SSTable, the reader checks the Bloom filter, locates a candidate indexed data block, searches the user key, and selects a version no newer than the visibility boundary. <code>SSTableReader.open</code> performs complete structural and metadata validation, so opening a table is not merely opening a channel and deferring all validation until lookup.</p>
+<p>That open-time verification loads every data block into its <code>DataBlock.entries</code> list, and the current reader retains those decoded entries without eviction. Normal lookups therefore usually visit heap-resident decoded values even though a file channel remains open. This is not a bounded block cache or a disk-I/O benchmark on every lookup. Account for startup work and heap growth when scaling the store; a configured block-cache budget does not bound these lists.</p>
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
+    Get[Get at visible sequence] --&gt; Mem[Active memtable lookup]
+    Mem --&gt;|value| Return[Return copied value]
+    Mem --&gt;|tombstone| Missing[Not found]
+    Mem --&gt;|absent at boundary| Tables[Visit open SSTables]
+    Tables --&gt; Bloom[Bloom filter and block index]
+    Bloom --&gt; Versions[Find newest visible candidate]
+    Versions --&gt; Best[Choose highest sequence across tables]
+    Best --&gt;|value| Return
+    Best --&gt;|tombstone or absent| Missing
+</code></pre></details></figure>
+<p>Scans gather all candidate user keys from the active memtable and table entries, sort/deduplicate them, and call the same visibility lookup for each key in the requested range. The range is half-open: <code>[startInclusive, endExclusive)</code>. The returned <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/PersistentListCursor.java">PersistentListCursor</a> owns materialized rows, not live table readers. Consequences:</p>
+<ul>
+<li>Scan construction can consume substantial memory and time before the first row is returned.</li>
+<li>A cursor does not pin obsolete SSTable channels across compaction installation.</li>
+<li>A scalable streaming scan implementation would require a new lifetime/pinning design, not just replacing the returned list with an iterator.</li>
+</ul>
+<p>Snapshots retain older logical versions for compaction. They are not copies of all database data and should not be held indefinitely without understanding retention cost.</p>
+<h2 id="6-files-and-authority">6. Files and Authority</h2>
+<table>
+<thead>
+<tr>
+<th>File family</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LOCK</code></td>
+<td>Process-exclusion lock for the local store.</td>
+</tr>
+<tr>
+<td><code>DB-IDENTITY</code></td>
+<td>Database UUID and identity metadata; cross-database files must not be accepted silently.</td>
+</tr>
+<tr>
+<td><code>FORMAT-OPTIONS</code></td>
+<td>Persisted format/identity companion validated at open.</td>
+</tr>
+<tr>
+<td><code>CURRENT</code></td>
+<td>Checksummed pointer to the authoritative manifest generation.</td>
+</tr>
+<tr>
+<td><code>MANIFEST-&lt;20 digits&gt;.aeman</code></td>
+<td>Initial snapshot followed by contiguous inventory edits.</td>
+</tr>
+<tr>
+<td><code>SST-&lt;20 digits&gt;.aess</code></td>
+<td>Immutable SSTable with identity, ordering, metadata, and integrity checks.</td>
+</tr>
+<tr>
+<td><code>WAL-&lt;20 digits&gt;.aewal</code></td>
+<td>Complete logical mutation groups beyond the persisted watermark.</td>
+</tr>
+<tr>
+<td>Canonical temporary SSTables</td>
+<td>Unpublished construction output; not part of the live store merely because they exist.</td>
+</tr>
+<tr>
+<td>Manifest repair backups</td>
+<td>Pre-truncation evidence retained by manifest recovery when repairing an incomplete final record.</td>
+</tr>
+</tbody>
+</table>
+<p>Do not reconstruct the live database by choosing the newest-looking filenames. <code>CURRENT</code>, the validated manifest, and its sequence/watermark fields are the authority. An SSTable can be fully written but still uncommitted. Conversely, after publication, an old input file can still exist physically without being live.</p>
+<p>Keep the counters distinct. <code>lastVisibleSequence</code> is the running engine's read boundary. A manifest's <code>lastAssignedSequence</code> records sequence progress at a publication point and can lag later WAL-only writes. <code>persistedSequenceWatermark</code> marks the portion represented by tables; WAL recovery fills in later complete groups. <code>nextFileNumber</code> is a file-allocation counter, not a mutation sequence. <code>Version</code> rejects backwards counters, reused live file numbers, missing deletions, and overlapping or touching key ranges within levels above L0.</p>
+<h3 id="wal-format">WAL Format</h3>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-wal/src/main/java/io/aetherdb/wal/format/WalFormatV1.java">WalFormatV1</a> uses 32 KiB physical blocks and a full header block. Logical groups encode complete batches and their first/last sequence. Fragment framing handles groups spanning blocks and validates masked CRC32C checksums. Recovery distinguishes an incomplete final tail from an integrity failure inside a complete record; it must not turn arbitrary corruption into a silent successful prefix.</p>
+<h3 id="sstable-format">SSTable Format</h3>
+<p>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableBuilder.java">builder</a> accepts strictly ordered internal entries. It emits the table header, data blocks, Bloom filter, properties, metaindex, index, and footer with the existing block envelope checks. It currently buffers entries and constructs the output through heap buffers; it is not a streaming, bounded-memory external sorter.</p>
+<p>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableReader.java">reader</a> verifies database identity, file identity/size, handles, block checksums, entry order, counts, key/sequence bounds, and declared properties. A manifest reference to a missing or corrupt table is fatal during normal recovery. Do not remove validation to speed up open without a replacement integrity argument and targeted failure tests.</p>
+<h2 id="7-flush-and-manifest-publication">7. Flush and Manifest Publication</h2>
+<p>A flush is an ordered checkpoint transaction across several files:</p>
+<ol>
+<li>Freeze the active memtable.</li>
+<li>Write its sorted entries to a temporary SSTable and finish/force the file.</li>
+<li>Atomically rename the output to its canonical table name and synchronize the directory where supported.</li>
+<li>Create and force a replacement empty WAL segment whose first sequence follows <code>lastVisibleSequence</code>.</li>
+<li>Append and force one manifest delta adding the new L0 table, advancing the persisted watermark, and selecting the replacement WAL.</li>
+<li>Switch to the replacement WAL, close/delete the old segment, and synchronize the directory.</li>
+<li>Open the new table reader, retire the old memtable, create its replacement, and request compaction if needed.</li>
+</ol>
+<p>The key ordering rule is <strong>durable output before authoritative publication, publication before removal of the old recoverable representation</strong>. This is why deleting a WAL or compaction input early is unsafe even when the replacement data file appears complete.</p>
+<p><code>VersionSet.logAndApply</code> first validates the candidate version and new table inventory, then appends/forces the manifest record, then replaces its in-memory <code>current</code> version. A routine delta is an append to the existing manifest, not a rewrite/rename of <code>CURRENT</code>. Initial manifest creation has a separate temporary-file/rename/<code>CURRENT</code> publication protocol.</p>
+<p>Directory synchronization is platform-sensitive. Ordinary helper implementations tolerate some unsupported/access-denied cases; the bulk loader specifically tolerates Windows directory access denial. Tests on one OS do not establish identical crash-durability guarantees on another OS or filesystem.</p>
+<h2 id="8-recovery-and-close">8. Recovery and Close</h2>
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
+    Open[Aether.open] --&gt; Root[Validate root and acquire lock]
+    Root --&gt; Identity[Create or validate identity pair]
+    Identity --&gt; Manifest[Recover CURRENT and manifest]
+    Manifest --&gt; Inventory[Verify referenced tables]
+    Inventory --&gt; Cleanup[Clean canonical obsolete table and WAL files]
+    Cleanup --&gt; Tables[Open current SSTable readers]
+    Tables --&gt; Replay[Validate required WAL and replay complete groups]
+    Replay --&gt; Tail[Truncate incomplete final WAL tail]
+    Tail --&gt; Ready[Install memtable and visible sequence]
+    Ready --&gt; Schedule[Schedule eligible background compaction]
+</code></pre></details></figure>
+<p>Manifest recovery checks contiguous record numbers and version transitions. It truncates an incomplete last record only after creating a repair backup. Complete malformed records and invalid transitions fail. It verifies every referenced table before cleaning obsolete canonical SSTable files.</p>
+<p>WAL recovery validates the segment header and fragment checksums, skips groups entirely at or below the persisted watermark, and requires contiguous sequences above that watermark. A group straddling the watermark or a sequence discontinuity fails. The active memtable must have sufficient capacity for the replayed content; recovery is not an unlimited-memory salvage process.</p>
+<p>Open can repair tails and remove known obsolete files. It is therefore not a read-only forensic operation. Copy a store before investigating damage. <code>VersionSet.inspect</code> provides manifest inspection without truncation/deletion; <code>inspectMetadata</code> deliberately omits table verification for explicit forensic workflows. Neither is a replacement for normal recovery validation.</p>
+<p>Close first marks the database as closing, stops the compaction coordinator without holding the database state monitor while waiting, then forces the WAL and flushes the active memtable when safe. It invalidates snapshots and closes the native table, SSTable readers, manifest writer, WAL, and lock. A manifest-publication failure can suppress the normal close-time flush so recovery can decide the authoritative outcome. Close failures must not be swallowed by applications that depend on persistence.</p>
+<h2 id="9-background-compaction-and-concurrency">9. Background Compaction and Concurrency</h2>
+<p>The integrated policy starts compaction when L0 contains at least four files, or when a level from L1 through L5 exceeds its configured byte target. L0 compacts into L1; oversized higher levels compact into the next level, through L6. Input selection expands overlapping key ranges until selected input/output-level files form a consistent range.</p>
+<p>The worker captures inputs, a version, and the oldest retained snapshot boundary under the database monitor. It then reads, sorts, deduplicates, applies retention rules, partitions, and builds outputs outside that monitor. The current merge implementation materializes entry lists; it is not an external-memory streaming compactor.</p>
+<p>Retention must preserve versions required by snapshots. A tombstone can be dropped only when the retention policy and lower-level coverage allow it; otherwise an older value could become visible again. Read <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/compaction/CompactionDroppingIterator.java">CompactionDroppingIterator</a> before changing the dropping rules.</p>
+<p>Before installation, outputs are fully verified. Under the database monitor the worker rechecks that the inputs are still current, appends/forces a manifest edit based on the current state, and swaps readers. Only afterward are obsolete readers closed and input files deleted. This allows foreground writes/flushes while outputs are being built without publishing a stale manifest snapshot that loses a newer flush.</p>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Ownership and synchronization</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Directory lock</td>
+<td>One persistent database or offline bulk loader owns the store.</td>
+</tr>
+<tr>
+<td>Commit queue</td>
+<td>A separate coordinator monitor protects queue/leader state.</td>
+</tr>
+<tr>
+<td>Visible sequence, active table, snapshot set, installed readers</td>
+<td>Database state monitor.</td>
+</tr>
+<tr>
+<td>Background construction</td>
+<td>Single compaction worker, outside the state monitor for expensive build work.</td>
+</tr>
+<tr>
+<td>File-number allocation and manifest installation</td>
+<td>Coordinated with the database state monitor.</td>
+</tr>
+<tr>
+<td>Memtable native lifetime</td>
+<td>Owning reference plus leases; retirement precedes final free.</td>
+</tr>
+<tr>
+<td>Persistent scan rows</td>
+<td>Cursor-owned materialized copies.</td>
+</tr>
+</tbody>
+</table>
+<p>The coordinator holds at most one pending wakeup rather than a queue of stale compaction plans. A worker failure ends the current loop; another scheduling event is needed for a later attempt. An uncertain compaction manifest publication also fences the writer and retains possible file dependencies for recovery.</p>
+<p><code>Aether.awaitCompactionIdle</code> waits for scheduled activity, with a bounded timeout; it does not alter policy or by itself prove zero debt or no failures. For benchmark quiescence, inspect <code>Aether.compactionDiagnostics</code> as well: <code>state</code>, <code>debtBytes</code>, <code>failed</code>, and <code>lastFailure</code> matter. Closing stops pending work; it is not equivalent to explicitly draining all policy-eligible debt before measurement ends.</p>
+<h2 id="10-experimental-empty-store-bulk-loading">10. Experimental Empty-Store Bulk Loading</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/EmptyStoreBulkLoader.java">EmptyStoreBulkLoader</a> is deliberately separate from <code>AetherDatabase.write</code>. It is for a never-populated store, not a faster flag on arbitrary online writes.</p>
+<p>The constructor bootstraps canonical metadata if necessary, takes the exclusive directory lock, recovers the manifest, and rejects any store with tables, assigned sequences, a persisted watermark, or WAL content beyond its header. Deleting all logical keys from an old store does not make it eligible.</p>
+<p><code>add</code> copies keys/values into an unsigned-key-ordered <code>TreeMap</code>, rejects duplicates, and poisons the writer after a staging validation failure. Defaults cap staged key/value bytes at 512 MiB and entries at 100,000, with a 32 MiB target table size. These are prototype limits, not a hard JVM heap bound: map overhead, defensive copies, SSTable buffers, and verification can consume additional memory. The target is a partitioning threshold, not an exact encoded file-size cap.</p>
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">sequenceDiagram
+    participant Caller
+    participant Bulk as Offline bulk loader
+    participant Tables as Sorted L1 tables
+    participant Manifest
+    Caller-&gt;&gt;Bulk: acquire empty-store lock
+    loop staged artifacts
+        Caller-&gt;&gt;Bulk: add copied key and value
+    end
+    Note over Caller,Bulk: Staging is not a durable acknowledgement
+    Caller-&gt;&gt;Bulk: finish
+    Bulk-&gt;&gt;Tables: build, force, rename all outputs
+    Bulk-&gt;&gt;Bulk: force replacement empty WAL and directory
+    Bulk-&gt;&gt;Manifest: fully verify inventory, then append and force one edit
+    Bulk-&gt;&gt;Bulk: remove obsolete empty WAL
+    Bulk--&gt;&gt;Caller: committed receipt
+    Caller-&gt;&gt;Bulk: close and release lock
+</code></pre></details></figure>
+<p><code>finish</code> assigns sequences in sorted-key order and builds nonoverlapping L1 tables. It writes no artifact payload to the WAL and inserts no artifact into a memtable. It still creates and forces the replacement empty WAL header and synchronizes publication metadata. One manifest edit publishes the complete inventory and watermark. Closing without <code>finish</code> does not commit.</p>
+<p>Bulk Verification v2 defers the bulk builder's check to this inventory boundary and
+removes its redundant post-rename reader open. Ordinary builder finishes retain
+immediate verification. Bulk receipts count actual full verifications over the
+entire finish scope; see <a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/BULK-VERIFICATION-V2.md">Phase-1 protocol</a>.
+The current inventory path calls
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableVerifier.java">SSTableVerifier</a>,
+which uses <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/block/RestartBlockScanner.java">RestartBlockScanner</a>
+to inspect DATA-entry metadata and reconstruct keys without materializing DATA
+values. Checksummed block-envelope reads still occur. The scanner rejects restart
+offsets inside entries and shared prefixes at restart points more strictly than
+the older decoder; normal read behavior is unchanged. See
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/test/java/io/aetherdb/sstable/StreamingVerifierTest.java">StreamingVerifierTest</a>
+for equivalence and corruption coverage. This is a structural table verifier,
+not a decoder of application-specific tensor payloads.</p>
+<p>Any uncertain finish failure requires closing and reopening with ordinary recovery, followed by validation. The loader intentionally does not delete files that might have become manifest dependencies. Do not assume an exception means no artifacts were committed.</p>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/BulkArtifactWriter.java">BulkArtifactWriter</a> is the training-cache wrapper. It preserves artifact SHA/integrity envelopes and currently accepts inline-sized artifacts; it is not a general segmented-payload import tool. Its local pipe staging acknowledgements are not online durable RPC acknowledgements. Consult <a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/BULK-POPULATION-PROTOTYPE.md">the prototype protocol notes</a> before comparing its timing with ordinary <code>putMany</code>.</p>
+<p>The current loader and table/manifest code expose bulk phase timing and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/jfr/BulkPhaseEvent.java">BulkPhaseEvent</a> JFR events. Instrumentation is evidence about where time was spent, not proof that bypassing WAL accounts for all end-to-end speed differences. There is still heap copying, encoding, verification, and publication work. Profiling controls and bulk benchmark semantics belong to the research harness, not to the online database's public contract.</p>
+<h2 id="11-debugging-by-symptom">11. Debugging by Symptom</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Start here; preserve the relevant evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Open fails before reads</td>
+<td>Inspect root safety, <code>LOCK</code>, identity pair, <code>CURRENT</code>, manifest record checks, referenced table validation, then required WAL. Keep the full exception chain.</td>
+</tr>
+<tr>
+<td>Writes stop with pressure errors</td>
+<td>Inspect reason strings, usable disk, L0 count, native capacity, compaction debt/failure. Check resolved configuration before changing limits.</td>
+</tr>
+<tr>
+<td>A small write has a latency spike</td>
+<td>Check whether its admission triggered a synchronous flush or WAL rotation. WAL force alone is not the whole write cost.</td>
+</tr>
+<tr>
+<td>Warm reads remain slow</td>
+<td>Inspect table count, Bloom/index/data-block work, returned-value copies, and wrapper-level serialization/checksum costs separately.</td>
+</tr>
+<tr>
+<td>Delete appears to resurrect after compaction</td>
+<td>Inspect tombstone retention, snapshot boundary, lower-level coverage, and internal-key ordering.</td>
+</tr>
+<tr>
+<td>Process restart loses acknowledged data</td>
+<td>Preserve WAL/manifest/table inventory and durability mode/result; use existing crash points to reproduce the exact publication window.</td>
+</tr>
+<tr>
+<td>Bulk import rejects an apparently empty store</td>
+<td>Check sequence/watermark and WAL history, not only logical key count.</td>
+</tr>
+<tr>
+<td>Compaction is idle but benchmark drain fails</td>
+<td>Check debt and recorded failure. Worker inactivity alone does not mean successful quiescence.</td>
+</tr>
+</tbody>
+</table>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/ReadDiagnostics.java">ReadDiagnostics</a> measures read-path stages/counters. <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/FlushDiagnostics.java">FlushDiagnostics</a> captures opt-in write/flush/compaction stages. Parent totals and nested stages overlap; do not sum all reported timings as if they were mutually exclusive. Background work can also outlive the foreground request that scheduled it.</p>
+<h2 id="12-tests-and-safe-extension-workflow">12. Tests and Safe Extension Workflow</h2>
+<table>
+<thead>
+<tr>
+<th>Behavior to preserve</th>
+<th>Focused source-backed tests</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Byte API, ordering, snapshots, model equivalence</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/test/java/io/aetherdb/engine/InMemoryAetherDatabaseTest.java">InMemoryAetherDatabaseTest</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/test/java/io/aetherdb/engine/RandomizedSemanticModelTest.java">RandomizedSemanticModelTest</a></td>
+</tr>
+<tr>
+<td>WAL recovery, tails, corruption, group commit, checkpoint rotation</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/test/java/io/aetherdb/engine/PersistentAetherDatabaseTest.java">PersistentAetherDatabaseTest</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-wal/src/test/java/io/aetherdb/wal/format/WalFormatV1Test.java">WalFormatV1Test</a></td>
+</tr>
+<tr>
+<td>Native publication and lifetime</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memtable/src/test/java/io/aetherdb/memtable/skiplist/NativeSkipListMemTableTest.java">NativeSkipListMemTableTest</a></td>
+</tr>
+<tr>
+<td>On-disk table and manifest validation</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/test/java/io/aetherdb/sstable/SSTableFormatV1Test.java">SSTableFormatV1Test</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/test/java/io/aetherdb/sstable/manifest/ManifestFormatV1Test.java">ManifestFormatV1Test</a></td>
+</tr>
+<tr>
+<td>Foreground progress during compaction, failure windows, shutdown, L0 rejection</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/test/java/io/aetherdb/engine/BackgroundCompactionTest.java">BackgroundCompactionTest</a></td>
+</tr>
+<tr>
+<td>Bulk all-or-nothing recovery, duplicate/limit rejection, ordinary writes afterward</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/test/java/io/aetherdb/engine/EmptyStoreBulkLoaderTest.java">EmptyStoreBulkLoaderTest</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/test/java/io/aetherdb/training/cache/BulkArtifactWriterTest.java">BulkArtifactWriterTest</a></td>
+</tr>
+</tbody>
+</table>
+<p>Run these from the repository root using the checked-in wrapper. On POSIX replace <code>.\gradlew.bat</code> with <code>./gradlew</code>:</p>
+<pre><code class="language-powershell">.\gradlew.bat :modules:aether-api:test :modules:aether-wal:test :modules:aether-memtable:test :modules:aether-sstable:test :modules:aether-lsm:test
+.\gradlew.bat :modules:aether-engine:test
+.\gradlew.bat :modules:aether-engine:test --tests io.aetherdb.engine.BackgroundCompactionTest --tests io.aetherdb.engine.EmptyStoreBulkLoaderTest
+</code></pre>
+<p>These are test entry points, not a statement that every suite passed on the machine reading this guide. Consult current reports and available disk before interpreting a failure. Fault injection and process termination tests exercise specific crash boundaries; they do not automatically prove behavior under physical power loss.</p>
+<p>For a storage change, work in this order:</p>
+<ol>
+<li>Identify the API invariant, ownership boundary, and persistence boundary affected.</li>
+<li>Trace the same data through write, recovery, lookup, and compaction. A format change is not complete when only the writer understands it.</li>
+<li>Add a focused test for normal behavior and the relevant before/after-publication failure window.</li>
+<li>Test reopen, old-version visibility, tombstones, duplicate identity handling, and subsequent ordinary writes when applicable.</li>
+<li>Run affected codec/format tests and the integrated engine tests. Use the semantic reference for logical behavior, not as evidence of durability.</li>
+<li>Profile before changing copies or checksums. Preserve format/integrity semantics and report any intentional contract changes explicitly.</li>
+</ol>
+<p>Do not add an online bulk flag by bypassing <code>processCommitGroup</code>; do not let a streaming cursor retain reader channels without a lifetime protocol; do not delete files after a possibly successful manifest append merely because the caller received an exception. These are the boundaries that keep a local optimization from becoming a recovery bug.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#1-the-mental-model">1. The Mental Model</a><a href="#2-public-contract-and-ownership">2. Public Contract and Ownership</a><a href="#3-online-write-path">3. Online Write Path</a><a href="#4-memtable-and-visibility">4. Memtable and Visibility</a><a href="#5-read-and-scan-paths">5. Read and Scan Paths</a><a href="#6-files-and-authority">6. Files and Authority</a><a href="#7-flush-and-manifest-publication">7. Flush and Manifest Publication</a><a href="#8-recovery-and-close">8. Recovery and Close</a><a href="#9-background-compaction-and-concurrency">9. Background Compaction and Concurrency</a><a href="#10-experimental-empty-store-bulk-loading">10. Experimental Empty-Store Bulk Loading</a><a href="#11-debugging-by-symptom">11. Debugging by Symptom</a><a href="#12-tests-and-safe-extension-workflow">12. Tests and Safe Extension Workflow</a></nav></aside>
+  </div>
+</body>
+</html>

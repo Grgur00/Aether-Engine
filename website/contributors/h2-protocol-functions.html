@@ -1,0 +1,210 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/H2-PROTOCOL-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="H2 protocol and source freeze: source-backed contributor documentation for Aether Engine.">
+  <title>H2 protocol and source freeze | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html" aria-current="page">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/H2-PROTOCOL-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="h2-protocol-pilot-audit-and-freeze-functions">H2 Protocol, Pilot Audit, and Freeze Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="h2-execution-functions.html">H2 execution</a> | <a href="h2-analysis-functions.html">H2 analysis</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/h2_protocol.py">h2_protocol.py</a>. This page covers all
+13 explicit functions. It documents the current separately deployable H2 harness,
+not a new protocol or a live Kaggle job. The runner deliberately imports its
+candidate dependencies from the preserved pilot checkout. Changing the harness
+requires a new freeze; do not edit an existing receipt to accommodate changes.</p>
+<h2 id="identity-architecture">Identity Architecture</h2>
+<pre><code class="language-text">successful pilot raw receipts -&gt; workload/storage/model audit -&gt; evidence hashes
+clean candidate or verified source archive -&gt; inventory -&gt; exact origin commit
+H2 harness files -&gt; separate inventory/hash
+original manifests + prepared hashes + runtime -&gt; frozen protocol
+24 backend permutations -&gt; recorded schedule
+source.zip + harness.zip + pilot-evidence.zip + JSON -&gt; freeze.json digests
+verify_frozen -&gt; source/harness/protocol guard before execution
+</code></pre>
+<p>The candidate treatment and new orchestration have separate source inventories.
+The candidate is not silently patched for deployment. The frozen storage settings
+include inline placement, 32 MiB SSTable target, admission batch 16, bulk V0,
+streaming-v1/deferred inventory verification, DURABLE, immutable-inline admission,
+asynchronous compaction and no JFR/detailed trace. Training is five versions,
+20 epochs each, small segmentation model, AdamW 0.001, BCEWithLogitsLoss,
+12 warmup steps, batch 16, prefetch zero and fresh model/optimizer per version.</p>
+<p>The endpoint is the sum of startup, modelSetup, scanAdmission, training, drain
+and close across V0-V4. Launch/import, shared input/hash validation, instrumentation,
+model/artifact validation and archival are excluded as declared. These constants
+are protocol data, not automatic proof that every worker measured them correctly;
+stage and paired checks establish the observable contract.</p>
+<h2 id="configuration-and-assignment-functions">Configuration and Assignment Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read(path)</code></td>
+<td>UTF-8 JSON read/parse. No independent schema, checksum, path containment or exception translation. Callers apply the relevant validator.</td>
+</tr>
+<tr>
+<td><code>schedule(seed)</code></td>
+<td>Requires an actual int, excluding bool. Enumerates all permutations of the four BACKENDS, shuffles with a private Random(seed), and emits block index, fixed-base block seed 20260926+i and order. Order seed changes assignment ordering, not those block seeds. Does not mutate global random state.</td>
+</tr>
+<tr>
+<td><code>validate_config(config)</code></td>
+<td>Requires exact type and value for the declared schema, persistent-per-block lifecycle, counts, samples, seeds, 24 blocks, 20 epochs, V0 training, bulk/storage identity, image/batch sizes, trace/JFR/prefetch and confirmatory flag. Checks orderSeed by calling schedule. Extra keys are not generically prohibited; absent keys/errors can propagate.</td>
+</tr>
+</tbody>
+</table>
+<p>Every backend appears in each of the four positions six times over the full
+24-permutation schedule. An arbitrary 12-block prefix does not necessarily have
+that balance and is not a separately powered/authorized significance test. Block
+seeds are independent of orderSeed; validation fixes config.seed to the same base.
+The execution reference explains bounded launch versus planned sample size.</p>
+<h2 id="receipt-validation-and-pilot-audit-functions">Receipt Validation and Pilot Audit Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>validate_bulk(commit, count)</code></td>
+<td>Checks committed status, artifact/SHA call counts, entry count, target size, zero WAL payload/memtable insertions, exact verification counters/policy and streaming implementation/table/entry totals. Verified bytes must equal finish-reported table bytes. Validates receipt fields, not freshly opened SSTable bytes; missing/malformed fields can raise.</td>
+</tr>
+<tr>
+<td><code>validate_stages(stages, config, reference, backend, block)</code></td>
+<td>Requires five stages, exact new/reused/preprocessing/request/epoch counts, per-version seed, tensor/transform/order hashes, valid model-hash strings and exact phase names. Checks finite losses, epoch batch counts/positive wall times and mandatory positive preparation/training, then calls cumulative for timing accounting. Aether additionally requires DURABLE/integrity policy, expected cache count, enabled/idle drained compaction, one service lifetime and same-JVM bulk/training PID. Does not itself enforce CUDA/trace flags or paired equality; validate_block does.</td>
+</tr>
+<tr>
+<td><code>audit_pilot(directory)</code></td>
+<td>Loads the candidate campaign/environment and raw reference, accepts only the successful five-block persistent GPU pilot configuration with V0 training/bulk streaming and nonconfirmatory/non-CPU markers. Loads paired receipts, validates all backend stages/cumulative endpoints and their separate per-stage receipts, checks paired hashes/seeds, then inventories those files plus campaign/environment/preflight. Returns audit metadata/hashes and constants, not a pooled effect estimate.</td>
+</tr>
+</tbody>
+</table>
+<p>The audit reads archived raw evidence, not a supplied mean or a screenshot. It
+checks paired tensor, initial-model, final-model, order and seed identity. This
+supports preservation of the tested workload; it does not prove general model
+quality, all possible checksum corruption, hardware independence or a production
+release. Receipt counters remain measurements/assertions from the validated worker,
+not an independent rerun of Java verification during freeze.</p>
+<h2 id="runtime-and-source-functions">Runtime and Source Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pilot_runtime(report)</code></td>
+<td>Parses package command stdout lines containing == into lowercased names, requires recorded Java command success and extracts Python's first version token plus seven required package versions. Missing required packages/fields raise. Keeps the recorded Java result object for exact later comparison, not merely major JDK number.</td>
+</tr>
+<tr>
+<td><code>validate_runtime(expected)</code></td>
+<td>Executes java -version and obtains current Python and torch/numpy/Pillow/monai/lmdb/scipy/matplotlib distribution versions. Requires exact equality with expected runtime dict, including stripped Java stdout/stderr/returncode. Raises on drift or failed probes; no CPU/GPU workload execution or host-resume decision here. Java subprocess has no explicit timeout in this function.</td>
+</tr>
+<tr>
+<td><code>source_files(root=None)</code></td>
+<td>Inventories existing configured root files and files recursively under packaging DIRECTORIES, filtering EXCLUDED path parts, symlinks in recursive traversal and non-Python/toml/Markdown files under clients/python. Returns sorted relative POSIX paths with SHA-256. This is the declared packaging inventory, not every repository file or every loaded external dependency.</td>
+</tr>
+<tr>
+<td><code>source_identity(root=None)</code></td>
+<td>Computes source inventory, probes Git commit/status using a scoped safe.directory setting, and accepts clean Git or an artifact-provenance.json claiming clean source with an exactly matching inventory. Requires a 40-character lowercase hex originating commit. Returns commit/sourceHash/files. Does not create a commit or repair dirty source; subprocesses have no explicit timeout here.</td>
+</tr>
+<tr>
+<td><code>harness_files()</code></td>
+<td>Hashes the explicitly listed seven harness/config/protocol-document paths relative to HARNESS_ROOT. This identity is separate from the candidate ROOT and its packaging inventory. Missing files raise; unlisted harness additions are not automatically inventoried.</td>
+</tr>
+</tbody>
+</table>
+<p>An archive identity is an integrity check against its recorded provenance, not a
+cryptographic signature or automatic Git checkout verification. The protocol binds
+declared inventories; excluded outputs, optional external packages and files not
+in those lists require their own controls. Exact package checks do not by themselves
+identify a host; the imported campaign guard enforces recorded host/environment
+identity on execution resume.</p>
+<h2 id="frozen-bundle-functions">Frozen Bundle Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>verify_frozen(directory, root=None, *, check_source=True)</code></td>
+<td>Requires exact frozen directory members and named file hashes, validates configuration, protocol/source hashes, deterministic schedule, separate schedule file, commits, schema, primary method, attempts, pilot audit, training/storage/boundary and input-binding policy. Checks harness hash; with check_source also compares current candidate and harness inventories. Returns protocol. With false retains archived checks but does not require current code inventories to match.</td>
+</tr>
+<tr>
+<td><code>freeze(config_path, pilot, output)</code></td>
+<td>Validates config/audited pilot/clean candidate/archive provenance, matches pilot-recorded treatment files and all recorded source hashes, verifies manifest membership and seed, constructs the immutable protocol and exact runtime/schedule, rejects output inside inventoried source directories, creates a fresh directory, writes JSON and pilot/source/harness ZIPs, writes freeze receipt and re-verifies it. Existing output is not overwritten. Failures can leave a partial new output directory for preservation, not automatic cleanup/retry.</td>
+</tr>
+</tbody>
+</table>
+<p>Bundle members are protocol.json, order_schedule.json, source-manifest.json,
+pilot-audit.json, source.zip, harness.zip and pilot-evidence.zip, plus freeze.json.
+Candidate source ZIP entries use fixed timestamps and contain generated archive
+provenance. Pilot/source file bytes are rechecked during packaging. Harness files
+are archived separately and the final current-inventory check binds their identity.
+verify_frozen hashes ZIP bytes; it does not independently extract/re-audit every
+inner member. Treat an untrusted bundle as untrusted code, not safe input merely
+because its own unkeyed hashes agree.</p>
+<p>check_source=False exists for archived analysis where the active checkout can
+have evolved. It is not an execution escape hatch for modifying candidate code.
+The execution runner uses default true before preflight, blocks and retry guards.
+No changes to sample size, epochs, storage or statistical method occur here.</p>
+<p>The separately authorized <a href="h2-session-functions.html">multi-session controller</a>
+preserves this frozen treatment while explicitly amending the same-host
+continuation policy. It records a new host campaign rather than altering old
+receipts or changing <code>verify_frozen</code>; session 3 and final amended aggregation
+are not implemented by the original freeze functions.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_h2_confirmatory.py">test_h2_confirmatory.py</a> exercises
+balanced seeded assignments, strict config/bulk/stage guards, paired identities,
+runtime drift, archive/source/harness binding and invalid-pilot rejection. Freeze
+tests use disposable synthetic source/evidence and some audit doubles, not the
+real successful pilot or a new GPU experiment. Qualified AST entries cover every
+function in this file. <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_h2_documented_contracts.py">Documentation contracts</a>
+also check private schedule RNG, fixed block seeds, unknown metadata and packaging
+inventory scope. Source review and tests support specific contracts, not
+end-to-end certification of arbitrary frozen bundles.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#identity-architecture">Identity Architecture</a><a href="#configuration-and-assignment-functions">Configuration and Assignment Functions</a><a href="#receipt-validation-and-pilot-audit-functions">Receipt Validation and Pilot Audit Functions</a><a href="#runtime-and-source-functions">Runtime and Source Functions</a><a href="#frozen-bundle-functions">Frozen Bundle Functions</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

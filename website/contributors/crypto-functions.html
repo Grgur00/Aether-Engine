@@ -1,0 +1,292 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/CRYPTO-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Encryption and key wrapping: source-backed contributor documentation for Aether Engine.">
+  <title>Encryption and key wrapping | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html" aria-current="page">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/CRYPTO-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="encryption-envelopes-and-key-wrapping-functions">Encryption, Envelopes, and Key Wrapping Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="security-functions.html">Security</a> | <a href="backup-archive-functions.html">Backup archives</a> | <a href="backup-restore-functions.html">Backup restore</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-crypto/src/main/java/io/aetherdb/crypto">aether-crypto</a>.
+All <strong>25 explicit declarations across seven implementation files</strong> are covered
+here, including private helpers and the package-private deterministic test path.
+Implicit record accessors/equality are outside that count.</p>
+<h2 id="ownership-architecture">Ownership Architecture</h2>
+<pre><code class="language-text">caller key + plaintext + chosen AAD -&gt; AetherAead -&gt; AeadEnvelope
+  -&gt; little-endian encoded envelope -&gt; caller persistence/transport
+backup ID + normalized path -&gt; backup AAD -&gt; encrypted backup object + metadata
+local wrapping key + epoch + purpose -&gt; wrapped bytes -&gt; caller key storage
+</code></pre>
+<p>This module contains encryption primitives and metadata carriers. It does not
+automatically encrypt WAL/SSTable files, select a key by epoch, rotate keys,
+authorize callers, authenticate RPC connections, or provide a remote key manager.
+Persistence, key selection, access control and nonce-use policy belong to callers.
+Read the actual integration before inferring that an engine path is encrypted.</p>
+<p>Encryption uses AES/GCM/NoPadding with a 32-byte key, 12-byte random nonce and
+128-bit tag. Each operation creates a Cipher. A shared SecureRandom supplies
+public-path nonces; there is no durable nonce ledger, collision check or per-key
+operation counter here. The deterministic nonce helper is for tests, not a
+production nonce-allocation mechanism.</p>
+<h2 id="envelope-functions">Envelope Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-crypto/src/main/java/io/aetherdb/crypto/AeadEnvelope.java">AeadEnvelope.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AeadEnvelope.AeadEnvelope(version, keyEpoch, nonce, ciphertext)</code></td>
+<td>Requires version exactly 1, positive epoch, nonnull arrays, nonce exactly 12 bytes and ciphertext at least 16 bytes for the tag. Clones both arrays. Unsupported values/lengths raise IllegalArgumentException; null arrays raise NullPointerException. Does not authenticate the ciphertext or impose a maximum ciphertext size.</td>
+</tr>
+<tr>
+<td><code>AeadEnvelope.nonce()</code></td>
+<td>Returns a new nonce clone.</td>
+</tr>
+<tr>
+<td><code>AeadEnvelope.ciphertext()</code></td>
+<td>Returns a new ciphertext/tag clone.</td>
+</tr>
+<tr>
+<td><code>AeadEnvelope.encode()</code></td>
+<td>Allocates one little-endian byte array containing header, nonce and ciphertext. Uses internal arrays rather than clone-returning accessors. No checksum, signature or additional authentication is added by encoding. Allocation-size addition uses ordinary int arithmetic.</td>
+</tr>
+<tr>
+<td><code>AeadEnvelope.decode(encoded)</code></td>
+<td>Rejects null, fewer than 52 bytes, incorrect six-byte magic, nonce length other than 12, ciphertext shorter than 16 or a total-length mismatch. Reads version as unsigned short and epoch as long, allocates/copies nonce and ciphertext, then delegates version/epoch validation to the constructor, which clones again. Parsing alone does not verify a GCM tag.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="envelope-wire-layout">Envelope Wire Layout</h3>
+<p>All multi-byte fields are little-endian, unlike the general Java client protocol.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Offset</th>
+<th>Field</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>six ASCII bytes AEENC1</td>
+</tr>
+<tr>
+<td>6</td>
+<td>version, unsigned 2-byte value</td>
+</tr>
+<tr>
+<td>8</td>
+<td>key epoch, 8 bytes</td>
+</tr>
+<tr>
+<td>16</td>
+<td>nonce length, 4 bytes</td>
+</tr>
+<tr>
+<td>20</td>
+<td>ciphertext length including tag, 4 bytes</td>
+</tr>
+<tr>
+<td>24</td>
+<td>nonce, 12 bytes</td>
+</tr>
+<tr>
+<td>36</td>
+<td>ciphertext and tag, at least 16 bytes</td>
+</tr>
+</tbody>
+</table>
+<p>Decode requires exact length, so trailing bytes are rejected. There is no
+streaming parser or module-level input-size cap. Its remaining-size comparison
+uses nonceLength + ciphertextLength with ordinary int addition; the accepted
+nonce length and positive ciphertext minimum precede that check, but this is not
+a general resource-admission policy. Record-generated equality/hashCode compare
+array identity rather than contents; use byte-content comparisons in tests.</p>
+<h2 id="aes-gcm-functions">AES-GCM Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-crypto/src/main/java/io/aetherdb/crypto/AetherAead.java">AetherAead.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-crypto/src/main/java/io/aetherdb/crypto/AetherDecryptionException.java">AetherDecryptionException.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherAead.AetherAead()</code></td>
+<td>Private empty constructor; the helper exposes static operations.</td>
+</tr>
+<tr>
+<td><code>AetherAead.encrypt(key, keyEpoch, plaintext, aad)</code></td>
+<td>Validates a 32-byte key and nonnull plaintext, fills a new 12-byte nonce with SecureRandom, then delegates to the deterministic helper. Empty plaintext is allowed. Epoch validation happens later in AeadEnvelope after cipher work. Null and empty AAD both omit updateAAD.</td>
+</tr>
+<tr>
+<td><code>AetherAead.encryptWithNonceForTest(key, keyEpoch, nonce, plaintext, aad)</code></td>
+<td>Package-private explicit-nonce path. Validates key and nonnull nonce/plaintext, initializes AES/GCM with 128 tag bits, optionally supplies AAD, and wraps doFinal output in an envelope. Envelope construction enforces nonce length/epoch after encryption; provider errors are caught as GeneralSecurityException and wrapped in IllegalStateException. Explicit argument/record validation exceptions propagate separately.</td>
+</tr>
+<tr>
+<td><code>AetherAead.decrypt(key, envelope, aad)</code></td>
+<td>Validates key and nonnull envelope, obtains cloned nonce/ciphertext, initializes AES/GCM, applies nonempty AAD and returns newly produced plaintext. GeneralSecurityException, including authentication-tag failure and provider initialization failures, becomes AetherDecryptionException. Does not select a key or compare an expected epoch.</td>
+</tr>
+<tr>
+<td><code>AetherAead.validateKey(key)</code></td>
+<td>Rejects null or a length other than 32 with IllegalArgumentException. Does not validate provenance, entropy or key-use history.</td>
+</tr>
+<tr>
+<td><code>AetherDecryptionException.AetherDecryptionException(message, cause)</code></td>
+<td>Delegates to RuntimeException; preserves the supplied cause, which may be null. No extra classification, logging or sanitization.</td>
+</tr>
+</tbody>
+</table>
+<p>Ciphertext/tag authentication depends on the chosen key, nonce and caller AAD.
+The helper does <strong>not</strong> automatically add envelope version or keyEpoch to AAD.
+Changing a valid positive envelope epoch while retaining nonce/ciphertext does
+not itself change this helper's authentication input. Metadata binding must be
+established by the higher-level protocol; the field is not a key resolver.</p>
+<p>Caller-owned plaintext/key/AAD buffers are not explicitly cleared. Envelope
+arrays are cloned, but transient provider key material, ciphertext clones and
+returned plaintext do not have a module-wide destruction lifecycle. The helper
+does not protect against concurrent caller mutation of input arrays.</p>
+<h2 id="backup-object-functions">Backup Object Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-crypto/src/main/java/io/aetherdb/crypto/BackupObjectAead.java">BackupObjectAead.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-crypto/src/main/java/io/aetherdb/crypto/EncryptedBackupObject.java">EncryptedBackupObject.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BackupObjectAead.BackupObjectAead()</code></td>
+<td>Private empty constructor. Defines metadata prefix aether-backup-object-v1 and algorithm label AES-256-GCM.</td>
+</tr>
+<tr>
+<td><code>BackupObjectAead.encrypt(backupId, objectPath, key, keyEpoch, plaintext)</code></td>
+<td>Normalizes/validates path, builds backup-specific AAD, calls random-nonce encryption, then returns metadataReference(epoch) and encoded envelope in EncryptedBackupObject. Neither writes an archive nor updates a manifest. Null backup ID fails in aad; key/plaintext/epoch errors follow delegated validation.</td>
+</tr>
+<tr>
+<td><code>BackupObjectAead.decrypt(backupId, objectPath, key, encodedEnvelope)</code></td>
+<td>Normalizes path, decodes the envelope, derives the same AAD and decrypts with the caller-supplied key. Does not accept or validate a manifest metadata reference or an expected epoch. Malformed envelope/path failures differ from tag/authentication failures.</td>
+</tr>
+<tr>
+<td><code>BackupObjectAead.metadataReference(keyEpoch)</code></td>
+<td>Requires positive epoch and returns aether-backup-object-v1:alg=AES-256-GCM:key_epoch= followed by the decimal epoch. Does not parse references, retrieve a key or authenticate the string.</td>
+</tr>
+<tr>
+<td><code>BackupObjectAead.aad(backupId, objectPath)</code></td>
+<td>Requires nonnull UUID; UTF-8 encodes prefix, NUL, UUID string, NUL, path. Binds object bytes to backup identity and the supplied normalized path. Key epoch and algorithm metadata string are not included.</td>
+</tr>
+<tr>
+<td><code>BackupObjectAead.normalizePath(objectPath)</code></td>
+<td>Requires nonnull path, converts backslashes to slashes, rejects blank input, leading/trailing slash, double slash, NUL and path components exactly <code>.</code> or <code>..</code>. Returns normalized text without stripping whitespace. Does not resolve a filesystem path, reject drive-letter syntax or perform symlink containment checks.</td>
+</tr>
+<tr>
+<td><code>EncryptedBackupObject.EncryptedBackupObject(encryptionMetadataReference, encodedEnvelope)</code></td>
+<td>Requires nonnull reference/bytes, rejects blank or NUL-containing reference, and clones bytes. Does not parse the reference, decode the envelope, require nonempty bytes or check reference/envelope epoch agreement.</td>
+</tr>
+<tr>
+<td><code>EncryptedBackupObject.encodedEnvelope()</code></td>
+<td>Returns a fresh encoded-byte clone. Generated encryptionMetadataReference() returns the immutable String.</td>
+</tr>
+</tbody>
+</table>
+<p>The normalization rule makes backslash and slash spellings equivalent for AAD.
+The . / .. component rejection is literal; it is not a portable archive extraction
+policy. Filesystem ownership and extraction rules belong to the
+<a href="backup-archive-functions.html">backup/archive implementation</a>. Moving an encrypted
+object to another normalized path or backup ID changes AAD and fails authenticated
+decryption with the original key. Metadata references remain separate manifest
+data and must be checked by integration code where required.</p>
+<h2 id="local-key-wrapper-functions">Local Key Wrapper Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-crypto/src/main/java/io/aetherdb/crypto/LocalKeyWrapper.java">LocalKeyWrapper.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-crypto/src/main/java/io/aetherdb/crypto/WrappedKey.java">WrappedKey.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LocalKeyWrapper.LocalKeyWrapper(wrappingKeyId, wrappingKey)</code></td>
+<td>Rejects null/blank ID or null/non-32-byte key with IllegalArgumentException. Keeps the ID spelling unchanged and clones the key into wrapper ownership. Does not reject NUL in the ID or load a keystore.</td>
+</tr>
+<tr>
+<td><code>LocalKeyWrapper.wrap(keyEpoch, plaintextKey, purpose)</code></td>
+<td>Requires nonnull plaintextKey, derives purpose/epoch AAD and encrypts under the stored wrapping key with a random nonce. Returns WrappedKey carrying the wrapper ID and requested epoch. Does not require plaintextKey to be 32 bytes: any nonnull byte sequence, including empty, is accepted by encryption.</td>
+</tr>
+<tr>
+<td><code>LocalKeyWrapper.unwrap(wrapped, purpose)</code></td>
+<td>Requires nonnull record; exact wrapping-key ID mismatch immediately raises AetherDecryptionException with null cause. Otherwise decrypts its envelope using AAD derived from the outer wrapped keyEpoch and requested purpose. Does not verify inner envelope epoch equals outer epoch or validate unwrapped key length.</td>
+</tr>
+<tr>
+<td><code>LocalKeyWrapper.destroy()</code></td>
+<td>Fills the one wrapper-owned wrappingKey array with zero bytes. No destroyed flag or synchronization: subsequent operations still run using the zeroed 32-byte array. Does not clear the original caller array, provider copies, existing wrapped values or returned plaintext. Repeated calls simply fill again.</td>
+</tr>
+<tr>
+<td><code>LocalKeyWrapper.aad(keyEpoch, purpose)</code></td>
+<td>Requires nonnull/nonblank purpose, otherwise IllegalArgumentException. UTF-8 encodes aether-key-wrap:v1:, decimal epoch, colon and purpose without stripping it. Does not itself validate positive epoch; that is enforced by envelope/record construction. Wrapping-key ID is not included in AAD.</td>
+</tr>
+<tr>
+<td><code>WrappedKey.WrappedKey(wrappingKeyId, keyEpoch, envelope)</code></td>
+<td>Requires nonnull/nonblank ID, positive outer epoch and nonnull envelope, all via IllegalArgumentException. Keeps the immutable envelope reference. Does not require its epoch to match the outer epoch or its ciphertext to represent a particular plaintext-key length.</td>
+</tr>
+</tbody>
+</table>
+<p>Outer epoch and purpose are authenticated through wrapper AAD. Wrapping-key ID
+is checked locally before decryption, not authenticated by that AAD format. These
+checks do not establish a centralized key registry or rotation protocol. The
+wrapper is not AutoCloseable and has no persistent storage; callers must arrange
+its lifetime. destroy is a local buffer overwrite, not proof of complete process
+memory erasure or an enforced post-destruction state.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p>Compiler-tree documentation coverage inventories all seven files. Existing tests
+exercise envelope round trips, AAD/ciphertext mismatch, corruption helpers, key
+length rejection, backup ID/path binding and unsafe relative components, plus
+key wrapping/purpose/ID failures. They do not exhaustively check zeroization,
+post-destroy use, inner/outer epoch mismatch, mutable caller-buffer races, all
+path forms, resource bounds or metadata substitution. The reference records
+current code behavior; it does not certify cryptographic deployment safety.
+Runtime encryption and frozen research implementations remain unchanged.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#ownership-architecture">Ownership Architecture</a><a href="#envelope-functions">Envelope Functions</a><a href="#aes-gcm-functions">AES-GCM Functions</a><a href="#backup-object-functions">Backup Object Functions</a><a href="#local-key-wrapper-functions">Local Key Wrapper Functions</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/FILESYSTEM-IDENTITY-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Filesystem ownership and identity: source-backed contributor documentation for Aether Engine.">
+  <title>Filesystem ownership and identity | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html" aria-current="page">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/FILESYSTEM-IDENTITY-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="filesystem-ownership-and-identity-functions">Filesystem Ownership and Identity Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="persistent-internals.html">Persistent internals</a> | <a href="manifest-version-functions.html">Manifest authority</a></p>
+<p>This reference covers database locking, managed-path checks, database identity,
+format options, and checkpoint metadata in the current checkout. See the
+<a href="backup-archive-functions.html">archive</a> and <a href="backup-restore-functions.html">restore</a>
+references for backup functions.</p>
+<h2 id="sources-and-ownership">Sources and Ownership</h2>
+<ul>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-io/src/main/java/io/aetherdb/io/DatabaseLock.java">DatabaseLock</a>: operating-system lock lease.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-io/src/main/java/io/aetherdb/io/PathSecurityValidator.java">PathSecurityValidator</a>: flat managed namespace and path checks.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-io/src/main/java/io/aetherdb/io/DatabaseIdentityV1.java">DatabaseIdentityV1</a>: database identity bytes.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-io/src/main/java/io/aetherdb/io/FormatOptionsV1.java">FormatOptionsV1</a>: format vector and compatibility fingerprint.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-io/src/main/java/io/aetherdb/io/CheckpointMetadataV1.java">CheckpointMetadataV1</a>: checkpoint publication metadata bytes.</li>
+</ul>
+<p>The engine coordinates when files are written, forced, and published. These codecs
+produce/validate byte arrays; encoding alone performs no disk I/O. A metadata CRC
+does not verify SSTable contents, reconstruct a manifest, or establish durability.</p>
+<h2 id="managed-paths">Managed Paths</h2>
+<h3 id="pathsecurityvalidator-constructor-and-ismanagedname">PathSecurityValidator constructor and isManaged(name)</h3>
+<p>The private constructor prevents instances. <code>isManaged()</code> recognizes exact names
+DB-IDENTITY, FORMAT-OPTIONS, LOCK, CURRENT, and CHECKPOINT, plus prefixes MANIFEST-,
+WAL-, SST-, DB-, FORMAT-, and CHECKPOINT. It is a broad namespace classification,
+not a parser proving a valid numeric filename/version. A matching unrelated file
+is subject to managed-file validation too.</p>
+<h3 id="validaterootroot-strict">validateRoot(root, strict)</h3>
+<p>Converts root to absolute normalized form, rejects a symbolic-link root when strict,
+and requires a directory with NOFOLLOW_LINKS. Lists immediate children and, for
+each managed name, rejects symlinks and nonregular files without following the
+final child link. Returns the normalized root and closes the directory stream.</p>
+<p>It does not create the directory, validate unmanaged children, recursively inspect
+subdirectories, or canonicalize/check every ancestor with <code>toRealPath()</code>. Even with
+strict false the NOFOLLOW directory test normally rejects a symlink root. The
+listing is materialized via <code>toList()</code>, not bounded streaming validation.</p>
+<p>These are checks at a moment in time. Another actor can replace an entry between
+validation and later use; callers must not infer race-free directory-descriptor
+operations or sandbox containment from this helper alone.</p>
+<h3 id="managedroot-name">managed(root, name)</h3>
+<p>Requires a managed name with no slash/backslash, resolves it under absolute
+normalized root, and checks the normalized parent equals that root. Returns a
+lexically confined flat path. It does not check file existence/type, acquire locks,
+or resolve symlinks. Filesystem safety and lexical filename safety are different
+responsibilities.</p>
+<h2 id="lock-lease">Lock Lease</h2>
+<h3 id="databaselockacquiredatabaseroot">DatabaseLock.acquire(databaseRoot)</h3>
+<p>Strictly validates the existing root, opens/creates LOCK for writing, and uses
+nonblocking <code>tryLock()</code>. OverlappingFileLockException becomes the same unavailable
+outcome as a null lock: the channel closes and IOException reports an already-held
+database lock. A successful acquisition constructs a lease retaining channel and
+FileLock. IOException/runtime failures close an open channel before rethrowing.</p>
+<p>Opening LOCK does not independently request NOFOLLOW_LINKS, so the earlier path
+check does not eliminate a replacement race. There is no timeout/retry loop, lock
+file contents protocol, or lease expiry. Existence of LOCK alone does not imply
+another process owns it; the OS lock is authoritative for this acquisition.</p>
+<h3 id="databaselockchannel-lock-and-close">DatabaseLock(channel, lock) and close()</h3>
+<p>The private constructor stores the acquired resources. <code>close()</code> releases the
+FileLock and closes the channel in finally. The LOCK file remains. There is no
+closed flag guaranteeing repeated close succeeds, and cleanup exceptions can
+replace an earlier release/acquisition failure rather than being systematically
+attached as suppressed exceptions.</p>
+<h2 id="db-identity-functions">DB-IDENTITY Functions</h2>
+<h3 id="databaseidentityv1databaseid-creationepochmillis-creatormajor-creatorminor">DatabaseIdentityV1(databaseId, creationEpochMillis, creatorMajor, creatorMinor)</h3>
+<p>Requires a nonnull, nonzero UUID and nonnegative creation time and creator version
+components. Implicit record accessors return those immutable/scalar values.</p>
+<h3 id="encode">encode()</h3>
+<p>Allocates exactly 128 zero-initialized bytes in little-endian layout: AETHDBI1 magic,
+version 1, length 128, zero flags, UUID halves, creation milliseconds, format epoch
+1, and packed creator major/minor. Bytes 56..123 remain zero. Stores masked CRC32C
+of bytes 0..123 at offset 124. UUID halves are little-endian longs here, not the
+network-order UUID representation used in typed scalar codecs.</p>
+<h3 id="decodeencoded">decode(encoded)</h3>
+<p>Requires exact length, magic/version/length/zero flags, epoch 1, zero reserved bytes,
+and matching CRC. Reconstructs the UUID/time and unpacks creator version, then
+invokes constructor validation. Packed high-bit version components become negative
+ints and are rejected rather than exposed as unsigned Java version values.</p>
+<p>The decoder does not preserve the input array, verify other database files, or
+check wall-clock plausibility of a nonnegative creation timestamp.</p>
+<h2 id="format-options-functions">FORMAT-OPTIONS Functions</h2>
+<h3 id="formatoptionsv1databaseid-creationepochmillis-and-encode">FormatOptionsV1(databaseId, creationEpochMillis) and encode()</h3>
+<p>The constructor requires nonzero UUID and nonnegative time. <code>encode()</code> allocates
+4096 bytes, emits AETHFMT1/version 1/header length 512/total length 4096, UUID,
+the fixed 88-byte format vector at offsets 32..119, time at 120, and compatibility
+fingerprint at 128..159. Reserved header bytes and the 3584-byte tail remain zero.
+CRC at 508 covers bytes 0..507, not the tail; tail integrity is enforced by the
+decoder's zero-byte checks.</p>
+<h3 id="putformatvectorbytes-and-verifyformatvectorbytes">putFormatVector(bytes) and verifyFormatVector(bytes)</h3>
+<p><code>putFormatVector()</code> writes hardcoded epochs, versions, flags, sizes, levels, and
+other format-affecting constants into the supplied buffer. It does not read live
+engine configuration. <code>verifyFormatVector()</code> generates the expected 88-byte vector,
+reads input bytes 32..119, and requires exact equality. Unknown vectors are rejected,
+not negotiated or upgraded by this codec.</p>
+<h3 id="compatibilityfingerprint">compatibilityFingerprint()</h3>
+<p>Builds little-endian bytes from ASCII AETHER-COMPAT-V1 followed by the format vector,
+then returns a new SHA-256 digest of the used portion. Missing SHA-256 becomes
+AssertionError. UUID and creation time are excluded: databases with different
+identities but the same vector share this fingerprint.</p>
+<p>This identifies that hardcoded vector, not the complete checkout, tuned SSTable
+target, model configuration, or all runtime options. It is not a signature or a
+replacement for experiment provenance.</p>
+<h3 id="decodeencoded-1">decode(encoded)</h3>
+<p>Requires 4096 bytes and valid header, verifies exact vector, reads time/fingerprint,
+checks zero bytes 160..507 and 512..4095, verifies header CRC, constructs options,
+and compares stored/recomputed SHA-256 using MessageDigest.isEqual. It does not
+compare identity/time against DB-IDENTITY; the orchestrating caller must establish
+cross-file agreement.</p>
+<h2 id="checkpoint-metadata-functions">CHECKPOINT Metadata Functions</h2>
+<h3 id="checkpointmetadatav1-constructor-and-compatibilityfingerprint">CheckpointMetadataV1 constructor and compatibilityFingerprint()</h3>
+<p>Requires nonnull UUID, nonnegative sequence/time/table count/byte count, positive
+source view generation and source/checkpoint manifest numbers, and a 32-byte
+fingerprint. Unlike DB-IDENTITY/FORMAT-OPTIONS, it does not reject a zero UUID.
+Copies the fingerprint on construction and clones it on accessor calls. Other
+record accessors expose immutable/scalar fields.</p>
+<h3 id="encode-1">encode()</h3>
+<p>Allocates exactly 256 bytes. Writes AETHCHK1/version 1/length 256/zero flags, UUID,
+checkpoint sequence, creation time, source view generation, two manifest numbers,
+SSTable count/total bytes, and fingerprint into little-endian framing. Bytes
+120..251 remain zero; CRC at 252 covers bytes 0..251.</p>
+<h3 id="decodeencoded-and-littlevalue">decode(encoded) and little(value)</h3>
+<p><code>decode()</code> requires exact length and checks CRC before interpreting header/fields.
+It validates magic/version/length/flags, reads fields and fingerprint, requires
+zero reserved bytes, then invokes constructor validation (including another
+fingerprint copy). Private <code>little()</code> wraps the array in a little-endian ByteBuffer;
+it does not copy storage.</p>
+<p>The decoder does not compare the fingerprint with current FormatOptions, prove
+the advertised sequence is the largest stored sequence, count actual SSTables,
+or verify manifest provenance. Those are inventory/orchestration checks beyond
+this fixed-format codec.</p>
+<h2 id="coverage-boundary">Coverage Boundary</h2>
+<p>All explicit constructors, methods, and private helpers in these five files are
+covered. Borrowed input arrays must remain stable during decoding; no decoder
+provides protection against concurrent mutation of its argument. Backup archive,
+preflight, and restore writing are covered in the linked companion references;
+configuration and broader operations tooling remain. This page does not modify runtime behavior or
+claim platform-specific filesystem durability from metadata validation alone.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#sources-and-ownership">Sources and Ownership</a><a href="#managed-paths">Managed Paths</a><a href="#lock-lease">Lock Lease</a><a href="#db-identity-functions">DB-IDENTITY Functions</a><a href="#format-options-functions">FORMAT-OPTIONS Functions</a><a href="#checkpoint-metadata-functions">CHECKPOINT Metadata Functions</a><a href="#coverage-boundary">Coverage Boundary</a></nav></aside>
+  </div>
+</body>
+</html>

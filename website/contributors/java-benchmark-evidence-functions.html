@@ -1,0 +1,300 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/JAVA-BENCHMARK-EVIDENCE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Java benchmark evidence and baselines: source-backed contributor documentation for Aether Engine.">
+  <title>Java benchmark evidence and baselines | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html" aria-current="page">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/JAVA-BENCHMARK-EVIDENCE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="java-benchmark-evidence-and-baseline-functions">Java Benchmark Evidence and Baseline Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="java-benchmark-runner-functions.html">Benchmark execution</a> | <a href="research.html">Research workflows</a></p>
+<p>This reference covers <strong>27 explicit declarations in eight complete files</strong> in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks">aether-benchmarks</a>.
+Generated record accessors, equality and string representations are not counted.
+These are Java benchmark report utilities, not the Python H2 campaign protocol.</p>
+<h2 id="evidence-architecture">Evidence Architecture</h2>
+<pre><code class="language-text">Measured workload + caller-supplied metadata
+    -&gt; BenchmarkResultV1 (immutable validated report)
+    -&gt; BenchmarkArtifacts (path references, optional JFR reference)
+    -&gt; BenchmarkResultJsonV1.encode -&gt; caller writes JSON
+
+BenchmarkResultV1 -&gt; BenchmarkBaselineEntry.fromResult
+    -&gt; BenchmarkBaselineStore.encode -&gt; caller persists text
+    -&gt; decode -&gt; find(profileId)
+    -&gt; toResultLike(candidate) -&gt; synthetic comparison input
+</code></pre>
+<p>Construction validates shape and selected bounds. It does not verify measurement
+accuracy, commit provenance, workload equivalence, artifact integrity or durability.
+None of these functions starts recording, runs a benchmark, uploads evidence or
+atomically publishes a result. <a href="java-benchmark-comparison-functions.html">Comparison and gate policy</a>
+are separate consumers.</p>
+<h2 id="canonical-result-and-numeric-summaries">Canonical Result and Numeric Summaries</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/BenchmarkResultV1.java">BenchmarkResultV1.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/BenchmarkCounters.java">BenchmarkCounters.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/BenchmarkLatencyHistogram.java">BenchmarkLatencyHistogram.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and ownership</th>
+<th>Validation and limits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BenchmarkResultV1.BenchmarkResultV1(...)</code></td>
+<td>Stores benchmark ID, commit, dirty flag, four metadata maps, outcome counters, throughput, latency summary and artifacts. Strips identity strings; copies maps and artifact list. Schema version is 1.</td>
+<td>IDs capped at 128 UTF-16 units; counters and latency required; throughput finite and nonnegative. Null artifacts becomes empty; list capped at 64, null elements rejected by copy. No profile/commit lookup or cross-check between counters, latency count and workload.</td>
+</tr>
+<tr>
+<td><code>BenchmarkResultV1.requireText(value, field, maximumLength)</code></td>
+<td>Checks then returns <code>strip()</code>; field name appears in the exception.</td>
+<td>Rejects null, blank, overlength, NUL and ISO control characters with IllegalArgumentException. Length applies before stripping. Does not validate a Git hash or Unicode normalization.</td>
+</tr>
+<tr>
+<td><code>BenchmarkResultV1.copyMap(values, field)</code></td>
+<td>Validates every entry and returns immutable <code>Map.copyOf</code>. Used for environment, aetherConfig, workload and storage.</td>
+<td>Required, at most 256 entries; key text capped at 128. The stripped key returned by requireText is discarded, so original spaced keys remain. Values required, capped at 4096, no NUL; other control characters are allowed. No required metadata fields or semantic schema.</td>
+</tr>
+<tr>
+<td><code>BenchmarkCounters.BenchmarkCounters(...)</code></td>
+<td>Stores submitted, acknowledged, rejectedBeforeAck, uncertain and failed totals.</td>
+<td>All nonnegative; outcome sum must not exceed submitted. Equality is not required, so unaccounted submissions are allowed. Sum uses unchecked long arithmetic: overflow can bypass the bound. Does not establish that acknowledgement means durable commit.</td>
+</tr>
+<tr>
+<td><code>BenchmarkLatencyHistogram.BenchmarkLatencyHistogram(...)</code></td>
+<td>Stores count and p50/p95/p99/max nanoseconds; despite its name, this is a summary, not buckets or samples.</td>
+<td>Nonnegative count and p50; p50 &lt;= p95 &lt;= p99 &lt;= max. Zero count may have nonzero percentiles. No percentile recomputation, sample provenance or count-to-counter validation.</td>
+</tr>
+</tbody>
+</table>
+<p>Record-generated accessors expose immutable strings and copied containers here.
+The numeric summaries contain caller-provided numbers, not an instrument that
+observes writes or computes percentiles. Map iteration order is not preserved;
+the JSON encoder sorts it explicitly.</p>
+<h2 id="json-serialization">JSON Serialization</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/BenchmarkResultJsonV1.java">BenchmarkResultJsonV1.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Output responsibility</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BenchmarkResultJsonV1.BenchmarkResultJsonV1()</code></td>
+<td>Private utility constructor.</td>
+<td>No instance state.</td>
+</tr>
+<tr>
+<td><code>BenchmarkResultJsonV1.encode(result)</code></td>
+<td>Builds a string in fixed order: schemaVersion, benchmarkId, gitCommit, dirty, environment, aetherConfig, workload, counters, throughputOpsPerSecond, latencyHistogram, storage, artifacts.</td>
+<td>Throughput uses Locale.ROOT with three decimal places, losing sub-mill precision. No trailing newline, parser or file write. Null result causes NullPointerException. Deterministic formatting is not cryptographic canonicalization.</td>
+</tr>
+<tr>
+<td><code>BenchmarkResultJsonV1.map(json, name, values, last)</code></td>
+<td>Sorts keys by natural String order, quotes values and emits an object with two indentation levels.</td>
+<td><code>last</code> controls the closing comma. Sorting is case-sensitive; metadata strings remain strings, not numbers or booleans.</td>
+</tr>
+<tr>
+<td><code>BenchmarkResultJsonV1.counters(json, counters, last)</code></td>
+<td>Emits the five outcome fields in fixed order as long literals.</td>
+<td>No accounting computation or additional validation.</td>
+</tr>
+<tr>
+<td><code>BenchmarkResultJsonV1.latency(json, latency, last)</code></td>
+<td>Emits count, p50Nanos, p95Nanos, p99Nanos and maxNanos as long literals.</td>
+<td>Does not serialize actual histogram buckets.</td>
+</tr>
+<tr>
+<td><code>BenchmarkResultJsonV1.artifacts(json, result)</code></td>
+<td>Emits ordered kind/URI objects; URI comes from <code>toString()</code>. Closes the final report field.</td>
+<td>Does not open or verify referenced objects. Artifact ordering follows the input list.</td>
+</tr>
+<tr>
+<td><code>BenchmarkResultJsonV1.field(json, indent, name, value, last)</code></td>
+<td>Writes two spaces per indent, quoted field name and an already formatted JSON value.</td>
+<td>Value is appended literally; callers must quote string values before passing them.</td>
+</tr>
+<tr>
+<td><code>BenchmarkResultJsonV1.quote(value)</code></td>
+<td>Escapes backslash, double quote, LF and CR, then surrounds the result with quotes.</td>
+<td>Does not escape tab, backspace, form feed or all other U+0001..U+001F controls. These are accepted in metadata values, so some valid result records produce invalid JSON. No surrogate validation.</td>
+</tr>
+</tbody>
+</table>
+<p>For ordinary printable metadata the encoder provides stable ordering. Do not infer
+that all accepted record inputs yield standards-valid JSON: the constructor and
+escaping policies differ. Existing tests assert substrings and ordering, not a
+strict JSON parser round-trip. This guide records that gap; it does not change the
+runtime serializer.</p>
+<h2 id="artifact-references">Artifact References</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/BenchmarkArtifact.java">BenchmarkArtifact.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/BenchmarkArtifacts.java">BenchmarkArtifacts.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>What it does not guarantee</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BenchmarkArtifact.BenchmarkArtifact(kind, uri)</code></td>
+<td>Requires nonblank kind, caps it at 64 units, rejects NUL/ISO controls and strips it. Requires URI object with text length &lt;= 2048.</td>
+<td>No scheme allowlist, absolute-URI requirement, existence check, hash or trust policy. Relative and empty URI objects can pass.</td>
+</tr>
+<tr>
+<td><code>BenchmarkArtifacts.BenchmarkArtifacts()</code></td>
+<td>Private utility constructor.</td>
+<td>No recording lifecycle.</td>
+</tr>
+<tr>
+<td><code>BenchmarkArtifacts.forResult(output)</code></td>
+<td>Requires output Path; emits result-json from absolute normalized file URI, followed by optional jfr-recording. Returns copied immutable list.</td>
+<td>Does not create files or directories, resolve symlinks with toRealPath, measure size or verify hashes.</td>
+</tr>
+<tr>
+<td><code>BenchmarkArtifacts.jfrUri()</code></td>
+<td>Uses nonblank system property <code>aether.benchmark.jfr.path</code>, otherwise environment <code>AETHER_JFR_PATH</code>; neither configured returns empty. Interprets the string as a filesystem Path and converts to absolute normalized URI.</td>
+<td>Not a URL parser; does not strip configured path text. Invalid path may throw. A JFR reference does not start recording or prove that recording succeeded.</td>
+</tr>
+</tbody>
+</table>
+<p>Recording enablement belongs to the launcher/build configuration, separately from
+these artifact declarations. Preserve both the actual recording and its provenance
+when using a report as experimental evidence.</p>
+<h2 id="compact-baseline-entries">Compact Baseline Entries</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/BenchmarkBaselineEntry.java">BenchmarkBaselineEntry.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Information loss or validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BenchmarkBaselineEntry.BenchmarkBaselineEntry(...)</code></td>
+<td>Stores profile ID, result URI text, commit, throughput, three latency percentiles and acknowledged count; strips the three strings.</td>
+<td>Strings nonblank; URI text &lt;= 2048, but not parsed as URI. ID/commit have no length or control-character limits. Throughput finite/nonnegative, latencies monotonic/nonnegative, acknowledgements nonnegative.</td>
+</tr>
+<tr>
+<td><code>BenchmarkBaselineEntry.fromResult(result, resultUri)</code></td>
+<td>Extracts ID, commit, throughput, p50/p95/p99 and acknowledged count into the compact entry.</td>
+<td>Drops dirty flag, all metadata maps, other counters, latency count/max and artifact list. Null result fails on dereference. Result URI supplied separately by caller.</td>
+</tr>
+<tr>
+<td><code>BenchmarkBaselineEntry.toResultLike(candidate)</code></td>
+<td>Builds a synthetic BenchmarkResultV1 with saved metrics and commit, dirty=false, submitted=acknowledged, remaining outcomes zero, histogram count=acknowledged and max=p99. Borrows candidate metadata through the result constructor's copies; artifacts empty.</td>
+<td>Environment, config, workload and storage are candidate context, not historical baseline evidence. Stricter result ID/commit validation may reject an entry accepted by its own constructor. Null candidate fails.</td>
+</tr>
+</tbody>
+</table>
+<p>The comparison skeleton is a convenience for numeric gates, not reconstruction of
+the original run. Equal metadata in this skeleton cannot prove that baseline and
+candidate actually ran on equivalent hosts or workloads. Retain the original
+result artifact for that audit.</p>
+<h2 id="baseline-store-and-text-format">Baseline Store and Text Format</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/BenchmarkBaselineStore.java">BenchmarkBaselineStore.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Failure and parser policy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BenchmarkBaselineStore.BenchmarkBaselineStore(entries)</code></td>
+<td>Requires &lt;= 512 entries, rejects duplicate exact profile IDs, sorts by profile ID and retains an immutable list.</td>
+<td>Null list rejected with IllegalArgumentException; null entry fails on dereference. Does not load resultUri or verify commit.</td>
+</tr>
+<tr>
+<td><code>BenchmarkBaselineStore.find(profileId)</code></td>
+<td>Linear exact String equality lookup returning Optional.</td>
+<td>No stripping or normalization; null search yields no match.</td>
+</tr>
+<tr>
+<td><code>BenchmarkBaselineStore.encode()</code></td>
+<td>Writes schemaVersion=1 and entries count, then eight entry.i fields per sorted entry: profileId, resultUri, gitCommit, throughputOpsPerSecond, p50Nanos, p95Nanos, p99Nanos, acknowledged. Ends with newline.</td>
+<td>Throughput uses normal double string conversion, not JSON's three-place rounding. Returns text only; no IO, lock, checksum or atomic replacement.</td>
+</tr>
+<tr>
+<td><code>BenchmarkBaselineStore.decode(input)</code></td>
+<td>Splits on Java regex line breaks, skips blank lines, splits each nonblank line at first equals, unescapes values, checks schema 1, parses entry count and required fields, then constructs the sorted store.</td>
+<td>Null/invalid line/schema/negative count rejected. Numeric errors propagate NumberFormatException. Duplicate property keys use last value; unknown keys ignored. No input-size limit; 512-entry cap applies only after parsing entries.</td>
+</tr>
+<tr>
+<td><code>BenchmarkBaselineStore.required(values, key)</code></td>
+<td>Retrieves required field or throws IllegalArgumentException naming missing key.</td>
+<td>Checks presence only; entry constructor checks blank strings.</td>
+</tr>
+<tr>
+<td><code>BenchmarkBaselineStore.escape(value)</code></td>
+<td>Escapes backslash, LF as backslash-n and equals as backslash-e.</td>
+<td>CR and other regex line separators are not escaped, despite entry strings allowing them; such values need not round-trip.</td>
+</tr>
+<tr>
+<td><code>BenchmarkBaselineStore.unescape(value)</code></td>
+<td>Stateful scan: backslash-n becomes LF, backslash-e becomes equals, other escaped character is appended directly. Retains trailing backslash.</td>
+<td>Unknown escapes are accepted and lose the slash. This is a custom format, not java.util.Properties.</td>
+</tr>
+</tbody>
+</table>
+<p>Keys are not trimmed, comment lines are not supported and extra declared-index
+fields are ignored when outside the entry count. Sorting makes normal encoding
+stable, but permissive decoding is not canonical-input validation. Duplicate
+profile IDs still fail when constructing the final store.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/test/java/io/aetherdb/benchmarks/BenchmarkResultJsonV1Test.java">JSON tests</a>
+cover stable output substrings/order, throughput rounding and selected counter/
+latency rejection.
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/test/java/io/aetherdb/benchmarks/BenchmarkArtifactsTest.java">Artifact tests</a>
+cover default and configured JFR references; the default case can depend on an
+inherited AETHER_JFR_PATH environment value.
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/test/java/io/aetherdb/benchmarks/BenchmarkBaselineStoreTest.java">Baseline tests</a>
+cover ordinary round-trip, sorting, duplicate profiles and gate consumer examples.</p>
+<p>These tests do not establish strict JSON validity for all accepted strings,
+overflow-safe counters, artifact existence, historical baseline-context parity,
+all escape edge cases or early bounded parsing. Compiler-tree documentation checks
+cover declaration names, not semantic correctness of every possible input.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#evidence-architecture">Evidence Architecture</a><a href="#canonical-result-and-numeric-summaries">Canonical Result and Numeric Summaries</a><a href="#json-serialization">JSON Serialization</a><a href="#artifact-references">Artifact References</a><a href="#compact-baseline-entries">Compact Baseline Entries</a><a href="#baseline-store-and-text-format">Baseline Store and Text Format</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

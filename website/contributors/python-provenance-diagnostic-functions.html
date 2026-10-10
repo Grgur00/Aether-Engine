@@ -1,0 +1,227 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/PYTHON-PROVENANCE-DIAGNOSTIC-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Filesystem validation and diagnostics: source-backed contributor documentation for Aether Engine.">
+  <title>Filesystem validation and diagnostics | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html" aria-current="page">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/PYTHON-PROVENANCE-DIAGNOSTIC-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="filesystem-provenance-validation-and-diagnostic-functions">Filesystem Provenance Validation and Diagnostic Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="python-provenance-store-functions.html">Store publication</a> | <a href="python-provenance-workflow-functions.html">Datasets and lineage</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_training_cache/ml.py">ml.py</a>. This page covers
+19 explicit functions. They inspect the separate aetherml filesystem prototype,
+not the Java engine, training-cache daemon or frozen confirmatory evidence.
+Diagnostic field names are not guarantees beyond the implemented checks.</p>
+<h2 id="validation-and-recovery-architecture">Validation and Recovery Architecture</h2>
+<pre><code class="language-text">validate (no store lock):
+  metadata -&gt; blobs/checksum/size -&gt; selected parent references
+  cache pointers -&gt; known and valid artifact IDs
+  snapshots -&gt; node-metadata membership
+  experiments -&gt; snapshot-file existence
+  artifacts/tmp -&gt; orphan/temp inventory
+  -&gt; RecoveryReport or uncaught malformed-metadata/read error
+
+recover: validate first -&gt; instance lock -&gt; delete reported tmp/bad pointers
+         -&gt; optional orphan deletion -&gt; return ORIGINAL report
+         -&gt; caller revalidates for post-cleanup state
+</code></pre>
+<p>Recovery is a bounded cleanup helper, not transactional rollback or a repair
+engine. It cannot regenerate blobs, recover corrupt metadata, reconstruct lost
+snapshots, prove an acyclic lineage, restore experiment outputs or replay a WAL.
+Validation occurs before its lock and other handles do not share that lock; do not
+recover against concurrently mutating stores. Revalidate after cleanup, and use
+trusted roots/metadata because path containment is not enforced here.</p>
+<h2 id="report-and-recovery-functions">Report and Recovery Functions</h2>
+<p>RecoveryReport has separate lists for temporary_files, dangling_cache_entries,
+corrupt_cache_entries, missing_artifacts, checksum_mismatches,
+missing_parent_artifacts, missing_snapshot_artifacts, missing_experiment_snapshots
+and orphan_artifact_files. SnapshotVerificationReport stores snapshot_id,
+verified_artifact_ids, missing_metadata, missing_artifacts and checksum_mismatches.
+Their frozen dataclasses do not deep-freeze lists or implement additional parsers.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RecoveryReport.is_consistent()</code></td>
+<td>Property returning true only when every list in asdict(report) is empty, including temporary/orphan files. It does not run validation or independently inspect storage. Mutating a report's contained list changes the property.</td>
+</tr>
+<tr>
+<td><code>SnapshotVerificationReport.is_reproducible()</code></td>
+<td>Property checking that three issue lists are empty. Ignores verified count, ancestors, code, environment and training reproducibility; empty/direct-only snapshots can pass.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.validate()</code></td>
+<td>Scans metadata and checks blob existence/SHA/size, selected parent metadata existence, cache IDs, snapshot member metadata, experiment snapshot existence, unreferenced blob files and immediate temp files. Returns sorted issue lists. No lock, repair or blanket parser-error handling. Malformed artifact/snapshot/experiment JSON/type errors can raise before a report.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.recover(*, remove_orphan_artifacts=False)</code></td>
+<td>Calls validate first; under the instance lock unlinks reported temporary files and dangling/corrupt cache pointers, optionally orphan files. Returns the <strong>pre-cleanup</strong> report. Missing_ok permits already removed files, not arbitrary I/O failures. Leaves corrupt/missing artifacts, metadata, parents, snapshots and experiment records unresolved.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="what-validation-actually-establishes">What Validation Actually Establishes</h3>
+<p>Parent checking occurs only after the node's blob exists; a missing child blob
+causes an early continue, so its absent parents need not appear in that report.
+The parent check needs a metadata path to exist, not a valid payload or readable
+parent schema. Cache validation checks artifact_id against node/blob issues,
+not embedded cache storage_location/checksum/size consistency. A tampered
+self-contained cache entry can disagree with node metadata without being flagged.</p>
+<p>Snapshot checks require member metadata IDs to be known; they do not mark an
+otherwise known member's corrupt blob as a missing_snapshot_artifact. Those issues
+appear in the store's global blob lists instead. Experiment checks require its
+snapshot file to exist; they do not validate output artifact IDs, model, metrics,
+timing or parent lineage. No cycle, cryptographic metadata authentication,
+artifact-ID/content-hash recomputation or exhaustive schema verification occurs.</p>
+<p>Temporary inventory covers immediate files in tmp_dir, not every nested directory.
+Orphans are files under artifacts not referenced by metadata, independent of cache
+pointers/snapshot reachability. A valid artifact no longer addressed by a cache
+pointer is still referenced by its metadata and is not an orphan. Optional orphan
+deletion is therefore not full reachability-based garbage collection.</p>
+<h2 id="operation-and-storage-metrics">Operation and Storage Metrics</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherMLStore.reset_operation_metrics()</code></td>
+<td>Clears all existing observation lists in place, including dynamically added batch buckets. Keeps bucket names and store data. Does not synchronize with concurrent timer updates.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.operation_metrics()</code></td>
+<td>Returns sorted operation names mapped to latency summaries for their current lists. No remote polling, reset, rate calculation or experiment pairing.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.storage_metrics(*, raw_dataset_bytes=0, baseline_preprocessed_bytes=0)</code></td>
+<td>Scans root files, groups top-level bytes, sums logical sizes across nodes and unique resolved referenced blob sizes, and computes metadata/cache sizes and ratios. Counts tmp/orphan/unrelated root files in total storage. Reports WAL/compaction bytes as zero because this store implements neither. Caller supplies dataset/baseline byte denominators; no consistency lock or measured disk-write history.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore._record_latency(operation, started_ns)</code></td>
+<td>Appends current monotonic nanoseconds minus caller start, creating a bucket if needed. Does not validate units/ranges, copy a trace or cap observation memory. Many callers run this in finally, so failures/misses are included.</td>
+</tr>
+<tr>
+<td><code>_directory_size(path)</code></td>
+<td>Zero if absent, otherwise sums stat sizes for recursively enumerated files. No block-allocation measure, snapshot isolation or error suppression during mutation.</td>
+</tr>
+<tr>
+<td><code>_ratio(numerator, denominator)</code></td>
+<td>Returns None for zero denominator, otherwise division. Does not reject negative inputs or infer missing values.</td>
+</tr>
+<tr>
+<td><code>_latency_distribution(values)</code></td>
+<td>For empty data returns zero-valued statistics. Otherwise calculates mean/median/sample standard deviation, normal 1.96*s/sqrt(n) interval, min/max and nearest-rank-style percentiles. A single observation has zero spread/margin. Input and outputs are nanoseconds; summary has no unit field.</td>
+</tr>
+<tr>
+<td><code>_percentile(values, value)</code></td>
+<td>Sorts values and selects the clamped implemented rank. No interpolation or percentile validation; empty input raises IndexError when called directly. The distribution wrapper handles empty values separately.</td>
+</tr>
+</tbody>
+</table>
+<p>Storage's writeAmplification is <strong>current file bytes divided by supplied raw
+dataset bytes</strong>, not physical bytes written per logical write. cacheAmplification
+uses unique referenced blob sizes. logicalArtifactBytes counts the same content
+again for distinct provenance nodes; cachedArtifactBytes deduplicates resolved
+paths and excludes missing blobs. metadataBytes includes cacheIndexBytes, so
+those fields are not independent totals to add. Stored-byte ratios are not proof
+of Java compaction efficiency or durability equivalence.</p>
+<p>Nested timings overlap: artifact retrieval includes metadata lookup; wrapper
+serialization/deserialization can sit outside the corresponding commit/retrieval
+timer. Batch methods have their own bucket rather than recording each single
+operation. Counts include failed attempts where finally records them. The normal
+confidence interval over repeated operation latencies is not the H2 paired
+confirmatory analysis, and can extend below zero for high spread.</p>
+<h2 id="environment-functions">Environment Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>environment_report(*, dataset_version=None, code_commit=None, root=None)</code></td>
+<td>Combines CPU/platform/Python/executable fields with GPU, RAM, disk, Java, Torch and Git probes. Dataset defaults to unknown; commit precedence is supplied, AETHER_CODE_COMMIT, Git probe. Does not include package-lock/source inventories, GPU utilization, training seed or validated backend identity. Disk/probe failures not handled locally can propagate.</td>
+</tr>
+<tr>
+<td><code>_gpu_report()</code></td>
+<td>Imports Torch; missing import reports unavailable. If cuda.is_available is false, reports unavailable with torch backend. Otherwise lists all visible devices' names/total memory and labels rocm when torch.version.hip is set, cuda otherwise. No selection, workload execution, utilization or device-free-memory measurement. Non-import probe failures can propagate.</td>
+</tr>
+<tr>
+<td><code>_ram_report()</code></td>
+<td>On Windows tries GlobalMemoryStatusEx through a locally declared ctypes MemoryStatus layout, broadly catches that branch's exceptions, then tries available os.sysconf page-size/page-count fields. Supported sysconf errors fall through to None totals. Reports host physical totals/availability, not process RSS, GPU RAM or a container quota.</td>
+</tr>
+<tr>
+<td><code>_disk_report(root)</code></td>
+<td>shutil.disk_usage for supplied root or cwd plus resolved path. Reports volume capacity/used/free, not this store's bytes or write traffic. Does not create a missing root or catch disk_usage failures.</td>
+</tr>
+<tr>
+<td><code>_java_version()</code></td>
+<td>Runs java -version with captured output and a five-second timeout. Supported launch/subprocess failures return None; selects first stderr line or stdout fallback even without success return code. Does not validate JDK identity or launch Aether.</td>
+</tr>
+<tr>
+<td><code>_pytorch_version()</code></td>
+<td>Imports Torch and returns <strong>version</strong>, or None for ImportError. No CUDA compatibility or package-lock check.</td>
+</tr>
+<tr>
+<td><code>_git_commit(root)</code></td>
+<td>Runs git rev-parse HEAD, using git -C when root supplied, with a five-second timeout. Supported execution failures/nonzero/empty output return unknown. Does not check dirty worktree, hash source contents or pin a frozen archive.</td>
+</tr>
+</tbody>
+</table>
+<p>The environment report is descriptive, not a reproducibility gate. Probing can
+import Torch, initialize device queries or spawn short Java/Git processes. Run it
+outside measured work unless its cost belongs in the chosen timing boundary.
+Store initialization's code_commit default is only supplied/env/unknown, unlike
+environment_report's optional Git fallback; these fields need not match without
+caller discipline. Missing measurements remain None/unknown, not fabricated data.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/tests/test_aetherml.py">test_aetherml.py</a> covers cleanup,
+corrupt artifacts/snapshots, latency/storage summaries and basic environment
+fields. <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_provenance_documented_contracts.py">Focused provenance contracts</a>
+exercise report scope, pre-cleanup recovery results, stored-versus-written ratios,
+failure timers, rank statistics and deterministic environment probe precedence.
+They use local fixtures and probe doubles; they do not certify power loss,
+host-environment identity, full malformed-store tolerance or confirmatory science.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#validation-and-recovery-architecture">Validation and Recovery Architecture</a><a href="#report-and-recovery-functions">Report and Recovery Functions</a><a href="#operation-and-storage-metrics">Operation and Storage Metrics</a><a href="#environment-functions">Environment Functions</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

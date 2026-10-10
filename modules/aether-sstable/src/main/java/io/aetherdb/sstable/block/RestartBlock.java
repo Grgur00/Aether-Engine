@@ -124,20 +124,7 @@ public final class RestartBlock {
      */
     public static List<Entry> decode(byte[] raw, Comparator<byte[]> comparator) {
         if (comparator == null) throw new IllegalArgumentException("comparator is required");
-        if (raw.length < 8) throw corrupt("block too short");
-        ByteBuffer end = ByteBuffer.wrap(raw).order(ByteOrder.LITTLE_ENDIAN);
-        int restartCount = end.getInt(raw.length - 4);
-        if (restartCount <= 0 || restartCount > (raw.length - 4) / 4)
-            throw corrupt("invalid restart count");
-        int restartStart = raw.length - 4 - restartCount * 4;
-        int previousRestart = -1;
-        for (int i = 0; i < restartCount; i++) {
-            int offset = end.getInt(restartStart + i * 4);
-            if (offset < 0
-                    || (restartStart == 0 ? offset != 0 : offset >= restartStart)
-                    || offset <= previousRestart) throw corrupt("invalid restart offset");
-            previousRestart = offset;
-        }
+        int restartStart = entryLimit(raw);
         List<Entry> entries = new ArrayList<>();
         byte[] previous = new byte[0];
         int cursor = 0;
@@ -163,6 +150,24 @@ public final class RestartBlock {
         }
         if (cursor != restartStart) throw corrupt("block not exactly consumed");
         return entries;
+    }
+
+    static int entryLimit(byte[] raw) {
+        if (raw.length < 8) throw corrupt("block too short");
+        ByteBuffer end = ByteBuffer.wrap(raw).order(ByteOrder.LITTLE_ENDIAN);
+        int restartCount = end.getInt(raw.length - 4);
+        if (restartCount <= 0 || restartCount > (raw.length - 4) / 4)
+            throw corrupt("invalid restart count");
+        int restartStart = raw.length - 4 - restartCount * 4;
+        int previousRestart = -1;
+        for (int i = 0; i < restartCount; i++) {
+            int offset = end.getInt(restartStart + i * 4);
+            if (offset < 0
+                    || (restartStart == 0 ? offset != 0 : offset >= restartStart)
+                    || offset <= previousRestart) throw corrupt("invalid restart offset");
+            previousRestart = offset;
+        }
+        return restartStart;
     }
 
     private static int shared(byte[] left, byte[] right) {

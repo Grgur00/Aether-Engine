@@ -92,7 +92,8 @@ final class TrainingCacheRequestTrace {
             comma = true;
             json.append('"').append(entry.getKey()).append("\":").append(entry.getValue());
         }
-        json.append("},\"readDiagnostics\":").append(DiagnosticJson.encode(trace.reads.snapshot()))
+        json.append("},\"writeDiagnostics\":").append(DiagnosticJson.encode(trace.flushes.writeDiagnostics()))
+                .append(",\"readDiagnostics\":").append(DiagnosticJson.encode(trace.reads.snapshot()))
                 .append(",\"responseWriteCompleted\":false,\"compactionScheduled\":").append(trace.flushes.compactionScheduled())
                 .append(",\"compactionDebtBytes\":").append(trace.flushes.compactionDebtBytes())
                 .append(",\"flushes\":[");

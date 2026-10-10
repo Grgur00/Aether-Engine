@@ -1,0 +1,424 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/CONFIG-LOADING-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Configuration loading and validation: source-backed contributor documentation for Aether Engine.">
+  <title>Configuration loading and validation | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html" aria-current="page">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/CONFIG-LOADING-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="configuration-loading-and-validation-functions">Configuration Loading and Validation Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="operations.html">Operations</a> | <a href="persistent-internals.html">Persistent internals</a></p>
+<p>This reference covers the explicit declarations in nine configuration files:
+the immutable value model, setting metadata, registry, loader, validator, exception,
+and three enums. Runtime conversion examples explain consumer boundaries; they are
+not a complete function inventory of the engine, Raft, or RPC modules. The
+<a href="config-change-functions.html">configuration change reference</a> explains reload and
+cluster-change decisions separately from loading a configuration.</p>
+<h2 id="architectural-boundary">Architectural Boundary</h2>
+<p>The loader resolves strings; the validator checks registered values and selected
+cross-setting rules; each consumer converts the result into its own runtime model.
+None of these steps starts a server, resolves an encryption key, changes an existing
+database, or makes every registered setting operational.</p>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Input and output</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>readProperties</code></td>
+<td>Optional file to string map</td>
+<td>Java properties parsing with a UTF-8 reader</td>
+</tr>
+<tr>
+<td><code>fromEnvironment</code></td>
+<td>Caller-supplied environment to registered values</td>
+<td>Registered-name mapping only</td>
+</tr>
+<tr>
+<td><code>load</code></td>
+<td>File, environment, overrides to <code>AetherConfiguration</code></td>
+<td>Merge precedence, immutable copy, validation</td>
+</tr>
+<tr>
+<td><code>validate</code></td>
+<td>Configuration and registry</td>
+<td>Unknown names, scalar values, hard-coded combinations</td>
+</tr>
+<tr>
+<td>Consumer <code>from</code> methods</td>
+<td>Validated strings to runtime fields</td>
+<td>Narrowing, domain-specific construction, application</td>
+</tr>
+</tbody>
+</table>
+<p>Precedence is <strong>file &lt; environment &lt; explicit overrides</strong>. Registry defaults are
+looked up on demand, not inserted into the returned configuration's <code>values()</code> map.
+An absent explicit value can therefore have an effective default while <code>get</code> is empty.</p>
+<h2 id="value-and-setting-models">Value and Setting Models</h2>
+<h3 id="aetherconfiguration">AetherConfiguration</h3>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/src/main/java/io/aetherdb/config/AetherConfiguration.java">AetherConfiguration.java</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherConfiguration(values)</code></td>
+<td>Requires the map and takes <code>Map.copyOf</code>; rejects null keys/values. It does not validate setting names or semantics.</td>
+</tr>
+<tr>
+<td><code>get(name)</code></td>
+<td>Returns the explicitly stored value as an <code>Optional</code>; does not consult defaults.</td>
+</tr>
+<tr>
+<td><code>getOrDefault(setting)</code></td>
+<td>Looks up <code>setting.name()</code> or returns <code>setting.defaultValue()</code>; does not parse, validate, or store the default.</td>
+</tr>
+<tr>
+<td>Implicit <code>values()</code> accessor</td>
+<td>Returns the immutable copied map. Its iteration order is not promised.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="configsetting">ConfigSetting</h3>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/src/main/java/io/aetherdb/config/ConfigSetting.java">ConfigSetting.java</a>.</p>
+<p><code>ConfigSetting(...)</code> validates the name against <code>aether\.[a-z0-9_.]+</code>, requires type,
+default and scope, copies the non-null <code>unsafeCombinations</code> list, requires a nonblank
+validation code, requires compatibility epoch &gt;= 1, and checks minimum &lt;= maximum
+when both bounds exist. Null bounds mean no bound in that direction.</p>
+<p>The implicit record accessors expose name, type, default, bounds, scope,
+<code>hotReloadable</code>, <code>restartRequired</code>, <code>securitySensitive</code>, <code>compatibilityEpoch</code>,
+<code>unsafeCombinations</code>, and <code>validationErrorCode</code>. These are metadata, not callbacks.
+Construction does not parse the default, validate its range, or prohibit contradictory
+reload/restart flags. The validator does not interpret the unsafe-combination strings.</p>
+<h3 id="enums-and-validation-exception">Enums and Validation Exception</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Values or function</th>
+<th>Meaning here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/src/main/java/io/aetherdb/config/ConfigType.java">ConfigType</a></td>
+<td><code>STRING</code>, <code>BOOLEAN</code>, <code>INTEGER</code>, <code>LONG</code></td>
+<td>Selects scalar validation; both numeric types are initially parsed as <code>long</code>.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/src/main/java/io/aetherdb/config/ConfigScope.java">ConfigScope</a></td>
+<td><code>NODE_LOCAL</code>, <code>CLUSTER_WIDE</code>, <code>EMBEDDED_ONLY</code></td>
+<td>Descriptive scope; scalar validation does not establish cluster agreement.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/src/main/java/io/aetherdb/config/ConfigSource.java">ConfigSource</a></td>
+<td><code>FILE</code>, <code>ENVIRONMENT</code>, <code>OVERRIDE</code></td>
+<td>Source labels; <code>AetherConfiguration</code> does not retain per-value provenance.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/src/main/java/io/aetherdb/config/ConfigValidationException.java">ConfigValidationException</a></td>
+<td><code>ConfigValidationException(message)</code></td>
+<td>Runtime exception passing the message to its superclass; no structured setting-code field.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="registry-functions">Registry Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/src/main/java/io/aetherdb/config/AetherConfigRegistry.java">AetherConfigRegistry.java</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Private <code>AetherConfigRegistry(settings)</code></td>
+<td>Copies the supplied settings map with <code>Map.copyOf</code>.</td>
+</tr>
+<tr>
+<td><code>defaults()</code></td>
+<td>Constructs a new registry containing 40 declared settings; not a shared singleton and not a validated configuration.</td>
+</tr>
+<tr>
+<td><code>settings()</code></td>
+<td>Exposes the immutable map; construction through a linked map does not guarantee the returned map's iteration order.</td>
+</tr>
+<tr>
+<td><code>require(name)</code></td>
+<td>Returns a registered definition or throws <code>IllegalArgumentException</code> for an unknown name.</td>
+</tr>
+<tr>
+<td>Private <code>add(...)</code></td>
+<td>Builds a <code>ConfigSetting</code> with epoch 1, empty unsafe-combination list, and generated error code, then calls <code>put</code>. It has no duplicate-name rejection.</td>
+</tr>
+<tr>
+<td>Private <code>validationErrorCode(name)</code></td>
+<td>Removes <code>aether.</code>, uppercases with <code>Locale.ROOT</code>, replaces dots with underscores, and prefixes <code>CFG_</code>. Existing underscores remain.</td>
+</tr>
+</tbody>
+</table>
+<p>All registered definitions have epoch 1. Only the KEK provider is marked sensitive.
+No default uses <code>EMBEDDED_ONLY</code>. The generated codes are available metadata, but
+the validator's exceptions currently contain human-readable messages instead.</p>
+<h3 id="declared-default-groups">Declared Default Groups</h3>
+<p>Names below omit the common <code>aether.</code> prefix. MiB/GiB are binary units; configuration
+strings contain decimal byte counts, not unit suffixes.</p>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Defaults</th>
+<th>Selected bounds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Storage</td>
+<td><code>storage.path</code> empty; lock timeout 30 s; disk pressure enabled</td>
+<td>Lock timeout 1..3600 s</td>
+</tr>
+<tr>
+<td>WAL</td>
+<td><code>GROUP_SYNC</code>; segment 64 MiB; force timeout 5 s</td>
+<td>Segment 1..64 MiB; force timeout 1..300 s</td>
+</tr>
+<tr>
+<td>Mutable and immutable storage</td>
+<td>Native memtable 64 MiB; immutable limit 4; data block 4096 bytes; cache 128 MiB</td>
+<td>Native 1..512 MiB; limit 1..64; block 1024..65536; cache 0..8 GiB</td>
+</tr>
+<tr>
+<td>Compaction and snapshots</td>
+<td>Enabled; 2 jobs; bandwidth 128 MiB/s; 64 open snapshots</td>
+<td>Jobs 1..64; bandwidth 0..16 GiB/s; snapshots 1..4096</td>
+</tr>
+<tr>
+<td>RPC</td>
+<td>Host <code>0.0.0.0</code>; port 9483; frame 1 MiB; message 8 MiB; 256 streams; inbound/outbound 64 MiB; timeout 30 s</td>
+<td>Port/streams up to 65535; frame up to 1 MiB; message up to 64 MiB; buffers 1 MiB..8 GiB</td>
+</tr>
+<tr>
+<td>Raft</td>
+<td>Election 300..600 ms; heartbeat 100 ms; snapshot threshold 100000 entries; uncommitted limit 256 MiB</td>
+<td>Election 50..600000 ms; heartbeat 10..60000 ms; threshold positive; bytes 1 MiB..8 GiB</td>
+</tr>
+<tr>
+<td>Backup</td>
+<td>Path empty; bandwidth 128 MiB/s</td>
+<td>Bandwidth 0..16 GiB/s</td>
+</tr>
+<tr>
+<td>Security</td>
+<td><code>production</code>; TLS, mTLS, authorization and at-rest encryption enabled; audit fail-open disabled; KEK provider empty</td>
+<td>Cross-setting policy below</td>
+</tr>
+<tr>
+<td>Observability and budget</td>
+<td>Metrics enabled; tracing disabled; log level <code>INFO</code>; memory budget 512 MiB</td>
+<td>Budget 32 MiB..64 GiB</td>
+</tr>
+</tbody>
+</table>
+<p>An empty configuration <strong>fails default validation</strong>: production encryption requires
+a nonblank KEK provider, and its registered default is empty. A nonblank provider
+name satisfies this particular check; it does not prove a key provider exists.
+Development profile bypasses the production-only security combinations, not all
+other scalar, timing, memory, or enum validation.</p>
+<h2 id="loader-functions">Loader Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/src/main/java/io/aetherdb/config/AetherConfigLoader.java">AetherConfigLoader.java</a>.</p>
+<h3 id="construction-and-load">Construction and load</h3>
+<p><code>AetherConfigLoader(registry)</code> requires a registry and constructs a validator using
+that same registry. <code>defaults()</code> constructs a loader with a newly built default registry.</p>
+<p><code>load(propertiesPath, environment, overrides)</code> optionally reads a file, merges mapped
+environment values, then explicit overrides. It requires environment and overrides,
+constructs the immutable value model, validates it, and returns only on success.
+I/O errors propagate as <code>IOException</code>; validation failures are runtime exceptions.
+A null path means no file, not a default filename. The method does not call
+<code>System.getenv()</code> itself: the caller chooses which environment map to pass.</p>
+<h3 id="readproperties-and-fromenvironment">readProperties and fromEnvironment</h3>
+<p>Private <code>readProperties(path)</code> opens <code>Files.newBufferedReader</code>, uses <code>Properties.load(Reader)</code>,
+closes the reader, and copies string property names/values. The reader defaults to
+UTF-8, rather than the byte-stream overload's properties encoding. Escapes and
+duplicate-key handling come from <code>Properties</code>; there is no custom file format.</p>
+<p>Private <code>fromEnvironment(environment)</code> iterates registered setting names, uppercases
+with <code>Locale.ROOT</code>, replaces each dot with an underscore, and includes non-null matches.
+For example, <code>aether.rpc.max_frame_bytes</code> maps to <code>AETHER_RPC_MAX_FRAME_BYTES</code>.
+Unrelated environment variables are ignored. Unknown file or override names, in
+contrast, survive merging and are rejected by validation.</p>
+<h3 id="redacteddiagnosticview">redactedDiagnosticView</h3>
+<p><code>redactedDiagnosticView(configuration)</code> returns an immutable map of every registered
+setting's effective value. A nonblank sensitive value becomes <code>REDACTED</code>; blank
+sensitive values remain blank. Explicit unknown keys become <code>UNKNOWN</code>, not their raw
+values. This method does not validate the input, and the configuration's own <code>values()</code>
+still contains original values. Only definitions marked sensitive receive redaction.</p>
+<h2 id="validator-functions">Validator Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/src/main/java/io/aetherdb/config/AetherConfigValidator.java">AetherConfigValidator.java</a>.</p>
+<h3 id="entry-points-and-scalar-checks">Entry Points and Scalar Checks</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherConfigValidator(registry)</code></td>
+<td>Requires and retains the registry.</td>
+</tr>
+<tr>
+<td><code>validate(configuration)</code></td>
+<td>Requires input; rejects explicit unknown keys; checks every registered effective value including defaults; then checks combinations. Throws on the first encountered failure, not an aggregate report.</td>
+</tr>
+<tr>
+<td><code>defaults()</code></td>
+<td>Constructs a validator using a new default registry.</td>
+</tr>
+<tr>
+<td>Static <code>validate(values)</code></td>
+<td>Copies the map into <code>AetherConfiguration</code>, then runs default validation.</td>
+</tr>
+<tr>
+<td>Private <code>validateValue(setting, raw)</code></td>
+<td>Boolean must be exactly true/false ignoring case; numeric values use <code>Long.parseLong</code> and inclusive declared bounds; strings receive no generic semantic check.</td>
+</tr>
+</tbody>
+</table>
+<p>Values are not trimmed. <code>INTEGER</code> does not itself narrow to Java <code>int</code>; consumers
+can enforce narrower limits later. Invalid numeric syntax is converted to a
+<code>ConfigValidationException</code> message without preserving the parsing cause.</p>
+<h3 id="combination-checks">Combination Checks</h3>
+<p>Private <code>validateUnsafeCombinations(configuration)</code> implements these rules directly:</p>
+<ul>
+<li>Profile is <code>production</code> or <code>development</code>, ignoring case.</li>
+<li>Production requires TLS, mTLS and authorization, rejects audit fail-open, and
+requires a nonblank KEK provider when at-rest encryption is enabled.</li>
+<li>WAL durability is <code>SYNC</code> or <code>GROUP_SYNC</code>; log level is <code>TRACE</code>, <code>DEBUG</code>, <code>INFO</code>,
+<code>WARN</code>, or <code>ERROR</code>, ignoring case.</li>
+<li>RPC message limit must be at least its frame limit.</li>
+<li>Minimum election timeout must be strictly greater than twice the heartbeat;
+maximum election timeout must be at least the minimum.</li>
+<li>Cache bytes + native memtable bytes + background jobs * target data-block bytes
+must not exceed the declared memory budget.</li>
+</ul>
+<p>The last rule is a limited accounting formula, not actual memory reservation or
+an estimate of all JVM/native/transport allocations. Arithmetic is ordinary <code>long</code>
+addition/multiplication; current registry bounds keep these terms within range.</p>
+<h3 id="private-lookup-and-predicate-helpers">Private Lookup and Predicate Helpers</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>validateEnum(configuration, name, allowed)</code></td>
+<td>Uppercases the effective value and rejects values outside the supplied set.</td>
+</tr>
+<tr>
+<td><code>requireTrue(configuration, name)</code></td>
+<td>Throws a production-requires message when <code>isTrue</code> is false.</td>
+</tr>
+<tr>
+<td><code>requireFalse(configuration, name)</code></td>
+<td>Throws a production-rejects message when <code>isTrue</code> is true.</td>
+</tr>
+<tr>
+<td><code>isTrue(configuration, name)</code></td>
+<td>Uses <code>Boolean.parseBoolean</code> on <code>value</code>; strict scalar checking precedes its use in normal validation.</td>
+</tr>
+<tr>
+<td><code>longValue(configuration, name)</code></td>
+<td>Parses the effective value as a long; assumes scalar validation already succeeded.</td>
+</tr>
+<tr>
+<td><code>value(configuration, name)</code></td>
+<td>Requires the named registry definition, then uses <code>getOrDefault</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="runtime-consumption-is-a-separate-step">Runtime Consumption Is a Separate Step</h2>
+<table>
+<thead>
+<tr>
+<th>Consumer</th>
+<th>Source-backed conversion</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/PersistentAetherDatabase.java">PersistentAetherDatabase.RuntimeConfiguration</a></td>
+<td>Native bytes, WAL segment bytes, snapshot maximum, compaction/disk-pressure switches, immutable limit and durability mode</td>
+<td>Uses default compaction configuration and default write admission timeout; this conversion is not an application of every registry setting.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-core/src/main/java/io/aetherdb/raft/core/RaftRuntimeConfiguration.java">RaftRuntimeConfiguration</a></td>
+<td>Five Raft values become durations and long thresholds after global validation</td>
+<td>Configuration construction does not start elections, install snapshots, or reserve log bytes.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-rpc-transport/src/main/java/io/aetherdb/rpc/transport/RpcTransportConfiguration.java">RpcTransportConfiguration</a></td>
+<td>Frame/message/stream/buffer limits; outbound bytes become 1024-byte permit units</td>
+<td>Its <code>intValue</code> uses <code>Math.toIntExact</code>; registry-valid buffers above <code>Integer.MAX_VALUE</code> cannot be represented here.</td>
+</tr>
+</tbody>
+</table>
+<p>RPC conversion rounds outbound bytes down to whole permits, with a minimum of one.
+Do not infer that a valid profile creates TLS credentials, that <code>hotReloadable</code> changes
+an already-open component, or that <code>CLUSTER_WIDE</code> alone distributes a setting.</p>
+<h2 id="tests-and-coverage-limits">Tests and Coverage Limits</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/src/test/java/io/aetherdb/config/AetherConfigLoaderTest.java">AetherConfigLoaderTest</a>
+checks precedence and sensitive redaction.
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-config/src/test/java/io/aetherdb/config/AetherConfigValidatorTest.java">AetherConfigValidatorTest</a>
+checks production policy, development allowance, timing, durability, RPC relation,
+memory budget, registry metadata, and sensitive classification.
+These tests do not establish that every setting is wired into a runtime subsystem.</p>
+<p>The documentation inventory checks explicit declaration names in the nine files
+listed above. It does not certify overload behavior, implicit record members,
+reload transactions, cluster compatibility, or live security enforcement.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architectural-boundary">Architectural Boundary</a><a href="#value-and-setting-models">Value and Setting Models</a><a href="#registry-functions">Registry Functions</a><a href="#loader-functions">Loader Functions</a><a href="#validator-functions">Validator Functions</a><a href="#runtime-consumption-is-a-separate-step">Runtime Consumption Is a Separate Step</a><a href="#tests-and-coverage-limits">Tests and Coverage Limits</a></nav></aside>
+  </div>
+</body>
+</html>

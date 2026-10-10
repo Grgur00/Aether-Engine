@@ -1,0 +1,206 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/WORKBENCH-RECORD-DIALOG-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Workbench record dialog: source-backed contributor documentation for Aether Engine.">
+  <title>Workbench record dialog | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html" aria-current="page">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/WORKBENCH-RECORD-DIALOG-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="workbench-record-dialog-functions">Workbench Record Dialog Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="workbench-workspace-functions.html">Workspace</a> | <a href="workbench-typed-value-functions.html">Typed values</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-workbench/src/main/java/io/aetherdb/workbench/RecordDialog.java">RecordDialog.java</a>.
+This guide covers <strong>14 explicit declarations in the complete file</strong>, including
+two <code>show</code> overloads, interface methods and nested editor constructors. Generated
+members of <code>FieldInput</code> and <code>RecordInput</code> records are not explicit declarations.</p>
+<h2 id="architecture-and-ownership">Architecture and Ownership</h2>
+<pre><code class="language-text">DatabaseWorkspace -&gt; RecordDialog.show
+    -&gt; StructuredEditor.create(initial text)
+       -&gt; recognized field lines: fixed rows of JTextField
+       -&gt; otherwise: TextEditor / free-form JTextArea
+    -&gt; modal OK/Cancel -&gt; Optional&lt;RecordInput&gt;
+DatabaseWorkspace -&gt; text/typed encoder -&gt; database write
+</code></pre>
+<p>The dialog performs no database access and receives no schema descriptor or
+original binary envelope. Its input and output are strings. Structured mode is
+selected by the initial text's syntax, not by a storage type discriminator.
+The workspace remains responsible for encoding, write outcomes, refresh and
+error reporting. See the typed-value guide for the later AETV/AER1 validation.</p>
+<p>All editor state is local to one invocation. <code>FieldInput</code> holds an ID, display
+name, type label and mutable Swing text field. The editor copies the list but
+not its controls. <code>RecordInput</code> is the returned key/value pair. There is no
+background worker, transaction, undo history or live storage synchronization.
+Callers use the dialog as Swing UI work; these methods do not dispatch to the
+event thread themselves.</p>
+<h2 id="dialog-entry-points">Dialog Entry Points</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>What It Does</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RecordDialog.RecordDialog()</code></td>
+<td>Private constructor prevents utility instantiation.</td>
+<td>No initialization or shared state.</td>
+</tr>
+<tr>
+<td><code>RecordDialog.blankStructuredValues(encoded)</code></td>
+<td>Splits on Java <code>\\R</code>, skips blank lines, retains metadata before the first <code>=</code>, and chooses a default using the substring after its last <code>:</code>. Defaults: <code>bool=false</code>, <code>long=0</code>, <code>double=0.0</code>, other labels empty. Appends one LF per retained field.</td>
+<td>A missing/leading <code>=</code> or missing/leading final <code>:</code> returns an empty string for the entire form. Does not parse IDs, validate types or strip type whitespace. Existing values are discarded, not decoded. Blank input yields empty output.</td>
+</tr>
+<tr>
+<td><code>RecordDialog.show(parent, title, key, value)</code></td>
+<td>Delegates to the five-argument overload with <code>keyEditable=true</code>.</td>
+<td>Does not create a second form or additional confirmation.</td>
+</tr>
+<tr>
+<td><code>RecordDialog.show(parent, title, key, value, keyEditable)</code></td>
+<td>Creates a 36-column key field, selects structured or plain value editor once, lays out labels/controls with GridBagLayout, and opens a modal OK/Cancel confirmation. Returns <code>Optional&lt;RecordInput&gt;</code> on OK with a nonempty key.</td>
+<td>Cancel/close returns empty. Empty key displays a warning and returns empty rather than reopening. Whitespace-only keys are accepted; neither key nor value is trimmed. <code>keyEditable=false</code> disables key editing but preserves the same key check. Numeric/type/schema validation is not performed here.</td>
+</tr>
+</tbody>
+</table>
+<p>Changing the initial syntax changes the chosen widget. Editing free text into
+structured syntax does not switch modes while the dialog is open. Conversely,
+structured rows expose values only: field IDs, labels and types are fixed until
+the dialog closes. Adding/removing fields requires another editing surface, not
+this form. The later encoder may reject values accepted by these widgets.</p>
+<h2 id="plain-editor-contract">Plain Editor Contract</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>What It Does</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RecordDialog.ValueEditor.component()</code></td>
+<td>Interface contract supplies the Swing component inserted into the form.</td>
+<td>No database or serialization operation.</td>
+</tr>
+<tr>
+<td><code>RecordDialog.ValueEditor.value()</code></td>
+<td>Interface contract retrieves the edited value text at acceptance time.</td>
+<td>Different editors preserve/normalize text differently.</td>
+</tr>
+<tr>
+<td><code>RecordDialog.TextEditor.TextEditor(value)</code></td>
+<td>Creates a 10-row, 36-column JTextArea with line wrapping and word wrapping, inside a scroll pane preferred at 520 by 260 pixels.</td>
+<td>Wrapping is visual, not a structured-record parser. No field validation or size limit is added.</td>
+</tr>
+<tr>
+<td><code>RecordDialog.TextEditor.component()</code></td>
+<td>Returns the existing scroll pane.</td>
+<td>The same mutable widget, not a copy.</td>
+</tr>
+<tr>
+<td><code>RecordDialog.TextEditor.value()</code></td>
+<td>Returns the text area's current text directly.</td>
+<td>No trimming, escaping, blanking or binary conversion.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="structured-editor-functions">Structured Editor Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>What It Does</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RecordDialog.StructuredEditor.StructuredEditor(fields)</code></td>
+<td>Copies the field list and builds one row per field. Displays a name when present, otherwise <code>Field &lt;id&gt;</code>, plus the type label. Uses a vertical filler and borderless scroll pane preferred at width 620 and height <code>min(360, 55 + fieldCount * 42)</code>.</td>
+<td>List membership is immutable, controls remain mutable. Preferred sizes are hints, not fixed bounds. All values use JTextField, including booleans and numbers.</td>
+</tr>
+<tr>
+<td><code>RecordDialog.StructuredEditor.create(encoded)</code></td>
+<td>Splits on <code>\\R</code>, ignores blank lines, parses integer ID before the first <code>:</code>, finds <code>=</code> after that colon, strips metadata, splits the name/type at the last metadata colon, checks a recognized type, unescapes the value and creates a 38-column JTextField. Returns a structured editor only when every nonblank line succeeds and at least one field exists.</td>
+<td>Any malformed ID, delimiter, type or escaped value makes the entire form fall back to plain text. IDs are not checked for positivity, uniqueness or order. Type payloads are not parsed here. Comment lines are not supported by this selector.</td>
+</tr>
+<tr>
+<td><code>RecordDialog.StructuredEditor.isFieldType(type)</code></td>
+<td>Accepts exact <code>bool</code>, <code>long</code>, <code>double</code>, <code>string</code>, <code>uuid</code>, <code>instant</code>, or any string beginning <code>wire-</code>.</td>
+<td>Case-sensitive. <code>wire-</code> alone and <code>wire-nonsense</code> pass this predicate; the later typed encoder can reject them. No descriptor-based type validation.</td>
+</tr>
+<tr>
+<td><code>RecordDialog.StructuredEditor.component()</code></td>
+<td>Returns the already-built scroll pane.</td>
+<td>No rebuild, refresh or validation.</td>
+</tr>
+<tr>
+<td><code>RecordDialog.StructuredEditor.value()</code></td>
+<td>Serializes fields in their existing row order as <code>id:[name:]type=escapedValue</code> followed by LF. Uses <code>UniversalTypedValue.escapeText</code> on each current input.</td>
+<td>Always emits a trailing LF; IDs/names/types cannot be edited here. Initial whitespace, ID spelling and line endings are normalized. Names/types are emitted without escaping. Does not sort or deduplicate fields.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="parsing-and-round-trip-boundaries">Parsing and Round-Trip Boundaries</h2>
+<p>A recognized unnamed field is <code>12:string=hello</code>; a named one is
+<code>12:title:string=hello</code>. The last metadata colon separates the type, allowing
+other colons inside the name. Delimiters inside values are retained because the
+parser finds only the first applicable <code>=</code>. Delimiters inside labels are not a
+general escaping system and can change parsing or force fallback.</p>
+<p>Unescaping accepts the typed utility's escaped backslash, LF and CR syntax.
+Invalid escape sequences force plain mode rather than displaying a partially
+parsed record. The structured serializer escapes values again; visual text
+fields and arbitrary Unicode line separators are not proof of a byte-exact
+record round trip. Scalar UTF-8/hex mode selection is owned by the later typed
+encoder, not by <code>StructuredEditor.create</code>.</p>
+<p>Blank-form generation is deliberately narrower than successful saving. UUID,
+instant and unknown-wire fields default to empty text, which may be invalid for
+their eventual encoders. <code>blankStructuredValues</code> also uses unstripped type text,
+whereas structured parsing strips it: <code>long </code> does not receive the numeric
+default even though the selector subsequently recognizes <code>long</code>.</p>
+<h2 id="tests-and-verification-scope">Tests and Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-workbench/src/test/java/io/aetherdb/workbench/DatabaseWorkspaceTest.java">DatabaseWorkspaceTest</a>
+tests blank structured defaults alongside workspace typed-value editing. It is
+not a modal interaction test: cancellation, keyboard focus, large field forms,
+malformed-selector fallback and validation warnings are not covered by opening
+the Swing dialog. The documentation inventory checks all explicit declaration
+names and the two <code>show</code> overloads; it does not establish UI correctness.</p>
+<p>The <a href="workbench-window-functions.html">window/action reference</a> covers desktop
+assembly separately. The workspace and typed
+guides explain the downstream write/encoding paths without conflating their
+validation with accepting text in this dialog.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-ownership">Architecture and Ownership</a><a href="#dialog-entry-points">Dialog Entry Points</a><a href="#plain-editor-contract">Plain Editor Contract</a><a href="#structured-editor-functions">Structured Editor Functions</a><a href="#parsing-and-round-trip-boundaries">Parsing and Round-Trip Boundaries</a><a href="#tests-and-verification-scope">Tests and Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

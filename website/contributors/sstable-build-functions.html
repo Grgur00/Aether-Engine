@@ -1,0 +1,236 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/SSTABLE-BUILD-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="SSTable construction: source-backed contributor documentation for Aether Engine.">
+  <title>SSTable construction | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html" aria-current="page">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/SSTABLE-BUILD-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="sstable-construction-and-tracing">SSTable Construction And Tracing</h1>
+<p><a href="sstable-block-functions.html">Block functions</a> | <a href="sstable-read-functions.html">Reads and verification</a></p>
+<p><a href="manifest-version-functions.html">Manifest publication and versions</a> follows
+inventory validation, durable edits and recovery after construction.</p>
+<p>This reference describes the local development implementation, including the
+empty-store deferred-verification bridge. Published <code>main</code> may not yet contain
+all these functions.</p>
+<h2 id="construction-is-not-publication">Construction Is Not Publication</h2>
+<p><code>SSTableBuilder</code> accumulates owned entries, constructs a complete in-memory table
+image, creates a new file and forces it. Normal <code>finish</code> then opens a fully
+verifying reader and closes it. The empty-store bulk path defers that verification
+to the version-set inventory boundary. Neither path commits a manifest itself.</p>
+<p>The builder has three states: <code>OPEN</code>, <code>FINISHED</code> and <code>ABANDONED</code>. <code>FINISHED</code> means
+the finish attempt has consumed the builder, not that every later write, force
+or verification step succeeded. A failed finish is not automatically retryable
+on the same builder and does not automatically remove a partial output file.
+The higher-level owner handles temporary-file cleanup and publication safety.</p>
+<p>There are three distinct sizes worth keeping separate:</p>
+<ul>
+<li>The v1 DATA payload target is 16,384 bytes, a soft partitioning target.</li>
+<li>A raw DATA block may not exceed 32 MiB in this builder.</li>
+<li>A whole-SSTable target, such as the research configuration's 32 MiB, belongs to the higher-level population/compaction policy. This builder does not enforce a total-file target.</li>
+</ul>
+<h2 id="builder-public-functions">Builder Public Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableBuilder.java">SSTableBuilder.java</a>.</p>
+<h3 id="sstablebuilderpath-filenumber-databaseid-creationepochmillis"><code>SSTableBuilder(path, fileNumber, databaseId, creationEpochMillis)</code></h3>
+<p>Requires non-null path/identity and a positive file number, then records diagnostic
+creation time. It does not create the file, create parent directories or check
+path existence yet. Exclusive creation occurs during finish.</p>
+<h3 id="addkey-value"><code>add(key, value)</code></h3>
+<p>Requires <code>OPEN</code>, non-null key/value and an empty payload for type-2 tombstones.
+It encodes the immutable internal key, compares against the last encoded key
+using semantic internal ordering, and rejects equality or decreasing order.
+The builder retains the new encoded key and a clone of the value in private
+<code>Entry</code> records. There is no sorting, deduplication or application-record decoding.</p>
+<p>All accepted values remain retained until the builder is collected; <code>add</code> is not
+a streaming file write. A rejected add leaves previously accepted entries intact.</p>
+<h3 id="finish-and-finishtrace"><code>finish()</code> And <code>finish(trace)</code></h3>
+<p>The no-argument overload delegates with no trace. The traced overload delegates
+to <code>finishInternal(trace, true)</code>, requesting immediate reader verification after
+writing. Both return <code>TableFileMetadata</code> only after the requested finish succeeds.
+The trace changes instrumentation, not the bytes or verification policy.</p>
+<h3 id="finishforbulkinstalltrace"><code>finishForBulkInstall(trace)</code></h3>
+<p>Package-private bridge to <code>finishInternal(trace, false)</code>. It writes and forces
+identical format bytes but does not create a verifying reader. It is not the
+application-facing way to skip integrity checks; the cross-module bridge below
+restricts the intended caller to an empty-store installation workflow.</p>
+<h3 id="abandon-and-requireopen"><code>abandon()</code> And <code>requireOpen()</code></h3>
+<p><code>abandon</code> changes only an open builder to <code>ABANDONED</code>. It performs no file I/O,
+deletion or explicit clearing of retained entry arrays. Calling it after a finish
+attempt does not revert state or clean up an output file. Private <code>requireOpen</code>
+rejects operations once either terminal state has been reached.</p>
+<h2 id="finish-control-flow">Finish Control Flow</h2>
+<h3 id="finishinternaltrace-verifyimmediately"><code>finishInternal(trace, verifyImmediately)</code></h3>
+<p>Starts a non-null trace with the current entry count, calls <code>finishBody</code>, and
+records completion in <code>finally</code>. Only a normal return from the body marks success.
+This wrapper does not translate exceptions, delete files or reset builder state.</p>
+<h3 id="finishbodytrace-verifyimmediately"><code>finishBody(trace, verifyImmediately)</code></h3>
+<p>Requires an open, nonempty builder, then sets <code>FINISHED</code> <strong>before</strong> partitioning
+or file creation. The rest of the pipeline is:</p>
+<ol>
+<li>Partition DATA entries, reserve a zero-filled 4 KiB header region and append encoded/checksummed DATA blocks.</li>
+<li>Collect distinct user keys and build the full-file Bloom block.</li>
+<li>Compute entry/byte/sequence metrics and encode placeholder properties with file size zero.</li>
+<li>Plan properties, metaindex, index and footer offsets. The file-size property is fixed-width, so replacing zero with final size preserves encoded length.</li>
+<li>Append final properties, metaindex and index; require the accumulated body size to match the planned footer offset.</li>
+<li>Append the footer, copy the complete body into a new table array and overlay the 128-byte header at its start. The remaining reserved region stays zero.</li>
+<li>Open the path with <code>CREATE_NEW</code> and <code>WRITE</code>, write the full array in a loop, call <code>force(true)</code> and close through try-with-resources.</li>
+<li>Construct metadata. If immediate verification was requested, open <code>SSTableReader</code> against it, run the open path's full verification and close the reader. Return metadata.</li>
+</ol>
+<p>This holds a table-sized output stream and then a table-sized copied array,
+in addition to retained input values and intermediate block buffers. Streaming
+verification does not make this builder itself a streaming writer.</p>
+<p>An existing output path fails exclusive creation instead of being overwritten.
+Write/force/close failures propagate. A newly created partial file can remain;
+caller-owned temporary-file handling is therefore part of the surrounding
+durability protocol. A successful file force alone is not manifest authorization.</p>
+<h2 id="data-partition-and-encoding-helpers">DATA Partition And Encoding Helpers</h2>
+<h3 id="partitiondatablocks"><code>partitionDataBlocks()</code></h3>
+<p>Tracks encoded body bytes, restart count and the previous key within each block.
+For each entry it computes the exact body contribution plus restart offsets and
+the count suffix. If adding it would exceed the 16 KiB target and the current
+block is nonempty, that block is finalized and the entry starts a new block with
+zero shared prefix. A single large entry may exceed the target; any candidate
+raw payload above 32 MiB is rejected.</p>
+<p>The immutable partition lists share private owning <code>Entry</code> objects; payloads
+are not cloned during list partitioning. This algorithm partitions at entry
+boundaries and <strong>does not keep all versions of one user key together</strong>. Callers
+must not assume that merely using the builder satisfies a reader's one-block
+lookup assumptions. Empty normal input is rejected before this helper is called.</p>
+<h3 id="encodedatablockentries-and-writeblock"><code>encodeDataBlock(entries)</code> And <code>writeBlock(...)</code></h3>
+<p><code>encodeDataBlock</code> feeds owned arrays directly into a restart encoder with interval
+16 and internal-key ordering, avoiding per-entry adapter records. <code>writeBlock</code>
+envelopes/checksums a raw payload, constructs a physical handle at the current
+output position, appends physical bytes and returns a <code>BlockDescription</code> with
+that handle and optional last key. Nested trace stage <code>blockBufferAppend</code> is
+restored in <code>finally</code>; it does not write to the disk channel itself.</p>
+<h3 id="indexblocks-and-metaindexfilter-properties"><code>index(blocks)</code> And <code>metaindex(filter, properties)</code></h3>
+<p><code>index</code> uses each DATA block's actual last encoded key and encoded handle as a
+restart entry. It encodes with interval one and internal ordering, so each index
+key is independently reconstructible. Metadata entry construction copies those
+small arrays. <code>metaindex</code> emits two bytewise-sorted names pointing to Bloom and
+properties blocks, also at restart interval one.</p>
+<h2 id="properties-and-accounting-helpers">Properties And Accounting Helpers</h2>
+<h3 id="propertiesmetrics-filesize"><code>properties(metrics, fileSize)</code></h3>
+<p>Builds a sorted map of comparator, file number/size, counts, raw byte totals,
+sequence/key bounds, filter/compression policy and diagnostic creation time.
+Numeric values are fixed-width little-endian arrays, names/literals are ASCII.
+The sorted entries become a restart block with interval one. Key bounds come
+from the first and last accumulated entry, not from a separately sorted copy.</p>
+<h3 id="distinctuserkeys"><code>distinctUserKeys()</code></h3>
+<p>Walks already ordered internal keys and copies only the user portion when it
+differs from the preceding distinct key. Consecutive versions contribute one
+Bloom key. It avoids allocating an <code>InternalKey</code> object for each comparison,
+but still allocates user-key arrays; Bloom building also takes owning copies.</p>
+<h3 id="metricsdatablockcount-and-metadatametrics-blocks-size"><code>metrics(dataBlockCount)</code> And <code>metadata(metrics, blocks, size)</code></h3>
+<p><code>metrics</code> reads each encoded sequence, computes extrema and sums raw internal-key
+and value lengths with <code>Math.addExact</code>. It returns a private <code>Metrics</code> record;
+it does not measure physical bytes or compression savings. <code>metadata</code> combines
+those observations, file identity, first/last encoded keys and final physical
+size into a defensively owning <code>TableFileMetadata</code>.</p>
+<h3 id="scalar-encoding-and-private-records">Scalar Encoding And Private Records</h3>
+<p><code>ascii(value)</code> encodes US-ASCII. <code>littleLong(value)</code> and <code>littleInt(value)</code> allocate
+eight/four bytes and write little-endian scalars. These are metadata encoders,
+not variable-length codecs.</p>
+<p>Private <code>Entry(key, value)</code> and <code>BlockDescription(handle, largestKey)</code> records
+retain their supplied references without additional constructor cloning; ownership
+is established by the enclosing builder. <code>Metrics</code> carries sequence extrema,
+raw byte totals and block count. Generated record accessors do not perform I/O.</p>
+<h2 id="deferred-verification-bridge">Deferred Verification Bridge</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/BulkInstallSupport.java">BulkInstallSupport.java</a>.</p>
+<p>Private <code>BulkInstallSupport()</code> prevents instantiation.
+<code>finishUnpublished(versions, builder, trace)</code> reads the current version and requires
+an empty file inventory, last-assigned sequence zero and persisted sequence
+watermark zero. It then invokes the builder's package-private deferred finish.</p>
+<p>This check establishes eligibility at the moment it reads <code>current()</code>; the helper
+does not itself acquire an installation lock, prove there are no competing writers,
+verify the resulting table or commit a manifest. <code>EmptyStoreBulkLoader</code> owns the
+surrounding workflow. The unpublished output must pass inventory verification
+before installation; removing immediate verification is not permission to publish
+unchecked bytes.</p>
+<h2 id="builder-stage-trace">Builder Stage Trace</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableFinishTrace.java">SSTableFinishTrace.java</a>.</p>
+<h3 id="constructors-startentries-and-entertrace-stage">Constructors, <code>start(entries)</code> And <code>enter(trace, stage)</code></h3>
+<p>The default constructor delegates with bulk JFR markers disabled. The boolean
+constructor stores whether coarse bulk phase events should be attempted.
+Package-private <code>start</code> records entry count and sets initial timing timestamps.
+The object is intended for one finish attempt; no guard enforces single use or
+thread confinement, and start does not clear accumulated stages.</p>
+<p>Static <code>enter</code> is a no-op returning null when no trace is supplied. Otherwise it
+closes the active coarse event, optionally begins a mapped event, attributes time
+since the preceding switch to the previous active stage, and returns that previous
+stage name for nested restoration. Durations are exclusive stage totals, merged
+when a stage is revisited, not a hierarchy of independent additive timings.</p>
+<p>Only <code>fileForce</code> maps to <code>SSTABLE_FORCE</code> and <code>verificationOpenAndRead</code> maps to
+<code>SSTABLE_VERIFY</code> here. Other stage switches end a coarse event but create none.
+These markers are available only when <code>BulkPhaseEvent</code> is enabled.</p>
+<h3 id="filebytes-finish-and-accessors"><code>fileBytes</code>, <code>finish</code> And Accessors</h3>
+<p>Package-private <code>fileBytes(bytes)</code> sets planned physical bytes for trace metadata.
+<code>finish(success)</code> switches to <code>other</code> to close the last measured stage/event,
+captures total elapsed time and records success. It is called on both normal and
+exceptional finish exits. <code>stagesNs()</code> returns an immutable map snapshot;
+<code>totalNs()</code>, <code>completed()</code>, <code>entryCount()</code> and public <code>fileBytes()</code> return scalars.
+These accessors do not write reports or reconcile stage time with campaign time.</p>
+<h2 id="completed-verification-trace">Completed-Verification Trace</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableVerificationTrace.java">SSTableVerificationTrace.java</a>.</p>
+<p>Private construction captures the owner thread. <code>begin()</code> installs a new
+thread-local scope and rejects nesting on that thread. Verification on a different
+worker thread is not implicitly included.</p>
+<ul>
+<li><code>verified(fileBytes)</code> increments completed full-table count and adds the full physical size with checked addition when a scope is active. Calls without a scope are no-ops.</li>
+<li><code>streamed(fileBytes, result)</code> calls <code>verified</code> and also accumulates streaming table/entry/value/read-byte/time/block observations. These extra sums use ordinary long addition, not checked arithmetic.</li>
+<li><code>inventoryCall()</code> increments a separate boundary-call counter. It counts calls, not necessarily successful inventory completions.</li>
+<li><code>snapshot()</code> requires the owner and returns immutable <code>inventoryCalls</code>, <code>tablesFullyVerified</code> and <code>bytesFullyVerified</code> fields. Physical table size is not actual requested-read accounting.</li>
+<li><code>streamingSnapshot()</code> requires the owner and returns the separate <code>streaming-v1</code> schema with completed streaming tables, entries, logical value bytes, requested read bytes, elapsed time and block count.</li>
+<li><code>requireOwner()</code> rejects cross-thread inspection/close. <code>close()</code> removes the active thread-local scope once and marks the trace closed. Owner-thread snapshots remain accessible afterward; they do not require an open scope.</li>
+</ul>
+<p>Neither trace is a replacement for correctness verification. A failed table check
+does not produce a completed-table observation simply because the file exists.</p>
+<h2 id="coarse-jfr-events">Coarse JFR Events</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/jfr/BulkPhaseEvent.java">BulkPhaseEvent.java</a>.</p>
+<p><code>start(phase, records, bytes, tableIndex)</code> returns null when the class-load-time
+<code>aether.bulk.jfr</code> system-property flag is false. Otherwise it creates an event,
+fills fields and begins timing. The JVM recording settings still determine
+whether that custom event is recorded. <code>close()</code> ends and commits the event;
+it has no explicit idempotence guard. The event disables stack traces and exposes
+coarse phase metadata, not per-allocation stacks or full table verification proof.</p>
+<h2 id="regression-entry-points">Regression Entry Points</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/test/java/io/aetherdb/sstable/SSTableFormatV1Test.java">SSTableFormatV1Test</a>
+is the format/reader starting point;
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/test/java/io/aetherdb/sstable/SSTableVerificationTraceTest.java">SSTableVerificationTraceTest</a>
+checks instrumentation scopes. Function-name coverage checks omissions from this
+reference; it does not assert that the prose or timing model has been behaviorally
+proven by a benchmark.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#construction-is-not-publication">Construction Is Not Publication</a><a href="#builder-public-functions">Builder Public Functions</a><a href="#finish-control-flow">Finish Control Flow</a><a href="#data-partition-and-encoding-helpers">DATA Partition And Encoding Helpers</a><a href="#properties-and-accounting-helpers">Properties And Accounting Helpers</a><a href="#deferred-verification-bridge">Deferred Verification Bridge</a><a href="#builder-stage-trace">Builder Stage Trace</a><a href="#completed-verification-trace">Completed-Verification Trace</a><a href="#coarse-jfr-events">Coarse JFR Events</a><a href="#regression-entry-points">Regression Entry Points</a></nav></aside>
+  </div>
+</body>
+</html>

@@ -1,0 +1,297 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/PYTHON-PROVENANCE-STORE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Filesystem artifact publication: source-backed contributor documentation for Aether Engine.">
+  <title>Filesystem artifact publication | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html" aria-current="page">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/PYTHON-PROVENANCE-STORE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="filesystem-artifact-store-and-publication-functions">Filesystem Artifact Store and Publication Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="python-provenance-workflow-functions.html">Dataset and lineage functions</a> | <a href="python-provenance-diagnostic-functions.html">Validation and diagnostics</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_training_cache/ml.py">ml.py</a>, re-exported by
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aetherml/__init__.py">aetherml</a>, <strong>without an underscore</strong>.
+This page covers 31 explicit functions. Together the three provenance references
+cover all 79 functions in that module, including nested helpers and properties.
+The module's location inside aether_training_cache does not make this store a
+Java-backed cache. It is a separate filesystem prototype using Python files,
+pickle by default, per-instance locking and JSON metadata.</p>
+<h2 id="architecture-and-file-authority">Architecture and File Authority</h2>
+<pre><code class="language-text">transform descriptor + serialized inputs -&gt; caller cache key
+serialized result -&gt; content SHA-256 -&gt; artifacts/aa/bb/full-content-hash
+cache key + content hash -&gt; aether:provenance-node-hash
+  -&gt; metadata/artifacts/node-hash.json
+  -&gt; metadata/cache/cache-key.json (replaceable pointer)
+
+commit order: blob -&gt; artifact metadata -&gt; cache pointer
+each write: tmp file -&gt; flush/fsync file -&gt; os.replace destination
+snapshot/experiment records: separate JSON files, not part of that commit
+</code></pre>
+<p>Content and provenance identities are different. Two transforms can store one
+identical content blob but have distinct artifact nodes. A later publication of
+different bytes under the <strong>same cache key</strong> creates a different node and replaces
+the pointer; it is not the Java cache's immutable-key conflict policy. Existing
+blob/metadata paths are reused without rewriting them. There is no WAL, manifest,
+SSTable, daemon, eviction service, cross-process lock or bulk Java admission here.</p>
+<p>The per-instance RLock serializes commit and snapshot numbering only for callers
+sharing that object. Reads and many other operations do not acquire it. Separate
+handles/processes can race, including selecting the same snapshot number. The
+context manager is a convenience, not a resource/transaction lease: exit performs
+no close, sync, rollback or consistency validation.</p>
+<h2 id="records-and-ownership">Records and Ownership</h2>
+<p>ArtifactMetadata is a frozen dataclass with no explicit methods. Fields are
+artifact_id, content_hash, source_artifact_ids, transformation_name/version,
+parameters, created_at, code_commit, python_version, library_versions,
+storage_location, size, checksum and cache_key. Frozen does not make its lists or
+dictionaries deeply immutable. Commit retains supplied nonempty parameters and
+the store's library_versions in the returned object; JSON writes serialize their
+values at that moment. Metadata loaded later is a new object reconstructed from
+JSON, not an alias to the returned receipt.</p>
+<p>Defaults serialize values with pickle.dumps and load them with pickle.loads.
+<strong>Only read trusted stores</strong>: a checksum does not make pickle safe against code
+execution. Serializer/deserializer are caller-supplied and must agree; commit_file
+and commit_bytes bypass serialization, while load_artifact still deserializes.
+Use byte-loading APIs for arbitrary raw files. No codec identifier is recorded or
+negotiated, and a changed serializer can change identity and interpretation.</p>
+<h2 id="construction-and-identity-functions">Construction and Identity Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>open(path)</code></td>
+<td>Constructs a default AetherMLStore. This exported name is not the built-in file opener or a Java connection. Cannot pass custom serializers through this convenience function.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.__init__(root, serializer=None, deserializer=None, code_commit=None, library_versions=None)</code></td>
+<td>Constructs paths, chooses supplied callables or pickle defaults, selects supplied/env/unknown commit, copies library_versions, creates an RLock and five initial latency buckets, then creates layout directories. Does not run validate/recover, detect a Git commit automatically or open a daemon.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.__enter__()</code></td>
+<td>Returns the same store. Does not begin a transaction or validate its contents.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.__exit__(exc_type, exc_value, traceback)</code></td>
+<td>Returns None. Does not suppress the body's exception or perform cleanup; no store close method is implied.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore._ensure_layout()</code></td>
+<td>mkdir(parents=True, exist_ok=True) for blob, metadata, snapshot, experiment, cache and temp directories. Existing incompatible filesystem entries raise; no version/format header or identity lock is created.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.transformation_key(*, input_hash, transformation_name, transformation_version, parameters=None)</code></td>
+<td>SHA-256 of compact canonical JSON containing input hash, name/version, parameters, store code commit/library versions and current Python version. Includes no function-source inspection, automatic source-file hashing or random-state capture. default=str can stringify otherwise unsupported descriptor values.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore._hash_inputs(args, kwargs)</code></td>
+<td>Normalizes each top-level positional/keyword value, collects any directly supplied ArtifactMetadata IDs, serializes the args-list/kwargs-dictionary with this store's serializer and hashes those bytes. Does not sort kwargs or recursively normalize metadata buried in containers. The callable still receives its original arguments.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore._normalize_input(value)</code></td>
+<td>Direct ArtifactMetadata becomes <code>{artifact_id: value.artifact_id}</code> plus that ID for lineage inference; every other value passes through unchanged with no inferred parent. Does not load the artifact, verify metadata or recognize string paths as source content.</td>
+</tr>
+<tr>
+<td><code>_canonical_json(value)</code></td>
+<td>Sorted-key compact JSON encoded as UTF-8, with default=str. Deterministic for appropriately stable values, not a universal type-preserving serializer; unsupported types can collide through equal string representations.</td>
+</tr>
+</tbody>
+</table>
+<p>Input hashing defaults to pickle rather than canonical source-content descriptors.
+Keyword insertion order, serializer behavior and input object state can affect
+the hash. A path/string argument does not automatically bind the file's bytes.
+Explicit source_artifact_ids supplied to CachedTransform.apply contribute lineage
+but do <strong>not</strong> enter cache_key_for_call. A changed parent list alone need not cause
+a miss. The workflow reference explains this distinction and the None miss sentinel.</p>
+<h2 id="publication-functions">Publication Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherMLStore.commit_artifact(value, *, cache_key, source_artifact_ids=(), transformation_name, transformation_version, parameters=None)</code></td>
+<td>Serializes value before delegating to commit_bytes. Serialization failures occur before the latter's commit timer/lock. The default uses pickle, not the built-in aether_ml binary codecs.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.commit_file(path, *, cache_key, source_artifact_ids=(), transformation_name, transformation_version, parameters=None)</code></td>
+<td>Reads the entire source file into memory and delegates as raw bytes. No streaming/chunked file import, source-file lease or default pickle wrapping. File-read time is outside commit_bytes timing.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.commit_bytes(data, *, cache_key, source_artifact_ids=(), transformation_name, transformation_version, parameters=None)</code></td>
+<td>Starts timing before acquiring the instance lock, delegates to _commit_bytes_locked, and records artifact_commit latency in finally, including failure and lock wait. A successful result is metadata, not a Java durability receipt.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.commit_bytes_many(entries, *, transformation_name, transformation_version, parameters=None)</code></td>
+<td>Holds the instance lock while iterating entry mappings and committing each independently. Uses entry data/cache_key, optional source IDs and per-entry parameter override. One artifact_commit_batch timing includes iterator time, lock wait and failure. No all-or-nothing batch rollback; earlier entries remain published if a later entry fails.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore._commit_bytes_locked(data, *, cache_key, source_artifact_ids=(), transformation_name, transformation_version, parameters=None)</code></td>
+<td>Converts to bytes, hashes content and the cache-key/content pair, derives blob/node/cache paths, writes a missing blob, creates current metadata, writes it only if absent, then always replaces cache pointer JSON. Returns the newly constructed metadata even when existing on-disk node metadata was reused. Does not validate parent existence, rehash an existing blob or reject an existing key with other content.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="commit-and-failure-boundaries">Commit and Failure Boundaries</h3>
+<p>Each file is individually replaced, but the three-file sequence is not one atomic
+transaction. Failure after the blob can leave an orphan. Failure after metadata can
+leave a valid node with no new cache pointer. Failure after a pointer replacement
+can leave published data despite an exception, including a later cleanup error.
+Reopen/validate outcomes; do not infer rollback from a failed method call.</p>
+<p>Existing content is not healed if someone has corrupted its blob. Publishing the
+same bytes/key again skips that blob and existing node metadata. The returned
+receipt has a fresh timestamp and supplied lineage, while persisted metadata can
+still have the first timestamp/lineage. A later hit uses persisted metadata. The
+commit API is therefore not a merge/update mechanism for provenance of an existing
+node. It also does not preflight that every parent exists or establish acyclicity.</p>
+<p>The atomic helper fsyncs the temporary <strong>file</strong> before replacement, not the parent
+directory afterward. New directories are not force-synced. Individual replace
+atomicity and power-loss durability depend on the filesystem/platform; no Java
+DURABLE barrier or crash-atomic multi-file publication is claimed.</p>
+<h2 id="lookup-and-retrieval-functions">Lookup and Retrieval Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherMLStore.load_cached(cache_key)</code></td>
+<td>Looks up one artifact ID, returns None for no usable pointer or missing node metadata, otherwise deserializes through load_artifact. Missing/corrupt payload and malformed node metadata propagate; a legitimately cached None is indistinguishable from a miss to CachedTransform.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.cached_artifact_id(cache_key)</code></td>
+<td>Reads cache JSON artifact_id, returning None for missing file, missing field or JSON decode error. Does not validate node/payload existence. Other OS/type/encoding errors can propagate. Records cache_lookup even for a miss/failure.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.cached_artifact_ids(cache_keys)</code></td>
+<td>Iterates _cache_entry and returns pointers for parsed entries; duplicates collapse. Does not hash payloads or require node metadata. Missing artifact_id/type errors can propagate. One cache_lookup_batch timing, not individual cache_lookup samples.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.load_cached_bytes_many(cache_keys)</code></td>
+<td>Uses each cache entry, skips missing entries and supported KeyError/FileNotFoundError/IOError retrieval failures (including checksum mismatch), returns copied bytes for hits. Other malformed-data/type/encoding failures are not universally converted into misses. Records one cache_payload_retrieval_batch timing even after failure.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore._cache_entry(cache_key)</code></td>
+<td>Returns decoded JSON or None for absent file, JSON decode error or OSError during reading. Does not assert an object shape or metadata fields.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore._load_cache_entry_bytes(cache_entry)</code></td>
+<td>Uses embedded storage_location/checksum, or falls back to artifact metadata if either is None. Reads all bytes and verifies SHA-256. Does not compare size or check that complete embedded fields match node metadata; a self-contained cache pointer can work without node metadata.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.load_artifact(artifact_id)</code></td>
+<td>Passes checksum-verified bytes to the configured deserializer. Deserialization time/failure is outside load_artifact_bytes' retrieval timing. Never feed untrusted pickle here.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.load_artifact_bytes(artifact_id)</code></td>
+<td>Loads metadata, reads its storage path, validates checksum, returns owned bytes. Records artifact_retrieval in finally, nesting metadata_lookup timing. Does not separately enforce metadata.size, recompute artifact identity or verify parents.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.load_artifact_bytes_many(artifact_ids)</code></td>
+<td>Repeats metadata/read/checksum work for every ID into a dictionary. Any invalid item aborts the method; earlier locally collected results are not returned. Duplicates collapse but are still read. Records one artifact_retrieval_batch rather than per-item artifact_retrieval.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.artifact_path(artifact_id)</code></td>
+<td>Loads metadata and requires its storage path to exist. Returns a Path, not a checksum-verified read, open handle, immutable lease or containment guarantee.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore.artifact_metadata(artifact_id)</code></td>
+<td>Loads node JSON and constructs ArtifactMetadata; missing node raises KeyError. Dataclass construction checks field names/arity, not runtime annotations or full identity/schema correctness. Records metadata_lookup in finally.</td>
+</tr>
+</tbody>
+</table>
+<p>Single-ID retrieval is strict about a missing/corrupt payload. Cache-byte batch
+retrieval deliberately treats several such cases as misses. These policies are
+different from contains/presence or the Java adapter. Returned bytes are full-file
+copies, not mmap memoryviews. None of these reads pins a multi-file snapshot
+against another handle replacing a pointer or editing metadata.</p>
+<h2 id="filesystem-helpers-and-trust">Filesystem Helpers and Trust</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherMLStore._iter_artifact_metadata()</code></td>
+<td>Yields decoded ArtifactMetadata for each immediate metadata JSON file. Filesystem glob order is not an ordering contract; malformed files stop consumers rather than producing a diagnostic item.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore._metadata_path(artifact_id)</code></td>
+<td>Removes an optional leading aether: and appends .json under metadata_dir. Does not require a SHA-256 digest or reject path separators/traversal.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore._cache_path(cache_key)</code></td>
+<td>Appends .json under cache_dir without validating the supplied key as a digest or safe filename.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore._atomic_write_json(path, value)</code></td>
+<td>Pretty sorted JSON encoding followed by atomic byte write. Unlike _canonical_json, no default=str; unsupported values can fail serialization before writing.</td>
+</tr>
+<tr>
+<td><code>AetherMLStore._atomic_write_bytes(path, data)</code></td>
+<td>Creates parent directories and a uniquely named temp file under tmp_dir; writes, flushes, fsyncs file, closes and replaces destination. Finally unlinks any remaining temp file. No destination-directory fsync, multi-file rollback or secure path validation. Cross-filesystem replacement can fail if layout has external mount/symlink boundaries.</td>
+</tr>
+<tr>
+<td><code>_artifact_relative_path(content_hash)</code></td>
+<td>Splits the first two and next two characters into blob fanout directories and uses the full hash as filename. Normal caller supplies a generated content SHA-256; the helper itself does not validate arbitrary input.</td>
+</tr>
+</tbody>
+</table>
+<p>Treat the entire root, IDs, keys, storage_location and experiment/snapshot fields
+as trusted. Helpers do not implement the managed-path containment checks from the
+Java filesystem module. Absolute paths, separators or tampered JSON can redirect
+reads/writes; SHA-256 does not authenticate metadata, constrain paths or authorize
+access. This reference documents current behavior, not a hardened import service.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/tests/test_aetherml.py">test_aetherml.py</a> exercises reuse,
+distinct provenance/shared content, raw-file commits, batch lookups/publication,
+snapshot and corruption behavior. The focused
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_provenance_documented_contracts.py">provenance contract tests</a>
+exercise sentinel, identity, metadata-reuse and failure boundaries with disposable
+files. They do not establish cross-process safety, power-loss durability, arbitrary
+corruption-parser coverage or Java/GPU performance. AST inventory and rendered-page
+checks establish reference coverage, not a production certification.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-file-authority">Architecture and File Authority</a><a href="#records-and-ownership">Records and Ownership</a><a href="#construction-and-identity-functions">Construction and Identity Functions</a><a href="#publication-functions">Publication Functions</a><a href="#lookup-and-retrieval-functions">Lookup and Retrieval Functions</a><a href="#filesystem-helpers-and-trust">Filesystem Helpers and Trust</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

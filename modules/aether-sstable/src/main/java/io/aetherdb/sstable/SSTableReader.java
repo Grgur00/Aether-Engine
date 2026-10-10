@@ -322,6 +322,7 @@ public final class SSTableReader implements AutoCloseable {
                         expected.smallestInternalKey())
                 || !Arrays.equals(previous, expected.largestInternalKey()))
             throw corrupt("observed table content disagrees with metadata");
+        SSTableVerificationTrace.verified(fileSize);
     }
 
     /**
@@ -398,13 +399,13 @@ public final class SSTableReader implements AutoCloseable {
         return List.copyOf(blocks);
     }
 
-    private static void validateMetaindex(byte[] raw, SSTableFooterV1 footer) {
+    static void validateMetaindex(byte[] raw, SSTableFooterV1 footer) {
         Map<String, byte[]> entries = bytewiseMap(RestartBlock.decode(raw));
         requireHandle(entries, "aether.filter.bloom.v1", footer.filter());
         requireHandle(entries, "aether.properties.v1", footer.properties());
     }
 
-    private static void validateProperties(
+    static void validateProperties(
             byte[] raw, TableFileMetadata expected, SSTableHeaderV1 header) {
         Map<String, byte[]> values = bytewiseMap(RestartBlock.decode(raw));
         requireAscii(values, "aether.comparator", "aether.unsigned-bytewise.internal-v1");
@@ -423,7 +424,7 @@ public final class SSTableReader implements AutoCloseable {
         requireLong(values, "aether.creation.epoch.millis", header.creationEpochMillis());
     }
 
-    private static Map<String, byte[]> bytewiseMap(List<RestartBlock.Entry> entries) {
+    static Map<String, byte[]> bytewiseMap(List<RestartBlock.Entry> entries) {
         Map<String, byte[]> values = new HashMap<>();
         for (RestartBlock.Entry entry : entries) {
             String key = new String(entry.key(), StandardCharsets.US_ASCII);
@@ -432,7 +433,7 @@ public final class SSTableReader implements AutoCloseable {
         return values;
     }
 
-    private static byte[] raw(
+    static byte[] raw(
             FileChannel channel, BlockHandle handle, BlockKind kind, long fileSize)
             throws IOException {
         handle.validateWithin(fileSize - SSTableFooterV1.FOOTER_BYTES);
@@ -451,7 +452,7 @@ public final class SSTableReader implements AutoCloseable {
         return BlockEnvelope.decode(block, kind);
     }
 
-    private static byte[] readRange(FileChannel channel, long offset, int length)
+    static byte[] readRange(FileChannel channel, long offset, int length)
             throws IOException {
         byte[] result = new byte[length];
         ByteBuffer bytes = ByteBuffer.wrap(result);
@@ -462,7 +463,7 @@ public final class SSTableReader implements AutoCloseable {
         return result;
     }
 
-    private static void validateIdentity(
+    static void validateIdentity(
             Path path,
             TableFileMetadata expected,
             SSTableHeaderV1 header,
@@ -501,7 +502,7 @@ public final class SSTableReader implements AutoCloseable {
             throw corrupt("invalid property " + key);
     }
 
-    private static long propertyLong(Map<String, byte[]> values, String key) {
+    static long propertyLong(Map<String, byte[]> values, String key) {
         byte[] value = values.get(key);
         if (value == null || value.length != 8) throw corrupt("invalid property " + key);
         return ByteBuffer.wrap(value).order(ByteOrder.LITTLE_ENDIAN).getLong();

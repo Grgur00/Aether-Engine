@@ -1,0 +1,185 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/BENCHMARK-METRICS-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Benchmark utilization and process metrics: source-backed contributor documentation for Aether Engine.">
+  <title>Benchmark utilization and process metrics | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html" aria-current="page">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/BENCHMARK-METRICS-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="benchmark-utilization-sampling-and-process-metric-functions">Benchmark Utilization Sampling and Process Metric Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="benchmark-training-functions.html">Model and training</a> | <a href="benchmark-backend-functions.html">Backend ownership</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/benchmark_gpu_segmentation.py">benchmark_gpu_segmentation.py</a>.
+This reference covers all seven GpuUtilizationSampler methods and eight process/
+parsing helpers: <strong>15 explicit declarations</strong>. It is not a complete benchmark
+reference. Report aggregation and validity policy remain separate functions.</p>
+<h2 id="observation-architecture">Observation Architecture</h2>
+<pre><code class="language-text">run_backend -&gt; sampler.start -&gt; synchronous command query (before training wall)
+                         -&gt; daemon thread: command query -&gt; append -&gt; interval wait
+training window ends -&gt; iterator/resource cleanup -&gt; sampler.stop -&gt; bounded join
+                    -&gt; sample report -&gt; backend summary
+
+process snapshot before/after -&gt; process CPU time + lifetime peak RSS + /proc I/O
+                             -&gt; clamped deltas + host-core-normalized CPU percent
+</code></pre>
+<p>The sampler tries NVIDIA, then AMD, then ROCm command-line tools. It does not
+connect to the training model, CUDA events or a per-process accelerator counter.
+Queries include devices visible to the command without filtering to gpu_count or
+the model's selected device IDs. Sample averages across devices are not proof of
+the selected devices' utilization or of training saturation.</p>
+<p>start captures a synchronous sample before the backend training timer, and the
+thread can sample immediately afterward. stop occurs during backend cleanup.
+Thus samples do not precisely partition the measured training interval. The
+configured interval is a wait after query completion, not a fixed-rate deadline;
+query time, fallback attempts and scheduling add to the effective period.</p>
+<h2 id="sampler-methods">Sampler Methods</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GpuUtilizationSampler.__init__(self, interval_ms)</code></td>
+<td>Converts milliseconds to seconds, initializes an empty sample list, source/error fields, stop Event and absent thread. Does not validate finite values, probe a tool or start work.</td>
+</tr>
+<tr>
+<td><code>GpuUtilizationSampler.start(self)</code></td>
+<td>Nonpositive interval records disabled and returns. Otherwise probes synchronously, appends a non-null sample, and returns without a thread if no sample/source was found. If a source is known, starts a named daemon thread. Does not clear prior samples/error/stop state or prevent repeated starts; treat the instance as a one-shot lifecycle.</td>
+</tr>
+<tr>
+<td><code>GpuUtilizationSampler.stop(self)</code></td>
+<td>Sets stop Event and joins the thread for max(1 second,4*interval), if present. Returns source, error, interval, the original sample-list object and SAMPLED when any sample exists, otherwise UNAVAILABLE. Does not verify the thread has terminated after timeout, take a deep snapshot, add a final sample or report disabled as a distinct status. A still-running query may later append to the returned list.</td>
+</tr>
+<tr>
+<td><code>GpuUtilizationSampler._run(self)</code></td>
+<td>Until stopped, queries once and appends a non-null result. No result with source None stops the loop; a previously known source allows retrying after failures. Waits on the stop Event between queries. Unexpected exceptions outside _sample_once handling can end the daemon thread without a structured report.</td>
+</tr>
+<tr>
+<td><code>GpuUtilizationSampler._sample_once(self)</code></td>
+<td>Sequentially runs nvidia-smi utilization CSV, amd-smi usage JSON, then rocm-smi usage JSON with captured text and a two-second timeout per command. Missing executables are skipped; other command errors/exit failures record an error and try fallback. NVIDIA requires some parsed numeric data. AMD/ROCm require valid JSON but may yield a non-null sample with both metrics None. Sets source on success and returns sample or None after all failures. Does not clear an earlier error or reset source when later probes fail, and retries NVIDIA first on every call.</td>
+</tr>
+<tr>
+<td><code>GpuUtilizationSampler._sample_from_payload(self, payload)</code></td>
+<td>Flattens nested JSON into lowercase numeric-key pairs; selects GPU/memory values with substring heuristics and averages each group. Always returns a timestamped mapping, even when neither group has values. Does not validate percent ranges/units, distinguish allocated bytes from utilization, choose one device or prevent unrelated keys from matching.</td>
+</tr>
+<tr>
+<td><code>GpuUtilizationSampler._sample_from_nvidia_smi(self, text)</code></td>
+<td>Splits lines by commas, needs at least two fields, independently parses GPU/memory values and averages all usable values in each column. Ignores extra columns and returns None only when both groups are empty. Timestamps after parsing. Partial rows may contribute to only one metric; group counts can differ. No range, device-ID or finite-value check.</td>
+</tr>
+</tbody>
+</table>
+<p>SAMPLED means a sample mapping was appended, not that GPU and memory percentages
+are both valid. A successful fallback may retain a prior failure string. If tool
+availability changes, source can change while earlier samples remain; the final
+source label is not necessarily the source of every sample.</p>
+<p>Memory utilization from the NVIDIA command is the tool's memory-utilization
+metric, not automatically fraction of VRAM allocated. The generic JSON matcher
+also accepts keys containing both vram and allocated: values can be bytes or
+another unit even though the output key ends in Percent. Inspect tool output and
+source before interpreting this field as a percentage. No unit conversion occurs.</p>
+<h2 id="parsing-helpers">Parsing Helpers</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>flatten_json(value, prefix=&quot;&quot;)</code></td>
+<td>Recursively traverses dict/list containers, joining dictionary names with dots and list indices in brackets, and yields lowercase leaf paths plus numeric_value output. Non-numeric leaves still yield None. List/device indices are flattened, not preserved as separate metric records; no schema/depth/cycle guard.</td>
+</tr>
+<tr>
+<td><code>numeric_value(value)</code></td>
+<td>Numeric int/float values convert directly to float, including bool and nonfinite numbers. Strings return the first regex match of optional minus sign, digits and optional decimal part. Thus units are ignored, scientific notation is not interpreted and .5 becomes 5. Other inputs/no match return None. This is permissive extraction, not a strict numeric/percent parser.</td>
+</tr>
+<tr>
+<td><code>is_gpu_utilization_key(key)</code></td>
+<td>Removes spaces, underscores and hyphens and matches gpuuse, gpuusage, gpuutilization, gfxactivity or gpubusypercent as substrings. Does not lowercase itself; normal flattened caller provides lowercase keys. No unit or semantic schema validation.</td>
+</tr>
+<tr>
+<td><code>is_memory_utilization_key(key)</code></td>
+<td>Uses similar normalization for memoryuse, memoryusage, memoryutilization or vramuse, or accepts any key containing both vram and allocated. Does not lowercase itself or distinguish counters/capacity/allocation from activity.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="process-metric-helpers">Process Metric Helpers</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>process_metrics_snapshot()</code></td>
+<td>Captures time.process_time, rss_peak_bytes, proc_self_io and os.cpu_count (fallback one). CPU time is for this process, not the Java daemon or loader children. RSS and I/O use helper availability rules. Snapshot fields are gathered sequentially, not atomically.</td>
+</tr>
+<tr>
+<td><code>process_metrics_delta(start, end, wall_ms)</code></td>
+<td>Clamps CPU-time delta to nonnegative and wall seconds to at least 1e-9; divides CPU time by wall and ending host CPU count to report utilization. Reports max non-null start/end RSS peaks, not a memory delta. If both I/O mappings are truthy, computes clamped read_bytes/write_bytes/cancelled_write_bytes deltas, treating absent keys as zero; otherwise these fields are None. Chooses a descriptive source label. No cap at 100%, process identity check, reset detection or independent wall-window validation.</td>
+</tr>
+<tr>
+<td><code>rss_peak_bytes()</code></td>
+<td>Imports resource and reads self ru_maxrss; ordinary import/query failures return None. Darwin is assumed bytes, other platforms multiply by 1024 (Linux KiB). Reports process-lifetime high water, not interval current RSS or sum of parent/child/Java memory. Other platforms' unit conventions are not separately detected.</td>
+</tr>
+<tr>
+<td><code>proc_self_io()</code></td>
+<td>Reads /proc/self/io if the path exists, parses each colon-separated value as int and returns a mapping. Missing path or ordinary read/parse errors return None for the whole snapshot. No per-field fallback. Path.exists is outside the parsing try. Linux process counters are not logical artifact bytes, mmap-read call counts or device-wide disk traffic.</td>
+</tr>
+</tbody>
+</table>
+<p>Host-core-normalized CPU utilization differs from the common one-core-equals-100%
+convention and can be low on a many-core host despite one busy thread. Cancelled
+write counters can decrease; clamping hides that change. Nonempty I/O snapshots
+with missing read/write fields report zero, not unavailable. Lifetime peak RSS
+includes earlier workload/setup history even when the current backend allocates
+little memory. Separate resource helpers used by run_backend have their own
+parent/worker/Java scopes; these process metrics are not a substitute.</p>
+<h2 id="verification-and-remaining-coverage">Verification and Remaining Coverage</h2>
+<p>Qualified AST checks cover the seven sampler methods and eight helpers. Local
+tests inject command outputs, missing/failing tools, partial CSV/JSON, stop/join
+behavior, proc fixtures and platform resource values. No vendor command, GPU
+job or performance experiment is required to verify these parsing/lifecycle
+contracts. No implementation or frozen experiment is changed.</p>
+<p>The function index links all partitions, jointly covering <strong>138 of 138 explicit
+benchmark declarations</strong>. These observation entries do not by themselves cover
+all benchmark behavior or prove repository completion.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#observation-architecture">Observation Architecture</a><a href="#sampler-methods">Sampler Methods</a><a href="#parsing-helpers">Parsing Helpers</a><a href="#process-metric-helpers">Process Metric Helpers</a><a href="#verification-and-remaining-coverage">Verification and Remaining Coverage</a></nav></aside>
+  </div>
+</body>
+</html>

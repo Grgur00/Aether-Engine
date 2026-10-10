@@ -1,0 +1,288 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/PERSISTENT-INTERNALS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Persistent internals: source-backed contributor documentation for Aether Engine.">
+  <title>Persistent internals | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html" aria-current="page">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/PERSISTENT-INTERNALS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="persistent-engine-internals">Persistent Engine Internals</h1>
+<p><a href="engine-functions.html">Engine function reference</a> | <a href="storage.html">Storage engine</a></p>
+<p><a href="wal-functions.html">WAL format functions</a> covers logical groups, fragments and
+segment-header validation beneath the commit and recovery paths on this page.</p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/PersistentAetherDatabase.java">PersistentAetherDatabase.java</a>.
+Public entry points are described in the engine reference; this page follows
+the private functions behind them. None of these helpers is an independent service.</p>
+<h2 id="state-and-locks">State And Locks</h2>
+<p><code>CommitCoordinator.monitor</code> protects request election, queue and completion.
+The database monitor protects public reads, visibility, group application,
+planning and installation. <code>closeMonitor</code> serializes closers. The compaction
+worker has its own monitor and executor.</p>
+<p>Commit leadership releases the queue monitor before processing database state.
+Compaction constructs outside the database monitor and reenters for install.
+Close waits for the worker without holding the database monitor. Waiting while
+holding a lock the worker needs would deadlock teardown.</p>
+<p>Flush replaces <code>active</code> and <code>wal</code>; <code>tables</code> is the current open-reader inventory.
+<code>versions.current()</code> is authoritative metadata. Merely creating a file does not
+publish it into either inventory.</p>
+<h2 id="commit-coordination">Commit Coordination</h2>
+<h3 id="commitrequest-preparedcommit-and-commitcoordinatorsubmit">CommitRequest, PreparedCommit And CommitCoordinator.submit</h3>
+<p><code>CommitRequest(WriteBatch, WriteOptions)</code> retains batch/options and captures the
+caller trace. Mutable result/failure/done fields return the outcome to that
+caller. <code>PreparedCommit</code> retains a request and assigned sequence interval after
+WAL append/application; it is not itself persisted.</p>
+<p><code>submit</code> enqueues under its monitor. An arriving caller becomes leader when none
+is active; others wait for completion or later leadership. The leader parks
+200,000 ns, gathers at most 64 queued requests, calls <code>processCommitGroup</code>, marks
+members done and notifies waiters. Remaining requests can elect another leader.
+There is no dedicated commit thread. Interrupted waits are remembered and the
+flag restored before return/throw; interruption does not cancel an uncertain write.</p>
+<h3 id="requirednativebyteswritebatch-long">requiredNativeBytes(WriteBatch, long[])</h3>
+<p>Checked-sums worst-case native insertion bytes per key/value length. Optional
+single-element <code>logicalBytes</code> accumulates WAL operation/payload lengths for
+tracing; the caller seeds its group-header size. Mutation accessors clone arrays,
+so estimation can allocate too. This is not final SSTable size.</p>
+<h3 id="processcommitgrouplistcommitrequest">processCommitGroup(List&lt;CommitRequest&gt;)</h3>
+<p>Runs under the database monitor. For each request, rejects an existing fence,
+checks lifetime, seals and handles empty batches without append/force. Estimates
+native bytes, rejects more than memtable capacity minus 256, and calls admission,
+which may flush older data. Derives a checked contiguous sequence interval,
+encodes a logical group and rotates WAL via flush if its estimated end crosses
+threshold. Fragments at actual channel offset with the next record number.</p>
+<p>Marks <code>SUBMITTED</code> before pre-write hook/append. Appends physical bytes, updates
+record count, applies mutations, then advances <code>lastVisibleSequence</code> and records
+the prepared request. Every mode except <code>ASYNC_WAL</code> requests one shared force.
+Successful participants receive their own interval/count/result; even an async
+participant may report <code>forced = true</code> when another required the shared barrier.</p>
+<p>Post-submission uncertainty or force failure fences writes, makes prepared
+requests indeterminate and rejects remaining requests. It does not roll back
+WAL bytes. A recovery is needed to establish the authoritative outcome.
+The historical hook name <code>WAL_AFTER_FORCE_BEFORE_VISIBILITY</code> is misleading:
+the field has already advanced before force, but reads cannot interleave because
+the monitor covers the group. Follow assignments and locks, not hook names alone.</p>
+<h3 id="applybatch-transitionfailure-and-failbeforesubmission">applyBatch, transitionFailure And failBeforeSubmission</h3>
+<p><code>applyBatch(table, batch, firstSequence)</code> inserts puts/deletes in order, advancing
+sequence per mutation. Requires native <code>INSERTED</code>; otherwise throws after WAL
+submission. It does not itself advance database visibility or undo insertions.</p>
+<p><code>transitionFailure(request, failure)</code> maps sealed to failed and submitted to
+indeterminate, retaining runtime exceptions or wrapping other causes. Records
+the exception without resetting other lifecycle states.</p>
+<p><code>failBeforeSubmission(request, failure)</code> tries to seal an open batch and mark a
+sealed batch failed. State-transition errors become suppressed on the original
+rejection. It appends nothing and cannot make submitted bytes definitely absent.</p>
+<h3 id="forcewal">forceWal()</h3>
+<p>Calls <code>wal.force(false)</code>, measuring elapsed time even on failure. Only success
+increments the successful-force counter. It is not table verification or manifest
+publication; tracing attributes a shared force once, not per participant.</p>
+<h2 id="admission">Admission</h2>
+<h3 id="admitwritelong-writeoptions-long">admitWrite(long, WriteOptions, long)</h3>
+<p>Flushes a nonempty memtable when required native bytes do not fit. Requests
+compaction, collects pressure and maps the decision. Normal proceeds; slowdown
+can park once when fail-fast is disabled and the delay fits timeout. Overflowing
+timeout conversion uses <code>Long.MAX_VALUE</code>. Other cases throw outcome/reasons.
+This is one evaluation/park under the group monitor, not a pressure polling loop.</p>
+<h3 id="pressurelong-writeadmissiondecision-and-writeadmissionreasons">pressure(long), writeAdmissionDecision And writeAdmissionReasons</h3>
+<p><code>pressure</code> collects positive excess bytes over targets for levels 1 through 5,
+native fit, WAL size, level-zero count and filesystem usable/total space, then
+calls the controller. Supplies zero immutable backlog and disk-pressure enable.
+No asynchronous immutable queue is implemented merely because a setting names one.</p>
+<p><code>writeAdmissionDecision</code> maps normal to accepted, slowdown to rejected-before-ack
+plus delay, stopped-retryable to resource-exhausted and failed to rejected-before-ack.
+<code>admitWrite</code> can honor slowdown, so this mapping is not the complete algorithm.
+<code>writeAdmissionReasons</code> prefixes/sorts explicit reasons or uses state as fallback.</p>
+<h2 id="flush">Flush</h2>
+<h3 id="flushactive-overloads-flushstage-and-allocatetablefilenumber">flushActive Overloads, flushStage And allocateTableFileNumber</h3>
+<p>The no-argument <code>flushActive</code> supplies cause <code>OTHER</code>; the parameterized overload
+returns for empty state, increments started, optionally creates a usage/limit
+trace and invokes <code>flushActiveBody</code>. Completed increments only on success;
+trace finalization runs even on failure. <code>FlushCause</code> distinguishes native
+capacity, WAL segment and other attribution, not extra durability modes.
+<code>flushStage</code> advances an optional trace. Synchronized <code>allocateTableFileNumber</code>
+returns next number and checked-increments it; failed builds can consume numbers.</p>
+<h3 id="flushactivebodyevent">flushActiveBody(Event)</h3>
+<p>Freezes active, builds sorted entries into a unique temporary table, finishes,
+atomically renames and synchronizes the directory. The pre-manifest hook can
+stop here with a still-unauthoritative file. Temporary names are finally removed.
+Builds level-zero metadata, creates the next forced WAL and publishes a manifest
+delta containing the table, persisted/assigned watermark and new required WAL.
+Publication failure closes/deletes replacement WAL with suppressed cleanup errors.</p>
+<p>After publication swaps WAL, resets record number, closes/deletes obsolete WAL,
+synchronizes, opens the table, retires old memtable, allocates a replacement and
+requests compaction. Removing the old WAL before publication would lose recovery
+data before the table became authoritative.</p>
+<h2 id="compaction-planning">Compaction Planning</h2>
+<h3 id="needscompaction-levelbytesint-compactiondebtbytes">needsCompaction(), levelBytes(int), compactionDebtBytes()</h3>
+<p>Need triggers at four level-zero files or an over-target level among 1 through 5.
+Level bytes sums current manifest file sizes. Debt includes all level-zero bytes
+once the count trigger fires plus positive higher-level excess. Debt is a policy
+quantity, not a frozen count of bytes in one scheduled plan.</p>
+<h3 id="requestcompactionlong-compactiondiagnostics-awaitcompactionidle">requestCompaction(long), compactionDiagnostics(), awaitCompactionIdle()</h3>
+<p>Request is a no-op while closing, disabled, fenced or below triggers; otherwise
+hands a timestamp/trace/origin wakeup to the coordinator. Traced acceptance records
+debt, not a preselected plan. Diagnostics returns flags, counters, table/debt/stop
+values, coordinator failure and copied history bounded to 64 records; closed debt
+is zero. Await delegates with 60 seconds. Idle does not imply empty memtable or
+absence of a previous failure.</p>
+<h3 id="runbackgroundcompactionrequest-and-plancompaction">runBackgroundCompaction(Request) And planCompaction()</h3>
+<p>The runner attaches worker tracing and selects under the database monitor.
+No plan returns false; a completed plan returns true so the worker replans.
+Always restores/finalizes tracing. Actual plans record delay, input/output counts,
+bytes, publication/completion and failure under the monitor, with bounded history.</p>
+<p>Planning stops when closing/fenced. Prioritizes all level-zero files at the count
+trigger, targeting level 1; otherwise starts from the first file of the first
+over-target level among 1 through 5, targeting the next. Not exhaustive cost search.</p>
+<h3 id="selectcompactionlistmetadata-int-and-compactionplan-constructor">selectCompaction(List&lt;Metadata&gt;, int) And CompactionPlan Constructor</h3>
+<p>Selection repeatedly expands its key interval to include overlaps in input and
+output levels until stable. Captures matching readers, immutable current version,
+oldest retained snapshot (or current visible sequence), inputs and output level.
+The plan constructor retains these; output counts/bytes/publication are filled
+during execution. The plan is not a durable receipt or guarantee inputs stay current.</p>
+<h2 id="compaction-execution">Compaction Execution</h2>
+<h3 id="executecompactioncompactionplan-trace">executeCompaction(CompactionPlan, Trace)</h3>
+<p>Materializes table entries as LSM values/tombstones, sorts, deduplicates and runs
+retention with oldest snapshot and lower-level overlap predicate. Partitions
+retained records at user-key boundaries. Builds/forces/renames output tables,
+synchronizes, verifies additions and opens replacements outside the monitor.
+Inventory and reader verification are distinct here, unlike empty-store bulk's
+single-authoritative-verifier path. This is not a streaming zero-copy merge.</p>
+<p>Reenters the database monitor and rejects fencing, removed input readers or
+inputs missing in authoritative metadata. Uses <em>current</em> edit/sequence/WAL fields
+for the delta, preserving intervening flushes instead of replacing with stale plan
+state. Sets publication-attempted before append. Manifest uncertainty sets both
+engine failure fields and preserves input/output sets for recovery.</p>
+<p>Success swaps visible readers. All public reads/scans finish under that monitor
+and cursors materialize rows, so old readers can close after swap. Before any
+publication attempt, failed outputs can be removed; after uncertain attempt they
+must remain. Installed old readers close in <code>finally</code>, including post-commit fault.
+Normal completion deletes obsolete files and synchronizes the directory.</p>
+<h3 id="deduplicateinternalentries-partitioncompactionoutput-overlaps-isbaselevelforkey">deduplicateInternalEntries, partitionCompactionOutput, overlaps, isBaseLevelForKey</h3>
+<p>Deduplication requires sorted entries and collapses consecutive exact identities,
+rejecting duplicate value identities with different bytes. Different versions
+of one user key remain. Partitioning estimates key plus 32 bytes plus value;
+splits above target only at a different user key. One key's retained versions can
+make output exceed target; the target is not a hard cap.</p>
+<p><code>overlaps</code> tests inclusive intervals with unsigned-byte order.
+<code>isBaseLevelForKey</code> checks deeper captured-version levels through 6; coverage
+returns false so retention cannot expose an older deeper value by dropping its
+tombstone. <code>compactionStage</code> only advances a non-null optional trace.</p>
+<h2 id="recovery">Recovery</h2>
+<h3 id="initializeidentityandwalpath-validateidentitypairpath">initializeIdentityAndWal(Path), validateIdentityPair(Path)</h3>
+<p>Initialization refuses unidentified directories containing anything but <code>LOCK</code>.
+Generates identity/time, atomically writes identity/options, creates/closes WAL 1
+and synchronizes. Pair validation requires options/CURRENT and matching decoded
+UUIDs. Later open steps validate authoritative tables/manifest; the pair check
+alone is not full-store verification.</p>
+<h3 id="createwalsegmentpath-uuid-long-long-long">createWalSegment(Path, UUID, long, long, long)</h3>
+<p>Uses fresh <code>CREATE_NEW</code> read/write access; encodes identity/chain/start sequence
+and timestamp, writes full header, forces metadata and positions after header.
+Returns an owning channel. Failure closes/removes the new file with suppressed
+cleanup errors and propagates the operation exception.</p>
+<h3 id="initializecheckpointwalpath-uuid-versionset-cleanupobsoletewalfilespath-long">initializeCheckpointWal(Path, UUID, VersionSet), cleanupObsoleteWalFiles(Path, long)</h3>
+<p>Checkpoint-WAL initialization creates segment 1 after the last assigned sequence
+when the manifest requires no WAL, then publishes a delta requiring it while
+preserving watermarks/inventory. Failed publication cleans up; success closes and
+synchronizes, and normal open reopens. Obsolete cleanup requires the required
+segment and deletes every other matching fixed-width WAL filename, not only
+earlier numbers. Rejects unsafe obsolete symlink/non-file paths and synchronizes
+deletions. Manifest authority wins over the largest filename.</p>
+<h3 id="recoverwal-decodegroup-applydecoded-and-walrecovery">recoverWal, decodeGroup, applyDecoded And WalRecovery</h3>
+<p>Recovery validates header identity, materializes the physical tail, reassembles
+groups and tracks valid physical end/count. Skips groups fully below persisted
+watermark; rejects crossing groups or sequence gaps. Applies accepted groups
+without reserving new sequences, returning the valid end/count/last sequence
+record. Open truncates at that valid end. Framing rules govern incomplete tail;
+arbitrary interior corruption must not become silent empty recovery.</p>
+<p><code>decodeGroup</code> converts logical <code>WalCorruptionException</code> to <code>IOException</code> retaining
+cause/message. <code>applyDecoded</code> uses recorded first sequence and requires native
+insertion success, otherwise throws recovery exhaustion. <code>WalRecovery</code> itself is
+an in-memory record, not another persisted checkpoint.</p>
+<h2 id="configuration-and-utilities">Configuration And Utilities</h2>
+<h3 id="runtimeconfiguration-constructor-from-longvalue-intvalue-booleanvalue">RuntimeConfiguration Constructor, from, longValue, intValue, booleanValue</h3>
+<p>Validates native capacity, format-bounded WAL threshold, positive snapshot maximum
+and non-null policies/options. <code>from</code> consumes native/WAL bytes, snapshot limit,
+compaction/disk-pressure flags and immutable limit; uses default level targets
+and derives pressure policy. Registry-resolved durability is uppercased with
+<code>Locale.ROOT</code>; admission timeout/fail-fast use defaults. The primitive helpers
+resolve registered defaults/supplied strings and parse. Registry presence alone
+does not establish consumption by this runtime.</p>
+<h3 id="ensureopen-validatekey-creatememtable">ensureOpen, validateKey, createMemTable</h3>
+<p>Lifetime rejects closed/closing. Key validation rejects null or more than
+<code>MAX_KEY_BYTES</code>, allowing empty. Memtable creation uses shared budget/capacity,
+identity/number name and UUID-bit XOR seed; it creates no WAL or manifest.</p>
+<h3 id="atomicwrite-syncdirectory-writefully-readrange-little">atomicWrite, syncDirectory, writeFully, readRange, little</h3>
+<p>Atomic write validates managed target, writes a unique fresh temporary file fully,
+forces metadata, moves atomically and synchronizes; finally deletes temporary name.
+Directory sync suppresses access-denied/unsupported-operation exceptions but not
+other I/O errors. A call is not proof every platform performed directory fsync.
+Full write loops to buffer exhaustion. Range read allocates exact bytes and uses
+positional reads, rejecting premature EOF. <code>little</code> wraps without copying and
+sets little-endian order; currently unused in this class.</p>
+<h3 id="merge-and-closesuppressed">merge And closeSuppressed</h3>
+<p>Merge retains first failure or adopts next when none, attaching a distinct next
+failure as suppressed. Suppressed-close ignores null resources or attaches
+cleanup errors to the original failure. Neither erases the original evidence.</p>
+<h2 id="fault-context-and-test-probes">Fault Context And Test Probes</h2>
+<p><code>walCrashContext</code> carries record/offset/logical/physical counts;
+<code>tableCrashContext</code> carries file/level/size/count/sequences;
+<code>compactionCrashContext</code> carries output level/addition/deletion counts;
+<code>writeSequenceCrashContext</code> carries sequence range/count; <code>forceCrashContext</code>
+carries participant count and outer interval. They build hook attributes, not
+disk barriers. <code>walForceCountForTesting</code> reads successful force count under lock.
+<code>configuredMaximumSnapshotsForTesting</code>, <code>configuredWalSegmentBytesForTesting</code>,
+<code>configuredImmutableMemtableStopForTesting</code>, <code>configuredDefaultDurabilityForTesting</code>
+validate/derive runtime configuration and expose consumed values; do not mutate it.</p>
+<h2 id="compactioncoordinator-functions">CompactionCoordinator Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/CompactionCoordinator.java">CompactionCoordinator.java</a>.
+Constructor retains <code>Work</code>; executor factory creates one <code>aether-compaction</code>
+daemon thread. <code>Request</code> carries times/trace/origin. <code>Work.run</code> returns true for
+a performed plan needing replan, false to stop its planning loop.</p>
+<p><code>requestCompaction</code> synchronously rejects stopping, keeps the first pending
+wakeup and schedules <code>drain</code> when inactive. It coalesces, not queues plans.
+<code>drain</code> takes/clears pending under monitor and runs work outside it until false
+or stopping. Success clears coordinator failure and checks more wakeups. No
+pending/stopping clears active and notifies. Any throwable records failure,
+discards pending, clears active and exits; no automatic retry loop. A later event
+is necessary, and an engine manifest fence may prevent rescheduling.</p>
+<p><code>stopping</code> and <code>backgroundFailure</code> are synchronized getters. <code>state</code> returns
+running/idle when open or stopping/closed after stop depending on active work.
+Idle can coexist with failure. Coordinator failure differs from engine fencing.
+<code>awaitIdle(Duration)</code> uses a monotonic timed wait, propagates interruption and
+throws on timeout; it neither resubmits nor flushes or clears failures.</p>
+<p><code>close</code> sets stopping/clears pending, shuts down without interrupting construction
+or publication, and waits 60 seconds. Timeout throws while resources remain
+owned. Interruption restores the flag and throws the same ownership warning.
+Database resources must not close while the worker can still use them.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#state-and-locks">State And Locks</a><a href="#commit-coordination">Commit Coordination</a><a href="#admission">Admission</a><a href="#flush">Flush</a><a href="#compaction-planning">Compaction Planning</a><a href="#compaction-execution">Compaction Execution</a><a href="#recovery">Recovery</a><a href="#configuration-and-utilities">Configuration And Utilities</a><a href="#fault-context-and-test-probes">Fault Context And Test Probes</a><a href="#compactioncoordinator-functions">CompactionCoordinator Functions</a></nav></aside>
+  </div>
+</body>
+</html>

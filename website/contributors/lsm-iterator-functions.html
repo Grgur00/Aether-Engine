@@ -1,0 +1,207 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/LSM-ITERATOR-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="LSM iterators and reclamation: source-backed contributor documentation for Aether Engine.">
+  <title>LSM iterators and reclamation | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html" aria-current="page">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/LSM-ITERATOR-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="lsm-iterator-and-version-reclamation-functions">LSM Iterator and Version Reclamation Functions</h1>
+<p><a href="compaction-planning-functions.html">Compaction planning</a> | <a href="persistent-internals.html">Persistent internals</a></p>
+<p>This reference follows the current checkout. Some development implementation may
+not yet be published on <code>main</code>. These helpers process an already ordered internal
+stream; they do not establish durability, retain engine snapshots, or pin native
+regions on their own.</p>
+<h2 id="two-different-pipelines">Two Different Pipelines</h2>
+<p>For a user range read, source iterators merge into internal-key order, then
+<code>SnapshotCollapsingIterator</code> emits one visible live value per user key within a
+fixed range. Tombstones mask earlier values rather than appearing in the result.</p>
+<p>For compaction, a merged source enters <code>CompactionDroppingIterator</code>, which keeps
+versions needed by snapshots and can discard obsolete versions or proven-safe
+boundary tombstones. Its result remains an internal stream with multiple versions
+and tombstones when required. It is not the user-visible collapsing iterator.</p>
+<p>All iterators here are stateful and not synchronized. Their caller controls
+single-threaded advancement and resource ownership.</p>
+<h2 id="internal-entry">Internal Entry</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/iterator/InternalEntry.java">InternalEntry.java</a>.</p>
+<h3 id="internalentryuserkey-sequence-type-value"><code>InternalEntry(userKey, sequence, type, value)</code></h3>
+<p>Private construction requires a nonnull key and positive sequence, plus nonnull
+value for a live value entry. It copies key and optional value arrays. Empty keys
+and empty live values are allowed. Private factory callers supply valid types;
+the constructor does not independently reject a null type.</p>
+<h3 id="valuekey-sequence-value-and-tombstonekey-sequence"><code>value(key, sequence, value)</code> and <code>tombstone(key, sequence)</code></h3>
+<p>The live-value factory selects <code>Type.VALUE</code>; the tombstone factory selects
+<code>Type.TOMBSTONE</code> with null payload. Type enum declaration order puts values before
+tombstones when key and sequence are identical.</p>
+<h3 id="userkey-sequence-type-and-value"><code>userKey()</code>, <code>sequence()</code>, <code>type()</code>, and <code>value()</code></h3>
+<p>The key accessor returns a fresh clone; sequence and type return scalars.
+The no-argument value accessor throws for tombstones and otherwise clones the
+payload. Copies can remain valid after their original storage source closes.
+This entry class does not override object equality with byte-content equality.</p>
+<h3 id="comparetoother-and-sameidentityother"><code>compareTo(other)</code> and <code>sameIdentity(other)</code></h3>
+<p>Ordering is unsigned user key ascending, sequence descending, then type enum
+ascending. It compares private arrays directly without accessor clones.
+<code>sameIdentity</code> compares key content, sequence, and type but deliberately excludes
+value bytes. Equal internal identity with differing payloads is still a duplicate
+to the merge layer. Same key/sequence with different types is not equal identity.</p>
+<h2 id="iterator-contract-and-list-source">Iterator Contract and List Source</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/iterator/InternalIterator.java">InternalIterator.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/iterator/ListInternalIterator.java">ListInternalIterator.java</a>.</p>
+<h3 id="internaliteratornext-current-and-close"><code>InternalIterator.next()</code>, <code>current()</code>, and <code>close()</code></h3>
+<p>The interface exposes forward-only positioning and resource release over strictly
+ordered internal entries. It has no seek, snapshot acquisition, or asynchronous
+advance operation. Concrete implementations determine validation and close behavior.</p>
+<h3 id="listinternaliteratorentries"><code>ListInternalIterator(entries)</code></h3>
+<p>Copies the list, rejecting null elements through <code>List.copyOf</code>, then checks every
+adjacent pair is strictly increasing under <code>compareTo</code>. Duplicate identities and
+out-of-order entries fail construction. Same key/sequence with distinct ordered
+types can pass. Entry objects are reused because their arrays are encapsulated.</p>
+<h3 id="next-current-close-and-ensureopen"><code>next()</code>, <code>current()</code>, <code>close()</code>, and <code>ensureOpen()</code></h3>
+<p><code>next</code> checks open, increments the index, and returns whether positioned; exhaustion
+sets index to list size. <code>current</code> checks open and requires index within the list,
+returning the existing immutable entry. <code>close</code> sets a flag and is idempotent; it
+does not clear the retained list. Private <code>ensureOpen</code> rejects later access.</p>
+<h2 id="k-way-merge">K-Way Merge</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/iterator/MergingInternalIterator.java">MergingInternalIterator.java</a>.</p>
+<h3 id="merginginternaliteratorsources-and-head"><code>MergingInternalIterator(sources)</code> and <code>Head</code></h3>
+<p>Construction copies the source list into an <code>ArrayList</code> but does not eagerly
+advance, validate null entries, reject repeated iterator objects, or verify source
+ordering. Its priority queue orders nested <code>Head(source, entry)</code> records by entry.
+Callers must provide independent, strictly sorted sources.</p>
+<h3 id="next-and-advancesource"><code>next()</code> and <code>advance(source)</code></h3>
+<p>On first advance, calls <code>next</code> once on each source and queues nonempty heads.
+On subsequent advances, removes the previously selected head and advances that
+source through the private <code>advance</code> helper. An empty heap clears current and
+returns false. Otherwise the minimum head becomes the next candidate.</p>
+<p>Before returning it, scans all queued heads for matching internal identity and
+throws <code>IllegalStateException</code> on a duplicate. Payload equality is irrelevant.
+This rejects duplicate heads across sources, but it does not independently validate
+strict ordering inside a custom source. Duplicate checking adds a linear scan of
+active heads to each heap operation; this is not only logarithmic merge work.</p>
+<p>Initialization and source advancement can throw after state has changed. There
+is no rollback or automatic closing of all sources on such failure; callers should
+close in their own failure path and should not treat retry as a reset.</p>
+<h3 id="current-close-and-ensureopen"><code>current()</code>, <code>close()</code>, and <code>ensureOpen()</code></h3>
+<p><code>current</code> requires open and a selected entry; it returns that entry without a clone.
+<code>close</code> sets closed first, closes sources in list order, then clears the heap.
+If one source close throws, later closes and heap clearing are skipped, and another
+call does not retry because closed is already set. <code>ensureOpen</code> rejects use after
+close. Source ownership is transferred operationally to the merge's close path;
+the constructor itself provides no reader leases.</p>
+<h2 id="snapshot-collapse">Snapshot Collapse</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/iterator/SnapshotCollapsingIterator.java">SnapshotCollapsingIterator.java</a>.</p>
+<h3 id="snapshotcollapsingiteratorsource-visiblesequence-startinclusive-endexclusive"><code>SnapshotCollapsingIterator(source, visibleSequence, startInclusive, endExclusive)</code></h3>
+<p>Requires nonnull source and bounds, nonnegative visibility, and nonreversed
+unsigned bounds. Clones the bounds. Equal bounds represent an empty range.
+It assumes the source is internally ordered; it does not register a snapshot or
+validate each source ordering transition.</p>
+<h3 id="next-and-take"><code>next()</code> and <code>take()</code></h3>
+<p>Clears the current user result, consumes every version of one key, and chooses
+the first record with sequence at or below visibility. Newer versions are ignored;
+a chosen tombstone masks the key rather than falling back to an older value.
+Keys before start are skipped, keys at or beyond end stop the call, and live
+visible keys return a copied value.</p>
+<p><code>take</code> consumes a saved lookahead entry first, otherwise advances the source.
+The group loop reads one entry from the next key and buffers it. There is no seek
+to start: earlier groups are consumed and compared. Key accessors clone during
+group comparison, and the chosen value accessor clones its payload.</p>
+<p>There is no latched end-of-range flag. Calling <code>next</code> again after a false result
+at the upper bound may consume more out-of-range groups, although it cannot return
+them as results under a sorted source. Stop advancement on the first false.</p>
+<h3 id="key-value-ensurepositioned-and-ensureopen"><code>key()</code>, <code>value()</code>, <code>ensurePositioned()</code>, and <code>ensureOpen()</code></h3>
+<p>The accessors require an open positioned iterator and clone the stored current
+arrays again. Thus a returned live value is copied when selected and again per
+public accessor call. <code>ensurePositioned</code> checks key is nonnull; <code>ensureOpen</code>
+checks the closed flag.</p>
+<h3 id="close"><code>close()</code></h3>
+<p>Sets closed before closing its source and normally does so once. Source failure
+is not retried. It does not explicitly clear buffered entries or current arrays;
+closed access is still rejected. Close does not itself release a snapshot unless
+the provided source's own close path carries that ownership.</p>
+<h2 id="snapshot-aware-compaction-dropping">Snapshot-Aware Compaction Dropping</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/compaction/CompactionDroppingIterator.java">CompactionDroppingIterator.java</a>.</p>
+<h3 id="compactiondroppingiteratorsource-oldestsnapshotsequence-baselevelforkey"><code>CompactionDroppingIterator(source, oldestSnapshotSequence, baseLevelForKey)</code></h3>
+<p>Requires nonnull source and predicate and nonnegative oldest snapshot. The caller
+supplies a safe boundary and lower-level absence proof; this constructor does not
+consult a snapshot registry or validate the predicate against a live version.</p>
+<h3 id="next-and-take-1"><code>next()</code> and <code>take()</code></h3>
+<p>When the retained queue is empty, consumes an entire user-key group into a list,
+buffering the first entry of the next key through <code>take</code>. For the sorted group:</p>
+<ul>
+<li>Every version newer than the oldest snapshot is retained.</li>
+<li>The first version at or below that boundary is retained, except a tombstone
+whose <code>baseLevelForKey</code> predicate returns true.</li>
+<li>All remaining older records are dropped.</li>
+</ul>
+<p>It then emits retained entries in original order. Entirely dropped groups are
+skipped. The list and queue retain references to existing entries rather than
+copying value payloads, but grouping allocates containers and clones key bytes
+through accessors. Memory for one heavily versioned key scales with its full group,
+not a fixed one-entry streaming buffer.</p>
+<p>The predicate is called only for the boundary tombstone, not every tombstone.
+An exception while building or classifying a group has no rollback; retry is not
+a supported reconstruction mechanism. Source ordering and duplicate validation
+belong to the source/merge contract.</p>
+<h3 id="current-droppedversions-and-droppedtombstones"><code>current()</code>, <code>droppedVersions()</code>, and <code>droppedTombstones()</code></h3>
+<p><code>current</code> requires open and positioning and returns the retained entry itself.
+Counters have no open check and remain readable after close. <code>droppedTombstones</code>
+counts only safely removed boundary tombstones. <code>droppedVersions</code> counts every
+record older than the handled boundary, including older tombstones despite the
+source comment's description of discarded values. Counters use ordinary increments,
+not saturation or atomic operations.</p>
+<h3 id="close-and-ensureopen"><code>close()</code> and <code>ensureOpen()</code></h3>
+<p>Close marks closed then closes the source once, without clearing buffered entries
+or the retained queue. Source close failure is not retried. <code>ensureOpen</code> rejects
+later traversal and current access.</p>
+<h2 id="base-level-proof">Base-Level Proof</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/compaction/BaseLevelKeyChecker.java">BaseLevelKeyChecker.java</a>.</p>
+<h3 id="baselevelkeychecker-and-isbaselevelforkeyuserkey-outputlevel-version"><code>BaseLevelKeyChecker()</code> and <code>isBaseLevelForKey(userKey, outputLevel, version)</code></h3>
+<p>Construction is stateless. The query requires nonnull key and output level 1
+through 6. It checks file ranges in every level below output; any containing range
+returns false, otherwise true. Output L6 returns true without inspecting lower
+levels because none exist. There is no explicit null-version guard.</p>
+<p>This is a conservative metadata proof. A range containing the key prevents
+tombstone removal even if the file has no actual matching record. It does not
+inspect output or higher levels, read Bloom filters, perform table lookup, or
+validate current-version ownership. The coordinator must supply an inventory
+appropriate to the compaction's installation rules.</p>
+<h2 id="review-boundaries">Review Boundaries</h2>
+<p>Keep internal ordering distinct from user-key equality. Trace snapshot and table
+leases around these iterators, and close them on failure. Test retention at the
+exact boundary, tombstone masking, duplicate identity, empty values, and lower-level
+range overlap. Function-name coverage detects omissions, not snapshot safety,
+correct live-version installation, or complete cleanup after exceptions.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#two-different-pipelines">Two Different Pipelines</a><a href="#internal-entry">Internal Entry</a><a href="#iterator-contract-and-list-source">Iterator Contract and List Source</a><a href="#k-way-merge">K-Way Merge</a><a href="#snapshot-collapse">Snapshot Collapse</a><a href="#snapshot-aware-compaction-dropping">Snapshot-Aware Compaction Dropping</a><a href="#base-level-proof">Base-Level Proof</a><a href="#review-boundaries">Review Boundaries</a></nav></aside>
+  </div>
+</body>
+</html>

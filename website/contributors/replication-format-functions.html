@@ -1,0 +1,471 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/REPLICATION-FORMAT-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Replicated log formats and codecs: source-backed contributor documentation for Aether Engine.">
+  <title>Replicated log formats and codecs | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html" aria-current="page">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/REPLICATION-FORMAT-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="replicated-log-format-and-codec-functions">Replicated Log Format and Codec Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="replication-contract-functions.html">Replication contracts</a> | <a href="replicated-store-functions.html">Concrete store</a> | <a href="wal-functions.html">WAL formats</a></p>
+<p>This reference covers <strong>43 explicit declarations in five complete files</strong>:
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replicated-log/src/main/java/io/aetherdb/replication/log/ReplicatedLogFormatV1.java">ReplicatedLogFormatV1.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replicated-log/src/main/java/io/aetherdb/replication/log/ReplicatedLogIdentityV1.java">ReplicatedLogIdentityV1.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replicated-log/src/main/java/io/aetherdb/replication/log/ReplicatedLogSegmentHeaderV1.java">ReplicatedLogSegmentHeaderV1.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replicated-log/src/main/java/io/aetherdb/replication/log/ReplicatedWriteCommandV1.java">ReplicatedWriteCommandV1.java</a>,
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replicated-log/src/main/java/io/aetherdb/replication/log/ReplicatedLogEntryCodecV1.java">ReplicatedLogEntryCodecV1.java</a>.
+Private helpers and nested operation/type methods are included. Generated record
+and enum methods are not counted. Concrete file I/O/recovery remains separate.</p>
+<h2 id="format-architecture-and-integrity">Format Architecture and Integrity</h2>
+<pre><code class="language-text">WriteBatch -&gt; ordered operations -&gt; AEBT body
+  -&gt; AECM envelope (body SHA-256 + envelope CRC32C)
+  -&gt; AERE log record (payload SHA-256 + entry hash + header/record CRC32C)
+segment: 4096-byte header region + aligned records
+directory: RLOG-IDENTITY binds cluster/node + compatibility vector
+</code></pre>
+<p>These are distinct from the local engine WAL formats. All multibyte fields below
+use <strong>little-endian</strong> order. UUIDs are encoded as most-significant then
+least-significant 64-bit halves, each little-endian, not conventional UUID network
+byte order. Checksums are masked CRC32C via MaskedCrc32c; hashes use SHA-256.
+Neither is a signature, keyed authentication, consensus proof, or encryption.</p>
+<p>The entry hash includes the supplied predecessor hash. A single-record parser
+can verify that relationship inside the record but cannot prove that this hash
+matches the actual preceding retained entry. Store recovery/append must compare
+neighbors and establish index/term/state continuity. Likewise segment-header
+decoding validates its claimed boundary, not the existence of that predecessor.</p>
+<h2 id="size-and-name-functions">Size and Name Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReplicatedLogFormatV1.ReplicatedLogFormatV1()</code></td>
+<td>Private empty utility constructor; no mutable format registry.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogFormatV1.segmentName(number)</code></td>
+<td>Requires number&gt;=1, otherwise IllegalArgumentException. Formats RLOG- followed by a zero-padded 20-digit decimal number and .aerlog. Formats a name only; does not create, validate ownership of, or open a file.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogFormatV1.recordLength(payloadBytes)</code></td>
+<td>Rejects negatives. Adds 192-byte header and 8-byte trailer with Math.addExact, then 0..7 bytes of padding to reach an 8-byte multiple. Int overflow raises ArithmeticException; an aligned result above 67,108,864 raises IllegalArgumentException. Empty payload yields 200 bytes.</td>
+</tr>
+</tbody>
+</table>
+<p>Constants: meaningful segment header=192 bytes, full header region=4096;
+entry header=192, trailer=8, alignment=8; target segment=134,217,728 bytes
+(128 MiB), hard segment=268,435,456 (256 MiB), maximum record=67,108,864
+(64 MiB). Rotation is implemented by the store, not these constants. The largest
+payload that fits is 67,108,664 bytes, distinct from the 32 MiB command-body cap.</p>
+<h2 id="persistent-identity-functions">Persistent Identity Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReplicatedLogIdentityV1.ReplicatedLogIdentityV1(clusterId, nodeId, creationEpochMillis)</code></td>
+<td>Rejects null/all-zero UUIDs and negative creation time with IllegalArgumentException. Does not compare with configured identities, authenticate a node, or persist the record.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogIdentityV1.encode()</code></td>
+<td>Allocates exactly 256 zero-filled bytes, writes the fixed vector/fingerprint/time, and stores masked CRC32C over bytes 0..251 at offset 252. Does not write or force a file.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogIdentityV1.decode(encoded)</code></td>
+<td>Requires exactly 256 nonnull bytes. Checks magic/version/length/zero flags, exact supported format vector, zero reserved bytes, CRC and fingerprint with MessageDigest.isEqual. Constructs the record to validate UUIDs/time. Mismatch raises IllegalArgumentException. No external expected identity is passed.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogIdentityV1.compatibilityFingerprint()</code></td>
+<td>Builds the fixed little-endian vector prefixed by ASCII AETHER-RLOG-COMPAT-V1: version, target/hard/record limits, header/region/alignment sizes, then seven short values of 1. Hashes only the used vector prefix, not unused allocation tail. Returns a fresh 32-byte SHA-256; missing algorithm raises AssertionError. It fingerprints format compatibility, not source revision or log contents.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogIdentityV1.isZero(id)</code></td>
+<td>Treats null or both UUID halves zero as invalid identity.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogIdentityV1.putUuid(bytes, id)</code></td>
+<td>Writes most-significant then least-significant halves using buffer order. Relies on caller capacity and validated ID.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogIdentityV1.getUuid(bytes)</code></td>
+<td>Reads two longs in that same order and constructs a UUID; does not itself reject zero.</td>
+</tr>
+</tbody>
+</table>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Identity offset</th>
+<th>Bytes and meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0..15</td>
+<td>AETHRLI1 magic (8), version=1 (2), length=256 (2), flags=0 (4).</td>
+</tr>
+<tr>
+<td>16..47</td>
+<td>Cluster UUID (16), node UUID (16).</td>
+</tr>
+<tr>
+<td>48..95</td>
+<td>Version=1 and target/hard/record limits (four longs); header=192, region=4096, alignment=8 (three ints); two short format values=1.</td>
+</tr>
+<tr>
+<td>96..135</td>
+<td>Compatibility fingerprint (32), creation epoch millis (8).</td>
+</tr>
+<tr>
+<td>136..251</td>
+<td>Reserved zero bytes, checked individually.</td>
+</tr>
+<tr>
+<td>252..255</td>
+<td>Masked CRC32C of bytes 0..251.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="segment-header-functions">Segment Header Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReplicatedLogSegmentHeaderV1.ReplicatedLogSegmentHeaderV1(clusterId, nodeId, segmentNumber, firstIndex, previousIndex, previousTerm, previousEntryHash, creationEpochMillis)</code></td>
+<td>Requires nonnull/nonzero IDs, segment/first&gt;=1, previousIndex=firstIndex-1, nonnegative term/time, and exactly 32 hash bytes. For previousIndex=0 requires term=0 and all-zero hash; for a positive predecessor requires term&gt;=1. Copies hash. Invalid inputs raise IllegalArgumentException. Does not look up the claimed predecessor or require nonzero hash for a positive predecessor.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogSegmentHeaderV1.previousEntryHash()</code></td>
+<td>Returns a fresh clone.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogSegmentHeaderV1.equals(other)</code></td>
+<td>Identity fast path, then compares all UUID/scalar fields and hash contents. Null/other type returns false.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogSegmentHeaderV1.hashCode()</code></td>
+<td>Combines Objects.hash of metadata with Arrays.hashCode of the predecessor hash; a collection hash, not a cryptographic digest.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogSegmentHeaderV1.encodeRegion()</code></td>
+<td>Allocates zero-filled 4096-byte region, writes meaningful header, fixed size/version vector, time and CRC over first 188 bytes. Returns bytes only: despite its comment, it does not force storage.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogSegmentHeaderV1.decodeRegion(region, clusterId, nodeId, segmentNumber)</code></td>
+<td>Requires exact 4096 bytes. Checks header magic/version/size/flags, expected cluster/node/segment, fixed size/version vector, reserved bytes 152..187, zero tail 192..4095, and CRC at 188. Constructor then checks the internal boundary/time. Expected null IDs simply fail equality checks. Does not compare against the actual preceding file.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogSegmentHeaderV1.allZero(bytes)</code></td>
+<td>Returns false at first nonzero byte, otherwise true. Private caller supplies a nonnull hash.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogSegmentHeaderV1.putUuid(bytes, id)</code></td>
+<td>Writes UUID halves with caller buffer order/capacity.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogSegmentHeaderV1.getUuid(bytes)</code></td>
+<td>Reads UUID halves; semantic identity validation remains with decode/constructor.</td>
+</tr>
+</tbody>
+</table>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Header-region offset</th>
+<th>Bytes and meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0..15</td>
+<td>AETHRSG1 magic (8), version=1 (2), header length=192 (2), flags=0 (4).</td>
+</tr>
+<tr>
+<td>16..47</td>
+<td>Cluster and node UUIDs.</td>
+</tr>
+<tr>
+<td>48..79</td>
+<td>Segment number, first index, previous index, previous term (four longs).</td>
+</tr>
+<tr>
+<td>80..111</td>
+<td>Previous entry hash (32).</td>
+</tr>
+<tr>
+<td>112..151</td>
+<td>Target and hard segment bytes (two longs), maximum record/header bytes (two ints), version=1 (long), creation time (long).</td>
+</tr>
+<tr>
+<td>152..191</td>
+<td>Reserved zero bytes (36), masked CRC32C over 0..187 (4).</td>
+</tr>
+<tr>
+<td>192..4095</td>
+<td>Entire remaining header-region tail must be zero.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="command-and-operation-functions">Command and Operation Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReplicatedWriteCommandV1.ReplicatedWriteCommandV1(commandId, sequences, operations)</code></td>
+<td>Requires nonzero/nonnull ID, nonnull range/list, 1..10,000 operations, and inclusive range count equal to list size. Invalid fields raise IllegalArgumentException; oversized range can raise ArithmeticException from operationCount. List.copyOf freezes membership and rejects null elements with NullPointerException. Does not validate ordinal continuity, key/value caps or DELETE emptiness of manually constructed operations.</td>
+</tr>
+<tr>
+<td><code>ReplicatedWriteCommandV1.fromBatch(commandId, sequences, batch)</code></td>
+<td>Traverses batch.mutations in order, converts Put/Delete to copied Operation values, numbers ordinals from zero, supplies empty delete value, then constructs the command. Unsupported mutation raises IllegalArgumentException. Null batch causes NullPointerException. Does not submit/seal/close the batch, allocate sequence ranges, or deduplicate command IDs.</td>
+</tr>
+<tr>
+<td><code>ReplicatedWriteCommandV1.encode()</code></td>
+<td>Encodes body, allocates envelope+body, hashes body, writes fixed envelope fields and zero session/reserved fields, stores CRC over envelope bytes 0..119, then copies body. Does not apply the command.</td>
+</tr>
+<tr>
+<td><code>ReplicatedWriteCommandV1.decode(payload)</code></td>
+<td>Requires length between 160 and 128+32 MiB. Checks envelope magic/version/header/kind/flags/format, zero session fields, exact body length/format/reserved values, envelope CRC/tail, and copied-body SHA. Decodes operations, constructs positive ordered range and command to validate ID/count. Most malformed data raises IllegalArgumentException; allocation/count caveats below apply.</td>
+</tr>
+<tr>
+<td><code>ReplicatedWriteCommandV1.encodeBody()</code></td>
+<td>Totals header+operation/key/value bytes and key/value counts; rejects body above 32 MiB, writes AEBT header then supplied type/length/ordinal/key/value in order. Reads owned operation arrays directly, avoiding accessor clones. It does not normalize bad ordinals or enforce decoder key/value/DELETE rules. Per-operation length addition is an int expression before the long Math.addExact, so that helper alone is not a universal overflow guard for extreme manually constructed arrays.</td>
+</tr>
+<tr>
+<td><code>ReplicatedWriteCommandV1.decodeBody(body, expectedCount)</code></td>
+<td>Validates AEBT header/version/size/length/count, then allocates ArrayList(expectedCount). For each operation checks remaining 16-byte header, zero flags/reserved, known type, key&lt;=65,536, value&lt;=16 MiB, nonnegative lengths, empty DELETE value, ordinal exactly loop position, and remaining data. Reads arrays then Operation copies them again. Rejects trailing bytes or aggregate key/value totals mismatch.</td>
+</tr>
+<tr>
+<td><code>ReplicatedWriteCommandV1.sha256(bytes)</code></td>
+<td>Fresh SHA-256 digest of supplied bytes; unavailable algorithm becomes AssertionError.</td>
+</tr>
+<tr>
+<td><code>ReplicatedWriteCommandV1.isZero(id)</code></td>
+<td>Null or all-zero UUID check.</td>
+</tr>
+<tr>
+<td><code>ReplicatedWriteCommandV1.putUuid(bytes, id)</code></td>
+<td>Writes UUID most/least halves using buffer order.</td>
+</tr>
+<tr>
+<td><code>ReplicatedWriteCommandV1.getUuid(bytes)</code></td>
+<td>Reads UUID halves without semantic validation.</td>
+</tr>
+<tr>
+<td><code>ReplicatedWriteCommandV1.Type.Type(code)</code></td>
+<td>Stores private enum code: PUT=1 or DELETE=2.</td>
+</tr>
+<tr>
+<td><code>ReplicatedWriteCommandV1.Type.fromCode(code)</code></td>
+<td>Resolves exactly 1 or 2; other values raise IllegalArgumentException.</td>
+</tr>
+<tr>
+<td><code>ReplicatedWriteCommandV1.Operation.Operation(type, key, value, ordinal)</code></td>
+<td>Requires nonnull type/key/value and ordinal&gt;=0, otherwise IllegalArgumentException. Clones both arrays. Does not enforce maximum lengths, contiguous ordinal, or empty delete value.</td>
+</tr>
+<tr>
+<td><code>ReplicatedWriteCommandV1.Operation.key()</code></td>
+<td>Fresh defensive key clone.</td>
+</tr>
+<tr>
+<td><code>ReplicatedWriteCommandV1.Operation.value()</code></td>
+<td>Fresh defensive value clone, including empty delete arrays.</td>
+</tr>
+<tr>
+<td><code>ReplicatedWriteCommandV1.Operation.equals(other)</code></td>
+<td>Compares type, ordinal, key and value contents; identity fast path, false for null/another type.</td>
+</tr>
+<tr>
+<td><code>ReplicatedWriteCommandV1.Operation.hashCode()</code></td>
+<td>Multiplier-31 combination of type, key/value content hashes and ordinal. Not a wire hash.</td>
+</tr>
+</tbody>
+</table>
+<p>Generated command equality uses UUID/range/list equality; list element equality
+uses the explicit content-based Operation.equals. operations() returns the
+immutable copied list, whose elements defensively own their bytes.</p>
+<p>Decode allocates the operation list from <strong>untrusted declared count before the
+command constructor enforces 1..10,000</strong>. Negative capacity raises
+IllegalArgumentException; a huge positive count can request excessive allocation
+and fail with OutOfMemoryError before the later semantic limit. Body length and
+hash checks are not a count-allocation guard. Direct constructors/encode can also
+produce a command the decoder rejects (bad ordinal, DELETE value, key/value cap).
+These are documented existing boundaries, not fixed by this guide.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Command envelope offset</th>
+<th>Bytes and meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0..15</td>
+<td>AECM (4), version=1 (2), header=128 (2), kind=1 (1), flags=0 (1), reserved=0 (2), format=1 (4).</td>
+</tr>
+<tr>
+<td>16..55</td>
+<td>Command UUID (16), three unsupported session longs=0 (24).</td>
+</tr>
+<tr>
+<td>56..87</td>
+<td>First/last sequence (two longs), operation count/body length/body format=1/reserved=0 (four ints).</td>
+</tr>
+<tr>
+<td>88..127</td>
+<td>Body SHA-256 (32), envelope CRC over 0..119 (4), zero tail (4).</td>
+</tr>
+<tr>
+<td>128 onward</td>
+<td>Exact AEBT body; no command-envelope alignment padding.</td>
+</tr>
+</tbody>
+</table>
+<p>AEBT body offsets: magic at 0, version short at 4, header-length short=32 at 6,
+total body length int at 8, count int at 12, key-byte total long at 16, value-byte
+total long at 24. Each operation starts with type byte, zero flags byte, zero
+reserved short, key length int, value length int, ordinal int (16 bytes), then
+exact key and value. Totals exclude headers. Empty keys are accepted by decoding.</p>
+<h2 id="entry-codec-functions">Entry Codec Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReplicatedLogEntryCodecV1.ReplicatedLogEntryCodecV1()</code></td>
+<td>Private empty utility constructor.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogEntryCodecV1.create(type, payloadFormatVersion, index, term, commandId, sequenceStart, stateSequenceAfter, previousEntryHash, payload)</code></td>
+<td>Clones nonnull payload, calculates payload SHA and entry hash, constructs immutable entry (copying again), then checks COMMAND consistency. Null payload raises IllegalArgumentException. Invalid hash inputs fail before record validation; no predecessor lookup or next-index reservation.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogEntryCodecV1.encode(entry)</code></td>
+<td>Rejects null, validates COMMAND body, clones/hashes payload and recalculates entry hash; mismatch raises IllegalArgumentException. Calculates aligned length, allocates record, writes header/CRC/payload/zero padding/trailer magic, then allocates a checksum-coverage array for trailer CRC. Does not write/force storage.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogEntryCodecV1.decode(record)</code></td>
+<td>Requires exact aligned record length 200..64 MiB. Checks AERE/version/header/declared length/type/zero flags/reserved, header CRC, exact payload-to-record length, all zero padding, AEND trailer and record CRC. Copies payload, verifies payload SHA and recalculated entry hash, constructs record, then validates COMMAND body agreement. No neighbor is supplied, so the reported hash-chain mismatch concerns this record's own hash calculation.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogEntryCodecV1.entryHash(type, payloadVersion, index, term, commandId, sequenceStart, stateAfter, payloadLength, payloadHash, previousHash)</code></td>
+<td>Requires nonnull type/UUID and two exact 32-byte hashes. Hashes ASCII AETHER-RLOG-ENTRY-V1 followed by previous hash, type byte, zero flags byte, payload-version short, index/term/UUID halves/sequence-start/state-after (six longs), payload length int, payload hash. Does not hash raw payload here, validate positive coordinates, or look up a predecessor.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogEntryCodecV1.validateCommandConsistency(entry)</code></td>
+<td>Returns immediately for non-COMMAND. Otherwise fully decodes a defensive payload copy and requires command ID, first sequence and last sequence equal outer entry metadata. Mismatch raises IllegalArgumentException; does not apply or deduplicate the command.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogEntryCodecV1.sha256(bytes)</code></td>
+<td>Fresh SHA-256 digest; missing algorithm becomes AssertionError.</td>
+</tr>
+</tbody>
+</table>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Entry offset</th>
+<th>Bytes and meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0..15</td>
+<td>AERE (4), version=1 (2), header=192 (2), complete aligned record length (4), type (1), flags=0 (1), payload-version unsigned short (2).</td>
+</tr>
+<tr>
+<td>16..63</td>
+<td>Index, term, UUID halves, sequenceStart, stateSequenceAfter (six longs).</td>
+</tr>
+<tr>
+<td>64..167</td>
+<td>Payload length int, zero reserved int, payload SHA (32), previous entry hash (32), current entry hash (32).</td>
+</tr>
+<tr>
+<td>168..191</td>
+<td>Header CRC over 0..167 (4), zero reserved bytes (20).</td>
+</tr>
+<tr>
+<td>192 onward</td>
+<td>Exact payload, then 0..7 zero alignment bytes.</td>
+</tr>
+<tr>
+<td>Last 8 bytes</td>
+<td>Record CRC (4), AEND magic (4). CRC covers everything before trailer plus AEND, excluding its own four bytes.</td>
+</tr>
+</tbody>
+</table>
+<p>Both hash calculation and encoding narrow payloadFormatVersion to a short.
+ReplicatedLogEntry's general constructor only requires nonnegative int versions;
+CONFIGURATION can therefore carry a value above 65,535 that is truncated on wire
+and decodes to a different version. COMMAND=1 and NOOP/BARRIER=0 avoid this case.
+Codec validation does not supply missing membership-configuration semantics.</p>
+<p>Entry encode/decode and command consistency allocate whole-record/payload/body
+copies, checksum scratch arrays, and per-operation arrays. These are not streaming
+or bounded-scratch parsers. Size limits bound normal records, not every allocation
+from malformed metadata. No zero-copy or low-allocation claim follows from them.</p>
+<h2 id="tests-and-remaining-work">Tests and Remaining Work</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replicated-log/src/test/java/io/aetherdb/replication/log/ReplicationFormatTest.java">ReplicationFormatTest.java</a>
+has seven tests: identity exact-size/round-trip/corruption, ordered batch/ranges,
+planner discontinuity, header-region boundary/tail corruption, aligned entry
+round-trip and predecessor hash carriage, selected entry corruptions, and shared
+corruption-mutator integration. It does not exhaust each parser field, allocation
+limit, constructor/decoder asymmetry, version truncation, or maximum-size case.</p>
+<p>These functions do not supply durable append, segment rotation, suffix repair,
+directory force, locking, or Raft commitment. The concrete replicated-log store
+is the next reference. Runtime and frozen experiment implementations are unchanged.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#format-architecture-and-integrity">Format Architecture and Integrity</a><a href="#size-and-name-functions">Size and Name Functions</a><a href="#persistent-identity-functions">Persistent Identity Functions</a><a href="#segment-header-functions">Segment Header Functions</a><a href="#command-and-operation-functions">Command and Operation Functions</a><a href="#entry-codec-functions">Entry Codec Functions</a><a href="#tests-and-remaining-work">Tests and Remaining Work</a></nav></aside>
+  </div>
+</body>
+</html>

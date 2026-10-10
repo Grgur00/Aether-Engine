@@ -2,6 +2,7 @@ package io.aetherdb.sstable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import io.aetherdb.sstable.jfr.BulkPhaseEvent;
 
 /** Opt-in, single-use timing evidence for one builder finish; performs no I/O. */
 public final class SSTableFinishTrace {
@@ -13,6 +14,11 @@ public final class SSTableFinishTrace {
     private boolean completed;
     private long entryCount;
     private long fileBytes;
+    private final boolean bulk;
+    private BulkPhaseEvent event;
+
+    public SSTableFinishTrace() { this(false); }
+    public SSTableFinishTrace(boolean bulk) { this.bulk = bulk; }
 
     void start(long entries) {
         entryCount = entries;
@@ -22,6 +28,15 @@ public final class SSTableFinishTrace {
     /** Switches exclusive stages, returning the previous stage for nested codec work. */
     public static String enter(SSTableFinishTrace trace, String stage) {
         if (trace == null) return null;
+        if (trace.event != null) { trace.event.close(); trace.event = null; }
+        if (trace.bulk) {
+            String phase = switch (stage) {
+                case "fileForce" -> "SSTABLE_FORCE";
+                case "verificationOpenAndRead" -> "SSTABLE_VERIFY";
+                default -> null;
+            };
+            if (phase != null) trace.event = BulkPhaseEvent.start(phase, trace.entryCount, trace.fileBytes, -1);
+        }
         long now = System.nanoTime();
         trace.stages.merge(trace.activeStage, now - trace.previous, Long::sum);
         String previousStage = trace.activeStage;

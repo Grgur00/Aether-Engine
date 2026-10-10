@@ -1,0 +1,268 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/NATIVE-RECORD-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Native records and access: source-backed contributor documentation for Aether Engine.">
+  <title>Native records and access | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html" aria-current="page">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/NATIVE-RECORD-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="native-record-and-access-functions">Native Record and Access Functions</h1>
+<p><a href="native-region-functions.html">Native regions and allocation</a> | <a href="native-memtable-functions.html">Native memtable</a></p>
+<p>This describes the current checkout, including development changes not necessarily
+published on <code>main</code>. Native records are process-local bytes, separate from SSTable
+and WAL formats.</p>
+<h2 id="architecture-and-ownership">Architecture and Ownership</h2>
+<p>The allocator reserves space; <code>NativeRecordWriter</code> initializes header and payload;
+the memtable publishes its initialized node through release links. Readers acquire
+those links before inspecting records. <code>NativeRecordReader.openChecked</code> validates
+structure and returns a borrowed <code>NativeRecordView</code>. Key comparisons read bytes
+in place, while copy methods produce independent heap arrays.</p>
+<p>Neither writer nor view retains a region lease. A checked view caches metadata,
+not an immutable snapshot. Owners must prevent close and concurrent mutation
+during use. Freezing a region blocks allocation, not direct segment writes.</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Copy or allocation</th>
+<th>Validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>writeValue</code></td>
+<td>Reserves native space and copies input bytes</td>
+<td>Input sizes and sequence</td>
+</tr>
+<tr>
+<td><code>writeValueAt</code></td>
+<td>Copies into caller-owned space, no reservation</td>
+<td>Capacity; caller owns alignment and layout</td>
+</tr>
+<tr>
+<td><code>openChecked</code></td>
+<td>Creates a view and slices, not payload arrays</td>
+<td>Header, bounds, semantics, padding</td>
+</tr>
+<tr>
+<td><code>compareKey</code></td>
+<td>Reads key bytes in place</td>
+<td>Reader overload checks structure first</td>
+</tr>
+<tr>
+<td><code>copyKey</code>, <code>copyValue</code></td>
+<td>New array on every call</td>
+<td>Region must remain alive</td>
+</tr>
+</tbody>
+</table>
+<h2 id="record-layout">Record Layout</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/NativeRecordFormatV1.java">NativeRecordFormatV1.java</a>.</p>
+<p>Multibyte fields are little-endian. The 24-byte header precedes the key, value,
+and zero padding up to an 8-byte boundary.</p>
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>Field</th>
+<th>Width</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Total aligned length</td>
+<td>4 bytes</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Key length</td>
+<td>4 bytes</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Value length</td>
+<td>4 bytes</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Version 1</td>
+<td>2 bytes</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Value type 1 or tombstone type 2</td>
+<td>1 byte</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Zero flags</td>
+<td>1 byte</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Positive sequence</td>
+<td>8 bytes</td>
+</tr>
+</tbody>
+</table>
+<p>Maximum key length is 65,536 bytes; maximum value length is 16,777,216 bytes.
+Empty keys and empty live values are allowed here. Tombstones have no value bytes.
+There is no checksum: changing payload bytes while preserving structure can pass
+checked decoding. This is not an authenticated or durable record format.</p>
+<h3 id="nativerecordformatv1-validatelengths-totallength-and-padding"><code>NativeRecordFormatV1()</code>, <code>validateLengths</code>, <code>totalLength</code>, and <code>padding</code></h3>
+<p>The constructor is private. <code>validateLengths(keyLength, valueLength)</code> rejects
+negative and over-limit lengths. <code>totalLength</code> validates, adds header and lengths
+with checked arithmetic, aligns to 8 using the allocator helper, and converts to
+an integer exactly. <code>MAX_RECORD_BYTES</code> is derived from the maximum sizes.
+<code>padding</code> subtracts header and logical payload sizes from total length, yielding
+zero through seven bytes for valid inputs. None of these functions allocates
+native space or validates record contents, type, or sequence.</p>
+<h2 id="native-access-helpers">Native Access Helpers</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/NativeAccess.java">NativeAccess.java</a>.</p>
+<h3 id="nativeaccess-and-checkedsliceregion-offset-length"><code>NativeAccess()</code> and <code>checkedSlice(region, offset, length)</code></h3>
+<p>Private utility constructor. <code>checkedSlice</code> rejects negative ranges, computes
+end with checked addition, rejects end beyond capacity, and returns a slice of
+the live root segment. Overflow propagates as <code>ArithmeticException</code>. It does not
+consult the allocator cursor or prove that bytes were allocated. Valid empty
+slices are allowed; returned slices share storage and arena lifetime.</p>
+<h3 id="getint-setint-getshort-setshort-getlong-and-setlong"><code>getInt</code>, <code>setInt</code>, <code>getShort</code>, <code>setShort</code>, <code>getLong</code>, and <code>setLong</code></h3>
+<p>Plain scalar reads and writes use unaligned little-endian FFM layouts. FFM checks
+segment bounds and lifetime. These helpers do not add acquire/release ordering,
+validate record semantics, or retain region ownership.</p>
+<h3 id="getbyte-and-setbyte"><code>getByte</code> and <code>setByte</code></h3>
+<p>Read or write one byte with <code>ValueLayout.JAVA_BYTE</code>. Byte order is irrelevant;
+segment bounds and lifetime still apply.</p>
+<h3 id="getintacquire-and-setintrelease"><code>getIntAcquire</code> and <code>setIntRelease</code></h3>
+<p>Slice four bytes at the given offset and use an aligned little-endian integer
+VarHandle with acquire or release ordering. Effective integer alignment is
+required, unlike plain integer access. These supply skip-list link publication
+ordering, not lifetime retention or node-offset validation.</p>
+<h3 id="copyfromarraysource-target-targetoffset"><code>copyFromArray(source, target, targetOffset)</code></h3>
+<p>Wraps the source array in a segment and copies its entire length into the target.
+There is no intermediate clone or custom null guard. Concurrent source mutation
+does not produce a guaranteed stable record image. FFM checks destination bounds
+and lifetime.</p>
+<h3 id="copytoarraysource-sourceoffset-length"><code>copyToArray(source, sourceOffset, length)</code></h3>
+<p>Allocates a byte array of exactly the requested length, then copies the source
+range. Negative length can fail during array allocation before segment access;
+invalid source ranges fail at copy. Repeated calls return independent arrays,
+including for zero-length payloads.</p>
+<h3 id="compareunsignedsegment-offset-length-candidate"><code>compareUnsigned(segment, offset, length, candidate)</code></h3>
+<p>Lexically compares unsigned bytes up to the shorter length, returning at the first
+difference; equal prefixes compare by total length. No key array is created.
+The helper does not reject negative lengths or null candidates itself. FFM checks
+the bytes actually accessed, not an upfront slice of the entire declared range.
+The view caller supplies validated length and rejects null candidates.</p>
+<h2 id="record-writer">Record Writer</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/NativeRecordWriter.java">NativeRecordWriter.java</a>.</p>
+<h3 id="nativerecordwriterregion"><code>NativeRecordWriter(region)</code></h3>
+<p>Stores the borrowed region without null validation, reservation, or a lease.</p>
+<h3 id="writevaluekey-value-sequence-and-writetombstonekey-sequence"><code>writeValue(key, value, sequence)</code> and <code>writeTombstone(key, sequence)</code></h3>
+<p><code>writeValue</code> rejects a null value and delegates with type 1. <code>writeTombstone</code>
+creates an empty value array and delegates with type 2. They return the allocator's
+descriptor rather than a record view.</p>
+<h3 id="writekey-value-sequence-type"><code>write(key, value, sequence, type)</code></h3>
+<p>The private allocating path rejects null key and nonpositive sequence, derives
+aligned size, and requests space with alignment 8. If full, it returns the failed
+allocation unchanged and writes nothing. Otherwise it calls <code>writeAt</code> and returns
+the successful descriptor. A subsequent write exception does not rewind the
+monotonic allocator. Private callers supply valid value and type arguments.</p>
+<h3 id="writevalueatoffset-key-value-sequence-and-writetombstoneatoffset-key-sequence"><code>writeValueAt(offset, key, value, sequence)</code> and <code>writeTombstoneAt(offset, key, sequence)</code></h3>
+<p>Compute size and call <code>writeAt</code> without reserving space. The caller supplies its
+own record location, usually inside a node allocation. Both evaluate <code>key.length</code>
+before the private key guard, so null key raises <code>NullPointerException</code> here;
+<code>writeValueAt</code> explicitly rejects null value first.</p>
+<p>These methods do not verify alignment, allocator ownership, nonoverlap, or state
+<code>OPEN</code>. They can write to a frozen but live region. Caller-controlled layout and
+writer locking must establish those boundaries.</p>
+<h3 id="writeatoffset-total-key-value-sequence-type"><code>writeAt(offset, total, key, value, sequence, type)</code></h3>
+<p>Rejects null key or nonpositive sequence, obtains a checked slice, zero-fills the
+whole record, copies key and live value, then writes lengths, version, type, zero
+flags, sequence, and finally total length. Padding stays zero; prior destination
+contents are overwritten.</p>
+<p>These are ordinary stores. Writing total length last is not a concurrent publish
+protocol. The surrounding memtable release-publishes completed nodes. Failure
+can leave partially initialized bytes with no rollback or checksum.</p>
+<h2 id="checked-reader">Checked Reader</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/NativeRecordReader.java">NativeRecordReader.java</a>.</p>
+<h3 id="nativerecordreaderregion-and-opencheckedoffset"><code>NativeRecordReader(region)</code> and <code>openChecked(offset)</code></h3>
+<p>Construction stores a borrowed region without null validation or lease acquisition.
+<code>openChecked</code> requires offset at least 64, aligned to 8, with capacity for a header.
+It validates aligned total length within limits, independent payload-length limits,
+version 1, zero flags, known type, positive sequence, and zero-length tombstone value.
+Derived aligned size must exactly equal stored size and fit region capacity.
+Every trailing padding byte must be zero.</p>
+<p>Returns a view with cached checked metadata, without key or value array copies.
+It does not check checksums, ordering, allocator ownership, or memtable reachability.
+A valid-looking record anywhere in allowed capacity can pass. Region/segment
+lifetime failures are not converted to corruption exceptions. Concurrent byte
+mutation lies outside the decoder's consistency guarantee.</p>
+<h3 id="comparekeyoffset-candidate-and-corruptmessage"><code>compareKey(offset, candidate)</code> and <code>corrupt(message)</code></h3>
+<p>The public comparison validates a record on every call before delegating to its
+view. It avoids payload copies but still creates a view and checks header/padding.
+The private <code>corrupt</code> helper constructs a <code>NativeRecordCorruptionException</code>.</p>
+<h2 id="borrowed-view">Borrowed View</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/NativeRecordView.java">NativeRecordView.java</a>.</p>
+<h3 id="nativerecordviewregion-offset-totallength-keylength-valuelength-sequence-type"><code>NativeRecordView(region, offset, totalLength, keyLength, valueLength, sequence, type)</code></h3>
+<p>Package-private construction stores fields without independent validation. The
+reader establishes validity; retaining this object does not keep its arena open.</p>
+<h3 id="metadata-accessors-and-alive">Metadata accessors and <code>alive()</code></h3>
+<p><code>offset()</code>, <code>totalLength()</code>, <code>keyLength()</code>, <code>valueLength()</code>, <code>sequence()</code>, and
+<code>recordType()</code> call <code>alive()</code> then return cached metadata. <code>isTombstone()</code> checks
+liveness and compares cached type to 2. <code>alive</code> gets the root segment, rejecting
+a closed region. It does not revalidate the header or lock against concurrent close.</p>
+<h3 id="copykey-and-copyvalue"><code>copyKey()</code> and <code>copyValue()</code></h3>
+<p>Copy key bytes after the header or value bytes after the key into new heap arrays.
+<code>copyValue</code> rejects tombstones; empty live values return empty arrays. Copies remain
+valid after region close, but repeated calls copy again. Ranges use cached sizes
+even if someone overwrote the header after the view opened.</p>
+<h3 id="comparekeycandidate"><code>compareKey(candidate)</code></h3>
+<p>Rejects null candidate with <code>IllegalArgumentException</code>, checks liveness, and reads
+native key bytes through unsigned comparison. It neither copies the key nor
+rereads the header. This compares user keys only, not the memtable's complete
+key/descending-sequence/type ordering.</p>
+<h2 id="errors-and-review-boundaries">Errors and Review Boundaries</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/NativeRecordCorruptionException.java">NativeRecordCorruptionException.java</a>.</p>
+<p><code>NativeRecordCorruptionException(message)</code> preserves a structural failure message.
+It is distinct from invalid writer arguments, allocator-full results, FFM bounds
+errors, and use-after-close failures.</p>
+<p>Keep writer and reader layout constants together; preserve the distinction between
+empty live values and tombstones. Review alignment at the allocation owner and
+leases at the view owner. Copy-free comparison is not allocation-free, and checked
+structure is not checksum verification. Function-name inventory tests detect
+omitted names, not contract accuracy or concurrency correctness.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-ownership">Architecture and Ownership</a><a href="#record-layout">Record Layout</a><a href="#native-access-helpers">Native Access Helpers</a><a href="#record-writer">Record Writer</a><a href="#checked-reader">Checked Reader</a><a href="#borrowed-view">Borrowed View</a><a href="#errors-and-review-boundaries">Errors and Review Boundaries</a></nav></aside>
+  </div>
+</body>
+</html>

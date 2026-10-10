@@ -1,0 +1,175 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/DATASET-PREPARATION-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Dataset preparation and manifests: source-backed contributor documentation for Aether Engine.">
+  <title>Dataset preparation and manifests | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html" aria-current="page">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/DATASET-PREPARATION-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="dataset-preparation-and-manifest-functions">Dataset Preparation and Manifest Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="benchmark-data-functions.html">Benchmark sources</a> | <a href="research-manifest-functions.html">Version manifests</a></p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/fetch_coco.py">fetch_coco.py</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/prepare_vision.py">prepare_vision.py</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/prepare_evolution.py">prepare_evolution.py</a>, and
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/validate_manifests.py">validate_manifests.py</a>.
+This reference covers <strong>8 explicit functions across four complete files</strong>.
+File-qualified names distinguish the two preparation functions and CLI entries.</p>
+<h2 id="architecture">Architecture</h2>
+<pre><code class="language-text">COCO URLs -&gt; local ZIP archives -&gt; images + instance annotations
+local ImageNet class directories or COCO images/annotations
+    -&gt; hashed, seeded-permutation source CSV + class metadata
+source CSV -&gt; seeded V1 membership + surviving/new V2 membership
+    -&gt; two CSV files + evolution receipt
+dataset configuration -&gt; manifest existence, IDs, paths, counts, overlap checks
+workload loader -&gt; its own content/identity validation and preprocessing
+</code></pre>
+<p>These scripts prepare or inspect inputs. They do not train models, publish cache
+artifacts or certify H2's frozen protocol. COCO labels describe object-category
+presence, not detection boxes or segmentation masks. ImageNet labels derive from
+sorted local directory names, not an externally reconciled canonical class map.
+Acquisition/licensing remains the operator's responsibility; manifests reference
+local files rather than redistribute images.</p>
+<h2 id="acquisition">Acquisition</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fetch_coco.download(url, destination)</code></td>
+<td>Reuses an existing nonempty destination file. Otherwise removes a stale sibling <code>.part</code>, streams <code>urlopen</code> to that partial path and replaces the destination after transfer.</td>
+<td>Requires a <code>Path</code> and an existing parent directory. No expected digest, length check, explicit timeout, retry or HTTP range resume. Nonempty is not proof of a complete archive. Failure leaves a partial file; a later attempt removes it.</td>
+</tr>
+<tr>
+<td><code>fetch_coco.extract(archive, destination, required)</code></td>
+<td>Reuses an existing required directory. Otherwise resolves every ZIP member destination and rejects paths outside the resolved output root before <code>extractall</code>. Requires the expected directory after extraction.</td>
+<td>Existing directories are not inventoried or checked for completeness. Extraction is not transactional; errors can leave partial directories that a later invocation skips. Path containment is a traversal guard, not a comprehensive hostile-archive resource/symlink policy. No size/quota preflight.</td>
+</tr>
+<tr>
+<td><code>fetch_coco.main()</code></td>
+<td>Parses output, one or more supported 2017 splits and optional annotation suppression. Creates archive/image directories; downloads/extracts each split and, by default, train/validation annotations. Prints a train manifest command when applicable.</td>
+<td>Default output is <code>/kaggle/working/coco</code>; default split is <code>train2017</code>. <code>test2017</code> does not gain test labels from the train/validation annotation archive. Errors propagate and previous downloads/extractions remain. Does not create a manifest itself.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="hashed-source-manifest">Hashed Source Manifest</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>prepare_vision.prepare(kind, root, output, annotations, split, seed)</code></td>
+<td>Resolves root/output and requires an image directory. ImageNet lists sorted class directories and recursive JPEG/JPG/PNG paths, assigning integer labels by class order. COCO reads instance annotations, sorts categories by ID, gathers unique category labels per image and lists images by ID. Shuffles the complete row list with a private seeded RNG, writes IDs/absolute paths/file hashes/JSON labels/split to a temporary CSV, then replaces the output and writes metadata with class mapping, counts and manifest/annotation hashes.</td>
+<td>Refuses existing CSV or metadata, but existence checks are not exclusive concurrent publication. CSV replacement and metadata writing are separate: metadata failure can leave a CSV. Does not decode images or validate dimensions. ImageNet extension matching is not a file-type check. COCO filenames are joined to root without a containment guard; duplicate IDs/categories and malformed annotations are not explicitly validated. Any non-ImageNet <code>kind</code> follows the COCO branch; CLI constrains it.</td>
+</tr>
+<tr>
+<td><code>prepare_vision.main()</code></td>
+<td>Parses <code>coco</code>/<code>imagenet</code>, image root, annotations, split, seed and output; delegates to <code>prepare</code>.</td>
+<td>Default split <code>train</code>, seed <code>20260904</code>. Required arguments and dataset choices are argparse checks, not license/content certification. No subset-size parameter: later prefix subsets use the fixed seeded full-list order.</td>
+</tr>
+</tbody>
+</table>
+<p>CSV columns are <code>sample_id</code>, <code>image_path</code>, <code>image_sha256</code>, <code>labels</code>, <code>split</code>.
+ImageNet IDs are relative paths; COCO IDs are string image IDs. Metadata goes to
+<code>output.with_suffix('.metadata.json')</code>. The CSV temporary is cleaned in <code>finally</code>;
+the preparation function does not roll back a successfully replaced CSV if a
+later receipt step fails. Hashing authenticates bytes only relative to the
+recorded digest, not image provenance or semantic correctness.</p>
+<h2 id="membership-evolution">Membership Evolution</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>prepare_evolution.prepare(source, output, v1_size, v2_size, reusable, split, seed)</code></td>
+<td>Reads split-filtered rows via <code>manifest_rows</code>; validates positive sizes, feasible overlap, sufficient union rows and unique nonempty IDs. Sorts by ID, privately shuffles, selects V1, samples surviving V1 rows, adds disjoint new rows and shuffles V2. Refuses existing <code>v1.csv</code>, <code>v2.csv</code>, <code>evolution.json</code>; writes both CSVs with image/mask paths made absolute relative to the source CSV, then records cardinalities, seed and three manifest hashes.</td>
+<td>Defaults 1170/1505 with 1003 shared IDs and seed <code>20260904</code>. Membership overlap is not artifact-key reuse when content/transforms change. Does not check file existence or recorded content hashes. Writes are direct and separate, not atomic as a pair; failures leave partial output. Other existing output-directory files are allowed. No resume/rollback.</td>
+</tr>
+</tbody>
+</table>
+<p>The module-level CLI parses <code>--manifest</code>, <code>--output</code>, size/overlap/split/seed flags
+and calls this function; it has no separately declared <code>main</code>. It copies rows,
+not image bytes. Source split filtering accepts rows whose split is absent/empty.
+The evolution receipt records <code>initialMissing = v2_size - reusable</code> and
+<code>removedFromV1 = v1_size - reusable</code>; these are membership counts, not measured
+preprocessing or cache misses.</p>
+<h2 id="preflight-validation">Preflight Validation</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>validate_manifests.rows_for(path, split)</code></td>
+<td>Requires CSV headers <code>sample_id</code>, <code>image_path</code>, <code>image_sha256</code>; selects rows with matching or absent/empty split. Requires at least one row, unique nonempty IDs and every image path to be a file. Returns the selected ID set.</td>
+<td>Requires a <code>Path</code>. Does not validate hash syntax or recompute hashes, parse labels, check masks or decode images. Relative image paths resolve against process working directory, not CSV location. Whitespace-only IDs are not rejected.</td>
+</tr>
+<tr>
+<td><code>validate_manifests.main(argv)</code></td>
+<td>Reads dataset configuration, chooses all names or a comma-separated subset, and validates each V1/V2 manifest through <code>rows_for</code>. Without <code>expectedReusable</code>, requires at least the configured counts; with it, requires exact counts and exact ID-set intersection. Prints JSON with available/required rows and overlap.</td>
+<td>Dataset subset values are not stripped or deduplicated. Unknown names/missing config fields propagate errors. Counts use all selected rows, not a sampled prefix. ID overlap does not prove equal source hashes or transform identities; this is not authoritative cache reuse certification. No output receipt file or changes to inputs.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="verification-and-reading-order">Verification and Reading Order</h2>
+<p>Read the acquisition functions before running a network download; then source
+manifest preparation, membership selection and preflight checks. Follow the
+benchmark source guide for loader-level hash handling and the longitudinal
+manifest guide for the separate H2/version sequence.</p>
+<p>The documentation test compares all file-qualified AST function declarations
+against this table. Existing vision, evidence and remote-preflight tests exercise
+local fixtures; additional acquisition contract tests use only temporary ZIPs
+and mocked URL streams. Passing these tests does not establish network download
+availability, real dataset completeness/licensing or GPU training correctness.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture">Architecture</a><a href="#acquisition">Acquisition</a><a href="#hashed-source-manifest">Hashed Source Manifest</a><a href="#membership-evolution">Membership Evolution</a><a href="#preflight-validation">Preflight Validation</a><a href="#verification-and-reading-order">Verification and Reading Order</a></nav></aside>
+  </div>
+</body>
+</html>

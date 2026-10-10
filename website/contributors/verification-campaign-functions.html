@@ -1,0 +1,190 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/VERIFICATION-CAMPAIGN-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Bulk verification campaign: source-backed contributor documentation for Aether Engine.">
+  <title>Bulk verification campaign | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html" aria-current="page">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/VERIFICATION-CAMPAIGN-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="bulk-verification-campaign-functions">Bulk Verification Campaign Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="bulk-diagnostic-drivers.html">Bulk recording drivers</a> | <a href="jfr-analysis-functions.html">JFR analysis</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/profile_bulk_verification.py">profile_bulk_verification.py</a>.
+All <strong>8 explicit declarations</strong>, including the nested stats helper, are covered.
+This is an exploratory population diagnostic, not an H2 confirmatory campaign.
+It does not train, record JFR or automatically start a follow-up optimization.</p>
+<h2 id="paired-campaign-architecture">Paired Campaign Architecture</h2>
+<pre><code class="language-text">separate frozen baseline checkout -&gt; inventory/hash/shared-input checks
+frozen V0 manifest -&gt; common reference preflight
+alternating baseline/candidate order per block
+  -&gt; fresh store + isolated checkout-specific subprocess and PYTHONPATH
+  -&gt; population/readback receipt -&gt; arm-specific correctness validation
+  -&gt; result receipt + partial summary -&gt; safe successful scratch removal
+all arms completed -&gt; diagnostic completion (not necessarily performance pass)
+</code></pre>
+<p>Original mode accepts three to five pairs and compares immediate-plus-reopen
+baseline verification with one-inventory-pass candidate verification. Streaming
+mode requires five pairs and compares reader-based one-pass verification with
+streaming-v1. Each arm starts a fresh process/store; this is not a persistent
+daemon through dataset revisions. Common reference preflight warms source inputs;
+OS cache state is not controlled.</p>
+<h2 id="frozen-source-and-correctness-functions">Frozen Source and Correctness Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>baseline_identity(root)</code></td>
+<td>Resolves root and rejects the current ROOT as baseline. Reads artifact-provenance.json files, reconstructs the packaged source inventory using ROOT_FILES/DIRECTORIES/EXCLUDED and Python-client suffix rules, requires exact membership and checks each listed resolved path stays inside root with matching SHA-256. Also requires baseline hashes for bulk_population.py, monai_comparison.py and current non-excluded client Python sources to match candidate input/encoding code. Returns provenance hash and source hash map.</td>
+</tr>
+<tr>
+<td><code>validate_report(report, arm, reference)</code></td>
+<td>Requires 1200 samples and preprocessing calls, zero training requests, model=None, matching tensor digest and passed ordinary restart validation. Requires offline bulk, batch/lookup 16, no tracing and 32 MiB target. Candidate requires bulk-deferred-inventory-v2 and exact one-call/table/byte verification counters. Other arms require positive baseline verificationNs and positive per-table verificationOpenAndRead. Population and preprocessing times must be finite and nonnegative.</td>
+</tr>
+<tr>
+<td><code>validate_streaming_report(report, arm, reference)</code></td>
+<td>First applies candidate one-pass validation to both arms. Requires finite positive manifest.inventoryVerificationNs. Baseline must have no streamingVerification field value. Other arms require streaming-v1, matching table count, 1200 entries and positive logical value bytes/read bytes/elapsed metrics. Does not independently parse tables or rerun verification.</td>
+</tr>
+</tbody>
+</table>
+<p>Source identity covers the packaging inventory, not every file on disk or every
+compiled dependency. Excluded/generated files do not cause inventory drift. Shared
+preprocessing/client checks compare bytes, not only CSV membership. The baseline
+is revalidated before every arm. Candidate source changes outside shared-input
+files are not independently frozen/rechecked by this helper; use campaign/build
+provenance and source receipts to establish full implementation identity.</p>
+<p>Report gates consume supplied fields, not independent observations. Exact
+verification dict equality rejects extra keys as well as changed counts. Candidate
+bytesFullyVerified equals the sum of finish-record byte fields; table count is not
+separately compared to finish-list length here. Baseline all(...) is vacuously true
+for an empty finish list if its aggregate timing is positive. Unique-artifact count,
+all secondary times, complete phase sums and GPU/model correctness are not checked.
+Missing required fields fail by exception. arm is not an enum validator: unknown
+names follow the non-candidate branch in validate_report and non-baseline branch
+in validate_streaming_report; the runner supplies only the two expected labels.</p>
+<p>Streaming metric positives are not independently checked for finiteness or exact
+agreement with inventory byte count/manifest elapsed; the authoritative manifest
+timing receives the explicit finite check. A zero-table receipt is not separately
+rejected by these functions. These limitations are not permission to accept an
+unverified campaign; inspect the producer's correctness evidence too.</p>
+<h2 id="summary-and-decision-functions">Summary and Decision Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>summarize(rows, repetitions)</code></td>
+<td>Groups baseline/candidate rows into population and population-minus-preprocessing statistics plus verification receipts. Complete requires both arm labels in every expected block and total row count 2*repetitions. If both arms exist, improvement is baseline median population minus candidate median population; performanceGatePassed requires complete and &gt;=750 ms. Returns the diagnostic role and next-review instruction, not a new experiment launch.</td>
+</tr>
+<tr>
+<td><code>summarize.stats(values)</code></td>
+<td>Returns n, median, mean, min, max and the original values list. Assumes nonempty numeric input; no confidence interval, variance, outlier removal, weighting or pairing.</td>
+</tr>
+<tr>
+<td><code>summarize_streaming(rows, repetitions)</code></td>
+<td>Starts with summarize, removes its threshold/improvement fields, and adds each arm's authoritative verification times in milliseconds and median. Computes candidate median / baseline median; overwrites the gate with complete and ratio&lt;=0.75, labels the primary endpoint, and retains prior750msGate='failed; unchanged'.</td>
+</tr>
+</tbody>
+</table>
+<p>Pairing controls workload order and block membership, but these primary effects
+are <strong>differences or ratios of arm medians</strong>, not medians of paired differences or
+ratios. Population-minus-preprocessing is a residual that still includes feeding,
+encoding and storage; it can be negative and is not isolated storage CPU time.
+Summary functions assume validation occurred upstream and do not check finite
+inputs, valid repetition counts or report identity themselves.</p>
+<p>The completeness test uses arm-label sets plus total row count. It does not
+independently certify protocol identity, fresh stores or absence of retries; the
+runner and receipts establish those boundaries. A missing arm leaves improvement
+or ratio null and the gate false. Streaming has no zero-baseline denominator guard.
+Direct calls to summarize_streaming do not enforce five pairs; run does. There are
+no paired confidence intervals or confirmatory significance claims here.</p>
+<h2 id="controller-and-cli-functions">Controller and CLI Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>run(output, baseline_root, repetitions=3, scratch_root=None, *, streaming=False)</code></td>
+<td>Rejects streaming repetitions other than five and other counts outside 3/4/5. Validates baseline, frozen version counts/seed, and computes V0 canonical reference at resize 256. Constructs alternating arm order and immutable campaign metadata, launches fresh checkout-specific workers, validates/saves results and writes partial summaries. Copies side diagnostics in finally, removes only successful scratch stores after parent/prefix checks, and writes diagnostic completion after all arms.</td>
+</tr>
+<tr>
+<td><code>main()</code></td>
+<td>Parses required output/baseline-root, optional scratch-root, repetitions choices 3/4/5 (default 3) and streaming flag, then calls run. Selecting streaming alone with default repetitions fails the five-pair gate; callers must explicitly choose five. No argv parameter, GPU settings, training epochs or automatic follow-up action.</td>
+</tr>
+</tbody>
+</table>
+<p>Frozen membership requires counts 1200/1260/1323/1389/1458 and seed 20260926.
+Only V0 is measured. Alternation gives baseline-first in even blocks and
+candidate-first in odd blocks; odd repetition counts have one extra baseline-first
+block, not perfectly balanced ordering. Both arms use the same absolute manifest,
+reference hash, 32 MiB target, batch/lookup 16 and no trace/JFR/layout regression.</p>
+<p>Workers use the current Python executable but their own checkout's
+profile_population.py, cwd and replacement PYTHONPATH containing scripts and
+clients/python. Other environment variables are inherited. Separate source roots
+avoid importing candidate adapters into baseline workers. No subprocess timeout
+is set here. Worker stdout/stderr go to each arm's worker.log.</p>
+<p>Each arm requires available scratch capacity, a new output location and a new
+bulk-verification-prefixed scratch store. Existing arm directories fail; there is
+no completed-arm resume. On any worker/validation failure, finally copies top-level
+store.* files, leaving the actual store and diagnostics for inspection. A copying
+failure can replace the earlier exception. After success, scratch cleanup checks
+parent and prefix before recursive removal; it does not delete failed evidence.</p>
+<p>completion.json status='passed' means the diagnostic execution and correctness
+gates finished, <strong>not</strong> that performanceGatePassed is true. The summary can record
+a failed performance gate alongside successful completion. No JFR or Phase 2 is
+started automatically; nextGate is explanatory metadata. Secondary warm-read and
+incremental behavior require separate measurements before longitudinal use.</p>
+<h2 id="coverage-and-evidence">Coverage and Evidence</h2>
+<p>AST checks cover all eight qualified declarations. Existing
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_bulk_verification.py">verification tests</a> check exact
+verification counters, workload drift, the two threshold endpoints, baseline file
+drift, allowed repetition counts and isolated worker/failure retention behavior.
+Focused documented-contract tests examine residual timing, receipt limits and
+direct summary assumptions. These fixtures do not replace a real paired campaign.</p>
+<p>This file has <strong>8/8 declarations covered (100%; 0% remaining)</strong>. Other research
+drivers and repository subsystems remain in the original documentation scope.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#paired-campaign-architecture">Paired Campaign Architecture</a><a href="#frozen-source-and-correctness-functions">Frozen Source and Correctness Functions</a><a href="#summary-and-decision-functions">Summary and Decision Functions</a><a href="#controller-and-cli-functions">Controller and CLI Functions</a><a href="#coverage-and-evidence">Coverage and Evidence</a></nav></aside>
+  </div>
+</body>
+</html>

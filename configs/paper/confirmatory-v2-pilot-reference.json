@@ -1,0 +1,24 @@
+{
+  "role": "planning evidence only; never import pilot blocks into confirmation",
+  "pilotNotebook": "grgur321/aether-engine-vs-code",
+  "pilotNotebookVersion": 32,
+  "pilotResultsSha256": "e50ee8935d9be8f21f46dbd4bb790e44f6bf9f841964fccc73bffbaefb86bcf0",
+  "pilotSourceArchiveSha256": "5b9f517a4ba391aa6138ee5ce47da8e400c9e5d37897d1ceb7c66293731623f5",
+  "pilotSourceManifestSha256": "e252a7f0cfa7799607363f2c4a1c3035fb333beb60f4c9ec2846056982383fc0",
+  "pilotProtocolHash": "ece7c0c995d24e0ffbe1d1d7b4c6ec46f73a6fd1b5ce4bd6cf5c96971eb19740",
+  "pilotEnvironmentId": "018d17cf3f8a1283850d170b85ea4aa468df0fbb89d037c7b3cf58dba5bb65fd",
+  "pilotBlockCount": 10,
+  "pilotSeedRange": [20260904, 20260913],
+  "confirmatoryDesign": "oct5k-20epoch-append75-superiority-v2",
+  "confirmatoryBlockCount": 24,
+  "confirmatorySeedRange": [20260924, 20260947],
+  "runtimeFreeze": "clients/python, modules, env, build-logic, gradle and Gradle build files must match the pilot archive byte-for-byte; only protocol, orchestration, analysis, tests and documentation change",
+  "precollectionValidation": {
+    "pythonTestsPassed": 241,
+    "pythonSubtestsPassed": 21,
+    "javaTasks": [":modules:aether-training-cache:test", ":modules:aether-engine:test", ":modules:aether-sstable:test"],
+    "javaStatus": "BUILD SUCCESSFUL; existing passing test outputs were up-to-date",
+    "pilotResultFilesChecksumVerified": 127,
+    "unchangedRuntimeFilesVerified": 3162
+  }
+}

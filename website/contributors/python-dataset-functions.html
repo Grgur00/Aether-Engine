@@ -1,0 +1,226 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/PYTHON-DATASET-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Python dataset integration: source-backed contributor documentation for Aether Engine.">
+  <title>Python dataset integration | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html" aria-current="page">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/PYTHON-DATASET-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="python-dataset-integration-functions">Python Dataset Integration Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="python-transform-functions.html">Transform cache</a> | <a href="python.html">ML architecture</a></p>
+<p>This reference covers every explicit function in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/dataset.py">dataset.py</a>. The higher-level
+<code>AetherDataset</code> is an indexable adapter, not a training loop, a persistent daemon
+owner, or the separately frozen H2 research dataset implementation.</p>
+<p>Import scope matters: this is <code>aether_ml.AetherDataset</code>. The lower-level
+<code>aether_training_cache</code> package also exports an AetherDataset from its ml.py;
+that is a different implementation, not an alias for this adapter.</p>
+<h2 id="pipeline-and-cache-boundary">Pipeline and Cache Boundary</h2>
+<pre><code class="language-text">source dataset[index]
+  -&gt; identity_fn(full source, index)
+  -&gt; optional cache_selector(full source)
+  -&gt; deterministic_transform(selected input)
+  -&gt; encode / cache publication / decode
+  -&gt; optional merge_cached_artifact(full source, decoded artifact)
+  -&gt; optional random_transform(merged result)
+  -&gt; consumer / DataLoader collation
+</code></pre>
+<p>Only deterministic-transform output is cached. The identity is computed from the
+full source before optional selection. Merge and random augmentation execute again
+for every normal fetch, including cache hits. Keeping label/metadata outside a
+cached image is possible through selector/merge, but the caller must choose an
+identity covering everything that affects the deterministic result.</p>
+<p>The wrapper does not validate determinism, seed random augmentation, synchronize
+workers, collate samples, transfer tensors to a GPU, or decide which source-file
+changes invalidate identity. It delegates artifact serialization, reuse, and
+publication to AetherTransformCache.</p>
+<h2 id="selected-transform-functions">Selected Transform Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_SelectedTransform.__init__(transform, selector)</code></td>
+<td>Stores both callables without evaluating samples or validating their return types.</td>
+</tr>
+<tr>
+<td><code>_SelectedTransform.__call__(source)</code></td>
+<td>Passes selector(source) to transform when a selector exists; otherwise passes the original full source. Exceptions propagate.</td>
+</tr>
+</tbody>
+</table>
+<p><code>AetherDataset</code> always wraps the supplied transform in _SelectedTransform. That
+wrapper belongs to aether_ml, not the supported torchvision/monai automatic
+fingerprint namespaces. Consequently, the current dataset constructor needs an
+<strong>explicit transform_identity</strong>, even if deterministic_transform itself is a
+recognized framework transform. Its default None does not automatically unwrap
+and fingerprint the underlying transform. Selector semantics are not separately
+fingerprinted; include them in the explicit identity when they affect output.</p>
+<h2 id="dataset-construction-and-fetch-functions">Dataset Construction and Fetch Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Inputs, outputs, and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherDataset.__init__(dataset, deterministic_transform, ...)</code></td>
+<td>Requires <strong>len</strong> and <strong>getitem</strong> attributes, explicit identity_fn, and cache_selector when merge_cached_artifact is supplied. Stores source/augmentation/merge callbacks and constructs AetherTransformCache around _SelectedTransform. Attribute checks do not prove those dataset methods work; callback failures propagate when used.</td>
+</tr>
+<tr>
+<td><code>AetherDataset.__len__()</code></td>
+<td>Delegates to len(source dataset); does not maintain an independent version length.</td>
+</tr>
+<tr>
+<td><code>AetherDataset.__getitem__(index)</code></td>
+<td>Fetches one full source, computes identity, obtains deterministic cached result, optionally merges with that source, then optionally augments. Source index exceptions and callback/codec/cache failures propagate.</td>
+</tr>
+<tr>
+<td><code>AetherDataset.__getitems__(indices)</code></td>
+<td>PyTorch batch-fetch hook; delegates to get_batch. Returns a list of samples for downstream collation, not an already collated model batch.</td>
+</tr>
+<tr>
+<td><code>AetherDataset.get_batch(indices)</code></td>
+<td>Reads sources in requested order, pairs each with identity_for(source,index), and makes one cache batch call. Merges and augments results in order. The cache splits requests exceeding 4,096 entries, so one wrapper call does not guarantee one network request.</td>
+</tr>
+</tbody>
+</table>
+<p>Repeated indices remain repeated results and receive separate augmentation calls.
+Distinct-key miss work is coalesced inside the cache chunk; decoding is still per
+requested entry. Full source objects are retained during merge. No defensive deep
+copy protects the source object from selector/transform/merge mutation.</p>
+<p>For a batch, deterministic cache work completes before the merge list and random
+augmentation list are evaluated. A later merge/augmentation failure does not undo
+published artifacts. There is no dataset-wide transactional fetch or epoch lease.</p>
+<h2 id="planning-and-population-functions">Planning and Population Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherDataset.plan(estimated_compute_seconds_per_sample)</code></td>
+<td>Visits every dataset index to derive identities, then delegates presence planning. Does not run selector, deterministic transform, merge, or augmentation; reading the source dataset itself may still perform I/O.</td>
+</tr>
+<tr>
+<td><code>AetherDataset.populate(workers)</code></td>
+<td>Rejects workers &lt; 1, snapshots cache stats, visits all indices, and returns total plus hits/misses counter differences. One worker uses a batched cache call; more workers use ThreadPoolExecutor with per-index requests. Neither path applies merge or random augmentation.</td>
+</tr>
+<tr>
+<td><code>AetherDataset.populate.populate_one(index)</code></td>
+<td>Nested thread-task helper: reads one source, derives its identity, and calls cache on it. The decoded result is discarded. Exceptions are surfaced while consuming executor.map.</td>
+</tr>
+</tbody>
+</table>
+<p>Single-worker population materializes all entries before the cache splits them
+into chunks. The list comprehension reads dataset[index] twice: once for the
+source and once for identity_for. Source datasets with side effects, randomness,
+or changing data can therefore derive an identity from a different object than
+the one transformed. The threaded helper reads once per task.</p>
+<p>Multiple workers here means threads sharing this wrapper/client/counters, not
+processes or an offline bulk writer. The wrapper provides no per-key in-flight
+deduplication: concurrent tasks can both miss and compute the same identity.
+Client exchange serialization does not make the entire lookup/compute/publish
+sequence atomic. Failed tasks can leave artifacts from successful tasks behind.</p>
+<p>The population report counts requested-entry hit/miss deltas, not independently
+verified distinct publications. Statistics keys are lazy: a missing hits or misses
+key is accessed directly in the final report. Disabled or empty population can
+raise KeyError instead of yielding a report. Publication fallback can count a
+computed miss without proving it became reusable. These limitations are current
+implementation behavior, not claims that populate certifies a complete store.</p>
+<p>Planning similarly checks presence without reserving values or validating decoded
+payloads. Estimated avoided work is a caller-supplied model, not measured speedup.</p>
+<h2 id="metrics-and-lifetime-functions">Metrics and Lifetime Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherDataset.stats()</code></td>
+<td>Delegates wrapper-level cache counters/timing summaries; no dataset length, per-epoch statistics, or server poll is added.</td>
+</tr>
+<tr>
+<td><code>AetherDataset.reproducibility_metadata()</code></td>
+<td>Delegates namespace/schema/transform description metadata. Does not attest source dataset contents, random seeds, model weights, or the frozen research protocol.</td>
+</tr>
+<tr>
+<td><code>AetherDataset.close()</code></td>
+<td>Closes the transform cache's current client. Does not close the source dataset, clear stored artifacts, or stop the Java daemon.</td>
+</tr>
+<tr>
+<td><code>AetherDataset.__enter__()</code></td>
+<td>Returns the dataset without connecting or prepopulating.</td>
+</tr>
+<tr>
+<td><code>AetherDataset.__exit__(exc_type, exc_value, traceback)</code></td>
+<td>Calls close; does not suppress exceptions or invoke source-dataset cleanup.</td>
+</tr>
+</tbody>
+</table>
+<p>Use a client factory for worker-process connection ownership. Source dataset,
+callbacks, and codec must also satisfy the chosen DataLoader worker/pickling
+requirements; this adapter does not make an arbitrary lambda or live socket
+spawn-safe. The transform-cache PID handling is described separately, including
+the limitations of passing an already-created client.</p>
+<h2 id="test-evidence-and-next-reading">Test Evidence and Next Reading</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/tests/test_aether_ml.py">test_aether_ml.py</a> exercises
+augmentation after reuse, ordered batch fetch, selector/merge metadata retention,
+population without augmentation, explicit source identities, one-argument identity
+callbacks, and optional PyTorch DataLoader batching/worker counts. In-memory
+client fixtures do not establish real-daemon thread safety, persistence, GPU
+throughput, or correctness for every user callback.</p>
+<p>For an architectural exercise, trace image-only caching with labels merged outside
+the cache. Change the image content, preprocessing, label, and random augmentation
+independently and explain which change must invalidate the artifact key. Then
+compare normal fetch with populate: merge/augmentation are absent in population,
+but encode/decode and publication still belong to the cache path.</p>
+<p>Lifecycle factories, framework-specific wrappers, metrics exporters, and research
+drivers require their own individual-function references. This page does not
+claim those adjacent files are exhaustively documented.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#pipeline-and-cache-boundary">Pipeline and Cache Boundary</a><a href="#selected-transform-functions">Selected Transform Functions</a><a href="#dataset-construction-and-fetch-functions">Dataset Construction and Fetch Functions</a><a href="#planning-and-population-functions">Planning and Population Functions</a><a href="#metrics-and-lifetime-functions">Metrics and Lifetime Functions</a><a href="#test-evidence-and-next-reading">Test Evidence and Next Reading</a></nav></aside>
+  </div>
+</body>
+</html>

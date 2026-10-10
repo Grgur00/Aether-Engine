@@ -1,0 +1,246 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/BENCHMARK-BACKEND-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Benchmark backend ownership: source-backed contributor documentation for Aether Engine.">
+  <title>Benchmark backend ownership | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html" aria-current="page">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/BENCHMARK-BACKEND-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="benchmark-backend-ownership-and-population-functions">Benchmark Backend Ownership and Population Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="benchmark-data-functions.html">Benchmark data</a> | <a href="benchmark-training-functions.html">Model and training</a> | <a href="python-store-adapter-functions.html">Storage adapters</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/benchmark_gpu_segmentation.py">benchmark_gpu_segmentation.py</a>.
+This page covers all 24 BackendContext methods plus aether_cold_start_gate and
+warm_backend: <strong>26 explicit declarations</strong>. It is not a complete benchmark
+reference. The underlying Java client, Python prototype and persistent mmap store
+have their own identity/publication contracts; this context does not replace them.</p>
+<h2 id="ownership-architecture">Ownership Architecture</h2>
+<pre><code class="language-text">args + source rows + canonical reference -&gt; BackendContext
+  -&gt; temporary/external local directory -&gt; Python artifact store
+  -&gt; Java client + namespace -&gt; already-running daemon (not started here)
+  -&gt; persistent mmap directory/index/journal -&gt; read-only mapped records
+  -&gt; optional RAM list of packed payload bytes
+
+batch(indices) -&gt; raw recomputation OR lookup -&gt; miss preparation -&gt; publication
+               -&gt; unpack same artifact precision -&gt; ordered stacked arrays
+close -&gt; mmap handles + Java client + legacy handles -&gt; temporary directory cleanup
+</code></pre>
+<p>RAW_RECOMPUTE prepares inputs every batch. AETHER_CACHE looks up one logical batch
+and publishes misses together. STATIC_PREPROCESSED_MMAP is an incremental keyed
+store despite its historical label, not a fixed positional array. RAM_READY holds
+encoded bytes, not prebuilt device tensors, and still decodes/stacks each batch.
+All paths use the same artifact precision boundary before training augmentation.</p>
+<p>This class opens both stores during construction even when one is not selected
+for measured training. Construction calls are sequential, not transactional; an
+exception partway through initialization has no constructor-wide rollback.
+External fresh directories are recursively removed with ignored deletion errors.
+Use only dedicated disposable cache paths. Do not point a fresh cache at valuable
+data, overlap mmap/Aether directories, or infer that a local root argument selects
+the Java daemon's database directory.</p>
+<p>The context is not a locking wrapper for concurrent mutation. Worker integration
+has its own ownership/merge path. Counter updates and reporting do not establish
+thread safety, a durability barrier, or a consistent snapshot of another process.</p>
+<h2 id="construction-reset-and-reuse-methods">Construction, Reset, and Reuse Methods</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BackendContext.__init__(self, args, reference, sources, np)</code></td>
+<td>Stores inputs and chooses external Aether root or mkdtemp root. External fresh mode deletes/recreates its directory; opens the artifact store before mmap setup. Chooses external mmap root or a subdirectory, deletes external fresh mmap root, and opens PersistentMmapStore with durable flag. Initializes legacy static handles/offsets, RAM data, population times and logical counters; computes reference checksums, builds mmap/RAM state and prepopulates Aether. No all-or-nothing cleanup if a later stage fails.</td>
+</tr>
+<tr>
+<td><code>BackendContext._open_store(self, root)</code></td>
+<td>Java path creates JavaArtifactStore using configured port, namespace and optional trace, then checks engine equals java-training-cache and reported durability equals requested uppercase value. Mismatch closes client and raises ValueError; successful info is retained. Does not launch/stop the daemon or pass root to it. Python path opens AetherMLStore(root, code_commit=&quot;gpu-training&quot;); that label is not an actual source-commit measurement.</td>
+</tr>
+<tr>
+<td><code>BackendContext.reset_aether_cache(self)</code></td>
+<td>Java resets measured counters only: no namespace deletion or reinitialization. External Python reopens the existing directory without removing its contents, then resets/prepopulates. Temporary Python removes store.root with ignored errors, reopens its aether subdirectory and resets/prepopulates. Does not reset mmap or RAM. Does not explicitly close the replaced Python store. The name does not imply every engine becomes cold.</td>
+</tr>
+<tr>
+<td><code>BackendContext.reset_measured_counters(self)</code></td>
+<td>Replaces known logical counts/timers and write-batch list with initial zeros and connectionsOpened=1, then asks store to reset operation metrics. Does not clear stored data, initial reusable indices, population times, mmap metrics, worker observations or the entire protocol mapping. Connection count is a logical benchmark field, not a fresh transport probe.</td>
+</tr>
+<tr>
+<td><code>BackendContext._build_static(self)</code></td>
+<td>Clears mmap in fresh mode; reuse scans each current key and records found offsets. Records zero population time for reuse, otherwise the clear/setup elapsed time before initial prepopulation. Fresh mode seeds the first round(samples * target ratio / 100) references as packed payloads. Discovers actual initial mmap indices with contains, initializes logical mmap counts and resets store metrics. Initial seed writes are outside the previously captured populate_ms and measured store metrics.</td>
+</tr>
+<tr>
+<td><code>BackendContext._build_ram(self)</code></td>
+<td>If RAM_READY is selected, packs every reference into a byte list and times this work; otherwise leaves ram_ready None. Does not create ready torch tensors, pin memory or eliminate decode/stack costs on subsequent RAM batches.</td>
+</tr>
+<tr>
+<td><code>BackendContext._prepopulate_aether_cache(self)</code></td>
+<td>Java fresh mode rejects any current requested key already present, but does not inspect unrelated namespace keys. External/Java reuse discovers actual indices and reports their ratio and zero population time without writing. Otherwise chooses a rounded prefix count, handles zero without publication, or commits packed reference entries together with deterministic metadata and resets operation metrics. Sets initial indices before the commit, so a thrown commit does not produce a trustworthy completed context. This is ordinary commit_bytes_many, not the separate offline bulk loader.</td>
+</tr>
+<tr>
+<td><code>BackendContext._existing_cache_indices(self)</code></td>
+<td>Builds keys for every source, queries cached_artifact_ids, then maps returned membership back to index positions. Does not decode/compare payloads against references or require the store's returned identifiers to be unique. Identity discovery is work even when reported reuse population time is zero.</td>
+</tr>
+<tr>
+<td><code>BackendContext._existing_cache_entries(self)</code></td>
+<td>Returns the cardinality of _existing_cache_indices, triggering a new store query rather than reading an already captured count.</td>
+</tr>
+<tr>
+<td><code>BackendContext._target_initial_hit_ratio(self)</code></td>
+<td>External/Java reuse takes actual existing-entry fraction over max(source count,1), overriding explicit ratio/previous-version simulation. Otherwise a positive initial_cache_hit_ratio wins, then prepopulate_previous_version returns max(0,100-changed_percent), else zero. No independent argument-range validation; normal callers validate args.</td>
+</tr>
+</tbody>
+</table>
+<p>Simulated prefix reuse and discovered identity-aware reuse are distinct. Prefix
+rounding uses Python round, and counts use args.samples while discovery iterates
+sources. Normal validated callers must keep requested sample/reference/source
+lengths consistent. A Java fresh check examines only current keys, not proof that
+the entire database is empty. Both initial-store index sets are later compared by
+the run controller; this constructor does not itself prove backend equivalence.</p>
+<h2 id="batch-and-identity-methods">Batch and Identity Methods</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BackendContext.batch(self, backend, indices)</code></td>
+<td>Dispatches exactly four backend labels to their helpers and raises ValueError for an unknown label. Does not check index uniqueness/range or make the four branches atomic.</td>
+</tr>
+<tr>
+<td><code>BackendContext._raw_batch(self, indices)</code></td>
+<td>Preprocesses each source, accumulates source/preprocess counters, performs artifact pack/unpack quantization through artifact_to_tensor_sample, and stacks in caller order. artifactDecodeMs includes that round trip, not just decoding. Does not publish a cache entry or reuse a prepared reference.</td>
+</tr>
+<tr>
+<td><code>BackendContext._aether_batch(self, indices)</code></td>
+<td>Derives keys and uses Java cached views or Python cached bytes in one logical lookup; accounts returned dictionary payloads/hits/misses and lookup time. In requested order decodes hits or prepares/quantizes misses, then commits all misses in one call, summing returned metadata sizes and logical batch counts. Returns stacked arrays, phase counters and optional new request traces. Miss packing/metadata construction occurs inside publish timing; an empty publication still records tiny publish elapsed time. Does not release/rollback prior cache updates on decode/commit failure.</td>
+</tr>
+<tr>
+<td><code>BackendContext._static_batch(self, indices)</code></td>
+<td>Looks up every requested key and counts hit/miss outcomes; prepares/quantizes/packs misses and appends them together. Reads each requested record, rejects a missing record, strips its four-byte frame and unpacks/stacks in original order. Reports read/append metric deltas and source/preprocess/decode timings; mmap lookup time stays in mmap_protocol, and tensorBuildMs is zero rather than a measured stack time. Training steps do not automatically expose every returned field such as mmapPublishMs.</td>
+</tr>
+<tr>
+<td><code>BackendContext._ram_batch(self, indices)</code></td>
+<td>Unpacks ram_ready payloads and stacks them; reports the entire work as tensorBuildMs. It is not zero-copy ready-tensor access. Calling when RAM data was not built fails naturally.</td>
+</tr>
+<tr>
+<td><code>BackendContext.cache_key(self, index)</code></td>
+<td>SHA-256 hashes sorted JSON of sample ID, source identity, declared source_hash (or SHA-256 of raw bytes when absent), and deterministic_parameters(args). Changes in deterministic parameters change the key; random training augmentation does not. Does not read files to verify an already declared source hash. The descriptor and metadata conventions are specific to this benchmark.</td>
+</tr>
+</tbody>
+</table>
+<p>Lookup results are dictionaries keyed by identity, while requested indices are a
+sequence. Duplicate requested keys can therefore distort logical hit/miss counts
+or create duplicate pending entries; ordinary scheduled batches use unique indices.
+Batch counter fields describe benchmark operations, not every RPC or physical I/O.
+Java views are passed into unpack_payload, which returns float32 arrays; this
+training path is not an end-to-end zero-copy GPU pipeline.</p>
+<h2 id="reporting-and-cleanup-methods">Reporting and Cleanup Methods</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BackendContext.populate_ms(self, backend)</code></td>
+<td>Returns recorded population time or zero for an absent backend. A zero may mean reuse accounting/excluded work, not that no startup/discovery/seed work occurred.</td>
+</tr>
+<tr>
+<td><code>BackendContext.protocol_counters(self)</code></td>
+<td>Makes a shallow copy of logical counters, adds write-batch mean, aliases for hits/misses/bytes, initial reuse fields and scope labels. Java merges parent transport metrics with worker connection/request/operation counts; walForceCount is None for Java and zero for Python, not measured WAL forces. Nested lists are not deep copies. Does not reset counters or independently validate them.</td>
+</tr>
+<tr>
+<td><code>BackendContext.aether_operation_metrics(self)</code></td>
+<td>Python delegates directly. Java obtains observations, extends them with worker observations and passes the merged mapping to store.operation_metrics. Merge mutates the returned observation lists; snapshot ownership comes from the adapter. Does not drain background work or force durability.</td>
+</tr>
+<tr>
+<td><code>BackendContext.mmap_dynamics(self)</code></td>
+<td>Combines logical mmap counters with store metrics, initial index counts and read-path notes. Computes expected counts from the configured measured schedule and requires exact lookup/hit/miss matches plus entriesAppended == expected misses. Reports per-mapping faults unavailable. Population-only or differently scoped counter windows need not satisfy this training-schedule invariant.</td>
+</tr>
+<tr>
+<td><code>BackendContext.peak_memory_bytes(self)</code></td>
+<td>Calls torch.cuda.max_memory_allocated on the current/default CUDA device, returning zero on ordinary exceptions. This is accelerator allocator memory, not Python/mmap/native RSS, total VRAM, all selected devices or proof of zero use after failure.</td>
+</tr>
+<tr>
+<td><code>BackendContext.close(self)</code></td>
+<td>Closes mmap store, then Java client if selected, then non-null legacy static mmap/file handles. Removes the context directory only when Aether root is temporary, ignoring deletion errors. An external mmap root remains if outside that directory. Does not stop the daemon, delete external Aether data or guarantee all later closes run after an earlier close raises; no nested finally here.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="explicit-population-and-warmup-functions">Explicit Population and Warmup Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BackendContext.populate_mmap_dataset(self)</code></td>
+<td>Iterates one batch_plan pass, looking up each source key and preparing only missing payloads. Publishes pending batches, updates offsets and accumulates local hits/misses, elapsed lookup/append time and framed payload bytes (payload plus four). Reports total store index size, which may include unrelated historical keys. Initial reusable count comes from static_offsets. Does not decode all existing hits for equivalence, train a model or reset/update the separate mmap_protocol training counts.</td>
+</tr>
+<tr>
+<td><code>BackendContext.populate_aether_dataset(self)</code></td>
+<td>Iterates one batch_plan pass through ordinary Aether batch lookup/miss preparation/publication, including decode/stack work whose tensors are discarded. Uses deltas for hits/misses/published entries/bytes, but lookupMs and publishMs are cumulative protocol totals, not deltas from call start. Reports captured initial reuse fields and current call wall. Does not invoke offline bulk import or train a model.</td>
+</tr>
+<tr>
+<td><code>aether_cold_start_gate(context)</code></td>
+<td>Looks up keys for range(args.samples), compares present count with recorded initial prepopulation. Zero target requires both counts zero; nonzero target only requires equality with prepopulated count. Returns a passed flag/report rather than raising. Does not compare exact present index sets, payloads, requested percentage or unrelated namespace keys.</td>
+</tr>
+<tr>
+<td><code>warm_backend(context, backend)</code></td>
+<td>RAM_READY fetches/decodes one prefix batch to warm that path; other backends do nothing. Does not populate or warm Aether/mmap and does not execute model warmup.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="verification-and-remaining-coverage">Verification and Remaining Coverage</h2>
+<p>Qualified AST checks cover every declared BackendContext method plus the two
+helpers. Tiny actual Python artifact-store/mmap fixtures exercise cold publication,
+warm reuse, reconstruction, persistence, identity changes and cleanup. Injected
+Java adapters exercise engine/durability rejection and logical-versus-transport
+counters without connecting to a live daemon. None is a GPU performance or
+power-loss experiment, and this documentation does not alter the frozen campaign.</p>
+<p>The function index links all partitions, jointly covering <strong>138 of 138 explicit
+benchmark declarations</strong>. This page covers ownership/population, not every
+benchmark contract. Complete function entries are not repository-wide completion
+or a correctness score.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#ownership-architecture">Ownership Architecture</a><a href="#construction-reset-and-reuse-methods">Construction, Reset, and Reuse Methods</a><a href="#batch-and-identity-methods">Batch and Identity Methods</a><a href="#reporting-and-cleanup-methods">Reporting and Cleanup Methods</a><a href="#explicit-population-and-warmup-functions">Explicit Population and Warmup Functions</a><a href="#verification-and-remaining-coverage">Verification and Remaining Coverage</a></nav></aside>
+  </div>
+</body>
+</html>

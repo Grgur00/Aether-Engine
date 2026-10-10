@@ -1,0 +1,157 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/SYSTEM-DRIVER-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Concurrency and fault drivers: source-backed contributor documentation for Aether Engine.">
+  <title>Concurrency and fault drivers | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html" aria-current="page">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/SYSTEM-DRIVER-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="concurrency-and-fault-driver-functions">Concurrency and Fault Driver Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="research-campaign-functions.html">Systems campaign receipts</a> | <a href="research-process-functions.html">Research process ownership</a></p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/concurrency_matrix.py">concurrency_matrix.py</a> and
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/fault_injection.py">fault_injection.py</a>.
+This reference covers <strong>10 explicit functions across both complete files</strong>.
+Names are file-qualified to distinguish campaign and CLI functions.</p>
+<h2 id="architecture-and-scope">Architecture and Scope</h2>
+<pre><code class="language-text">immutable systems campaign -&gt; source/environment/protocol receipts
+concurrency: fresh store -&gt; prepopulate prefix -&gt; spawn clients/worker ranks
+    -&gt; readiness queue -&gt; shared start event -&gt; lookups/missing publications
+    -&gt; worker reports -&gt; process exit checks -&gt; verify every unique final key
+fault: fresh trial -&gt; Java fault writer -&gt; boundary marker -&gt; kill/wait
+    -&gt; new Java recovery verifier -&gt; parsed result -&gt; receipt + rolling summary
+resume -&gt; verify receipts and trial identity -&gt; skip completed trials
+</code></pre>
+<p>Concurrency is a synthetic storage-client microbenchmark, not GPU input or model
+throughput. Duplicate missing-key computation is allowed, and publications count
+client attempts rather than unique engine commits. Page cache is uncontrolled.
+Fault injection exercises process death (SIGKILL/TerminateProcess), not loss of
+power, device-cache behavior or every possible interruption point. Assertions
+about acknowledged writes/checksums are delegated to the Java fault probe.</p>
+<h2 id="concurrency-functions">Concurrency Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>concurrency_matrix.payload(index, size)</code></td>
+<td>Hashes decimal index text with SHA-256, repeats the 32-byte digest and truncates to requested size.</td>
+<td>Deterministic synthetic bytes, not real preprocessed samples. CLI requires positive sizes; helper itself has no argument validation.</td>
+</tr>
+<tr>
+<td><code>concurrency_matrix.worker(backend, root, port, indices, epochs, size, ready, start, results)</code></td>
+<td>Opens a Java store in namespace <code>concurrency</code> or shared durable mmap; announces readiness and waits up to 120 seconds for start. For every index each epoch, fetches one key, strips mmap's four-byte prefix, computes/publishes misses, and checks payload hash. Sends pass/count/time metrics, or catches <code>BaseException</code> and sends failure details; closes the store in <code>finally</code>.</td>
+<td>Each Java operation is a singleton batch. Miss bytes are not counted in <code>bytesRead</code>. Timing includes checksumming and payload recomputation even for hits, not just storage lookup. Store close occurs after sending the result; close failure can turn a reported pass into nonzero process exit, caught by the parent. Unknown backend strings follow mmap branch when called directly.</td>
+</tr>
+<tr>
+<td><code>concurrency_matrix.run_clients(backend, root, port, clients, workers, samples, epochs, size)</code></td>
+<td>Uses multiprocessing <code>spawn</code>, creating <code>clients * max(1, workers)</code> processes. Each client gets ranks partitioning indices by stride. Starts processes, waits for each readiness message, sets a shared event, collects reports with 300-second queue timeouts, joins each for 15 seconds and requires successful exits/reports. Returns synchronized aggregate throughput plus startup-inclusive duration. In <code>finally</code>, kills live children and closes queues.</td>
+<td><code>workers=0</code> still means one process per client. Every client reads the full sample set across its ranks; clients share keys. Timeouts apply per queue read/join, not one global campaign deadline. Synchronized wall ends after result collection, before join/close; startup-inclusive time includes successful joins. Empty rank partitions are possible. No GPU/model work.</td>
+</tr>
+<tr>
+<td><code>concurrency_matrix.main(argv)</code></td>
+<td>Parses backend/client/worker matrix, repetitions, samples, epochs, payload bytes, reuse percentage, seed, output and resume. Requires supported backends, positive client/workload sizes, nonnegative worker counts, reuse 0-100 and no duplicate matrix entries. Opens immutable campaign metadata and delegates execution.</td>
+<td>Defaults Aether/mmap, clients 1/2/4, workers 0/2/4/8, 10 repeats, 128 samples, five epochs, 65536 bytes, reuse 66.6445%, seed 20260904. Comma tokens are not stripped; conversion errors may occur before <code>parser.error</code>. Host/source/protocol resume checks are delegated to <code>campaign</code>.</td>
+</tr>
+<tr>
+<td><code>concurrency_matrix.run_campaign(args, backends, client_counts, worker_counts, metadata)</code></td>
+<td>Iterates client/worker/repeat conditions with backend order shuffled using seed+repeat. Validates and skips existing receipted results. New trials use temporary stores, start a Java daemon even for mmap, prepopulate <code>round(samples * reusePercent / 100)</code> keys, run clients, and verify every final key's bytes. Adds role/order/accounting caveats, validates and saves result/receipt.</td>
+<td>Backend order repeats across client/worker conditions for the same repeat seed. Prepopulation, daemon startup and final verification are outside synchronized client throughput. Stores are disposable; report evidence persists. Prepopulation store close is not protected by a local <code>finally</code>; errors unwind outer contexts. A result without a valid receipt is rejected, not automatically recovered.</td>
+</tr>
+<tr>
+<td><code>concurrency_matrix.validate_report(report, metadata)</code></td>
+<td>Checks protocol kind and condition membership/range, deterministic backend order, pass flags, process/report counts, final unique-key count, initial reusable count, positive finite elapsed time, exact aggregate throughput consistency, total worker sample counts and each worker's hits+misses accounting.</td>
+<td>Does not re-read stores or recompute payload hashes. Does not check publication attempts, bytes-read totals, per-worker timing or startup duration. It validates a reported measurement; receipt integrity is separate. Does not require every planned trial to exist.</td>
+</tr>
+<tr>
+<td><code>concurrency_matrix.validated_concurrency(root)</code></td>
+<td>Loads campaign metadata, scans matching trial JSONs excluding receipts, loads each verified result, runs semantic validation, rejects duplicate backend/client/worker/repeat identities, and requires at least one report.</td>
+<td>May return a partial campaign; does not prove matrix completeness. Does not bind each report to its filename as the execution skip path does. Source/environment evidence is delegated to campaign loader.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="fault-functions">Fault Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fault_injection.run_trial(root, point, mode, timeout, metadata)</code></td>
+<td>Creates a fresh trial directory, obtains Java classpath and starts <code>TrainingCacheFaultProbe write</code> with preview enabled and stdout/stderr in <code>writer.log</code>. Polls every 20 ms for exact boundary marker text, rejecting early writer exit or timeout. Always kills a live writer and waits up to 15 seconds. Runs a separate timed/checking <code>verify</code>, saves recovery output, parses the last stdout line beginning with <code>{</code>, attaches boundary/mode/kill/exit metadata, saves plain or campaign result, and returns its file hash.</td>
+<td>Default timeout 60 seconds. Process creation happens before the kill/wait <code>try</code>; failed launch leaves the fresh directory/log. Marker read/parse errors propagate. Recovery failure occurs before <code>recovery.log</code> write, so captured output is not saved by this function on that path. Last JSON line is assumed to be the report; no Python-level report schema validation. Does not itself reject <code>passed=False</code>; campaign does.</td>
+</tr>
+<tr>
+<td><code>fault_injection.main(argv)</code></td>
+<td>Parses Java-only engine, supported points, single/batch modes, positive trials-per-point, output and resume; rejects duplicates/unsupported tokens. Creates <code>process-crash</code> protocol metadata and delegates campaign.</td>
+<td>Default five boundaries, both modes and 100 trials per point/mode: 1000 trials. <code>--verify-checksum</code> and <code>--verify-acknowledged-writes</code> are accepted but do not toggle behavior; help says always enabled. Tokens are not stripped.</td>
+</tr>
+<tr>
+<td><code>fault_injection.run_campaign(args, points, modes, metadata)</code></td>
+<td>Enumerates fixed point/mode/trial order. If a receipt exists, loads it and requires trial ID/point/mode identity. Otherwise moves any existing interrupted trial under <code>interrupted-attempts</code> with UUID suffix and starts a new trial. Appends result/hash, writes rolling summary after each trial, prints progress, and stops on a false <code>passed</code> result.</td>
+<td>Summary is partial while running, not proof of planned completeness. Exceptions before a result do not update summary. Resume validates result bytes/protocol/environment through receipts but does not re-run recovery or independently validate Java report fields. Failed receipted trials remain failures on resume. No randomized fault ordering or power-loss injection.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="boundaries-and-cleanup">Boundaries and Cleanup</h2>
+<p>Fault points are <code>before-data-write</code>, <code>after-data-fsync</code>, <code>before-index-commit</code>,
+<code>after-index-commit-before-ack</code>, and <code>after-ack</code>. Their exact Java mapping is in
+<code>TrainingCacheFaultProbe</code>; Python treats them as marker/probe arguments rather
+than inferring recovery guarantees from the names. The explicit marker match
+prevents killing a writer merely because a timeout elapsed without reaching the
+requested point. A timeout still kills the live writer but produces no success
+result.</p>
+<p>Systems receipt helpers bind reports to immutable campaign protocol/environment
+and report-byte hashes. They are integrity fences, not independent validation of
+all measured semantics. Concurrency validates more report fields locally than
+fault resume does. Read the campaign reference for lock ownership, publication
+ordering and same-host resume requirements.</p>
+<h2 id="verification">Verification</h2>
+<p>The AST inventory test checks all ten file-qualified declarations against the
+tables. Existing systems-campaign tests cover report integrity and concurrency
+worker initialization failure. Offline driver contracts check payload construction and mock the
+fault writer/marker/kill/recovery lifecycle. They do not launch/kill Java,
+exercise spawned shared-store contention, measure throughput or prove recovery
+durability. Real runs require the built Java runtime and disposable output stores.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-scope">Architecture and Scope</a><a href="#concurrency-functions">Concurrency Functions</a><a href="#fault-functions">Fault Functions</a><a href="#boundaries-and-cleanup">Boundaries and Cleanup</a><a href="#verification">Verification</a></nav></aside>
+  </div>
+</body>
+</html>

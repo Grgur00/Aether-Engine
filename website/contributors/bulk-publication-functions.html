@@ -1,0 +1,424 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/BULK-PUBLICATION-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Offline bulk publication: source-backed contributor documentation for Aether Engine.">
+  <title>Offline bulk publication | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html" aria-current="page">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/BULK-PUBLICATION-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="offline-bulk-publication-functions">Offline Bulk Publication Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="python.html">Training cache</a> | <a href="manifest-version-functions.html">Manifest versions</a></p>
+<p>This reference covers every explicit constructor and method in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/BulkArtifactWriter.java">BulkArtifactWriter.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/EmptyStoreBulkLoader.java">EmptyStoreBulkLoader.java</a>.
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/bulk_population.py">bulk_population.py</a> adds the Python pipe owner,
+publication adapter and diagnostic driver, including both nested helpers.
+It describes the current experimental, offline, never-populated-store path,
+not the normal online cache API or a replacement for its write coordinator.
+The artifact wrapper has eight declarations; the engine loader has seven; the
+Python module has twelve. These are 27 explicit functions/constructors in total.</p>
+<h2 id="architecture-and-ownership">Architecture and Ownership</h2>
+<p><code>BulkArtifactWriter</code> converts immutable cache entries into the same inline
+integrity envelope used by the online cache. <code>EmptyStoreBulkLoader</code> owns the
+exclusive database lock, recovered manifest, sorted staging map, unpublished
+SSTable files, and final manifest edit. The ordinary daemon must not hold that
+database open while the loader runs. Close the loader before opening the daemon,
+even after <code>finish()</code> succeeds: finalization does not release its lock.</p>
+<pre><code class="language-text">CacheEntry values and physical storage keys
+  -&gt; owned payload copy, SHA-256, inline envelope and CRC32C
+  -&gt; exclusive loader: cloned key/value pairs in an unsigned-key TreeMap
+  -&gt; sorted partitions: SSTable build, file force, atomic rename
+  -&gt; new empty WAL header: file force, directory barrier
+  -&gt; VersionSet: candidate version, full inventory verification
+  -&gt; one manifest record: encode, append, force, publish current version
+  -&gt; obsolete WAL cleanup and directory barrier
+  -&gt; successful receipt, then close the offline owner
+  -&gt; ordinary TrainingCache/daemon reopen and online updates
+</code></pre>
+<p>The loader avoids bulk WAL <strong>payload</strong> duplication and native memtable insertion.
+It does not eliminate WAL files, checksums, manifest durability, input copies,
+or database recovery. Its whole input is retained in a bounded in-memory map;
+the <em>verifier</em> streams block entries, but this loader is not an unbounded streaming
+sorter. The Python subprocess owner and population driver below connect this
+Java path to an exploratory diagnostic, not the full H2 lifecycle campaign.</p>
+<h2 id="artifact-writer-functions">Artifact Writer Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior, ownership, and failure boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BulkArtifactWriter(Path directory)</code></td>
+<td>Delegates to the target-taking constructor with the loader's default 32 MiB table target. Does not inspect or preload Python artifacts itself.</td>
+</tr>
+<tr>
+<td><code>BulkArtifactWriter(Path directory, long targetSstableBytes)</code></td>
+<td>Creates an engine loader with the 512 MiB encoded-byte staging budget and supplied table target. This prototype explicitly uses the development security profile and disables engine disk-pressure policy; do not treat that as a production recommendation. If bulk JFR is enabled, starts a population event <strong>after</strong> loader bootstrap, not before database creation/recovery.</td>
+</tr>
+<tr>
+<td><code>BulkArtifactWriter.addAll(Iterable&lt;CacheEntry&gt; entries)</code></td>
+<td>Synchronized. Rejects a previously failed wrapper, then processes entries one at a time: copy <code>entry.value()</code>, enforce inline size, hash payload, encode envelope, and admit the physical key/value to the loader. Increments artifact/payload counters only after successful admission. Runtime failures, including an iterator failure or duplicate key rejected by the loader, poison this wrapper and rethrow. Earlier admitted entries remain staged, not published.</td>
+</tr>
+<tr>
+<td><code>BulkArtifactWriter.addTiming(String stage, long started)</code></td>
+<td>Private helper merges elapsed monotonic nanoseconds into the stage's accumulated total. It does not create a nested trace, synchronize independently, or subtract instrumentation overhead. Calls are inside the synchronized admission method.</td>
+</tr>
+<tr>
+<td><code>BulkArtifactWriter.finish()</code></td>
+<td>Synchronized. Rejects wrapper admission failure, calls the loader's one-shot commit, marks a population event successful and ends it, then returns <code>status=committed</code>, counts, admission timings and the nested storage receipt. <code>sha256Calls</code> is the admitted-artifact count, not an independently sampled hash-call counter. An engine commit exception propagates; the loader's finalized/failed state prevents an unsafe retry even though this method does not set the wrapper's <code>failed</code> field.</td>
+</tr>
+<tr>
+<td><code>BulkArtifactWriter.finishEvent()</code></td>
+<td>Private, no-op when there is no event. Copies admitted counts, ends/commits the JFR event, then clears its reference. Does not publish database state or assert durability. Unless <code>finish()</code> set success, the event's success field stays false.</td>
+</tr>
+<tr>
+<td><code>BulkArtifactWriter.close()</code></td>
+<td>Closes the engine owner and ends the event in a <code>finally</code> block, including on close failure. Does <strong>not</strong> call <code>finish()</code> or acknowledge staged artifacts. Unlike admission/finalization, this wrapper method is not synchronized; callers should serialize close with use, not infer unrestricted thread safety from the other two methods.</td>
+</tr>
+<tr>
+<td><code>BulkArtifactWriter.main(String[] args)</code></td>
+<td>Offline subprocess entry point. Accepts a store path and optional decimal table-target byte count. Opens writer/stdin, emits <code>READY</code>, reads framed batches, decodes entries, admits them, and emits <code>STAGED n</code>. Only a zero-length frame calls <code>finish()</code> and prints its JSON receipt. Any failure or EOF exits through resource cleanup; EOF is not a commit request.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="admission-copies-and-inline-boundary">Admission Copies and Inline Boundary</h3>
+<p><a href="training-identity-functions.html">CacheEntry</a> already owns a defensive copy;
+<code>value()</code> makes another. Hashing reads that payload, the inline envelope owns
+its encoded bytes, and <code>loader.add(...)</code> clones both the physical storage key
+and envelope for staging. Later table encoding has its own copies. The removal
+of verification-side value materialization does not remove these admission copies.</p>
+<p>The wrapper rejects payloads <strong>greater than</strong> 256 KiB. Exactly 256 KiB is admitted
+inline here, whereas the online cache's automatic storage selector uses the segment
+path at <strong>greater than or equal to</strong> that threshold. Bulk does not use the segment
+store, eviction index, online batch coordinator, or online capacity-eviction policy.
+The final ordinary cache reconstructs its own state on reopen. See
+<a href="training-cache-functions.html">cache operations</a> for those distinct contracts.</p>
+<p>The <code>INTEGRITY</code> JFR phase spans copying, hashing, envelope construction, loader
+admission, and iteration overhead, not just checksum work. Its records/bytes deltas
+are filled only after the loop completes normally; an interrupted phase is not a
+complete count of every successful preceding entry. <code>REQUEST_DECODE</code> is measured
+separately by the subprocess entry point.</p>
+<h3 id="local-pipe-not-daemon-rpc">Local Pipe, Not Daemon RPC</h3>
+<p>The frame length is a signed, big-endian Java <code>int</code>. Nonzero lengths must be
+between 6 bytes and 64 MiB inclusive; the process allocates that frame and reads
+it fully before calling
+<a href="training-protocol-functions.html">TrainingCacheProtocol.decodeBulkEntries</a>.
+That parser supplies the batch's additional wire and entry checks. The 64 MiB
+frame limit is not the aggregate staging budget or an online protocol opcode.</p>
+<p><code>READY</code> means the offline owner opened. <code>STAGED n</code> means that batch was admitted
+to volatile staging. Neither is a durable artifact acknowledgement. Zero commits;
+truncated length/payload reads throw rather than silently finalizing. A subprocess
+that dies after publication can leave all artifacts committed without delivering
+the JSON acknowledgement. The pipe is a local trusted-process interface, not an
+authenticated/TLS network service.</p>
+<h2 id="python-pipe-owner-and-publication-adapter">Python Pipe Owner and Publication Adapter</h2>
+<p><code>BulkPipeWriter</code> owns one Java child, its stdin/stdout streams, a stderr log,
+stdout reader thread and response queue. <code>BulkPublicationClient</code> reuses the
+low-level client's PUT_MANY encoding and the diagnostic parent's publication
+batch splitting, but overrides transport to send those bodies to the pipe.
+It does not establish an online daemon connection for this bulk publication.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior, ownership, and failure boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BulkPipeWriter.__init__(store, *, crash_point=None, timeout=120, target_bytes=32 * 1024 ** 2, jfr_file=None, jfr_settings=&quot;profile&quot;)</code></td>
+<td>Stores the path/options, initializes committed/closed flags and an unbounded response queue. Does not start Java, validate the target/timeout, open a database or allocate the engine staging buffer.</td>
+</tr>
+<tr>
+<td><code>BulkPipeWriter.__enter__()</code></td>
+<td>Creates the store parent and obtains the candidate Java classpath. Optionally reserves a fresh JFR file/repository and adds recording flags; optionally selects the test-only crash probe/classpath. Opens a sibling stderr log and starts Java with preview enabled, pipes and the table-target argument, hidden on Windows. Starts the stdout reader, waits for exact <code>READY</code>, and returns itself. Failures inside the launch/readiness try invoke exit cleanup and rethrow. JFR-directory preparation occurs before that try and is not rolled back.</td>
+</tr>
+<tr>
+<td><code>BulkPipeWriter.__enter__.reader()</code></td>
+<td>Nested daemon-thread function iterates child stdout. In JFR mode, redirects recognized JFR startup log lines to the stderr file so they do not masquerade as protocol responses. Queues every other line, then a <code>None</code> sentinel on normal EOF. It does not parse JSON or match response/request IDs. A reader exception is not explicitly caught to guarantee a sentinel.</td>
+</tr>
+<tr>
+<td><code>BulkPipeWriter.line()</code></td>
+<td>Waits for one queue item using the configured timeout; wraps queue exhaustion as TimeoutError and EOF sentinel as an acknowledgement failure instructing the caller to retain/inspect the store. Strips response whitespace. It does not independently kill a process, recover the database or certify a queued acknowledgement.</td>
+</tr>
+<tr>
+<td><code>BulkPipeWriter.exchange(body)</code></td>
+<td>Rejects an already acknowledged commit. Starts a timer that can kill the child on timeout, writes and flushes an unsigned big-endian 32-bit byte length plus body, then reads one response. Cancels and joins the timer in <code>finally</code>. A zero-byte body sends the Java commit frame. There is no independent 64 MiB check here, no closed-state guard, no reconnection or automatic replay; Java enforces its frame limit.</td>
+</tr>
+<tr>
+<td><code>BulkPipeWriter.stage(body)</code></td>
+<td>Reads the expected entry count from the body at offset 2, then requires exact <code>STAGED count</code>. Returns an empty byte payload to satisfy the inherited client's successful-response decoder. Bad acknowledgement raises; a short body can fail before exchange. This method does not validate all batch entries or set <code>committed</code>.</td>
+</tr>
+<tr>
+<td><code>BulkPipeWriter.finish()</code></td>
+<td>Exchanges an empty body, parses the response as JSON, requires <code>status=committed</code>, sets the local committed flag, and returns the report. It checks the status, not every nested receipt field; the driver supplies additional cardinality checks. Lost/malformed acknowledgement can leave the local flag false even if Java already committed.</td>
+</tr>
+<tr>
+<td><code>BulkPipeWriter.__exit__(exc_type, exc, traceback)</code></td>
+<td>Idempotent once marked closed. Closes stdin to send EOF without auto-commit, waits up to 15 seconds, kills/waits again on timeout, joins the reader for up to 5 seconds, and closes output/log handles. Raises for nonzero child exit only when no outer exception exists and a commit was acknowledged. An uncommitted crashed child does not by itself raise from this method. Stores/logs/JFR files are retained; partial cleanup failures are not aggregated and can interrupt later cleanup steps.</td>
+</tr>
+<tr>
+<td><code>BulkPublicationClient.__init__(writer, put_batch=16)</code></td>
+<td>Holds the pipe owner and initializes PublicationClient with the requested publication chunk size and tracing disabled. The inherited client machinery owns encoding/metrics; the adapter does not own the writer's lifetime or commit it automatically.</td>
+</tr>
+<tr>
+<td><code>BulkPublicationClient._exchange(body, *args, **kwargs)</code></td>
+<td>Requires opcode 6 in body byte 1, delegates to <code>writer.stage</code>, then increments successful request/opcode counters. Returns its empty success payload. Other opcodes fail; short bodies can raise IndexError. Extra exchange arguments are ignored. Counter increments happen after stage acknowledgement, not after durable publication.</td>
+</tr>
+</tbody>
+</table>
+<p>The pipe is serial: response queue entries have no correlation identifier, and
+write/read ownership is not protected by an exchange lock. Do not share one writer
+across concurrent publishers. The parent PublicationClient chunks each supplied
+publication batch; a <code>put_batch</code> larger than the driver's 16-item fetch batch does
+not merge multiple calls into one larger request. Its reported protocol/publication
+counts here describe staged pipe batches, not network RPCs or committed transactions.</p>
+<h2 id="python-population-diagnostic">Python Population Diagnostic</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and timing boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>run_bulk_case(request)</code></td>
+<td>Requires a fresh nonexistent store, prepares OCT5K source arguments with trusted manifest hashes, loads sources, wraps canonical preprocessing/codec timing and launches disk sampling. Times writer startup separately, then preprocesses/encodes and stages source batches of 16, explicitly finishes and checks admitted counts plus zero bulk WAL payload/memtable insertion. Times offline-owner close, verifies an optional JFR dump exists, stops population sampling, and validates the artifacts in a genuinely new ordinary daemon. Returns the diagnostic receipt; restores the preprocessing hook and attempts sampler/owner cleanup in <code>finally</code>. Does not create a model or train epochs.</td>
+</tr>
+<tr>
+<td><code>run_bulk_case.capture(*a, **kw)</code></td>
+<td>Nested wrapper calls the saved preprocessing-with-timing function, adds its successful counters into a Counter, and returns the same value/counters. It does not swallow preprocessing failures. The population counter snapshot is taken before ordinary-reader validation, even though the hook remains installed until the driver's final cleanup.</td>
+</tr>
+</tbody>
+</table>
+<p>The request supplies the manifest, sample limit, image size, expected prepared
+tensor hash, case publication batch and optional table/JFR/layout settings. This
+is a trusted harness request, not a public validated configuration parser. The
+preprocessing arguments fix four passes, batch 16 and prefetch 0 in <code>workload_args</code>.
+Using trusted manifest hashes assumes prior input validation; this function does
+not independently certify all source bytes before its timed work.</p>
+<h3 id="measured-work-and-exclusions">Measured Work and Exclusions</h3>
+<p>Source loading, argument/transform/codec construction and initial sampler setup
+precede the startup timer. <code>startup</code> includes pipe/JVM setup through READY.
+<code>population</code> includes preprocessing, encoding, publication batches and the synchronous
+Java commit. <code>close</code> includes offline-owner exit. The diagnostic reports
+<code>totalMs = startup + population + close</code>, with <code>quiescence=0</code> because the offline
+writer has no queued online flush/compaction work. That zero does <strong>not</strong> exclude
+table, WAL-header or manifest forces: they are inside population.</p>
+<p>Ordinary-reader reopen/readback/drain and optional layout regression have their
+own excluded <code>validationMs</code>. The driver requires the prepared tensor digest to
+match <code>referenceHash</code>, zero validation-transform calls (no cache misses), and
+the reopened cache's entry count to equal the loaded source count. It closes that
+dataset in <code>finally</code>. Optional regression checks exercise warm reads and later
+online updates; they do not become measured initial population.</p>
+<p>The preprocessing hook is module-global, so concurrent diagnostic invocations
+in one Python interpreter would interfere; use isolated workers. Population disk
+and optional memory sampling stop before reader validation, but Python process
+usage spans later validation too. <code>sourceLoadAndPreprocessMs</code> is derived from the
+timed transform's elapsed calls, <strong>not</strong> an independently timed source-loading
+phase. Java process usage is reported as null here. Sampled memory/disk counters
+are not exact hardware write amplification or allocation totals. The result's
+<code>model=None</code> and <code>trainingSampleRequests=0</code> deliberately distinguish this V0-only
+diagnostic from a persistent-daemon longitudinal ML experiment.</p>
+<h2 id="engine-loader-functions">Engine Loader Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior, ownership, and failure boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EmptyStoreBulkLoader(Path directory, AetherConfiguration configuration)</code></td>
+<td>Delegates with defaults: 512 MiB encoded-byte budget and 32 MiB table target. The caller supplies engine bootstrap configuration; the generic loader does not itself set the artifact wrapper's security/pressure choices.</td>
+</tr>
+<tr>
+<td><code>EmptyStoreBulkLoader(Path directory, AetherConfiguration configuration, long maxBytes, long tableBytes)</code></td>
+<td>Rejects nonpositive limits or a target exceeding the budget. If DB-IDENTITY is absent, opens/closes the canonical engine to bootstrap it. Validates the absolute managed root, acquires its OS database lock, decodes identity, recovers VersionSet and rechecks the empty-store invariants under that lock. On a failure inside recovery/validation, closes the opened manifest and lock, adding cleanup failures as suppressed exceptions. Bootstrap may already have created canonical empty-store files.</td>
+</tr>
+<tr>
+<td><code>EmptyStoreBulkLoader.add(byte[] key, byte[] value)</code></td>
+<td>Synchronized. Requires staging state, rejects null arrays/oversized keys, checks overflow-safe encoded-byte budget and the 100,000-entry cap, rejects duplicate unsigned-byte keys, then clones both arrays into the sorted map. Empty keys are not rejected here. It does not apply WriteBatch's independent maximum value size. Runtime admission errors poison this loader; state-guard errors occur before that catch.</td>
+</tr>
+<tr>
+<td><code>EmptyStoreBulkLoader.finish()</code></td>
+<td>Synchronized, one-shot build/verify/publication operation described below. An empty transaction throws <strong>before</strong> finalizing, so adding entries remains possible. With entries, marks finalized before I/O. Success returns diagnostics but keeps the owner/lock open. A failure inside the commit body marks failed and wraps its cause in an IOException requiring reopen/recovery. The staging map is cleared in <code>finally</code>, whether publication succeeded or not.</td>
+</tr>
+<tr>
+<td><code>EmptyStoreBulkLoader.requireStaging()</code></td>
+<td>Private guard rejects a closed, failed, or finalized loader. Does not recover files, reserve resources, or distinguish a published commit from a failed prepublication attempt.</td>
+</tr>
+<tr>
+<td><code>EmptyStoreBulkLoader.syncDirectory(Path root)</code></td>
+<td>Private helper opens the directory read-only and forces it. Ignores AccessDeniedException only when the OS name starts with Windows; other errors propagate. This is an explicit platform accommodation, not proof of identical directory durability on every filesystem.</td>
+</tr>
+<tr>
+<td><code>EmptyStoreBulkLoader.close()</code></td>
+<td>Synchronized, idempotent after the closed flag is set. Marks closed, clears staging, closes VersionSet, and releases the lock in <code>finally</code>. Does not commit, recursively remove outputs, or retry a failed close. A lock-close failure can replace a manifest-close failure because this path does not combine them as suppressed exceptions.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="eligibility-and-memory-accounting">Eligibility and Memory Accounting</h3>
+<p>The recovered version must have no SSTables, no assigned sequence, no persisted
+sequence watermark, and a minimum WAL whose size is exactly its header block.
+This means a <strong>never-populated</strong> database, not one whose keys were subsequently
+deleted, and not a merge into an existing cache. Recovery is still used to establish
+the authoritative inventory and remove eligible orphan output.</p>
+<p>The TreeMap compares keys using <code>Arrays.compareUnsigned</code>; distinct caller arrays
+with identical bytes are duplicate keys, even when their values match. The first
+100,000 entries are allowed; admission of a 100,001st is rejected. The staging budget
+charges key bytes plus encoded value bytes, not TreeMap nodes, array headers,
+intermediate copies, JFR objects or builder memory. <code>peakBufferedBytes</code> reports that
+monotonically accumulated accounting value, <strong>not</strong> measured peak JVM heap or RSS.
+An out-of-memory Error is not covered by <code>add()</code>'s RuntimeException catch.</p>
+<h3 id="what-finish-actually-publishes">What Finish Actually Publishes</h3>
+<ol>
+<li>Iterate the map in unsigned-key order. Assign one increasing sequence per key
+and value type 1; these sequences follow sorted order, not incoming batch order.
+Feed consecutive entries to a builder until its accumulated key/value bytes
+reach the target. Every partition has at least one entry. The target is a soft
+partition threshold, not a hard SSTable file-size cap: it can overshoot by one
+entry and excludes table framing, index and filter overhead.</li>
+<li>Finish the temporary SSTable using
+<a href="sstable-build-functions.html">BulkInstallSupport.finishUnpublished</a>, which rechecks
+the empty inventory. The builder finishes and forces its file while deferring
+full inventory verification. Atomically rename it to its managed final name,
+then collect level-1 metadata and per-table finish timing. All partitions remain
+unpublished; creating a final-name file does not install it in the manifest.</li>
+<li>Create the next WAL with <code>CREATE_NEW</code>, carrying database identity, previous WAL
+number and next sequence in its header. Write the header fully, force the file,
+and attempt the directory barrier. No staged values are written to that WAL.</li>
+<li>Call <code>VersionSet.logAndApplyMeasured</code> with <strong>one</strong> DELTA containing all additions,
+no deletions, both sequence watermarks at the final staged sequence, updated next
+SSTable number and the new minimum WAL. Build the candidate version and verify
+every added table's path, file size and full contents before encoding any record.
+<a href="sstable-read-functions.html">SSTableVerifier</a> is the authoritative streaming verifier;
+deferred construction does not mean skipping table/block checksums.</li>
+<li>Encode, append and force the existing append-only manifest record. Only then
+assign VersionSet's current in-memory version to the candidate. This edit does
+not create/rename a temporary manifest or replace CURRENT. Its directory barriers
+belong to surrounding file publication/cleanup, not a fictitious manifest rename.</li>
+<li>Delete the old empty WAL and attempt the final directory barrier. Return the
+storage receipt. Cleanup errors can occur <strong>after</strong> the manifest committed all
+artifacts; the caller must not interpret an exception as evidence of no commit.</li>
+</ol>
+<h2 id="failure-and-recovery-boundaries">Failure and Recovery Boundaries</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Injection boundary</th>
+<th>What has happened; what recovery evidence means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bulk.after_table_force</code></td>
+<td>A temporary table was completed/forced; there is no bulk manifest edit yet.</td>
+</tr>
+<tr>
+<td><code>bulk.after_table_rename</code>, <code>bulk.after_table</code></td>
+<td>One or more final-name tables exist, but remain outside the authoritative inventory.</td>
+</tr>
+<tr>
+<td><code>bulk.before_manifest</code></td>
+<td>All tables and the new WAL header exist; the measured VersionSet call, including inventory verification, has not started. This hook is <strong>not</strong> after verification.</td>
+</tr>
+<tr>
+<td><code>bulk.before_verification</code>, <code>bulk.after_verification</code></td>
+<td>Inside VersionSet, immediately around the single inventory pass. After the second hook, content passed validation but the bulk record has not been appended.</td>
+</tr>
+<tr>
+<td><code>bulk.manifest.after_append</code></td>
+<td>The complete record has been written, but its force has not occurred. A process-death test may replay that intact record because the OS remains alive; that is not a power-loss durability guarantee.</td>
+</tr>
+<tr>
+<td><code>bulk.manifest.after_force</code></td>
+<td>The record was forced, before publishing VersionSet's in-memory candidate. Recovery can establish the committed inventory without a delivered acknowledgement.</td>
+</tr>
+<tr>
+<td><code>bulk.after_manifest</code></td>
+<td>The measured publication returned; obsolete-WAL cleanup and successful receipt delivery still remain.</td>
+</tr>
+</tbody>
+</table>
+<p>Failure does not trigger deletion of possible manifest dependencies. Reopen using
+ordinary recovery and validate whether <strong>all</strong> staged identities are present before
+deciding what to retry. Do not reuse this finalized loader or overwrite files based
+on a missing receipt. An unfinalized close/EOF abandons volatile staging, not a
+partially visible artifact subset.</p>
+<h2 id="receipts-and-jfr-interpretation">Receipts and JFR Interpretation</h2>
+<p>The wrapper's <code>admissionTimingsNs</code> accumulates owned payload copy, payload SHA-256,
+envelope/CRC32C construction and sorted-buffer admission. The storage receipt has
+<code>timingsNs</code> for build/finish/rename, empty-WAL preparation, measured manifest call
+and obsolete-WAL cleanup; <code>manifest</code> splits candidate construction, inventory
+verification, encoding, write, force and in-memory installation. These are elapsed
+nanoseconds of differently nested scopes, <strong>not additive disjoint buckets</strong>.</p>
+<p><code>sstableFinishes</code> contains file numbers, actual sizes/counts and builder finish
+traces. <code>verification</code> and <code>streamingVerification</code> come from the scoped verifier
+trace; the expected successful path is one inventory call and a full verification
+of each added table. The literal <code>verificationPolicy=bulk-deferred-inventory-v2</code>
+describes that path. It is not a format version or a weaker checksum mode.</p>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/jfr/BulkPopulationEvent.java">BulkPopulationEvent.java</a>
+has no explicit methods: it inherits JFR Event lifecycle and exposes artifact count,
+payload bytes, target SSTable bytes, SSTable count and success. Its event name is
+<code>aether.BulkPopulation</code>, with stack traces disabled. The wrapper ends its event on
+successful <code>finish()</code> or on <code>close()</code>; constructor/bootstrap and successful
+post-finish close are outside its duration. Event success is receipt-path evidence,
+not an independent filesystem consistency validator.</p>
+<h2 id="source-backed-tests-and-scope">Source-Backed Tests and Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/test/java/io/aetherdb/engine/EmptyStoreBulkLoaderTest.java">EmptyStoreBulkLoaderTest</a>
+has eight tests covering sorted multi-table reopen, subsequent online updates,
+abort/duplicate rejection, memory budget/exclusive lock, selected publication
+faults, corrupt committed tables, target variation, and corrupted/truncated final
+inventory rejection before manifest append. Its injected exceptions are not an
+actual machine power failure.</p>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/test/java/io/aetherdb/training/cache/BulkArtifactWriterTest.java">BulkArtifactWriterTest</a>
+has two tests comparing the bulk/online envelope and integrity policy and rejecting
+an oversized payload without publishing earlier staging. It does not establish
+an exhaustive size-boundary or concurrent-close test matrix.</p>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_bulk_population.py">test_bulk_population.py</a> adds opt-in
+real-Java subprocess death/abort, ordinary-reader reopening, deterministic
+preprocessing and layout/warm-update checks. Its crash probe halts the process at
+named hooks; the OS and storage device remain alive. These tests, documentation
+inventory checks, allocation profiles and the frozen H2 experiment are different
+forms of evidence. None alone proves general power-loss correctness or production
+readiness.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-ownership">Architecture and Ownership</a><a href="#artifact-writer-functions">Artifact Writer Functions</a><a href="#python-pipe-owner-and-publication-adapter">Python Pipe Owner and Publication Adapter</a><a href="#python-population-diagnostic">Python Population Diagnostic</a><a href="#engine-loader-functions">Engine Loader Functions</a><a href="#failure-and-recovery-boundaries">Failure and Recovery Boundaries</a><a href="#receipts-and-jfr-interpretation">Receipts and JFR Interpretation</a><a href="#source-backed-tests-and-scope">Source-Backed Tests and Scope</a></nav></aside>
+  </div>
+</body>
+</html>

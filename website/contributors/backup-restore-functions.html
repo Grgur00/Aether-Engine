@@ -1,0 +1,228 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/BACKUP-RESTORE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Backup restore functions: source-backed contributor documentation for Aether Engine.">
+  <title>Backup restore functions | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html" aria-current="page">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/BACKUP-RESTORE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="backup-restore-functions">Backup Restore Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="backup-archive-functions.html">Backup archives</a> | <a href="filesystem-identity-functions.html">Filesystem identity</a></p>
+<p>This reference covers restore preflight and object writing in the current checkout.
+It distinguishes policy labels from actions actually implemented by these helpers.
+No runtime fixes or crash-safety certification accompany this documentation.</p>
+<h2 id="sources-and-call-chain">Sources and Call Chain</h2>
+<ul>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-io/src/main/java/io/aetherdb/io/BackupRestorePreflight.java">BackupRestorePreflight</a>: target/key/version/mode checks.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-io/src/main/java/io/aetherdb/io/BackupRestorePreflightOptions.java">BackupRestorePreflightOptions</a>: operator policy inputs.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-io/src/main/java/io/aetherdb/io/BackupRestorePreflightReport.java">BackupRestorePreflightReport</a>: blocking failures and declared totals.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-io/src/main/java/io/aetherdb/io/BackupRestoreWriter.java">BackupRestoreWriter</a>: destination writes and best-effort cleanup.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-io/src/main/java/io/aetherdb/io/BackupRestoreResult.java">BackupRestoreResult</a>: returned target/report/path list.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-io/src/main/java/io/aetherdb/io/BackupRestoreMode.java">BackupRestoreMode</a>: policy enum.</li>
+</ul>
+<p>Archive read verifies hashes/inventory first. Preflight evaluates supplied contents
+and options. Writer calls preflight again, creates directories, copies object arrays
+to CREATE_NEW files, and returns a result. These functions do not start an engine,
+verify SSTable semantics, or publish a staged directory with an atomic rename.
+Directly constructed BackupArchiveContents is not automatically hash-verified.</p>
+<h2 id="options-and-modes">Options and Modes</h2>
+<h3 id="backuprestorepreflightoptions-constructor">BackupRestorePreflightOptions constructor</h3>
+<p>Requires a mode and positive supportedFormatVersion. Null available key epochs
+become an empty set; other sets are copied and each epoch must be positive.
+Set.copyOf can reject null entries before the explicit epoch loop. Existing
+database/cluster IDs are retained without requiring nonnull/nonzero values here;
+the selected mode decides whether they must match backup identities.</p>
+<p>The allowNonEmptyTarget flag permits attempting writes into populated directories.
+It does not authorize overwriting existing files; the writer still uses CREATE_NEW.
+Supported format version is one numeric maximum for all object kinds, not a
+per-kind decoder registry or the database format epoch.</p>
+<h3 id="backuprestoremode-constants">BackupRestoreMode constants</h3>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Preflight identity rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SINGLE_NODE_PRESERVE_DATABASE_ID</td>
+<td>Backup must have no cluster ID, and database ID must equal supplied existingDatabaseId.</td>
+</tr>
+<tr>
+<td>SINGLE_NODE_NEW_DATABASE_ID</td>
+<td>Backup must have no cluster ID; this check does not generate a new database ID.</td>
+</tr>
+<tr>
+<td>CLUSTER_DISASTER_NEW_CLUSTER</td>
+<td>Backup must have a cluster ID; this check does not create a new cluster.</td>
+</tr>
+<tr>
+<td>CLUSTER_MEMBER_REPLACEMENT</td>
+<td>Backup must have a cluster ID matching supplied existingClusterId.</td>
+</tr>
+</tbody>
+</table>
+<p>The enum has no custom methods. Mode names describe operator policy, not complete
+implemented identity rewriting, membership recovery, or Raft installation.</p>
+<h2 id="preflight-functions">Preflight Functions</h2>
+<h3 id="backuprestorepreflight-constructor-and-checkcontents-targetdirectory-options">BackupRestorePreflight constructor and check(contents, targetDirectory, options)</h3>
+<p>The private constructor prevents instances. <code>check()</code> requires nonnull arguments,
+normalizes the target to absolute form, gathers target/key/version/mode failures,
+and returns a report with manifest objectCount and totalBytes. Policy failures are
+accumulated, not thrown at the first mismatch; filesystem I/O errors can still
+propagate instead of becoming report entries.</p>
+<p>It does not rehash arrays, check compatibility fingerprint/format epoch, decode
+identity/options/manifest/SSTable bytes, reserve disk space, or lock the target.
+Its totals come from manifest declarations, not destination measurements.</p>
+<h3 id="checktargettarget-options-failures">checkTarget(target, options, failures)</h3>
+<p>For an existing target, requires a directory and (unless allowed) emptiness, using
+a closed Files.list stream. For an absent target, requires its immediate parent
+to exist as a directory. It does not create paths during preflight or accept a
+chain of missing parents just because the later writer uses createDirectories.</p>
+<p>These Files.exists/isDirectory checks follow links by default. The helper does
+not call PathSecurityValidator, reject symlink ancestors, check writability,
+estimate available bytes, or prevent check/write races. Filesystem permission and
+I/O failures can arise after a passed report.</p>
+<h3 id="checkkeysmanifest-options-failures">checkKeys(manifest, options, failures)</h3>
+<p>Checks each declared encryption key epoch against the supplied available set.
+It does not obtain key material, validate decryption, inspect per-object encryption
+references, or transform ciphertext. Possessing an epoch number is a policy claim
+in this input model, not proof of a functioning key provider.</p>
+<h3 id="checkformatversionsmanifest-options-failures">checkFormatVersions(manifest, options, failures)</h3>
+<p>Adds a failure for any object's required version greater than supportedFormatVersion.
+It does not inspect object bytes, negotiate object-kind codecs, or compare the
+manifest's format compatibility fingerprint with the running engine.</p>
+<h3 id="checkrestoremodemanifest-options-failures">checkRestoreMode(manifest, options, failures)</h3>
+<p>Applies the four identity rules above. It does not ensure a complete required
+inventory for the chosen mode or validate Raft snapshot index/term against actual
+log/snapshot bytes. A preflight pass is narrower than an openable, recovered database.</p>
+<h2 id="writer-functions">Writer Functions</h2>
+<h3 id="backuprestorewriter-constructor-restore-restorecheckpointlayout">BackupRestoreWriter constructor, restore(), restoreCheckpointLayout()</h3>
+<p>The private constructor prevents instances. Public <code>restore()</code> delegates to the
+private overload with checkpointLayout false; <code>restoreCheckpointLayout()</code> passes
+true. Both accept in-memory contents, destination, and policy, and both return
+BackupRestoreResult only after all object write calls complete.</p>
+<h3 id="restorecontents-targetdirectory-options-checkpointlayout">restore(contents, targetDirectory, options, checkpointLayout)</h3>
+<p>Requires nonnull inputs, normalizes target, runs preflight, and throws IOException
+with joined failures if blocked. Creates target directories before entering the
+per-object try/catch. For each manifest object, chooses ordinary or checkpoint
+mapped path, checks lexical resolution, creates parent directories, gets a cloned
+object array, and calls Files.write with CREATE_NEW and WRITE. Only after that call
+succeeds is the path added to the cleanup list.</p>
+<p>All objects are copied as supplied. No ID rewrite, decryption, hash recheck, metadata
+repair, manifest regeneration, post-write engine open, or sequence verification is
+performed. There is no fsync/file force, directory force, staged rename, lock lease,
+or special CURRENT-last ordering: write order is manifest order.</p>
+<p>On Throwable inside the object loop, cleanup is attempted. IOException and
+RuntimeException are rethrown; other Throwables (including Errors) are wrapped in
+IOException. The initial target createDirectories is outside that cleanup catch.
+Failure during the current Files.write can leave a partial file because its path
+has not yet been recorded. Process termination also bypasses Java cleanup.</p>
+<h3 id="checkpointrestorepathobject">checkpointRestorePath(object)</h3>
+<p>Requires <code>objects/</code> prefix and one nonblank flat remaining filename, with no
+slash/backslash or dot/dot-dot. Accepts only these kind/name combinations:</p>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Restored name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DATABASE_IDENTITY</td>
+<td>DB-IDENTITY</td>
+</tr>
+<tr>
+<td>FORMAT_OPTIONS</td>
+<td>FORMAT-OPTIONS</td>
+</tr>
+<tr>
+<td>CHECKPOINT_METADATA</td>
+<td>CHECKPOINT-METADATA</td>
+</tr>
+<tr>
+<td>CURRENT</td>
+<td>CURRENT</td>
+</tr>
+<tr>
+<td>MANIFEST</td>
+<td>MANIFEST- prefix and .aeman suffix</td>
+</tr>
+<tr>
+<td>SSTABLE</td>
+<td>SST- prefix and .aess suffix</td>
+</tr>
+</tbody>
+</table>
+<p>Other kinds, including WAL/security/Raft/report objects, are rejected in this
+layout. Prefix/suffix tests do not parse numeric generations or validate the
+object's internal format. Mapping strips objects/; it does not alter payloads.</p>
+<h3 id="resolveobjecttarget-path">resolveObject(target, path)</h3>
+<p>Resolves and normalizes the path, requiring lexical startsWith(target). This guards
+ordinary normalized parent escape but is not a real-path/symlink containment check.
+Existing linked parent directories can redirect writes. CREATE_NEW guards against
+replacing an existing final entry; it does not pin every directory component.</p>
+<h2 id="cleanup-functions">Cleanup Functions</h2>
+<h3 id="cleanuprestoredtarget-restored-failure">cleanupRestored(target, restored, failure)</h3>
+<p>Deletes successfully recorded object paths in reverse order, attaching IOException
+cleanup failures as suppressed exceptions. Then walks the target, orders paths
+in reverse, excludes the target itself, and attempts to delete directories.
+Nonempty-directory failures are ignored; an outer walk IOException is suppressed.</p>
+<p>Directory cleanup is not limited to directories created by this restore: preexisting
+empty subdirectories can be removed when a nonempty target was allowed. The target
+itself remains, and a partial current object can prevent its parent cleanup. The
+walk/checks are not a rollback journal or crash-recovery protocol. Cleanup may fail
+and leave output requiring inspection.</p>
+<h2 id="reports-and-results">Reports and Results</h2>
+<h3 id="backuprestorepreflightreport-constructor-and-accessors">BackupRestorePreflightReport constructor and accessors</h3>
+<p>Copies a required failure list, requires passed to equal failures.isEmpty, and
+requires nonnegative object/byte totals. Implicit accessors expose those values and
+the immutable list. The constructor does not verify that totals match actual files
+or that caller-supplied failure text corresponds to checks performed.</p>
+<h3 id="backuprestoreresult-constructor-and-accessors">BackupRestoreResult constructor and accessors</h3>
+<p>Requires target and preflight report, copies restoredObjects, and requires a passed
+report. It does not normalize target or verify written objects/counts itself.
+Implicit accessors return stored Path/report/immutable paths. Successful construction
+is not independently durable publication or proof that an engine can open the target.</p>
+<h2 id="coverage-boundary">Coverage Boundary</h2>
+<p>All explicit functions and constructors in the six linked files are covered.
+Together with archive and filesystem references this covers the I/O module's
+implementation classes; package documentation is not another executable API.
+Engine checkpoint orchestration, config consumers, operational commands, research,
+ML/Python, and distributed foundations remain broader documentation work.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#sources-and-call-chain">Sources and Call Chain</a><a href="#options-and-modes">Options and Modes</a><a href="#preflight-functions">Preflight Functions</a><a href="#writer-functions">Writer Functions</a><a href="#cleanup-functions">Cleanup Functions</a><a href="#reports-and-results">Reports and Results</a><a href="#coverage-boundary">Coverage Boundary</a></nav></aside>
+  </div>
+</body>
+</html>

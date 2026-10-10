@@ -1,0 +1,180 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/TYPED-ADAPTER-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Embedded typed adapter functions: source-backed contributor documentation for Aether Engine.">
+  <title>Embedded typed adapter functions | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html" aria-current="page">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/TYPED-ADAPTER-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="embedded-typed-adapter-functions">Embedded Typed Adapter Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="typed-key-functions.html">Typed keys</a> | <a href="typed-value-functions.html">Typed values</a> | <a href="collection-schema-functions.html">Collection metadata</a></p>
+<p>This reference follows the current checkout's typed facade into the byte engine.
+It separates interface promises from the behavior of the embedded implementation.</p>
+<h2 id="sources-and-runtime-boundary">Sources and Runtime Boundary</h2>
+<ul>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-embedded-typed/src/main/java/io/aetherdb/embedded/typed/AetherEmbedded.java">AetherEmbedded</a>: supported owning factories.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-embedded-typed/src/main/java/io/aetherdb/embedded/typed/EmbeddedTypedDatabase.java">EmbeddedTypedDatabase</a>: database, collection, batch, and snapshot adapters.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/typed/TypedAetherDatabase.java">TypedAetherDatabase</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/typed/TypedAetherCollection.java">TypedAetherCollection</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/typed/TypedAetherSnapshot.java">TypedAetherSnapshot</a>, and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/typed/TypedWriteBatch.java">TypedWriteBatch</a>: public contracts.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/typed/ReadResult.java">ReadResult</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/typed/TypedWriteResult.java">TypedWriteResult</a>, and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-api/src/main/java/io/aetherdb/api/typed/TypedKeyValue.java">TypedKeyValue</a>: decoded outcomes.</li>
+</ul>
+<p>Logical keys become collection-prefixed byte keys. Values become schema envelopes.
+The adapter delegates persistence, sequence assignment, snapshot visibility, and
+atomic raw-batch submission to <code>AetherDatabase</code>; it is not an RPC client or another
+storage engine. Metadata registration may itself write a reserved raw key before
+application writes begin.</p>
+<h2 id="factories-and-database-lifecycle">Factories and Database Lifecycle</h2>
+<h3 id="aetherembeddedopeninmemory-opendirectory-adaptdatabase">AetherEmbedded.openInMemory(), open(directory), adapt(database)</h3>
+<p><code>openInMemory()</code> wraps <code>Aether.openInMemory()</code>; <code>open()</code> wraps the persistent factory.
+Both call <code>adapt()</code>, which constructs <code>EmbeddedTypedDatabase(database, true)</code>.
+Adapting transfers close ownership: closing this facade closes the supplied raw
+database. There is no public non-owning factory. The private <code>AetherEmbedded</code>
+constructor prevents instances; the adapter constructor requires a non-null raw
+database and stores the ownership flag.</p>
+<h3 id="collectiondefinition-and-definecollection-overloads">collection(definition) and defineCollection overloads</h3>
+<p><code>collection()</code> checks open state, registers the definition, and returns a new live
+<code>Handle</code>. The interface's name-only <code>defineCollection()</code> derives <code>CollectionId</code>
+from the name, so a rename changes identity. The explicit-ID overload resolves
+built-in key codecs and <code>GeneratedCodecs.forRecord(valueType)</code>, creates a definition
+with point read/write, range scan, and snapshot capabilities, then calls <code>collection()</code>.
+It does not dynamically generate a value codec or derive an ID from the Java type.</p>
+<h3 id="batch-writecandidate-snapshot-isclosed-close">batch(), write(candidate), snapshot(), isClosed(), close()</h3>
+<p><code>batch()</code> returns a new owned <code>Batch</code>. <code>write()</code> accepts only this implementation's
+batch belonging to this adapter, then submits it. <code>snapshot()</code> creates <code>Snap</code>
+around <code>raw.newSnapshot()</code>. <code>isClosed()</code> reports the adapter flag, not independently
+the raw database's state. <code>close()</code> closes raw storage only when owning and not
+already closed, then sets the flag; if raw close throws, that assignment is skipped.</p>
+<p>These top-level methods are synchronized. Collection handles, batch mutations,
+and snapshot methods are not synchronized on the adapter. That distinction matters:
+the facade is not a blanket guarantee that all registration, submission, and close
+races are serialized. External direct use of an adapted raw database is also outside
+these synchronized methods.</p>
+<h2 id="metadata-registration-helpers">Metadata Registration Helpers</h2>
+<h3 id="registerdefinition">register(definition)</h3>
+<p>Checks a previously registered definition's key codec ID/version/fingerprint and
+value schema UUID. Equal value versions also require equal value fingerprints.
+If the prior version is at least the requested version, registration returns early;
+the caller still receives a handle with its requested definition.</p>
+<p>Otherwise obtains any installed generated descriptor, creates <code>CollectionMetadata</code>,
+and reads its reserved raw key. Existing metadata must have the same family:</p>
+<ul>
+<li>Equal schema version requires an equal schema fingerprint and sets the minimum writer version.</li>
+<li>A newer requested version must pass <code>requireCompatibleUpgradeTo</code>, then persists new metadata and raises the minimum writer version.</li>
+<li>An older requested version leaves stored metadata intact and records the stored version as the minimum writer version.</li>
+<li>Missing metadata is written and establishes the requested minimum writer version.</li>
+</ul>
+<p>Finally saves the requested definition in the local definitions map. This is not
+a transaction combining metadata and later user writes, not a rewrite of old
+values, and not a compare-and-swap against concurrent raw metadata writers. Cached
+early returns do not re-read disk. See the metadata reference for family and
+descriptor compatibility rules.</p>
+<h3 id="ensurewriteralloweddefinition-and-ensureopen">ensureWriterAllowed(definition) and ensureOpen()</h3>
+<p><code>ensureWriterAllowed()</code> rejects a definition's writer version below the locally
+recorded minimum with <code>OLDER_WRITER_REJECTED</code>. It does not migrate values or check
+capability flags. <code>ensureOpen()</code> throws when the adapter's closed flag is true;
+it neither checks raw state nor acquires a lock itself.</p>
+<h2 id="collection-handle-functions">Collection Handle Functions</h2>
+<p><code>Handle(owner, definition, snapshot, readOnly)</code> retains references without copying
+the definition/codecs or acquiring a new snapshot. <code>definition()</code> returns that
+definition without checking lifecycle state.</p>
+<h3 id="getkey">get(key)</h3>
+<p>Checks adapter open state, encodes the physical key, and performs a live or snapshot
+raw lookup. A found value is decoded through <code>TypedValueEnvelope</code> and wrapped in
+<code>ReadResult.Found</code>; absence becomes <code>NotFound</code>. Codec/envelope failures propagate.
+This method does not separately enforce <code>POINT_READ</code> or <code>SNAPSHOT_READ</code> flags.</p>
+<h3 id="putkey-value-and-deletekey">put(key, value) and delete(key)</h3>
+<p>Call <code>writable()</code>, create a one-operation batch, encode immediately through its
+put/delete method, and submit directly. They do not route through synchronized
+<code>EmbeddedTypedDatabase.write()</code>. <code>writable()</code> checks adapter state, rejects
+snapshot-bound handles, and checks the minimum writer version, but does not enforce
+<code>POINT_WRITE</code> capability independently.</p>
+<h3 id="scanall">scanAll()</h3>
+<p>Checks adapter state and <code>RANGE_SCAN</code>, scans the collection prefix through its
+exclusive end with the optional raw snapshot, decodes every key/value, closes the
+cursor with try-with-resources, and returns <code>List.copyOf</code>. It fully materializes
+the collection; there is no public streaming typed cursor or pagination here.
+Ordering is raw physical key order, with logical ordering dependent on the key
+codec's encoding. A decoding failure stops materialization and still closes the
+cursor. The immutable list does not deep-freeze decoded objects.</p>
+<h2 id="batch-functions-and-outcomes">Batch Functions and Outcomes</h2>
+<p><code>Batch(owner)</code> creates a raw <code>WriteBatch</code> and an initially false submitted flag.
+<code>put(collection, key, value)</code> checks handle ownership and writer version, encodes
+key/value, and appends raw put. <code>delete()</code> similarly encodes key and appends raw
+delete. Encoding happens when operations are added, not on submission.
+<code>operationCount()</code> delegates to raw batch even after submission.</p>
+<p>Private <code>handle(collection)</code> rejects an already submitted batch and any collection
+that is foreign, not an embedded handle, or snapshot-bound. It does not call
+<code>ensureOpen()</code>; batch mutation alone is not a database-lifecycle check. Earlier
+encoded operations are not individually rechecked for writer version at submission.</p>
+<p><code>submit()</code> enforces one attempt, sets submitted before calling storage, and assigns
+a fresh random command UUID. Empty returns <code>Rejected(command, &quot;EMPTY_BATCH&quot;, false)</code>.
+Nonempty calls <code>raw.write(rawBatch, WriteOptions.defaults())</code> and maps successful
+operation count and sequence range to <code>Applied</code>. Raw exceptions propagate, and
+the batch remains submitted. This path does not manufacture <code>Indeterminate</code>, wrap
+arbitrary failures into <code>Rejected</code>, or expose the raw durability-barrier metadata.</p>
+<p>The random command UUID is outcome metadata here: it is not passed to raw storage,
+persisted for deduplication, or accepted back as a retry identity. Do not infer an
+idempotent retry protocol from the public result interface's wording.</p>
+<h2 id="snapshot-functions">Snapshot Functions</h2>
+<p><code>Snap(owner, rawSnapshot)</code> retains the captured raw snapshot and a local closed
+flag. <code>collection(definition)</code> rejects a closed Snap, calls <code>owner.register()</code>,
+and returns a read-only handle using that raw snapshot. Registration reads/writes
+live metadata even though subsequent collection reads use the earlier snapshot.
+It is not a read-only metadata operation or a catalog captured at snapshot time.
+This method does not call adapter <code>ensureOpen()</code> or acquire its synchronization.</p>
+<p><code>Snap.isClosed()</code> returns its own flag. <code>close()</code> closes the raw snapshot once and
+then sets the flag; if raw close fails the flag remains false. Existing collection
+handles retain the raw snapshot reference and rely on raw snapshot validation when
+reading after its closure, not a direct check of <code>Snap.closed</code>.</p>
+<h2 id="public-result-functions">Public Result Functions</h2>
+<p><code>ReadResult.value()</code> is implemented by <code>Found.value()</code> as <code>Optional.of(found)</code> and
+by <code>NotFound.value()</code> as empty. <code>requireValue()</code> throws <code>NoSuchElementException</code>
+on absence. <code>Found(found)</code> rejects null but does not copy/freeze a logical value.
+<code>NotFound()</code> is a record with no payload.</p>
+<p><code>TypedKeyValue(key, value)</code> rejects null components; its record accessors return
+the original decoded objects. Record immutability does not imply deep immutability.</p>
+<p><code>TypedWriteResult.commandId()</code> is supplied by the records <code>Applied</code>, <code>Rejected</code>,
+and <code>Indeterminate</code>. Their implicit constructors/accessors expose respectively
+count/sequence range, reason/retryable, and stage/retry instructions. They have no
+explicit validation of null UUID/text, counts, or sequence ranges. Their existence
+describes the public outcome model, not which variants every adapter produces.</p>
+<h2 id="coverage-boundary">Coverage Boundary</h2>
+<p>This page covers both embedded implementation files and the seven linked public
+contracts/results, including nested Handle/Batch/Snap methods and private helpers.
+Metadata, envelope, and generated-codec details are linked rather than repeated.
+Annotation processing, remote typed behavior, and broader filesystem/ML/distributed
+implementation references remain outstanding. No runtime changes accompany this
+documentation of lifecycle and concurrency limitations.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#sources-and-runtime-boundary">Sources and Runtime Boundary</a><a href="#factories-and-database-lifecycle">Factories and Database Lifecycle</a><a href="#metadata-registration-helpers">Metadata Registration Helpers</a><a href="#collection-handle-functions">Collection Handle Functions</a><a href="#batch-functions-and-outcomes">Batch Functions and Outcomes</a><a href="#snapshot-functions">Snapshot Functions</a><a href="#public-result-functions">Public Result Functions</a><a href="#coverage-boundary">Coverage Boundary</a></nav></aside>
+  </div>
+</body>
+</html>

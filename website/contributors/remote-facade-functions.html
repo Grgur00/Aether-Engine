@@ -1,0 +1,265 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/REMOTE-FACADE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Remote client facade and typed collections: source-backed contributor documentation for Aether Engine.">
+  <title>Remote client facade and typed collections | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html" aria-current="page">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/REMOTE-FACADE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="remote-client-facade-and-typed-collection-functions">Remote Client Facade and Typed Collection Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="remote-routing-functions.html">Routing and retries</a> | <a href="rpc-client-functions.html">RPC client</a></p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/src/main/java/io/aetherdb/client">aether-client</a>.
+This page covers <strong>27 explicit declarations</strong> in RemoteAetherClient,
+RemoteTypedCollection and the three terminal result records. Together with the
+routing reference, all <strong>46 explicit declarations</strong> in this module are covered.
+Client API records have a separate <a href="client-protocol-functions.html">protocol contract reference</a>;
+<a href="client-codec-functions.html">message codecs</a> remain separate module responsibilities.</p>
+<h2 id="application-call-architecture">Application Call Architecture</h2>
+<pre><code class="language-text">typed collection -&gt; embedded-compatible key/value envelopes -&gt; client request
+RemoteAetherClient -&gt; encode once -&gt; first resolver candidate -&gt; pool.callOn
+  -&gt; RPC response -&gt; protocol decode / status mapping -&gt; retry decision
+  -&gt; same endpoint or write leader redirect -&gt; terminal remote result
+typed adapter -&gt; join -&gt; Found / NotFound / Applied / Rejected / Indeterminate
+scanAll -&gt; 1024-entry pages until empty token -&gt; materialized immutable list
+</code></pre>
+<p>The facade chooses an explicit first resolver candidate rather than pool.call's
+least-busy selection. It does not create sockets, install server handlers or prove
+the remote server deduplicates writes. Typed envelopes share embedded formats,
+not an automatic schema negotiation or authenticated cluster service.</p>
+<h2 id="facade-entry-functions">Facade Entry Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/src/main/java/io/aetherdb/client/RemoteAetherClient.java">RemoteAetherClient</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RemoteAetherClient.RemoteAetherClient(pool, resolver, retryPolicy, writeOptions, maximumAttempts)</code></td>
+<td>Requires collaborators/options, attempt cap 1..16. Does not verify pool and facade share same resolver or transport supports retry options. No independent closed flag.</td>
+</tr>
+<tr>
+<td><code>RemoteAetherClient.defaultWriteOptions()</code></td>
+<td>Returns 10-second timeout, automaticRetry=true, FAIL_FAST. This transport retry preference is distinct from facade's attempt loop.</td>
+</tr>
+<tr>
+<td><code>RemoteAetherClient.write(request)</code></td>
+<td>Requires request, encodes once, chooses DEDUP_REQUIRED descriptor for deduplicated request else NEVER, selects first candidate and calls writeAttempt at attempt 1. Encoding/resolver errors are synchronous before future creation.</td>
+</tr>
+<tr>
+<td><code>RemoteAetherClient.get(request)</code></td>
+<td>Requires request, encodes point-read body once, selects first candidate and begins getAttempt. Does not use pool's least-busy selector.</td>
+</tr>
+<tr>
+<td><code>RemoteAetherClient.scan(request)</code></td>
+<td>Chooses SCAN_OPEN for empty page token, SCAN_NEXT otherwise, encodes once and starts on first candidate. Each call fetches one page, not an entire scan.</td>
+</tr>
+<tr>
+<td><code>RemoteAetherClient.close()</code></td>
+<td>Delegates to pool.close; no own idempotency or close coordination.</td>
+</tr>
+</tbody>
+</table>
+<p>Static descriptors: writes use request bound 32 MiB plus write header, response
+1 MiB, STORAGE_WRITE and default 10 seconds. GET uses request 65536+64 bytes,
+response 16 MiB+64, IDEMPOTENT/STORAGE_READ and default 5 seconds. Scan open/next
+use request 140000, response 16 MiB+128, IDEMPOTENT/STORAGE_READ and default 10
+seconds. Actual submissions use the supplied writeOptions for <strong>all</strong> operations,
+so GET descriptor's 5-second default is not automatically selected.</p>
+<h2 id="attempt-and-conversion-functions">Attempt and Conversion Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RemoteAetherClient.writeAttempt(request, operation, body, endpoint, attempt)</code></td>
+<td>Submits via callOn. Any exceptional completion becomes DEADLINE_EXCEEDED outcome with failure message. Nonempty RPC OK body decodes ClientWriteResponse, including client status/leader hint/count/sequences; otherwise maps RPC status. Policy can recurse same endpoint or observe/retry hinted leader. Terminal result preserves request command ID, encoded response body and facade attempt number.</td>
+</tr>
+<tr>
+<td><code>RemoteAetherClient.getAttempt(request, body, endpoint, attempt)</code></td>
+<td>Submits GET using writeOptions. Failure becomes DEADLINE_EXCEEDED; nonempty OK body decodes read status/detail/value, other RPC response maps status with empty value. Policy receives no leader hint and can retry same endpoint only. Returns terminal RemoteReadResult.</td>
+</tr>
+<tr>
+<td><code>RemoteAetherClient.scanAttempt(request, operation, body, endpoint, attempt)</code></td>
+<td>Submits selected scan operation using writeOptions. Failure becomes deadline outcome with empty page/token; nonempty OK body decodes page; other responses map status to empty page/token. Policy receives no hint and can retry same endpoint. Returns RemoteScanResult.</td>
+</tr>
+<tr>
+<td><code>RemoteAetherClient.leaderHint(response)</code></td>
+<td>Converts optional client endpoint hint to RpcEndpoint including expected-node pin. Null remains null; endpoint validation can throw. Does not authenticate hint or add it to resolver here.</td>
+</tr>
+<tr>
+<td><code>RemoteAetherClient.mapStatus(status)</code></td>
+<td>Maps RPC to ClientStatus: OK-&gt;OK; INVALID_ARGUMENT/PROTOCOL_ERROR-&gt;INVALID_ARGUMENT; DEADLINE_EXCEEDED/CANCELLED-&gt;DEADLINE_EXCEEDED; NOT_FOUND-&gt;NOT_FOUND; RESOURCE_EXHAUSTED unchanged; FAILED_PRECONDITION-&gt;INDETERMINATE; UNAVAILABLE-&gt;NO_LEADER_KNOWN; INTERNAL/ALREADY_EXISTS-&gt;ENGINE_FAILED; UNAUTHENTICATED unchanged. Null fails switch.</td>
+</tr>
+</tbody>
+</table>
+<p>Attempts retain the same encoded request body and write command ID. Retries have
+no backoff, shared absolute deadline or endpoint failover for NO_LEADER_KNOWN;
+policy retries the same endpoint. Read/scan protocol responses do not supply the
+write leader-hint path. Resolver.observeLeader can fail at capacity; a facade
+resolver different from pool resolver can yield a hint rejected by pool.callOn.</p>
+<p>Every exceptional transport outcome is labelled deadline, including local
+admission, closed pool or authentication/connect failures. Protocol decoding errors
+inside handle instead propagate exceptionally through the future chain; they are
+not converted by that same failure branch. An empty RPC OK body is accepted as OK
+without protocol decode: writes can have zero counts/sequences, reads empty value,
+and scans empty entries/token. Do not infer a fully validated application response
+from the outer RPC status alone.</p>
+<p>Default automaticRetry=true is incompatible with PlaintextDevelopmentRpc's
+requirement that transport automatic retries use IDEMPOTENT: both write descriptors
+are NEVER or DEDUP_REQUIRED. That transport rejects them before submission; the
+facade then labels the failure DEADLINE_EXCEEDED and may repeat it for deduplicated
+writes up to its attempt cap. Existing facade tests use doubles that accept options;
+they do not certify this default integration. Reads/scans can use both transport
+and facade retry layers, so result.attempts counts facade attempts, not all wire
+attempts. This guide records behavior without changing defaults/runtime.</p>
+<p>Private <code>AttemptOutcome</code>, <code>ReadAttemptOutcome</code> and <code>ScanAttemptOutcome</code> records have only
+generated methods. Future chaining does not automatically propagate cancellation
+through every dependent stage to underlying RPC work.</p>
+<h2 id="typed-adapter-functions">Typed Adapter Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/src/main/java/io/aetherdb/client/RemoteTypedCollection.java">RemoteTypedCollection</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RemoteTypedCollection.RemoteTypedCollection(client, definition)</code></td>
+<td>Requires client/definition; stores references without opening collection, contacting server or validating remote schema compatibility.</td>
+</tr>
+<tr>
+<td><code>RemoteTypedCollection.definition()</code></td>
+<td>Returns configured collection definition.</td>
+</tr>
+<tr>
+<td><code>RemoteTypedCollection.get(key)</code></td>
+<td>Encodes typed key and epoch-zero ClientGetRequest, blocks on join. OK decodes value into Found; NOT_FOUND becomes NotFound; other statuses throw detail-or-status IllegalStateException. Does not explicitly enforce POINT_READ capability here. Source comment saying read contract is unimplemented is stale relative to this method's body.</td>
+</tr>
+<tr>
+<td><code>RemoteTypedCollection.put(key, value)</code></td>
+<td>Requires POINT_WRITE, encodes typed key/value envelopes and submits one PUT operation. Encoding can throw before network work.</td>
+</tr>
+<tr>
+<td><code>RemoteTypedCollection.delete(key)</code></td>
+<td>Requires POINT_WRITE, encodes typed key and empty DELETE value, submits one operation.</td>
+</tr>
+<tr>
+<td><code>RemoteTypedCollection.scanAll()</code></td>
+<td>Requires RANGE_SCAN; repeatedly submits epoch-zero prefix/prefixEnd range with page size 1024 and previous token, joins, requires OK and decodes entries. Stops at empty next token; returns immutable fully materialized list. No repeated-token detection, page/byte total cap or verification of global order/snapshot continuity.</td>
+</tr>
+<tr>
+<td><code>RemoteTypedCollection.submit(operation)</code></td>
+<td>Generates fresh command UUID per logical call, submits epoch-zero deduplicated single-operation request and joins. OK maps response counts/sequences to Applied; INDETERMINATE returns command-bearing Indeterminate; others return Rejected with retryability. Re-invoking put/delete later generates another command ID.</td>
+</tr>
+<tr>
+<td><code>RemoteTypedCollection.ensurePointWrite()</code></td>
+<td>Throws UnsupportedOperationException unless definition declares POINT_WRITE. Does not perform authorization.</td>
+</tr>
+<tr>
+<td><code>RemoteTypedCollection.rejectionReason(result)</code></td>
+<td>Uses status name when detail blank, otherwise detail as supplied. No sanitization.</td>
+</tr>
+<tr>
+<td><code>RemoteTypedCollection.retryable(status)</code></td>
+<td>True for RESOURCE_EXHAUSTED, DEADLINE_EXCEEDED, NO_LEADER_KNOWN or LEADER_NOT_READY only. This is output classification, not a performed retry or verified safe resubmission.</td>
+</tr>
+</tbody>
+</table>
+<p>join can throw CompletionException for exceptional completion; synchronous typed
+API callers therefore block despite facade returning futures. scanAll holds all
+decoded values in memory and exposes no cursor close/cancellation mechanism.
+Typed methods use epoch zero; collection definition/envelopes provide identity,
+but do not implement routing-epoch refresh or prove scan token stability across
+revisions. Indeterminate command ID is retained for outcome investigation; retrying
+the typed method is not automatically the same deduplicated command.</p>
+<h2 id="terminal-result-functions">Terminal Result Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RemoteReadResult.RemoteReadResult(status, attempts, value, detail)</code></td>
+<td>Requires status, attempts&gt;0, value &lt;=16 MiB and detail &lt;=4096 characters; non-OK must have empty value. Copies value. Does not cap attempts at facade max or sanitize detail.</td>
+</tr>
+<tr>
+<td><code>RemoteReadResult.value()</code></td>
+<td>Returns fresh defensive byte copy.</td>
+</tr>
+<tr>
+<td><code>RemoteScanResult.RemoteScanResult(status, attempts, entries, nextPageToken, detail)</code></td>
+<td>Requires status/positive attempts, entries &lt;=10000, token &lt;=4096 bytes and detail &lt;=4096 characters. List.copyOf rejects null entries; copies token. Does not require empty page/token for non-OK or validate sorted/unique entries.</td>
+</tr>
+<tr>
+<td><code>RemoteScanResult.nextPageToken()</code></td>
+<td>Returns fresh token copy. Generated entries accessor exposes immutable copied list; entry byte ownership belongs to ClientScanEntry.</td>
+</tr>
+<tr>
+<td><code>RemoteWriteResult.RemoteWriteResult(status, commandId, attempts, operationCount, firstSequence, lastSequence, body, detail)</code></td>
+<td>Requires status/UUID, positive attempts, nonnegative counts/sequences and ordered sequence range, nonnull body/detail and detail &lt;=4096 characters. Copies body, with no body-size bound here. Zero command UUID is accepted; status-specific count/sequence consistency is not checked.</td>
+</tr>
+<tr>
+<td><code>RemoteWriteResult.body()</code></td>
+<td>Returns fresh response-body copy.</td>
+</tr>
+</tbody>
+</table>
+<p>Record-generated equality is not deep byte-array equality. Array ownership is
+defensive at construction/getter, not zero-copy. Body/detail limits and status
+invariants differ between these result records and application wire records.</p>
+<h2 id="coverage-and-verification">Coverage and Verification</h2>
+<p>Compiler-tree checks cover <strong>27/27 declarations in these five files</strong> and together
+with routing prove <strong>46/46 (100%; 0% remaining)</strong> explicit declarations across all
+11 aether-client implementation files. Generated methods/lambda bodies are excluded.
+The client API and codec modules remain outside this inventory.</p>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/src/test/java/io/aetherdb/client/RemoteAetherClientTest.java">RemoteAetherClientTest</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/src/test/java/io/aetherdb/client/RemoteTypedCollectionTest.java">RemoteTypedCollectionTest</a>
+check write retry/redirect, read/scan decoding and typed mappings using transport
+doubles. They do not establish production authentication, server deduplication,
+scan snapshot consistency or compatibility of default options with plaintext RPC.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#application-call-architecture">Application Call Architecture</a><a href="#facade-entry-functions">Facade Entry Functions</a><a href="#attempt-and-conversion-functions">Attempt and Conversion Functions</a><a href="#typed-adapter-functions">Typed Adapter Functions</a><a href="#terminal-result-functions">Terminal Result Functions</a><a href="#coverage-and-verification">Coverage and Verification</a></nav></aside>
+  </div>
+</body>
+</html>

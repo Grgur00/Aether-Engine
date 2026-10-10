@@ -1,0 +1,187 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/BLOCK-CACHE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Block cache functions: source-backed contributor documentation for Aether Engine.">
+  <title>Block cache functions | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html" aria-current="page">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/BLOCK-CACHE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="block-cache-functions">Block Cache Functions</h1>
+<p><a href="sstable-read-functions.html">SSTable reads</a> | <a href="modules.html">Module guide</a></p>
+<p>This describes current <code>aether-cache</code> source. The local engine and SSTable main
+Java sources do not reference these cache types. <code>SSTableReader</code> has a different
+per-reader decoded-entry cache; do not attribute this module's raw-byte capacity,
+leases, or metrics to that read path without tracing an actual integration.</p>
+<h2 id="architecture">Architecture</h2>
+<p><code>DataBlockCache</code> shards by block identity. Each shard has access-ordered probation
+and protected maps plus a same-key in-flight future map. A successful lookup pins
+the entry; <code>BlockLease.close</code> releases that pin. A miss invokes a supplied loader
+or joins another caller's load. Residency charges raw array length plus 96 bytes
+of estimated entry overhead, not actual total JVM heap usage.</p>
+<p>The loader must verify checksums before returning. The cache only checks returned
+length; it does not inspect an envelope, validate a checksum, read a channel, or
+clone the loader array. Borrowed arrays are read-only by contract, not by type.</p>
+<h2 id="identity-and-loader">Identity and Loader</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cache/src/main/java/io/aetherdb/cache/BlockCacheKey.java">BlockCacheKey.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cache/src/main/java/io/aetherdb/cache/BlockLoader.java">BlockLoader.java</a>.</p>
+<h3 id="blockcachekeyfilenumber-blockoffset-blocklength"><code>BlockCacheKey(fileNumber, blockOffset, blockLength)</code></h3>
+<p>Requires positive file number, nonnegative offset and encoded length. Zero-length
+blocks are allowed. Scalar record equality forms map identity. There is no database
+UUID, pathname, checksum policy, or offset-plus-length overflow validation in this
+key. A shared cache owner must prevent collisions across databases or reused file
+numbers. Its implicit accessors return the three scalar fields.</p>
+<h3 id="blockloaderload"><code>BlockLoader.load()</code></h3>
+<p>Functional callback returning newly loaded, verified raw bytes. No I/O or checksum
+implementation is supplied by the interface. The miss owner executes synchronously
+on its own thread; loader failure is delivered through the in-flight future.</p>
+<h2 id="cache-creation-and-routing">Cache Creation and Routing</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cache/src/main/java/io/aetherdb/cache/DataBlockCache.java">DataBlockCache.java</a>.</p>
+<h3 id="datablockcache-and-datablockcachecapacity-shardcount"><code>DataBlockCache()</code> and <code>DataBlockCache(capacity, shardCount)</code></h3>
+<p>Defaults are 128 MiB and 16 shards. Explicit capacity must be 16 MiB through
+4 GiB inclusive; shard count must be a positive power of two. Capacity is split
+by integer division, distributing the remainder one byte at a time to initial
+shards. There is no additional practical upper bound on shard-array size.</p>
+<h3 id="shardkey-shardcapacity-and-ensureopen"><code>shard(key)</code>, <code>Shard(capacity)</code>, and <code>ensureOpen()</code></h3>
+<p>Routing mixes record hash with its upper bits and masks by shard count minus one.
+The nested shard sets probation's nominal limit to one fifth of its capacity and
+maximum admission charge to one quarter. Spare capacity in another shard is not
+borrowed. <code>ensureOpen</code> rejects a volatile closed flag; it is not a lifecycle lock
+covering the entire acquire/load/admission operation.</p>
+<h2 id="acquire-or-load">Acquire or Load</h2>
+<h3 id="acquireorloadkey-loader-fillcache"><code>acquireOrLoad(key, loader, fillCache)</code></h3>
+<p>Requires nonnull key and loader and checks open. It first tries a synchronized
+resident lookup. A hit increments hits and returns a pin, even when <code>fillCache</code>
+is false. A miss increments misses, then rechecks under the shard monitor; a hit
+on that second check increments hits too, so one operation may count both.</p>
+<p>Otherwise finds or installs an in-flight future. Its owner runs the loader outside
+the shard lock, requires nonnull bytes and exactly the key's encoded length, counts
+a completed load, and completes the future. Any thrown <code>Throwable</code> increments
+load failures and completes exceptionally. Other callers join the same future;
+their loaders are not invoked for that coalesced load.</p>
+<p>Join failure unwraps runtime exceptions or errors, wrapping other causes in
+<code>IllegalStateException</code>. The owner removes the in-flight entry on the normal
+completion-exception path. There is no timeout or interruptible wait API here.</p>
+<p>With <code>fillCache=false</code>, returns a nonresident lease with a no-op release and does
+not increment admission bypasses. With true, attempts admission, removes the
+owner's in-flight mapping, and either returns a resident pin or counts an admission
+bypass and returns the loaded bytes nonresident. Each waiter makes its own fill
+decision. Completed futures can be removed before every waiter finishes admission;
+coalescing is not a permanent one-load-per-key guarantee.</p>
+<p>There is no final closed check inside admission. A caller that passed earlier
+checks can race close and admit afterward if it already obtained loaded bytes.
+Likewise invalidation does not cancel pending loads, so a later admission can
+repopulate that file. Owners need lifecycle/file-identity coordination.</p>
+<h3 id="leaseshard-entry"><code>lease(shard, entry)</code></h3>
+<p>Creates a lease over the exact stored array with a release callback to that shard.
+It neither copies bytes nor increments pins itself; acquisition already did so.</p>
+<h2 id="shard-lookup-and-admission">Shard Lookup and Admission</h2>
+<h3 id="acquirekey-and-acquirelockedkey"><code>acquire(key)</code> and <code>acquireLocked(key)</code></h3>
+<p>The synchronized wrapper calls the monitor-owned helper. Protected hits update
+access order and increment pins. Probation hits remove the entry, subtract probation
+weight, promote to protected, increment pins, and rebalance. There is no pin-counter
+overflow guard or checksum revalidation on a cache hit.</p>
+<h3 id="admitandacquirekey-bytes-and-entrykey-bytes-weight"><code>admitAndAcquire(key, bytes)</code> and <code>Entry(key, bytes, weight)</code></h3>
+<p>Synchronized admission first acquires an existing entry if a concurrent caller
+admitted it. Otherwise charge is array length plus 96. Over-quarter-shard charge
+bypasses immediately. A new <code>Entry</code> stores the array without cloning and starts
+with one pin when added to probation.</p>
+<p>After adding weight, eviction tries to fit capacity. If pinned entries prevent
+fitting, admission removes the new entry and returns null. Evictions already made
+during that attempt are not rolled back. The <code>resident</code> marker is set false on
+ordinary eviction/invalidation, but is not cleared on this failed-admission removal
+and is not consulted by lookup; map membership defines residency here.</p>
+<h3 id="rebalanceprotected"><code>rebalanceProtected()</code></h3>
+<p>Demotes oldest protected entries into probation until protected weight is at most
+capacity minus the probation limit. Pinned entries can be demoted; pins prevent
+capacity eviction, not movement between segments. This does not enforce a hard
+20% probation cap after every insertion.</p>
+<h3 id="evicttocapacity-and-evictoneentries-isprobation"><code>evictToCapacity()</code> and <code>evictOne(entries, isProbation)</code></h3>
+<p>Tries probation first, then protected, repeatedly while overweight. <code>evictOne</code>
+scans oldest-first for an unpinned entry, removes it, adjusts weights, marks it
+nonresident, and increments evictions. It skips pinned entries and returns false
+if none is removable. Residency remains bounded through admission rejection when
+existing pins make space unavailable; nonresident loaded arrays are not charged.</p>
+<h3 id="releaseentry"><code>release(entry)</code></h3>
+<p>Synchronized release rejects nonpositive pins, decrements, and retries capacity
+eviction. It works for an entry removed by invalidation or cache clear too: a
+lease still owns its array reference. Invalidated pins no longer appear in resident
+metrics. The callback does not destroy a heap array or revoke previously returned
+references.</p>
+<h2 id="invalidation-and-close">Invalidation and Close</h2>
+<h3 id="invalidatefilefilenumber-and-invalidateentries-filenumber-isprobation"><code>invalidateFile(fileNumber)</code> and <code>invalidate(entries, fileNumber, isProbation)</code></h3>
+<p>The public method validates positive identity and visits every shard, without an
+open check. The synchronized shard method calls the private helper on both maps.
+Matching entries are removed even while pinned; leases keep their bytes alive.
+Weights are subtracted, but evictions are not incremented. In-flight loads remain.</p>
+<h3 id="close-and-clear"><code>close()</code> and <code>clear()</code></h3>
+<p>Close sets the volatile flag then clears shards one at a time. Synchronized clear
+marks current residents nonresident, clears both maps, zeroes weights, completes
+currently registered futures exceptionally with a closed-cache error, and clears
+the future map. It does not cancel an executing loader or revoke leases. A future
+already completed successfully cannot be changed to exceptional completion.
+The post-load admission race means clear is not a universal barrier against a
+previously started caller repopulating a shard; serialize lifecycle at the owner.</p>
+<h2 id="lease-contract">Lease Contract</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cache/src/main/java/io/aetherdb/cache/BlockLease.java">BlockLease.java</a>.</p>
+<h3 id="blockleasebytes-releaser-rawbytes-and-rawlength"><code>BlockLease(bytes, releaser)</code>, <code>rawBytes()</code>, and <code>rawLength()</code></h3>
+<p>Package-private construction stores array and callback without validation.
+<code>rawBytes</code> rejects a closed lease then returns the actual mutable array; callers
+must not modify it. <code>rawLength</code> returns length even after close. Keeping an array
+reference after close is possible in Java, but no longer represents an active pin.
+The closed check does not lock against another thread closing the same handle.</p>
+<h3 id="isclosed-and-close"><code>isClosed()</code> and <code>close()</code></h3>
+<p><code>isClosed</code> reads the atomic flag. Close CASes once then invokes the release callback.
+A callback failure leaves the lease closed and is not retried. Bypass leases use
+a no-op callback; they still enforce the <code>rawBytes</code> closed-access check.</p>
+<h2 id="metrics">Metrics</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cache/src/main/java/io/aetherdb/cache/BlockCacheMetrics.java">BlockCacheMetrics.java</a>.</p>
+<h3 id="metrics-pinnedcount-and-blockcachemetrics"><code>metrics()</code>, <code>pinnedCount()</code>, and <code>BlockCacheMetrics(...)</code></h3>
+<p><code>metrics</code> locks shards individually to sum resident weight and counts of resident
+entries with at least one pin, then samples <code>LongAdder</code> counters. <code>pinnedCount</code>
+counts entries, not leases. This is not one atomic cross-shard snapshot.
+The metrics record's implicit accessors expose hits, misses, loads, load failures,
+evictions, admission bypasses, resident bytes, and pinned entries. Its constructor
+has no independent validation.</p>
+<p>Loaded but bypassed arrays, in-flight arrays, caller-held invalidated bytes, and
+actual JVM object overhead are not included in resident weight. Close/invalidation
+are not capacity evictions, and <code>fillCache=false</code> misses are not counted as admission
+bypasses. Interpret counters according to these call paths, not as a heap budget.</p>
+<h2 id="review-boundaries">Review Boundaries</h2>
+<p>Trace file identity, verified loader ownership, lease close, and shutdown ordering.
+Test pinned capacity, same-key coalescing, loader failures, invalidation races, and
+mutable-array misuse. Function-name coverage checks omissions, not integration,
+checksum correctness, or a global bound on all live loaded bytes.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture">Architecture</a><a href="#identity-and-loader">Identity and Loader</a><a href="#cache-creation-and-routing">Cache Creation and Routing</a><a href="#acquire-or-load">Acquire or Load</a><a href="#shard-lookup-and-admission">Shard Lookup and Admission</a><a href="#invalidation-and-close">Invalidation and Close</a><a href="#lease-contract">Lease Contract</a><a href="#metrics">Metrics</a><a href="#review-boundaries">Review Boundaries</a></nav></aside>
+  </div>
+</body>
+</html>

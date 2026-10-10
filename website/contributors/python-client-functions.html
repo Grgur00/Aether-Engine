@@ -1,0 +1,272 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/PYTHON-CLIENT-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Python client connections and retries: source-backed contributor documentation for Aether Engine.">
+  <title>Python client connections and retries | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html" aria-current="page">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/PYTHON-CLIENT-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="python-cache-client-connection-functions">Python Cache Client Connection Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="python-cache-value-functions.html">Value and batch APIs</a> | <a href="training-protocol-functions.html">Java protocol</a></p>
+<p>This reference follows the connection and trace functions in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_training_cache/client.py">client.py</a>. The value API
+and mapping references cover the other declarations in that file. This is the
+low-level daemon client, not the separate Python filesystem store or a PyTorch
+training loop. It connects lazily to an already-running service.</p>
+<h2 id="connection-architecture">Connection Architecture</h2>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_connection</code></td>
+<td>At most one stored socket, reused across requests</td>
+</tr>
+<tr>
+<td><code>_lock</code></td>
+<td>Reentrant lock serializes an entire exchange and both retry attempts</td>
+</tr>
+<tr>
+<td><code>_requests_cancelled</code></td>
+<td>Permanent abort event; cancellation does not wait for request lock</td>
+</tr>
+<tr>
+<td>Endpoint/context</td>
+<td>TCP address or Unix path plus optional caller-created SSLContext</td>
+</tr>
+<tr>
+<td>Counters</td>
+<td>Connection publications and completed sends, not successful operation totals</td>
+</tr>
+<tr>
+<td>Trace sink</td>
+<td>Optional diagnostic callback, isolated from ordinary request failure/retry</td>
+</tr>
+</tbody>
+</table>
+<p>Ordinary requests on one client do not multiplex: another thread waits for the
+exchange lock. This class does not start the daemon, authenticate namespaces,
+coordinate dataset versions, or provide inter-process shared socket ownership.
+Other wrappers are responsible for worker/process lifecycle.</p>
+<h2 id="construction-and-context-functions">Construction and Context Functions</h2>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherTrainingCache.__init__(host, port, timeout, ssl_context, unix_socket, trace_sink, server_trace)</code></td>
+<td>Stores endpoint/options, initializes lock/event/counters. Defaults are <code>127.0.0.1:9484</code>, 30-second socket timeout, no TLS/Unix/tracing. Rejects server tracing without a trace sink. Does not connect or validate all endpoint fields.</td>
+</tr>
+<tr>
+<td><code>__enter__()</code></td>
+<td>Returns the same client; still no connection until a request.</td>
+</tr>
+<tr>
+<td><code>__exit__(exc_type, exc_value, traceback)</code></td>
+<td>Calls <code>close</code>; no exception suppression return.</td>
+</tr>
+<tr>
+<td><code>close()</code></td>
+<td>Under request lock, closes stored connection; does not mark the client permanently closed. Later requests can reconnect unless cancelled.</td>
+</tr>
+<tr>
+<td><code>_close_connection()</code></td>
+<td>Closes stored socket if any and resets <code>_connection</code> in finally; does not acquire the lock itself.</td>
+</tr>
+</tbody>
+</table>
+<p>The client's default port differs from the TCP daemon's default port 0. A runner
+using an ephemeral daemon must pass its actual printed port. Socket timeout is not
+an overall request deadline: retries and multiple reads can extend total wall time.
+<code>close()</code> can wait behind a blocked request; early-abort callers use cancellation
+before waiting for a worker and closing its owned client.</p>
+<h2 id="establishing-and-cancelling-connections">Establishing and Cancelling Connections</h2>
+<h3 id="_connect">_connect</h3>
+<p><code>_connect()</code> first checks cancellation. With a Unix path it creates AF_UNIX socket,
+sets timeout and connects. Otherwise it uses <code>socket.create_connection</code> and enables
+TCP_NODELAY. A second cancellation check prevents a newly established raw socket
+from starting TLS after abort.</p>
+<p>With SSLContext it calls <code>wrap_socket</code> using configured host as <code>server_hostname</code>,
+then publishes the resulting socket and increments <code>connections_opened</code>. A final
+cancellation check handles cancellation during TLS or just before publication.
+Certificate/hostname trust policy is supplied by the context, not constructed here.
+Unix selection does not explicitly prohibit combining it with an SSLContext.</p>
+<p>The exception handler catches BaseException but explicitly closes late sockets
+only when cancellation is set. It is not a general finally-based cleanup of every
+raw socket on arbitrary setup failure. A counter increment means a connection was
+published, not that a subsequent request succeeded.</p>
+<h3 id="_raise_if_cancelled-and-cancel_pending_requests">_raise_if_cancelled and cancel_pending_requests</h3>
+<p><code>_raise_if_cancelled()</code> raises RuntimeError when the event is set. There is no reset
+API. <code>cancel_pending_requests()</code> irreversibly sets the event, reads the current
+connection without acquiring the request lock and attempts <code>shutdown(SHUT_RDWR)</code>.
+Already-closed-socket OSError is ignored. It does not itself join a worker or call
+normal close; the request path/final cleanup closes the connection.</p>
+<p>Cancellation checks before connect, send and after receive prevent new attempts
+and future requests. An in-progress connect/TLS handshake may still last until its
+socket timeout because the wrapped socket has not yet been published. Later checks
+close that late socket. Empty local batch fast paths can return without entering
+the exchange/cancellation check; permanent cancellation describes network requests,
+not a universal guard on every method invocation.</p>
+<h2 id="exchange-and-retry-functions">Exchange and Retry Functions</h2>
+<h3 id="_exchange">_exchange</h3>
+<p><code>_exchange(body, mark, trace_id, timing)</code> checks cancellation, takes <code>_lock</code> and
+performs at most two attempts:</p>
+<ol>
+<li>Connect if needed and check cancellation again.</li>
+<li>For server tracing, replace the version/operation prefix with version 2,
+operation and 16 trace bytes; otherwise use supplied body unchanged.</li>
+<li>Prefix body with four-byte unsigned length and <code>sendall</code>. After send completes,
+increment requests/operation counters.</li>
+<li>Read exactly nine response-header bytes, unpack frame size/status/value size,
+require frame size = 5 + value size, then read the declared value bytes.</li>
+<li>If traced, validate/strip the diagnostic envelope. Check cancellation, then
+return None for MISS, bytes for HIT, or raise IOError for other status.</li>
+</ol>
+<p>ConnectionError, EOFError and OSError cause connection closure and at most one
+retry, unless cancelled. In Python IOError is an alias of OSError, so invalid outer
+framing and daemon ERROR status also take this retry path. It retries writes as
+well as reads; a lost acknowledgement can replay a publication. Java immutable-key
+checks make equal existing payloads idempotent, but this is not transaction-ID
+deduplication or exactly-once dispatch. Retry uses the same correlation ID.</p>
+<p>ValueError from trace-envelope validation is not retried and does not automatically
+close a noncancelled connection here. Packed/reference/presence decoding performed
+by public methods after <code>_exchange</code> is also outside transport retries, even if
+that decoder raises IOError. Failed diagnostic sinks never enter this retry loop.</p>
+<p>The client checks the header relation but imposes no maximum response value size
+before <code>_read_exact</code>; the server's request-frame cap is not a client receive cap.
+Sending bodies also has no shared 64 MiB preflight check here. Operation-specific
+count limits do not bound total bytes. Finally ends any active timing phase and
+closes the connection when cancellation is set.</p>
+<h3 id="_read_exact">_read_exact</h3>
+<p>Module helper <code>_read_exact(connection, size)</code> repeatedly receives the remaining
+count into a bytearray and returns immutable bytes. Empty recv before completion
+raises EOFError. It handles fragmented reads but has no independent deadline/size
+budget, relying on socket behavior and caller-supplied size. Zero size returns
+empty bytes without reading. Accumulation and conversion allocate; this is not
+network zero-copy receive.</p>
+<h2 id="trace-envelope-validation">Trace Envelope Validation</h2>
+<p>Within <code>_exchange</code>, traced response value begins with four-byte metadata length.
+It must fit remaining bytes and be &lt;= 65536. JSON must carry matching trace ID,
+nonnegative integer serverDurationNs and dictionary stages whose integer durations
+are between zero and total duration. Boolean values are rejected by exact-type
+integer checks.</p>
+<p>Flush diagnostics must be a list of dictionaries with supported causes,
+Boolean completed, bounded total/stage durations and required numeric counters.
+<code>logicalWalWriteBytes</code> alone may use -1; other required counters are nonnegative.
+This is validation of selected diagnostic fields, not a complete schema validator
+for all read/write/table-finish/compaction data. A Java trace envelope larger than
+64 KiB is rejected even though the Java encoder does not cap its metadata size.</p>
+<p>After validation, the envelope is stripped and server metadata is added as an event.
+These stages are inclusive on the Java side; client validation does not make them
+additive or prove that measured costs are free of instrumentation overhead.</p>
+<h2 id="round-trip-trace-functions">Round-Trip Trace Functions</h2>
+<h3 id="_round_trip-and-nested-mark">_round_trip and nested mark</h3>
+<p><code>_round_trip(body, _deferred_trace)</code> selects one of three paths:</p>
+<ul>
+<li>Deferred batch trace: record frame bytes and call <code>_exchange</code> with its <code>mark</code>,
+timing phases and optional server ID; caller owns final completion after decoding.</li>
+<li>No sink: directly call <code>_exchange</code>, without request timing clocks/UUID generation.</li>
+<li>Ordinary sink: create UUID/event list, use nested <code>mark(stage, **fields)</code> to
+record perf-counter timestamps, call <code>_exchange</code>, and emit one record in finally.</li>
+</ul>
+<p>The ordinary trace covers round trip including lock wait/retries, but excludes body
+construction, public-method result decoding and trace sink. It records operation,
+frame bytes, outcome/error type, events and whether a server trace appeared. It
+catches Exception for request error classification; BaseException paths still run
+finally but need not receive equivalent classification. Sink Exception increments
+<code>trace_errors</code> and is suppressed; no request replay results from it.</p>
+<h3 id="_batchrequesttrace">_BatchRequestTrace</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>__init__()</code></td>
+<td>Creates UUID, event list, named phase totals, zero frame bytes and start event. Only created when batch tracing is enabled.</td>
+</tr>
+<tr>
+<td><code>mark(stage, **fields)</code></td>
+<td>Appends event with perf-counter timestamp and supplied fields.</td>
+</tr>
+<tr>
+<td><code>begin(phase)</code></td>
+<td>Sets active phase and its start time; no nested phase stack or name validation.</td>
+</tr>
+<tr>
+<td><code>end()</code></td>
+<td>Accumulates active phase into totals and clears it; no-op if none active.</td>
+</tr>
+<tr>
+<td><code>finish(client, error_type)</code></td>
+<td>Ends phase, records complete, emits one GET_MANY record with totals/outcome/scope, suppresses sink Exception while incrementing trace_errors.</td>
+</tr>
+</tbody>
+</table>
+<p>Batch timing covers body construction through packed-result decoding, including
+lock/retries in total duration, but excludes key iterable materialization,
+artifact/tensor reconstruction and sink. Phase totals accumulate retries and
+exclude setup/lock wait/bookkeeping, so their sum need not equal total duration.
+RequestEncodeNs = body + frame encoding; responseDecodeNs = header + envelope +
+packed parsing. Send and receive phases include failed attempts. Sink callback
+runs after packed decoding, unlike ordinary round-trip traces.</p>
+<h2 id="counter-snapshot-and-tests">Counter Snapshot and Tests</h2>
+<p><code>protocol_metrics()</code> returns connectionsOpened, requestsSent and a copied
+operationCounts dictionary. It does not take the request lock, so concurrent
+sampling is not an atomic snapshot. Completed sends are counted even if response
+or parsing later fails; retries can increase request count twice for one API call.</p>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/tests/test_request_tracing.py">test_request_tracing.py</a>
+checks fragmented replies, retries, TCP_NODELAY, server correlation/invalid traces,
+sink failure isolation and disabled instrumentation.
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/tests/test_batch_request_timing.py">test_batch_request_timing.py</a>
+checks phase accumulation, post-decode sink ordering, cancellation during receive,
+connect and TLS, permanent abort and normal-close reconnect. These use controlled
+socket doubles; they do not prove live certificate policy or network timeout bounds.</p>
+<p>Python syntax-tree checks inventory explicit functions across client references,
+including nested <code>mark</code>. They do not inventory dataclass-generated methods or
+establish correctness of every error/transport interleaving.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#connection-architecture">Connection Architecture</a><a href="#construction-and-context-functions">Construction and Context Functions</a><a href="#establishing-and-cancelling-connections">Establishing and Cancelling Connections</a><a href="#exchange-and-retry-functions">Exchange and Retry Functions</a><a href="#trace-envelope-validation">Trace Envelope Validation</a><a href="#round-trip-trace-functions">Round-Trip Trace Functions</a><a href="#counter-snapshot-and-tests">Counter Snapshot and Tests</a></nav></aside>
+  </div>
+</body>
+</html>

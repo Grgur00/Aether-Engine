@@ -1,0 +1,412 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/MODULE-BUILD-ARCHITECTURE.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Module build topology: source-backed contributor documentation for Aether Engine.">
+  <title>Module build topology | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html" aria-current="page">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/MODULE-BUILD-ARCHITECTURE.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="module-build-topology-and-actions">Module Build Topology and Actions</h1>
+<p><a href="root-build-architecture.html">Root build</a> | <a href="modules.html">Module guide</a> | <a href="gradle-plugin-functions.html">Build conventions</a></p>
+<p>This inventory covers all 49 <code>modules/*/build.gradle.kts</code> files and both
+<code>examples/*/build.gradle.kts</code> files included by root settings. Each row describes
+direct project declarations only. Follow a source at
+<code>modules/&lt;name&gt;/build.gradle.kts</code> or <code>examples/&lt;name&gt;/build.gradle.kts</code>;
+the specialized action sources are linked below.
+Across these 51 files, 44 use the library convention, five use the application
+convention, one defines a Java platform and one defines the consumer Gradle plugin.</p>
+<h2 id="reading-dependency-scopes">Reading Dependency Scopes</h2>
+<p><code>api</code> exposes a dependency on a library consumer's compile classpath;
+<code>implementation</code> is available to this implementation and its runtime but is not
+an exported compile dependency. It is not a Java access modifier or security
+boundary. <code>testImplementation</code> supplies test compilation/runtime;
+<code>annotationProcessor</code> supplies compilation processors, not application runtime;
+<code>testAnnotationProcessor</code> applies to test compilation. Shared conventions add
+common test dependencies separately. <code>none</code> means no direct project dependency
+in this file, not an empty resolved classpath.</p>
+<p>Dependency names below omit the common <code>aether-</code> prefix, but module names do not.
+These are build edges, not function calls. Testkit naming does not establish that
+only tests consume a module: several testkit builds export main-source APIs.
+No table edge claims a production-integrated distributed engine.</p>
+<pre><code class="language-text">settings includes project -&gt; module applies conventions -&gt; declared scopes
+    -&gt; resolved compile/runtime/processor classpaths -&gt; selected task
+main code / generated codecs / test code have different classpaths
+</code></pre>
+<h2 id="storage-and-local-libraries">Storage and Local Libraries</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Module</th>
+<th>Direct Project Declarations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aether-admission</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>aether-api</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>aether-cache</code></td>
+<td>implementation: api</td>
+</tr>
+<tr>
+<td><code>aether-config</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>aether-crypto</code></td>
+<td>implementation: reliability; testImplementation: io</td>
+</tr>
+<tr>
+<td><code>aether-engine</code></td>
+<td>api: api; implementation: admission, config, memory, format, observability-api, reliability, io, memtable, wal, sstable, lsm</td>
+</tr>
+<tr>
+<td><code>aether-format</code></td>
+<td>api: api; implementation: memory</td>
+</tr>
+<tr>
+<td><code>aether-io</code></td>
+<td>implementation: memory, format; testImplementation: reliability</td>
+</tr>
+<tr>
+<td><code>aether-lsm</code></td>
+<td>implementation: api, memory, format, io, memtable, wal, sstable</td>
+</tr>
+<tr>
+<td><code>aether-memory</code></td>
+<td>api: api</td>
+</tr>
+<tr>
+<td><code>aether-memtable</code></td>
+<td>implementation: api, memory, format</td>
+</tr>
+<tr>
+<td><code>aether-observability-api</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>aether-release</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>aether-reliability</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>aether-security-api</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>aether-security-core</code></td>
+<td>api: security-api</td>
+</tr>
+<tr>
+<td><code>aether-sstable</code></td>
+<td>implementation: api, memory, format, reliability, io</td>
+</tr>
+<tr>
+<td><code>aether-training-cache</code></td>
+<td>implementation: api, config, engine, sstable; testImplementation: reliability</td>
+</tr>
+<tr>
+<td><code>aether-wal</code></td>
+<td>implementation: api, memory, format, reliability, io</td>
+</tr>
+</tbody>
+</table>
+<p>All these apply <code>aether.java-library</code>. API, engine, format, IO, LSM, memory,
+memtable, SSTable and WAL also apply <code>aether.publishing</code>; the others in this
+table do not. Engine, memory and memtable append <code>-Xlint:-preview</code> to every
+JavaCompile task. Suppressing that warning does not disable preview language
+support, change the toolchain or establish compatibility with a non-preview JVM.
+The <a href="root-build-architecture.html#training-cache-module-actions">training-cache action reference</a>
+explains all six of that module's custom tasks and the local digest helper.</p>
+<h2 id="typed-codecs-and-build-products">Typed Codecs and Build Products</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Module</th>
+<th>Direct Project Declarations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aether-codec</code></td>
+<td>api: api, codec-annotations</td>
+</tr>
+<tr>
+<td><code>aether-codec-annotations</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>aether-codec-processor</code></td>
+<td>implementation: codec-annotations; testImplementation: api, codec</td>
+</tr>
+<tr>
+<td><code>aether-embedded-typed</code></td>
+<td>api: api, codec-annotations; implementation: codec, engine; testImplementation: codec-annotations; testAnnotationProcessor: codec-processor</td>
+</tr>
+<tr>
+<td><code>aether-gradle-plugin</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>aether-bom</code></td>
+<td>api: api, memory, format, io, memtable, wal, sstable, lsm, engine, codec-annotations, codec, codec-processor, embedded-typed, gradle-plugin</td>
+</tr>
+</tbody>
+</table>
+<p>Codec, annotations, processor and embedded-typed apply library and publishing
+conventions. In <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-embedded-typed/build.gradle.kts">embedded-typed</a>,
+<code>compileTestJava</code> receives
+<code>-Aaether.schemaDirectory=${project.projectDir}/src/test/aether-schemas</code>.
+Test annotations are explicitly visible to compiler/IDE consumers, and test
+processor output is separate from application annotations. This does not register
+a runtime processor or accept schema proposals automatically.</p>
+<p>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-gradle-plugin/build.gradle.kts">Gradle plugin build</a>
+applies <code>java-gradle-plugin</code>, Java base, testing and publishing. It enables source
+and Javadoc JARs and registers <code>aetherSchema</code>: external ID
+<code>io.github.grgur00.aether</code>, display name Aether Engine, implementation
+<code>io.aetherdb.gradle.AetherPlugin</code>. The JAR manifest stores <code>Implementation-Version</code>
+from project version. Registration is packaging metadata, not execution of the
+consumer plugin. See the function reference for its application behavior.</p>
+<p>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-bom/build.gradle.kts">BOM</a> applies <code>java-platform</code> and
+publishing, with <code>allowDependencies()</code>. Its table row is <strong>14 API constraints</strong>,
+not library runtime dependencies: importing the platform aligns eligible modules
+without loading all implementations. It excludes itself, internal distributed
+foundations, training-cache and application tools. A constraint set is not a
+complete support or test matrix.</p>
+<h2 id="distributed-foundations-and-clients">Distributed Foundations and Clients</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Module</th>
+<th>Direct Project Declarations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aether-client</code></td>
+<td>api: api, client-api; implementation: codec, client-codec, rpc-api</td>
+</tr>
+<tr>
+<td><code>aether-client-api</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>aether-client-codec</code></td>
+<td>api: client-api; implementation: format</td>
+</tr>
+<tr>
+<td><code>aether-client-testkit</code></td>
+<td>api: client-api, client-codec</td>
+</tr>
+<tr>
+<td><code>aether-cluster-api</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>aether-cluster-codec</code></td>
+<td>api: cluster-api; implementation: format</td>
+</tr>
+<tr>
+<td><code>aether-cluster-core</code></td>
+<td>api: cluster-api</td>
+</tr>
+<tr>
+<td><code>aether-raft-api</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>aether-raft-core</code></td>
+<td>api: raft-api; implementation: config, reliability</td>
+</tr>
+<tr>
+<td><code>aether-raft-storage</code></td>
+<td>api: raft-api; implementation: format, reliability</td>
+</tr>
+<tr>
+<td><code>aether-raft-testkit</code></td>
+<td>api: raft-api, raft-core</td>
+</tr>
+<tr>
+<td><code>aether-replicated-log</code></td>
+<td>api: replication-api; implementation: api, format, io, reliability</td>
+</tr>
+<tr>
+<td><code>aether-replication-api</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>aether-replication-testkit</code></td>
+<td>api: replicated-log, state-machine</td>
+</tr>
+<tr>
+<td><code>aether-rpc-api</code></td>
+<td>api: admission</td>
+</tr>
+<tr>
+<td><code>aether-rpc-codec</code></td>
+<td>api: rpc-api; implementation: format</td>
+</tr>
+<tr>
+<td><code>aether-rpc-testkit</code></td>
+<td>api: rpc-codec, rpc-transport</td>
+</tr>
+<tr>
+<td><code>aether-rpc-transport</code></td>
+<td>api: rpc-api; implementation: config, rpc-codec</td>
+</tr>
+<tr>
+<td><code>aether-state-machine</code></td>
+<td>api: replication-api; implementation: replicated-log</td>
+</tr>
+</tbody>
+</table>
+<p>These files all apply <code>aether.java-library</code> without local publication configuration
+or custom task blocks. Main-scope <code>api</code> in testkit files deliberately exports the
+listed types to their consumers; it is not shorthand for <code>testImplementation</code>.
+The root public publication set does not include these modules. The engine's
+direct dependencies above do not wire in Raft, replication, remote client or
+cluster modules. Follow the architectural runtime boundaries in the module guide
+before assuming a distributed service exists.</p>
+<h2 id="applications-examples-and-test-infrastructure">Applications, Examples and Test Infrastructure</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Module</th>
+<th>Direct Project Declarations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aether-benchmarks</code></td>
+<td>implementation: api, engine</td>
+</tr>
+<tr>
+<td><code>aether-concurrency-tests</code></td>
+<td>implementation: memory, memtable, lsm</td>
+</tr>
+<tr>
+<td><code>aether-testkit</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>aether-tools</code></td>
+<td>implementation: admission, api, config, crypto, engine, format, io, release, reliability, security-core, sstable, wal</td>
+</tr>
+<tr>
+<td><code>aether-workbench</code></td>
+<td>implementation: api, codec, engine, rpc-codec, replicated-log</td>
+</tr>
+<tr>
+<td><code>aether-persistent-notes</code></td>
+<td>implementation: api, codec, embedded-typed; annotationProcessor: codec-processor</td>
+</tr>
+<tr>
+<td><code>aether-sample-app</code></td>
+<td>implementation: api, codec, embedded-typed; annotationProcessor: codec-processor</td>
+</tr>
+</tbody>
+</table>
+<p>Concurrency-tests uses the library convention; its dependencies are main
+implementation scope despite the project name. Testkit uses the library convention
+plus <code>java-test-fixtures</code>. That creates fixture machinery, not automatic execution
+of crash or concurrency campaigns through root placeholder tasks.</p>
+<p>Benchmarks, tools, workbench and both examples apply <code>aether.java-application</code>.
+Their main classes and additional actions are:</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Source</th>
+<th>Main Class and Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/build.gradle.kts">benchmarks</a></td>
+<td><code>io.aetherdb.benchmarks.BenchmarkProfileRunner</code>; external implementation dependency <code>org.hdrhistogram:HdrHistogram:2.2.2</code>.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-tools/build.gradle.kts">tools</a></td>
+<td><code>io.aetherdb.tools.AetherCli</code>; no local run working-directory override or JFR block.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-workbench/build.gradle.kts">workbench</a></td>
+<td><code>io.aetherdb.workbench.AetherWorkbench</code>; <code>run</code> working directory is root project directory.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-persistent-notes/build.gradle.kts">persistent notes</a></td>
+<td><code>io.aetherdb.examples.notes.PersistentNotesApplication</code>; <code>run</code> working directory is root project directory.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-sample-app/build.gradle.kts">sample app</a></td>
+<td><code>io.aetherdb.examples.social.SocialNetworkApplication</code>; <code>run</code> working directory is root project directory.</td>
+</tr>
+</tbody>
+</table>
+<p>Benchmarks conditionally configures its <code>run</code> task when environment <code>AETHER_JFR</code>
+equals the exact string <code>true</code>. It resolves <code>build/jfr/aether-benchmark.jfr</code> via
+the module build directory, creates its parent, adds StartFlightRecording with
+<code>settings=profile,disk=true,dumponexit=true,maxsize=2g</code>, and supplies
+<code>aether.benchmark.jfr.path</code> as a system property. The check and parent creation
+occur when this task is configured, not inside a <code>doLast</code> action. This is distinct
+from training-cache's <code>-PjfrFile</code> and stackdepth configuration. Neither registration
+nor the path property proves that a valid recording was produced.</p>
+<p>Relative paths for workbench/examples resolve from the explicitly selected root
+working directory when running through Gradle. Direct <code>java</code> invocations and
+other applications need their own working-directory decision. Annotation
+processing in the examples generates codecs during compilation; it does not
+start an engine or daemon as part of project configuration.</p>
+<h2 id="verification-and-change-ownership">Verification and Change Ownership</h2>
+<p>Documentation tests compare all 51 module/example rows and each dependency scope
+against current project declarations, check application main classes and verify
+the publication/convention distinctions. This source-level inventory does not
+resolve transitive dependencies, execute Gradle tasks, publish artifacts, launch
+applications or prove runtime integration. Registered actions here are Gradle
+configuration lambdas, not additional named Java methods. The training-cache
+digest helper is covered in the root build reference.</p>
+<p>When changing a dependency, review exported consumer types, annotation processor
+visibility, runtime packaging and fixture consumers independently. When changing
+a launch action, update defaults and working-directory documentation along with
+the relevant application function reference. Whole-codebase semantic/function
+coverage remains a separate audit, not something this build inventory proves.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#reading-dependency-scopes">Reading Dependency Scopes</a><a href="#storage-and-local-libraries">Storage and Local Libraries</a><a href="#typed-codecs-and-build-products">Typed Codecs and Build Products</a><a href="#distributed-foundations-and-clients">Distributed Foundations and Clients</a><a href="#applications-examples-and-test-infrastructure">Applications, Examples and Test Infrastructure</a><a href="#verification-and-change-ownership">Verification and Change Ownership</a></nav></aside>
+  </div>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/WORKBENCH-WORKSPACE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Workbench workspace and inspectors: source-backed contributor documentation for Aether Engine.">
+  <title>Workbench workspace and inspectors | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html" aria-current="page">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/WORKBENCH-WORKSPACE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="workbench-workspace-and-inspector-functions">Workbench Workspace and Inspector Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="engine-functions.html">Engine</a> | <a href="schemas.html">Typed APIs</a></p>
+<p>This reference covers <strong>38 explicit declarations across four complete files</strong> in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-workbench/src/main/java/io/aetherdb/workbench">aether-workbench</a>:
+DatabaseWorkspace (21), WorkspaceTableModel (7), RpcFrameInspector (6) and
+ReplicationInspector (4). Main <a href="workbench-window-functions.html">window</a> and
+<a href="workbench-record-dialog-functions.html">dialog</a> functions have separate references;
+<a href="workbench-typed-value-functions.html">UniversalTypedValue functions</a> have a companion
+reference. Generated record members are excluded.</p>
+<h2 id="ownership-and-data-flow">Ownership and Data Flow</h2>
+<pre><code class="language-text">DatabaseWorkspace -&gt; AetherDatabase scanAll/get/put/delete/write
+    -&gt; hidden collection metadata + application physical rows
+    -&gt; display keys/values + knownKeys index -&gt; WorkspaceTableModel
+
+Inspector controls -&gt; codec encode -&gt; editable hex
+    -&gt; codec decode -&gt; controls + summary / warning dialog
+</code></pre>
+<p>Workspace can own or borrow the database. It is an unsynchronized editing session,
+not a typed collection adapter, transaction snapshot or paginated query service.
+Inspector panels operate on local byte arrays: they do not connect to RPC, append
+replicated logs, establish quorum or apply commands to the workspace database.</p>
+<h2 id="workspace-construction-and-writes">Workspace Construction and Writes</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-workbench/src/main/java/io/aetherdb/workbench/DatabaseWorkspace.java">DatabaseWorkspace.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Failure/ownership limits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DatabaseWorkspace.DatabaseWorkspace(database)</code></td>
+<td>Delegates to two-argument constructor with closeDatabase=true.</td>
+<td>Owns database lifetime; does not load rows on construction.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.DatabaseWorkspace(database, closeDatabase)</code></td>
+<td>Requires nonnull database and stores ownership flag; initializes sorted display-key and collection-UUID maps.</td>
+<td>No closed-state guard or synchronization. Null database throws NullPointerException.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.put(key, value)</code></td>
+<td>Requires nonnull strings; writes UTF-8 key/value then indexes the key and freshly encoded bytes.</td>
+<td>Empty strings allowed. Ignores returned WriteResult. Index may imply success when write returned a rejection/failure outcome. Plain put can overwrite existing data.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.addTypedEntry(templateKey, userKey, value)</code></td>
+<td>Requires loaded typed template and AETV-looking current value. Infers logical key encoding, copies typed prefix, rejects duplicate displayed key, reencodes value using original envelope and puts/indexes new entry. Returns rendered key.</td>
+<td>Cannot start an empty collection without template. Uniqueness is cached display identity, not atomic physical-key existence. Key type inferred from byte length, not registered metadata. Ignores write outcome; concurrent changes/stale template can invalidate assumptions.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.edit(originalKey, newKey, value)</code></td>
+<td>Requires loaded original. Typed key cannot rename; current AETV-looking value reencoded and put. Plain edit uses WriteBatch: delete old text key if renaming, put new UTF-8 key/value; then replaces index entry.</td>
+<td>Collision check covers known keys only. Plain branch reconstructs original key from displayed text, not stored physical bytes: binary/UUID-rendered keys are not safely round-tripped. Returned write outcome ignored. Typed edit preserves envelope via helper but does not validate application schema constraints itself.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.delete(key)</code></td>
+<td>Removes indexed physical key first; unknown key returns false; otherwise calls database.delete and returns true.</td>
+<td>Ignores returned outcome. Thrown failure after removal leaves index out of sync until reload. True means key was known, not independently verified durable deletion.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.validate(value, name)</code></td>
+<td>Rejects null string with IllegalArgumentException naming argument.</td>
+<td>No blank/size/encoding/control checks; limits delegated to backing APIs.</td>
+</tr>
+</tbody>
+</table>
+<p>Batching plain rename groups its delete/put requests for the backing database, but
+workspace does not interpret the returned outcome. This is separate from the
+engine's publication and durability contracts. A current display index does not
+reserve a key or prevent external writers from changing it.</p>
+<h2 id="reload-query-and-close-functions">Reload, Query and Close Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Limits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DatabaseWorkspace.rows()</code></td>
+<td>Clears indexes, scans all entries with closeable cursor, decodes/hides CollectionMetadata and retains other physical rows. Second pass renders keys/values using available descriptors, rebuilds knownKeys and returns immutable row list with physical value length.</td>
+<td>Full materialization: no row/byte bound or pagination. List follows cursor order, not TreeMap display order. Display collisions overwrite index entries while both rows remain in list. Failure may leave cleared/partial state. Metadata collected before rendering regardless of physical order.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.contains(key)</code></td>
+<td>Exact lookup in loaded display index.</td>
+<td>Does not query database; null can fail TreeMap lookup.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.size()</code></td>
+<td>Number of distinct loaded display keys.</td>
+<td>May differ from rendered row count under collisions; excludes metadata.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.canEdit(key)</code></td>
+<td>False if unknown; plain keys true; typed keys call database.get and check AETV magic/header-size heuristic.</td>
+<td>Not full typed-envelope validation, application schema validation or proof that a binary plain key can safely rename. Can throw on stale/missing reads.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.keyEditable(key)</code></td>
+<td>True only for known non-typed physical keys.</td>
+<td>Heuristic classification, not safe binary-key round-trip certification.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.close()</code></td>
+<td>Closes owned database, then clears knownKeys; borrowed database stays open.</td>
+<td>Does not clear collection map or mark session closed. If database.close throws, knownKeys clearing is skipped. No explicit idempotence enforced here.</td>
+</tr>
+</tbody>
+</table>
+<p>CollectionMetadata.decode and cursor/database methods supply their own validation
+and ownership rules. Workspace retains returned arrays in its temporary rows/index;
+it does not add independent defensive copies at that boundary. Reload obtains a
+cursor view, but later editing performs fresh reads/writes rather than retaining a
+transactional snapshot spanning user interaction.</p>
+<h2 id="rendering-and-key-interpretation">Rendering and Key Interpretation</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Ambiguities</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DatabaseWorkspace.displayKey(key)</code></td>
+<td>For &gt;=19 bytes beginning 0x40, reads big-endian collection UUID, skips two-byte key version, renders remaining user bytes under collection/UUID/. Otherwise renders bytes directly.</td>
+<td>Version omitted from label. Marker/length test is not full TypedKeyEnvelope decode. Different versions or plain strings can share display labels.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.isTypedKey(key)</code></td>
+<td>Tests minimum typed prefix length and first byte 0x40.</td>
+<td>Does not validate collection, key version or codec.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.encodeUserKeyLike(template, userKey)</code></td>
+<td>Exactly 16 template user-key bytes implies UUID: parse user text and emit two big-endian longs; otherwise requires nonempty text and emits UTF-8.</td>
+<td>A 16-byte text/binary key is mistaken for UUID-shaped key. Does not consult CollectionMetadata key codec. UUID parse error wrapped with collection-specific message.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.metadataForKey(key)</code></td>
+<td>Typed marker =&gt; extracts big-endian UUID and looks up loaded collection metadata; plain key =&gt; null.</td>
+<td>Ignores key version and descriptor binding beyond collection ID.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.displayValue(value, descriptor)</code></td>
+<td>AETV-looking bytes delegated to UniversalTypedValue.display; IllegalArgumentException falls back to generic byte rendering.</td>
+<td>Other exception types propagate. A display fallback is not successful corruption verification or editability.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.displayBytes(bytes)</code></td>
+<td>Exactly 16 bytes always rendered as UUID. Otherwise strict UTF-8 decode, accepted only if no ISO controls; fallback lowercase hex.</td>
+<td>Binary hex has no explicit marker; plain text can look identical. Sixteen-byte ordinary text rendered as UUID unless handled through typed-value helper.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.Row.group()</code></td>
+<td>Prefix before final slash; no slash =&gt; (root).</td>
+<td>Slash grouping is presentation, not collection ownership. Leading/trailing slash can yield empty components.</td>
+</tr>
+<tr>
+<td><code>DatabaseWorkspace.Row.field()</code></td>
+<td>Suffix after final slash, otherwise full key.</td>
+<td>No row constructor validation; null key fails on dereference.</td>
+</tr>
+</tbody>
+</table>
+<p>PhysicalRow is a private key/value array record with generated members only. Row
+holds display strings and physical value byte count, not original key bytes or a
+version token. No promise of reversible rendering should be inferred from these
+labels.</p>
+<h2 id="swing-table-model">Swing Table Model</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-workbench/src/main/java/io/aetherdb/workbench/WorkspaceTableModel.java">WorkspaceTableModel.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Bounds/threading</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WorkspaceTableModel.replaceRows(replacement)</code></td>
+<td>Immutable list copy then fireTableDataChanged.</td>
+<td>Null list/element rejected by copy; caller owns Swing event-dispatch-thread discipline.</td>
+</tr>
+<tr>
+<td><code>WorkspaceTableModel.row(modelIndex)</code></td>
+<td>Returns row at model index.</td>
+<td>Caller must convert sorted/filtered view index first; list bounds enforced.</td>
+</tr>
+<tr>
+<td><code>WorkspaceTableModel.getRowCount()</code></td>
+<td>Current row-list size.</td>
+<td>No database refresh.</td>
+</tr>
+<tr>
+<td><code>WorkspaceTableModel.getColumnCount()</code></td>
+<td>Four columns.</td>
+<td>Fixed Group, Field, Value, Value bytes layout.</td>
+</tr>
+<tr>
+<td><code>WorkspaceTableModel.getColumnName(column)</code></td>
+<td>Indexes static column names.</td>
+<td>Array bounds enforced.</td>
+</tr>
+<tr>
+<td><code>WorkspaceTableModel.getColumnClass(column)</code></td>
+<td>Integer for column 3, String otherwise.</td>
+<td>Does not reject out-of-range columns here.</td>
+</tr>
+<tr>
+<td><code>WorkspaceTableModel.getValueAt(row, column)</code></td>
+<td>Returns group, field, value or byte count.</td>
+<td>Row bounds enforced; invalid column throws IndexOutOfBoundsException. Inherited model is not directly editable.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="rpc-inspector-functions">RPC Inspector Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-workbench/src/main/java/io/aetherdb/workbench/RpcFrameInspector.java">RpcFrameInspector.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RpcFrameInspector.RpcFrameInspector()</code></td>
+<td>Builds type REQUEST/RESPONSE, stream/code/timeout spinners, UTF-8 payload and editable wire hex; installs encode/decode/corrupt listeners and summary.</td>
+<td>Synchronous Swing actions, no socket. Default stream 1, code 1, timeout 5000 ms.</td>
+</tr>
+<tr>
+<td><code>RpcFrameInspector.titled(title, content)</code></td>
+<td>Wraps scroll pane in titled BorderLayout panel.</td>
+<td>Presentation only.</td>
+</tr>
+<tr>
+<td><code>RpcFrameInspector.encode()</code></td>
+<td>UTF-8 payload; one BEGIN/END frame, equal fragment/total lengths, zero offset/reserved fields, request-only timeout, random request UUID. Delegates RpcFrameCodecV1.encode, shows lowercase hex/length.</td>
+<td>Codec/header enforce validity and size; runtime failure shown as warning. Random UUID means repeated encoding differs. No compression/fragmented streaming or operation-body encoding.</td>
+</tr>
+<tr>
+<td><code>RpcFrameInspector.decode()</code></td>
+<td>Removes regex whitespace, parses hex and delegates decoder. Sets payload via UTF-8 replacement decoding, type/stream/code/timeout controls and checksum summary.</td>
+<td>Binary payload displayed lossily as text; encode after decode reconstructs header defaults/new UUID, not exact original bytes. Partial control updates can precede a later exception.</td>
+</tr>
+<tr>
+<td><code>RpcFrameInspector.corrupt()</code></td>
+<td>Removes whitespace; if at least one byte of text, changes final pair to 01 when it ends in 00, otherwise 00. Updates summary.</td>
+<td>Does not validate hex or recompute CRC. This is a byte-edit demonstration, not fault injection against a running service.</td>
+</tr>
+<tr>
+<td><code>RpcFrameInspector.showError(failure)</code></td>
+<td>Modal warning dialog using exception message.</td>
+<td>No stack trace/structured error receipt.</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="rpc-frame-functions.html">RPC frame functions</a> for exact codec coverage. The
+inspector's summary does not replace those structural checks or prove authenticated
+transport. Only REQUEST/RESPONSE are available in its selection control.</p>
+<h2 id="replication-inspector-functions">Replication Inspector Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-workbench/src/main/java/io/aetherdb/workbench/ReplicationInspector.java">ReplicationInspector.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReplicationInspector.ReplicationInspector()</code></td>
+<td>Builds text key/value, previous sequence spinner 0..Long.MAX_VALUE-1, editable command hex and encode/decode buttons.</td>
+<td>Local demonstration of one command, not consensus node.</td>
+</tr>
+<tr>
+<td><code>ReplicationInspector.encode()</code></td>
+<td>Creates closeable one-PUT WriteBatch, plans one sequence from previous value, creates ReplicatedWriteCommandV1 with random UUID, encodes and displays hex/sequence/hash summary.</td>
+<td>No database write, log append, force or replication. Runtime failures shown as warning. Same text produces new command identity each encode.</td>
+</tr>
+<tr>
+<td><code>ReplicationInspector.decode()</code></td>
+<td>Whitespace-stripped hex decode, selects first operation, sets key/value using UTF-8, sets previous sequence to first-1, displays operation count and sequence range.</td>
+<td>Does not render all operations or distinguish first-operation kind in controls; malformed text/codec failures caught. Binary bytes can lose fidelity; reencode always produces one PUT, not decoded multi-operation command.</td>
+</tr>
+<tr>
+<td><code>ReplicationInspector.showError(failure)</code></td>
+<td>Shows exception message in modal warning.</td>
+<td>No persistence or error report artifact.</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="replication-format-functions.html">replicated formats</a> for validation delegated
+to command codec and <a href="replication-contract-functions.html">replication contracts</a> for
+sequence planning. A hash-valid command is not committed/applied state.</p>
+<h2 id="tests-and-verification-scope">Tests and Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-workbench/src/test/java/io/aetherdb/workbench/DatabaseWorkspaceTest.java">DatabaseWorkspaceTest</a>
+contains 12 in-memory tests covering plain edits/rename collision, UTF-8 length,
+borrowed ownership, slash labels, typed display/edit/add, record payload edits,
+descriptor field names and one dialog blank-form helper. It does not cover
+display collisions, ignored write outcomes, binary plain-key renames, external
+writers, full-scan limits, close failures or Swing inspector interaction. Codec
+tests are separate from testing the inspector controls. A successful headless
+Java test run is not a desktop UI screenshot or user-interaction verification.</p>
+<p>The <a href="workbench-record-dialog-functions.html">record dialog reference</a> documents
+editor selection, blank defaults and the unvalidated text returned to workspace
+encoding. The <a href="workbench-typed-value-functions.html">typed-value reference</a> covers
+the subsequent envelope and record conversion.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#ownership-and-data-flow">Ownership and Data Flow</a><a href="#workspace-construction-and-writes">Workspace Construction and Writes</a><a href="#reload-query-and-close-functions">Reload, Query and Close Functions</a><a href="#rendering-and-key-interpretation">Rendering and Key Interpretation</a><a href="#swing-table-model">Swing Table Model</a><a href="#rpc-inspector-functions">RPC Inspector Functions</a><a href="#replication-inspector-functions">Replication Inspector Functions</a><a href="#tests-and-verification-scope">Tests and Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

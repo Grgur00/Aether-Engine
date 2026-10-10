@@ -1,0 +1,717 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/FUNCTION-INDEX.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Function reference index: source-backed contributor documentation for Aether Engine.">
+  <title>Function reference index | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html" aria-current="page">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/FUNCTION-INDEX.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="function-reference-index">Function Reference Index</h1>
+<p><a href="index.html">Onboarding</a> | <a href="architecture.html">Architecture</a> | <a href="modules.html">Module ownership</a></p>
+<p>Use these references after the guided code tour to follow individual functions,
+constructors, private helpers, ownership, copies, validation, and failure paths.
+They describe the current checkout, including development changes that may not yet
+be published on <code>main</code>. Source links on the website target <code>main</code>; check your local
+revision when the implementation differs.</p>
+<h2 id="engine-entry-points-and-orchestration">Engine Entry Points and Orchestration</h2>
+<table>
+<thead>
+<tr>
+<th>Reference</th>
+<th>Source coverage</th>
+<th>Main questions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="engine-functions.html">Engine functions</a></td>
+<td><code>Aether</code>, both database implementations, <code>WriteBatch</code>, snapshot handles, materialized cursors, <code>LookupResult</code></td>
+<td>What does an application call? Which bytes are copied? What is visible after a write?</td>
+</tr>
+<tr>
+<td><a href="persistent-internals.html">Persistent internals</a></td>
+<td>Persistent commit, flush, recovery, pressure integration, compaction coordinator and lifecycle helpers</td>
+<td>Which locks and publication steps establish visibility and durability? What happens after failure?</td>
+</tr>
+<tr>
+<td><a href="observability-functions.html">Observability functions</a></td>
+<td>Eight observability API and six engine telemetry files, 50 declarations</td>
+<td>What is timed, which samples are bounded, and what does export record?</td>
+</tr>
+</tbody>
+</table>
+<p>Read these together: public factory behavior is not the full commit protocol,
+and a helper name does not establish where its caller places a durability barrier.</p>
+<h2 id="immutable-tables-and-manifest-authority">Immutable Tables and Manifest Authority</h2>
+<table>
+<thead>
+<tr>
+<th>Reference</th>
+<th>Source coverage</th>
+<th>Main questions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="sstable-block-functions.html">SSTable block functions</a></td>
+<td><code>InternalKey</code>, restart encoding and scanner, varints, block envelope/handle, Bloom filter</td>
+<td>How are entries represented and checksummed? What can verification skip copying?</td>
+</tr>
+<tr>
+<td><a href="sstable-read-functions.html">SSTable reads and verification</a></td>
+<td>Reader/data blocks, streaming verifier, lookup/entry metadata, header/footer</td>
+<td>What is checked on open or verification? What is cached? How are values materialized?</td>
+</tr>
+<tr>
+<td><a href="sstable-build-functions.html">SSTable construction</a></td>
+<td>Builder, bulk-install bridge, finish/verification traces, bulk JFR event</td>
+<td>When are files complete? What does deferred verification mean before publication?</td>
+</tr>
+<tr>
+<td><a href="manifest-version-functions.html">Manifest versions</a></td>
+<td><code>VersionSet</code>, <code>Version</code>, edits, additions/deletions, inspection</td>
+<td>What makes an inventory authoritative? What is replayed, verified, or cleaned up?</td>
+</tr>
+<tr>
+<td><a href="manifest-codec-functions.html">Manifest wire formats</a></td>
+<td>CURRENT, manifest header/record codecs, corruption exception, masked CRC32C</td>
+<td>Which bytes are protected and which parser checks apply?</td>
+</tr>
+<tr>
+<td><a href="wal-functions.html">WAL formats</a></td>
+<td>WAL constants, segment header, logical group and fragment codecs, corruption exception</td>
+<td>How are logical writes fragmented, validated, and recovered from a prefix?</td>
+</tr>
+</tbody>
+</table>
+<p>The table verifier, reader cache, manifest publication, and WAL replay are distinct
+integrity boundaries. A successful structural parse is not automatically a
+published transaction or fresh checksum verification.</p>
+<h2 id="mutable-records-and-native-memory">Mutable Records and Native Memory</h2>
+<table>
+<thead>
+<tr>
+<th>Reference</th>
+<th>Source coverage</th>
+<th>Main questions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="mvcc-reference-functions.html">Heap MVCC reference</a></td>
+<td>Reference store/record, byte-key identity, sequence source, unsigned comparison</td>
+<td>What are the baseline version and snapshot semantics?</td>
+</tr>
+<tr>
+<td><a href="native-memtable-functions.html">Native memtable</a></td>
+<td>Skip-list table, node layout, height generator, lookup result</td>
+<td>How are initialized nodes published and retained across readers?</td>
+</tr>
+<tr>
+<td><a href="native-region-functions.html">Native regions and allocation</a></td>
+<td>Capacity rules, budget, factory, FFM region, bump allocator, allocation exception</td>
+<td>Who owns native memory, what is charged, and when can it close?</td>
+</tr>
+<tr>
+<td><a href="native-record-functions.html">Native records and access</a></td>
+<td>Native access helpers, record format/writer/reader/view, corruption exception</td>
+<td>Which reads validate structure, borrow storage, or copy bytes?</td>
+</tr>
+</tbody>
+</table>
+<p>Start with the heap model for semantic ordering, then trace native node publication
+and region lifetime separately. A Java reference to a borrowed view is not a
+native-region lease.</p>
+<h2 id="lsm-reads-compaction-and-pressure">LSM Reads, Compaction, and Pressure</h2>
+<table>
+<thead>
+<tr>
+<th>Reference</th>
+<th>Source coverage</th>
+<th>Main questions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="compaction-planning-functions.html">Compaction planning</a></td>
+<td>Config, file/inventory models, scores/debt, picker, plan/reasons, range registry</td>
+<td>How are levels and overlapping files selected? Which assumptions remain with the coordinator?</td>
+</tr>
+<tr>
+<td><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a></td>
+<td>Internal entries, list/merge iterators, snapshot collapse, dropping iterator, base-level checker</td>
+<td>Which versions survive a read or compaction? When may a tombstone disappear?</td>
+</tr>
+<tr>
+<td><a href="read-view-functions.html">Read views and snapshots</a></td>
+<td>Topology, retained source, view/handle/manager, snapshot multiset</td>
+<td>What pins physical sources and what protects visibility sequences?</td>
+</tr>
+<tr>
+<td><a href="write-pressure-functions.html">Write pressure</a></td>
+<td>Measurement/policy/result models, controller, states and reasons</td>
+<td>What triggers slowdown, stop, or failure, and who actually waits?</td>
+</tr>
+</tbody>
+</table>
+<p>Planning does not execute compaction. Snapshot registration does not pin a file.
+Pressure evaluation does not reserve a sequence or submit a WAL group. Use the
+persistent-internals reference to connect those policies to engine orchestration.</p>
+<h2 id="supporting-policy-and-test-mechanisms">Supporting Policy and Test Mechanisms</h2>
+<table>
+<thead>
+<tr>
+<th>Reference</th>
+<th>Source coverage</th>
+<th>Main questions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="admission-functions.html">Resource admission</a></td>
+<td>Resource limits/measurements, policy/snapshot/request/decision, evaluator and enums</td>
+<td>What does acceptance guarantee for the supplied measurements, and what must callers reserve?</td>
+</tr>
+<tr>
+<td><a href="reliability-functions.html">Reliability and fault injection</a></td>
+<td>Crash dispatcher/context/scopes/triggers/IDs, corruption plans and mutator</td>
+<td>Is a test injecting an exception, process death, or persisted-byte corruption?</td>
+</tr>
+<tr>
+<td><a href="block-cache-functions.html">Block cache</a></td>
+<td>Key/loader/lease/metrics, sharded cache and private eviction helpers</td>
+<td>How are loads coalesced, arrays borrowed, entries pinned, and residency charged?</td>
+</tr>
+<tr>
+<td><a href="format-catalog-functions.html">Format catalogs</a></td>
+<td>Format descriptors, policies, catalog and golden-fixture registry</td>
+<td>Which metadata is descriptive, and what actually verifies bytes?</td>
+</tr>
+</tbody>
+</table>
+<p>Resource admission and the standalone block cache are available modules, not
+automatically integrated into every engine path. Each reference records the
+consumer boundaries checked in source.</p>
+<h2 id="broader-guides-and-remaining-detail">Broader Guides and Remaining Detail</h2>
+<p>The <a href="filesystem-identity-functions.html">filesystem identity reference</a> covers managed
+paths, OS locking, DB-IDENTITY, FORMAT-OPTIONS, and checkpoint metadata. The
+<a href="backup-archive-functions.html">backup archive reference</a> covers inventory objects,
+manifest framing, ZIP I/O, hash verification, and content copies. The
+<a href="backup-restore-functions.html">restore reference</a> covers policy preflight, object
+writing, checkpoint path mapping, and cleanup limitations.</p>
+<p>The <a href="typed-key-functions.html">typed key reference</a> now covers built-in scalar key
+codecs, codec interfaces, collection identity, and physical key prefixes. The
+<a href="typed-value-functions.html">typed value reference</a> covers scalar UTF-8 values and
+the schema envelope. The <a href="collection-schema-functions.html">collection metadata reference</a>
+covers definitions, metadata persistence encoding, and descriptor compatibility.
+The <a href="canonical-record-functions.html">canonical record reference</a> covers AER1 framing,
+scalar payload helpers, field iteration, and checksum/parsing boundaries.
+The <a href="generated-container-functions.html">generated container reference</a> covers
+optional/list/set/map framing, scalar element decoding, provider lookup, and
+descriptor resource validation. The <a href="typed-adapter-functions.html">typed adapter reference</a>
+covers embedded factories, registration, collection handles, batches, snapshots,
+and result contracts. The <a href="schema-annotation-functions.html">schema annotation reference</a>
+covers annotation members and the processor's entry, validation, and type-resolution
+path. The <a href="schema-resource-functions.html">schema resource reference</a> covers lock
+loading, retired/reserved identities, descriptors, providers, and proposals.
+The <a href="codec-generation-functions.html">codec generation reference</a> covers emitted
+methods, field/default/container expressions, and FieldType helpers. Together these
+three references cover the processor's declarations; Gradle schema tooling remains.</p>
+<p>The <a href="modules.html">module guide</a> covers all 49 Java module declarations at an
+ownership level. That is broader than the individual-function references above.
+The following guides explain workflows and architecture but do not yet constitute
+an exhaustive function-by-function inventory of every implementation they mention:</p>
+<ul>
+<li><a href="schemas.html">Typed API and schemas</a>: generated codecs, compatibility, collections, and typed adapters.</li>
+<li><a href="python.html">Python and training cache</a>: identity-aware artifacts, client/protocol, and ML integration.</li>
+<li><a href="operations.html">Operations and debugging</a>: CLI, configuration, filesystem ownership, and diagnostics.</li>
+<li><a href="research.html">Research tooling</a>: experiment orchestration, provenance, profiling, and result interpretation.</li>
+<li><a href="architecture.html">Architecture</a>: remote/client, RPC, replication, Raft, security, and other independent foundations.</li>
+</ul>
+<p>The <a href="config-loading-functions.html">configuration loading reference</a> covers immutable
+values, registered defaults, source precedence, scalar and combination validation,
+redaction, and selected runtime conversion boundaries. The
+<a href="config-change-functions.html">configuration change reference</a> covers reload
+evaluation, atomic configuration-state replacement, voting-member comparisons,
+and staged old/new transitions. Together these cover the configuration module's
+explicit declarations, not live reconfiguration of every runtime subsystem.</p>
+<p>Schema tooling, operational commands, remaining Python workload helpers,
+and distributed foundations still need further individual-function coverage.
+The presence of a guide or source link does not prove that expansion is complete.</p>
+<h2 id="training-cache-and-artifact-reuse">Training Cache and Artifact Reuse</h2>
+<table>
+<thead>
+<tr>
+<th>Reference</th>
+<th>Source coverage</th>
+<th>Main questions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="training-identity-functions.html">Artifact identity and storage policy</a></td>
+<td>Fingerprints, cache keys/entries, storage selection, durability modes</td>
+<td>What makes a reusable artifact identity? Which bytes are copied? When is a segment selected?</td>
+</tr>
+<tr>
+<td><a href="training-cache-functions.html">Cache operations and segments</a></td>
+<td>TrainingCache, segment store/reference, packed results, latency and metrics</td>
+<td>How are immutable values published, validated, mapped, evicted, and reconstructed on reopen?</td>
+</tr>
+<tr>
+<td><a href="training-driver-functions.html">Java diagnostic drivers</a></td>
+<td>HitPathBenchmark, TrainingCacheBenchmark and TrainingCacheCrashCampaign</td>
+<td>What do standalone Java lookup, synthetic reuse and forced-halt diagnostics measure and validate?</td>
+</tr>
+<tr>
+<td><a href="training-daemon-functions.html">Daemon lifecycle</a></td>
+<td>TCP, Unix and TLS listeners, connection tasks, entry points and cleanup</td>
+<td>Who owns the process/socket/cache lifetime? Where do admission, handshake and shutdown happen?</td>
+</tr>
+<tr>
+<td><a href="training-protocol-functions.html">Protocol and traces</a></td>
+<td>Shared request parser/dispatcher, response encoding, protocol counters, ThreadLocal trace and diagnostic JSON</td>
+<td>Which limits apply before dispatch? What does a correlated trace actually measure?</td>
+</tr>
+<tr>
+<td><a href="bulk-publication-functions.html">Offline bulk publication</a></td>
+<td>BulkArtifactWriter, EmptyStoreBulkLoader, Python pipe owner/adapter/diagnostic, bounded sorted staging, inventory verification and manifest commit</td>
+<td>What acknowledges durability? What can already be committed after an exception? Which population timing excludes readback?</td>
+</tr>
+<tr>
+<td><a href="python-client-functions.html">Python connections and retries</a></td>
+<td>Low-level client socket ownership, cancellation, exchange/retry, correlated timing</td>
+<td>What can replay a request? When can a client reconnect, and what does cancellation stop?</td>
+</tr>
+<tr>
+<td><a href="python-cache-value-functions.html">Python values and batches</a></td>
+<td>Client identity/value APIs, packed batch views, references, presence, diagnostics</td>
+<td>Which results preserve order? Where are bytes copied and malformed metadata checked?</td>
+</tr>
+<tr>
+<td><a href="python-mapping-functions.html">Python mapped views and tensors</a></td>
+<td>Both mapped registries, CacheView, CPU array/tensor wrappers, pinned copies and transfer helper</td>
+<td>Which import selects which registry? Who retains storage, and when is a copy required?</td>
+</tr>
+<tr>
+<td><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a></td>
+<td>Reference loader, ordered single-producer queue, spawned benchmark workers and selected preparation routing</td>
+<td>Which queue is bounded? Who cancels pending work, closes owners and aggregates worker counters?</td>
+</tr>
+<tr>
+<td><a href="python-store-adapter-functions.html">Python store adapters and resources</a></td>
+<td>JavaArtifactStore, comparison mmap index/journal/store and Linux process observations</td>
+<td>Which reads copy? Can part of a failed publication already exist? What do resource counters measure?</td>
+</tr>
+<tr>
+<td><a href="python-transform-functions.html">Python transform cache and codecs</a></td>
+<td>AetherTransformCache, source/transform identities, batch reuse/planning, bytes/array/tensor/dictionary codecs</td>
+<td>Which work is cached? What invalidates identity, what is copied, and what happens after failure?</td>
+</tr>
+<tr>
+<td><a href="python-dataset-functions.html">Python dataset integration</a></td>
+<td>AetherDataset, selected transform, ordered fetch, population, merge and random augmentation</td>
+<td>Where does deterministic caching end? How do population and normal fetching differ?</td>
+</tr>
+<tr>
+<td><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a></td>
+<td>AetherConfig, capability checks, client creation, namespace normalization, metrics export, trusted Python CLI, exception types</td>
+<td>Who owns a connection? Which configuration values are validated, and what does a CLI invocation actually execute?</td>
+</tr>
+<tr>
+<td><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a></td>
+<td>Loader facade, worker init, inherited Torch dataset, dictionary dataset, MONAI/DICOM/NIfTI identity helpers</td>
+<td>What is handled by the framework? Which descriptor changes invalidate reusable artifacts?</td>
+</tr>
+<tr>
+<td><a href="python-provenance-store-functions.html">Filesystem artifact publication</a></td>
+<td>Separate aetherml owner, identity, blob/node/cache-pointer commits, lookups, atomic-file helpers and trusted paths</td>
+<td>Which files are authoritative? What survives failure, and which receipts can differ from persisted metadata?</td>
+</tr>
+<tr>
+<td><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a></td>
+<td>CachedTransform, dataset/loader factory, lineage traversal, snapshots and experiment bookkeeping</td>
+<td>Is None a hit? Does restore roll back a database? What does direct snapshot verification omit?</td>
+</tr>
+<tr>
+<td><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a></td>
+<td>Recovery/report properties, store scans, cleanup, latency/storage summaries and environment probes</td>
+<td>What can validation report or raise? What does recovery delete, and what do metric names really measure?</td>
+</tr>
+</tbody>
+</table>
+<p>These cover the Java cache owner/listeners/wire handlers and Python low-level
+client/view contracts, higher-level deterministic transforms and indexable dataset
+adapters, lifecycle/configuration helpers and framework facades, plus the Java
+offline bulk publication path and Python population caller, lower-level loading,
+prefetch/worker orchestration and benchmark storage/resource adapters. The three
+filesystem provenance references also cover all explicit declarations in ml.py,
+keeping that separate implementation's authority and limitations distinct.
+Remaining workload helpers and research drivers still need individual-function
+expansion. Cache diagnostics are not
+uniform across byte-array, packed-batch, reference, and mapping APIs.</p>
+<h2 id="h2-research-protocol-and-evidence">H2 Research Protocol and Evidence</h2>
+<table>
+<thead>
+<tr>
+<th>Reference</th>
+<th>Source coverage</th>
+<th>Main questions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="h2-protocol-functions.html">Protocol, pilot audit and freeze</a></td>
+<td>All 13 functions in h2_protocol.py: configuration, balanced assignment, audited pilot, runtime, separate candidate/harness identities and frozen bundle</td>
+<td>What is preserved from the pilot? What does a receipt bind, and what does it not certify?</td>
+</tr>
+<tr>
+<td><a href="h2-execution-functions.html">Execution, worker and input binding</a></td>
+<td>All 24 functions in h2_confirmatory.py, h2_worker.py and h2_input_paths.py, including nested callbacks</td>
+<td>What stays alive through V0-V4? Which failures retry a whole block, and what prevents unsafe resume or edited evidence?</td>
+</tr>
+<tr>
+<td><a href="h2-session-functions.html">Amended session controller</a></td>
+<td>All eight functions in h2_sessions.py</td>
+<td>How are original receipts preserved across hosts, and why are session 3, resume and final aggregation separate work?</td>
+</tr>
+<tr>
+<td><a href="dali-comparison-functions.html">DALI workload and comparisons</a></td>
+<td>All 26 declarations across workload adapter, comparison, analysis and smoke files</td>
+<td>How are canonical GPU artifacts compared with cached training, and which timing/parity claims are actually checked?</td>
+</tr>
+<tr>
+<td><a href="bulk-layout-functions.html">Bulk layout regression checks</a></td>
+<td>All 6 declarations in the post-population layout helper</td>
+<td>What do sampled RSS, warm packed reads and incremental readback actually verify outside V0 timing?</td>
+</tr>
+<tr>
+<td><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a></td>
+<td>All 8 declarations across acquisition, vision preparation, membership evolution and validation</td>
+<td>How are hashed inputs and overlapping versions created, and what does preflight leave unchecked?</td>
+</tr>
+<tr>
+<td><a href="transform-evolution-functions.html">Transform evolution checks</a></td>
+<td>All 3 declarations in the synthetic evolution checker</td>
+<td>Which source/parameter changes invalidate final artifacts, and how is Java/mmap byte parity checked?</td>
+</tr>
+<tr>
+<td><a href="preflight-utility-functions.html">Preflight and smoke utilities</a></td>
+<td>All 4 declarations across checksums, GPU validation and CPU artifact smoke</td>
+<td>What does each preflight actually check, and why is CPU smoke not paper timing?</td>
+</tr>
+<tr>
+<td><a href="system-driver-functions.html">Concurrency and fault drivers</a></td>
+<td>All 10 declarations across storage scaling and process-crash drivers</td>
+<td>How are clients synchronized, writers killed, results verified and interrupted trials preserved?</td>
+</tr>
+<tr>
+<td><a href="system-analysis-functions.html">Cache comparisons and systems exports</a></td>
+<td>All 9 declarations across frozen-build comparison and systems CSV/figure export</td>
+<td>Which timing, grouping, byte-scope and completeness limits apply to these summaries?</td>
+</tr>
+<tr>
+<td><a href="campaign-audit-functions.html">Campaign audit and preservation</a></td>
+<td>All 5 declarations across submission auditing, preservation and archived V1 validation</td>
+<td>How are integrity, coverage, supported claims and human submission approval kept distinct?</td>
+</tr>
+<tr>
+<td><a href="build-utility-functions.html">Build and documentation utilities</a></td>
+<td>All 13 declarations across static rendering, Maven checking, paper building and Studio argument adaptation</td>
+<td>How do tooling inputs become pages, staged-artifact checks, draft PDFs and forwarded CLI arguments?</td>
+</tr>
+<tr>
+<td><a href="root-build-architecture.html">Root build architecture</a></td>
+<td>Root/settings actions, schema proposal helper, six training-cache build tasks and digest helper</td>
+<td>How are projects included, releases staged, schema tasks wired and runtime receipts produced; which verification tasks are placeholders?</td>
+</tr>
+<tr>
+<td><a href="module-build-architecture.html">Module build topology</a></td>
+<td>All 49 module and two example build files</td>
+<td>Which dependencies are exported, implementation-only or processor/test-scoped; what do application and packaging actions configure?</td>
+</tr>
+<tr>
+<td><a href="example-application-functions.html">Example applications</a></td>
+<td>Both examples' complete main source trees</td>
+<td>How do notes persistence, Swing ownership, social CRUD and application-side joins work, and where do sequential guards stop?</td>
+</tr>
+<tr>
+<td><a href="flush-diagnostic-functions.html">Flush diagnostics</a></td>
+<td>Complete FlushDiagnostics source, including nested types</td>
+<td>How do collectors follow writes, charge stage intervals and link flush/compaction/table-finish evidence?</td>
+</tr>
+<tr>
+<td><a href="h2-analysis-functions.html">Analysis and figures</a></td>
+<td>All five functions in h2_analysis.py, including the figure writer</td>
+<td>Which checkpoint is primary? How are ratios, ties, break-even and uncertainty calculated from validated evidence?</td>
+</tr>
+</tbody>
+</table>
+<p>These cover the separately deployable H2 harness, not all imported campaign,
+longitudinal service, preprocessing or training implementations. The archived
+execution gate and statistical helpers have different responsibilities. No guide
+is a live job-status report, authorization to pool hosts, or evidence of superiority.
+The shared infrastructure references below explain the imported lifecycle and
+evidence mechanisms. Original workload functions remain to expand.</p>
+<h2 id="shared-research-infrastructure">Shared Research Infrastructure</h2>
+<table>
+<thead>
+<tr>
+<th>Reference</th>
+<th>Source coverage</th>
+<th>Main questions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="research-campaign-functions.html">Campaign identity and evidence</a></td>
+<td>All nine functions in system_campaign.py and evidence.py</td>
+<td>What is kernel ownership? Which identity fields prevent resume drift, and how does training-matrix evidence differ from H2?</td>
+</tr>
+<tr>
+<td><a href="research-process-functions.html">Build, environment and process ownership</a></td>
+<td>All nine functions in paper_common.py, including the stdout reader</td>
+<td>What binds source and executable bytes? Which probes are descriptive? What does daemon exit drain and clean up?</td>
+</tr>
+<tr>
+<td><a href="research-lifecycle-functions.html">Stage checkpoints and persistent service</a></td>
+<td>All 16 functions in longitudinal_state.py and persistent_service.py</td>
+<td>When can a closed stage resume? Why cannot a live persistent block resume partially, and which timers/leases/receipts belong to each policy?</td>
+</tr>
+<tr>
+<td><a href="research-manifest-functions.html">Dataset version manifests</a></td>
+<td>All four functions in longitudinal_manifests.py and the module-level command</td>
+<td>How are unchanged prefixes frozen? Which declared identities are checked, and what does receipt verification trust?</td>
+</tr>
+<tr>
+<td><a href="research-adapter-functions.html">MONAI comparison adapters</a></td>
+<td>All 16 functions in monai_comparison.py, including the source callback</td>
+<td>Which values are cached? How does the older two-version endpoint differ from full lifecycle cost?</td>
+</tr>
+<tr>
+<td><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a></td>
+<td>All eight functions in longitudinal_worker.py</td>
+<td>Which versions train, how does the actual model work, and which phases/resource observations enter the endpoint?</td>
+</tr>
+<tr>
+<td><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a></td>
+<td>All 11 functions in longitudinal_comparison.py and longitudinal_analyze.py</td>
+<td>How are stage/pair receipts assembled and reused? What do exploratory ratios and first-observed break-even mean?</td>
+</tr>
+</tbody>
+</table>
+<p>These describe current shared helpers, including trust and failure boundaries,
+not a claim that every campaign uses identical checks. Closed-store snapshots,
+one-file replacement, immutable campaign identity and full-block reuse are distinct
+mechanisms. Remaining research drivers and original training workloads still need
+their own per-function references.</p>
+<h2 id="main-benchmark-workload">Main Benchmark Workload</h2>
+<p>Population tooling has its own <a href="population-profile-functions.html">complete 18-function reference</a>,
+covering isolated diagnostic arms, inclusive instrumentation and excluded readback.
+The <a href="cache-profile-functions.html">cache request and JFR reference</a> covers seven
+declarations across synthetic tracing-overhead and recording drivers.
+The <a href="jfr-analysis-functions.html">JFR analyzer reference</a> covers six declarations
+for interval/thread attribution, allocation estimates and diagnostic summaries.
+The <a href="bulk-diagnostic-drivers.html">bulk JFR and compaction drivers</a> explain three
+declarations for recording orchestration and durable reopen checks.
+The <a href="verification-campaign-functions.html">bulk verification campaign</a> covers eight
+declarations for frozen baselines, correctness receipts and separate timing gates.
+The <a href="hit-path-functions.html">hit-path reference</a> covers all 19 declarations in the
+read-only Java/RPC/mmap/CPU-input diagnostic, including prefetch and evidence gates.
+The <a href="experiment-ownership-functions.html">experiment ownership reference</a> covers four
+declarations for temporary-store capacity/cleanup, output locking and metadata freeze.</p>
+<h2 id="remote-protocol-foundations">Remote Protocol Foundations</h2>
+<p>The <a href="rpc-frame-functions.html">RPC codec reference</a> covers all 38 explicit
+declarations across ten implementation files: wire values, decoding, HELLO,
+fragmentation, assembly, stream allocation and protocol exceptions.
+The <a href="rpc-api-functions.html">RPC API reference</a> covers 33 declarations across all
+17 API files, separating interface promises from implemented record validation,
+byte ownership and admission/status mapping. Concrete transport references follow
+below; application/client integration beyond this RPC package is a separate scope.</p>
+<p>The <a href="rpc-transport-limits.html">transport limits and identity reference</a> covers 11
+declarations in four support files: configuration conversion, admission policies,
+process identity and standalone byte credits/state vocabulary. The concrete
+PlaintextDevelopmentRpc implementation remains outside that partition.
+The <a href="rpc-server-functions.html">development server reference</a> covers 32 of its 54
+declarations: factories, socket reads/writes, listener, assembly/dispatch,
+responder, cancellation and connection tracking. The <a href="rpc-client-functions.html">client reference</a>
+covers the other 22 declarations, including retries, deadline scheduling, response
+cleanup and admission snapshots. Together with support files, RPC transport has
+65/65 explicit declarations documented; codec has 38/38 and API 33/33.
+The <a href="remote-routing-functions.html">remote routing reference</a> covers 19 declarations
+for endpoint snapshots, bounded inflight pooling, retry decisions and principal
+metadata. The <a href="remote-facade-functions.html">facade reference</a> adds the other 27
+declarations for read/write/scan attempts, typed adaptation and results, completing
+46/46 coverage in aether-client. The <a href="client-protocol-functions.html">client protocol contract reference</a>
+adds all 22 explicit declarations across the 11 client API files, covering byte
+ownership, command IDs, scan bounds, outcome validation and operation constants.
+The <a href="client-codec-functions.html">client message codec reference</a> covers all 27
+declarations in four files, including wire offsets, integrity coverage, padding,
+UTF-8 and allocation limits. The remote client, its API and codecs now have
+complete explicit-declaration references; distributed server integration is a
+separate responsibility.</p>
+<table>
+<thead>
+<tr>
+<th>Reference</th>
+<th>Source coverage</th>
+<th>Main questions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="benchmark-data-functions.html">Sources, preparation and payloads</a></td>
+<td>27 explicit functions in benchmark_gpu_segmentation.py</td>
+<td>Which files/digests are trusted? How are masks and image precision changed, what does decoding reject, and which descriptive labels are not complete identity?</td>
+</tr>
+<tr>
+<td><a href="benchmark-training-functions.html">Model, training and devices</a></td>
+<td>25 explicit functions, including four nested model methods</td>
+<td>What model actually runs, what does warmup change, and what is included in step/backend timing?</td>
+</tr>
+<tr>
+<td><a href="benchmark-backend-functions.html">Backend ownership and population</a></td>
+<td>All 24 BackendContext methods and two helpers</td>
+<td>Who opens/resets/deletes caches, how does reuse work, and what do population/counter reports include?</td>
+</tr>
+<tr>
+<td><a href="benchmark-metrics-functions.html">Utilization and process metrics</a></td>
+<td>Seven sampler methods and eight parsing/process helpers</td>
+<td>Which devices/intervals are observed, what happens when probes fail, and which reported units need caution?</td>
+</tr>
+<tr>
+<td><a href="benchmark-runner-functions.html">Entry points, run control and validity</a></td>
+<td>13 explicit declarations, including three lazy-reference methods</td>
+<td>Which modes train, what is isolated, what is validated, and what does a passed flag actually mean?</td>
+</tr>
+<tr>
+<td><a href="benchmark-accounting-functions.html">Lifecycle, cache accounting and comparisons</a></td>
+<td>18 explicit declarations</td>
+<td>How are totals, throughput, counts, outcome signals and projected crossover calculated?</td>
+</tr>
+<tr>
+<td><a href="benchmark-aggregation-functions.html">Aggregation and statistics</a></td>
+<td>12 explicit declarations</td>
+<td>Which fields are representative, summed or distributed, and what do the statistical summaries prove?</td>
+</tr>
+<tr>
+<td><a href="python-pipeline-functions.html">Loading and prefetch routing</a></td>
+<td>prepared_batches and its prepare callback, alongside separate loading/prefetch modules</td>
+<td>When does preparation happen and who owns queued work?</td>
+</tr>
+</tbody>
+</table>
+<p>These cover all 138 distinct explicit declarations in the current main benchmark.
+Joint qualified AST coverage checks detect omissions and duplicates across the
+partitions. Imported helpers and anonymous callbacks have separate boundaries.
+This count excludes anonymous lambdas and imported helpers;
+it is not repository-wide completion or a runtime correctness percentage.</p>
+<h2 id="encryption-foundations">Encryption Foundations</h2>
+<p>The <a href="crypto-functions.html">crypto reference</a> covers all <strong>25 explicit declarations</strong>
+in seven files: AES-GCM operations, little-endian envelopes, backup AAD/metadata,
+local key wrapping and destruction boundaries. It distinguishes metadata from
+authenticated inputs and primitive availability from actual engine integration.
+The <a href="security-functions.html">security reference</a> adds <strong>49 declarations across all
+22 API/core files</strong>, covering RBAC, audit storage/formatting, redaction and node
+certificate identity matching. These do not imply automatic endpoint enforcement,
+trust-chain validation or a concrete key-provider service.</p>
+<h2 id="replication-foundations">Replication Foundations</h2>
+<p>The <a href="replication-contract-functions.html">replication contract reference</a> covers
+<strong>34 explicit declarations across eight files</strong>: the complete replication API,
+sequence planner, and applied-state value. It distinguishes log position, logical
+mutation sequence, durable index, and applied progress, and explains validation,
+hash ownership, equality, and the responsibilities left to concrete storage and
+consensus integration.
+The <a href="replication-format-functions.html">replicated format reference</a> covers all
+<strong>43 declarations in five codec/format files</strong>: exact byte layouts, CRC/hash
+coverage, ownership, parsing checks and allocation/validation asymmetries.
+The <a href="replicated-store-functions.html">concrete store reference</a> adds all <strong>43
+declarations</strong> in ReplicatedLogStoreV1: process ownership, prevalidation, append,
+force, rotation, recovery/repair, guarded suffix truncation and failure lifecycle.
+Together these cover every explicit declaration in aether-replicated-log.
+The <a href="raft-core-functions.html">Raft core reference</a> covers <strong>25 declarations across
+all 11 API/core files</strong>: vote record validation, reason/role vocabulary, tip
+freshness, follower progress, strict-majority commit tracking and settings.
+These modules supply helpers, not a complete election/AppendEntries/apply loop.
+The <a href="raft-storage-functions.html">Raft storage reference</a> covers all <strong>17 declarations
+in three files</strong>: big-endian vote messages, little-endian state slots, integrity
+coverage, parser acceptance and persistent-state value validation. No slot manager
+or complete durable election loop is supplied by those codecs.
+The <a href="cluster-membership-functions.html">cluster membership reference</a> covers <strong>73
+declarations across all 12 API/core files</strong>: endpoint canonicalization, identity
+and member validation, stable/joint configurations and independent-majority
+calculations. These do not provide a membership-change service.
+The <a href="cluster-codec-functions.html">cluster codec reference</a> covers <strong>53 declarations
+across all four codec files</strong>: exact identity/stable/joint layouts, nested member
+records, SHA/CRC coverage, parser behavior and encode/decode asymmetries.
+Broader application integration remains separate work.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p>The <a href="workbench-workspace-functions.html">workbench workspace reference</a> covers 38
+declarations across database editing, table-model and two local inspector files.
+The <a href="workbench-typed-value-functions.html">universal typed-value reference</a> adds all
+20 declarations in the schema-independent editor. The <a href="workbench-record-dialog-functions.html">record dialog reference</a>
+covers all 14 dialog/editor declarations, including syntax selection and text
+acceptance versus downstream encoding. The <a href="workbench-window-functions.html">window/action reference</a>
+adds 14 declarations for startup, ownership, toolbar dispatch and grouped rendering.
+These four references span all 86 explicit workbench declarations across seven
+implementation files; desktop interaction coverage remains limited.</p>
+<p>The <a href="gradle-plugin-functions.html">Gradle plugin reference</a> covers all five consumer
+plugin methods, schema-task actions and seven shared build conventions, including
+publishing helpers. Root/module-specific build actions remain separate scope.</p>
+<p>The <a href="release-certification-functions.html">release certification reference</a> covers
+22 declarations across all nine release implementation files: evidence/blocker
+validation, immutable manifests, properties parsing, readiness rules and JSON.
+It distinguishes operator-declared evidence from independently verified artifacts.</p>
+<p>The <a href="java-benchmark-runner-functions.html">Java benchmark runner reference</a> covers
+41 declarations across six profile/runner files, including load/read timing,
+child-process halts, report provenance, cache controls and metadata-only profiles.
+This is separate from the Python ML benchmark and lifecycle references above.</p>
+<p>The <a href="java-benchmark-evidence-functions.html">Java benchmark evidence reference</a>
+covers 27 declarations across eight report/artifact/baseline files. It explains
+immutable validation, deterministic output, escaping limits and synthetic baseline
+context. The <a href="java-benchmark-comparison-functions.html">comparison and gate reference</a>
+adds all 14 declarations across the remaining eight comparison/manifest files,
+including thresholds, median selection and limits of semantic equivalence checks.</p>
+<p><code>scripts/InventoryJavaFunctions.java</code> uses compiler syntax trees to inventory
+explicit method and constructor declarations, including private/nested helpers.
+<code>scripts/tests/test_contributor_docs.py</code> checks that inventoried names occur in
+their selected reference pages and that generated HTML matches Markdown.</p>
+<p>Name occurrence is an omission check, not proof that each overload's behavior is
+accurate. Implicit record accessors and constructors may need manual explanation;
+compiler-tree inventory does not substitute for reading implementations and tests.
+Manual source review establishes contracts. Website checks establish links and
+layout. None of those checks certifies runtime correctness or a production release.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#engine-entry-points-and-orchestration">Engine Entry Points and Orchestration</a><a href="#immutable-tables-and-manifest-authority">Immutable Tables and Manifest Authority</a><a href="#mutable-records-and-native-memory">Mutable Records and Native Memory</a><a href="#lsm-reads-compaction-and-pressure">LSM Reads, Compaction, and Pressure</a><a href="#supporting-policy-and-test-mechanisms">Supporting Policy and Test Mechanisms</a><a href="#broader-guides-and-remaining-detail">Broader Guides and Remaining Detail</a><a href="#training-cache-and-artifact-reuse">Training Cache and Artifact Reuse</a><a href="#h2-research-protocol-and-evidence">H2 Research Protocol and Evidence</a><a href="#shared-research-infrastructure">Shared Research Infrastructure</a><a href="#main-benchmark-workload">Main Benchmark Workload</a><a href="#remote-protocol-foundations">Remote Protocol Foundations</a><a href="#encryption-foundations">Encryption Foundations</a><a href="#replication-foundations">Replication Foundations</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

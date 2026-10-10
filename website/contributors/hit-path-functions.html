@@ -1,0 +1,256 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/HIT-PATH-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Steady-state hit path diagnostics: source-backed contributor documentation for Aether Engine.">
+  <title>Steady-state hit path diagnostics | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html" aria-current="page">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/HIT-PATH-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="steady-state-hit-path-diagnostic-functions">Steady-State Hit Path Diagnostic Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="benchmark-backend-functions.html">Benchmark backend ownership</a> | <a href="research.html">Research tooling</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/hit_path_profile.py">hit_path_profile.py</a>.
+The Java subprocess is documented separately in <a href="training-driver-functions.html">Java diagnostic drivers</a>.
+All <strong>19 explicit declarations</strong>, including nested percentile, batch, export and
+latency helpers, are covered. InvalidHitRun is an exception type with no explicit
+methods. This tool reports read-only V2 diagnostics, not paper-block results.</p>
+<h2 id="three-layer-architecture">Three-Layer Architecture</h2>
+<pre><code class="language-text">validated plan -&gt; subset V2 manifest -&gt; identical artifact encoding
+  -&gt; prepopulate durable Java and mmap stores -&gt; drain -&gt; full byte/hash parity
+  -&gt; seeded key permutation -&gt; binary Java workload -&gt; seal final memtable
+  -&gt; seeded trial order:
+       Java database.get loop / Python RPC bytes / mmap local bytes
+       CPU full input (decode + stack + normalize) across prefetch depths
+  -&gt; hit/idle/activity/order/trace checks -&gt; per-trial and per-repeat summaries
+</code></pre>
+<p>Preparation publishes; measured trials must not. The same artifact permutation
+is reused across layers and epochs within a repetition. Each Java trial is a
+separate process; each Python trial opens its own daemon and persistent workload
+connection. These are separately timed cache/JIT states, not one shared experiment
+that causally subtracts transport or decoding cost. No GPU compute, simulated
+compute delay, training step or dataset revision is performed.</p>
+<h2 id="hit-only-gates-and-statistical-helpers">Hit-Only Gates and Statistical Helpers</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>require_hits(values, expected)</code></td>
+<td>Requires exact list length and no None values; raises InvalidHitRun on missing entries. Empty bytes count as hits. Does not check payload hash, identity, duplicates or expected&gt;0.</td>
+</tr>
+<tr>
+<td><code>require_idle(info)</code></td>
+<td>Requires state IDLE, debtBytes=0, failed=0, and exact int types (not bool) for four activity counters: flushesCompleted, backgroundCompactionsStarted, completed, failed. Does not separately require nonnegative counters.</td>
+</tr>
+<tr>
+<td><code>require_no_activity(before, after, *, misses=0, publishes=0, traces=())</code></td>
+<td>Requires idle snapshots, zero supplied misses/publications and unchanged activity counters. For each supplied trace rejects server flush/compaction/scheduling evidence and non-complete outcome. Missing server_trace defaults to empty evidence; does not reject attempt_failed events or independently count missed requests.</td>
+</tr>
+<tr>
+<td><code>distribution(values)</code></td>
+<td>Sorts input; empty returns None. Returns arithmetic mean, interpolated median/p95/p99 and count. No finite-value validation, confidence interval or weighting.</td>
+</tr>
+<tr>
+<td><code>distribution.percentile(fraction)</code></td>
+<td>Interpolates between floor/ceil of (n-1)*fraction in the enclosing sorted list. Internal callers use .5/.95/.99; no general fraction-range validation.</td>
+</tr>
+<tr>
+<td><code>summarize(batches, elapsed_ns)</code></td>
+<td>Sums samples and bytes; reports per-request duration/byte distributions and per-batch duration/sample milliseconds, plus throughput from supplied active-epoch elapsed. Zero elapsed yields None throughput. Batch means are unweighted; a smaller final batch still contributes one distribution observation. Zero-sample batches divide by zero.</td>
+</tr>
+<tr>
+<td><code>numbers(value, minimum)</code></td>
+<td>Parses comma-separated ints, rejects duplicates or values below minimum, preserves supplied order. Invalid/empty tokens fail int conversion. Does not sort or enforce a maximum; caller applies upper bounds.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="plan-and-workload-construction">Plan and Workload Construction</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>build_plan(args)</code></td>
+<td>Rejects confirmatory/resume, workers other than literal '0', GPU-count string other than '1', lifecycle/reuse/size/step overrides and workflow count other than one. Requires positive repetitions/epochs/batch, nonnegative warmup, batch/request sizes &lt;=64, prefetch depths 0..64 and one preprocessing-pass value. Accepts backend set aether/mmap or default raw/aether/mmap/ram, but jobs still compare only Aether/mmap. Reads configured unique real datasets and returns explicit diagnostic/timing/cache scope metadata.</td>
+</tr>
+<tr>
+<td><code>workload_args(plan, dataset, spec, manifest)</code></td>
+<td>Builds benchmark arguments for the selected V2 manifest/count, split, resize, classes, fixed training-sized batch, epochs and preprocessing. Sets backends raw/aether/mmap, max reference bytes, maximum configured prefetch and augmentation none. Class default is 80 for COCO, otherwise 1000. Parses through the existing benchmark parser; does not train.</td>
+</tr>
+<tr>
+<td><code>write_workload(path, keys)</code></td>
+<td>Writes big-endian u32 key count, then length-prefixed UTF-8 namespace/sample ID and raw transformation digest per key. No digest-length assertion or parent-directory creation here. Length/count overflow raises packing errors; writing directly can leave a partial file.</td>
+</tr>
+<tr>
+<td><code>jobs(plan, seed)</code></td>
+<td>Emits Java-database/RPC-byte/local-mmap trials per request size and Aether/mmap full-input trials per prefetch depth, using the fixed training batch. Creates backend-layer-batch-depth IDs, then shuffles with seed XOR 0xAE7. Count is 3<em>request-size count + 2</em>depth count. No validation or duplicate-ID guard beyond upstream plan checks.</td>
+</tr>
+</tbody>
+</table>
+<p>build_plan adds trainingBatchSize to requestSizes and sorts them so a three-layer
+comparison is available at that size. Backend validation is set-based, so duplicate
+backend labels are not separately rejected. Dataset keys must exist in config;
+missing spec fields fail later. maxReferenceBytes and seed are passed through.
+The optional GPU-count argument constrains the surrounding configuration, not proof
+of any device use. sourceClean starts false until run inspects provenance.</p>
+<h2 id="prepopulation-and-java-trials">Prepopulation and Java Trials</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>prepare(plan, dataset, spec, directory, stores, seed)</code></td>
+<td>Writes selected V2 manifest, loads sources and derives unique complete keys using BackendContext.cache_key. Preprocesses/encodes each artifact identically into Java and durable mmap in batches of 16, retaining sample ID/byte length/hash metadata. Drains, checks cardinality, reads every artifact for hash/byte parity, shuffles entries and writes keys.bin through Java adapter key conversion. Closes stores/daemon, writes untimed population receipt and returns ordered metadata.</td>
+</tr>
+<tr>
+<td><code>java_trial(stores, directory, job, plan, *, prepare_only=False)</code></td>
+<td>Launches HitPathBenchmark with prepared Java store/key file, request size, epochs and warmup. prepare_only uses zero measured epochs and seal.json; otherwise requires PASSED and unchanged idle activity, adds job/role/summary and rewrites trial JSON. Uses reported elapsedNs or sum of batch durations fallback. Checked process output goes to target .log; no subprocess timeout. Returns parsed report.</td>
+</tr>
+</tbody>
+</table>
+<p>Preparation validates complete cardinality and byte hashes outside measured trials.
+mmap records contain a four-byte prefix removed for parity comparison. The returned
+ordered metadata stores hashes, not every full payload. population.wallNs starts
+before daemon launch and includes transformation, publication, validation and
+shutdown, but excludes earlier manifest/source/key setup. It is untimed preparation,
+not a hit-performance endpoint. Exceptions close Java/mmap sequentially; one close
+failure can prevent later cleanup. Constructors before try are not covered by its
+finally.</p>
+<p>run first calls java_trial prepare_only to seal the final memtable before measuring
+any layer. That path does not apply Python's PASSED/activity checks to the returned
+seal report; it relies on the Java process exit and producer behavior. Measured
+Java trials are not separately tensor/hash-validated by this wrapper.</p>
+<h2 id="python-trial-and-nested-helpers">Python Trial and Nested Helpers</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>python_trial(stores, directory, job, plan, entries)</code></td>
+<td>Constructs full epoch schedule, starts Java daemon and both adapters even for mmap trials, drains and runs untimed warmup. Captures initial cardinality/activity and metric baselines, then consumes ordered bounded-prefetch epochs. Checks complete schedule, no publication/storage activity, trace errors, stable connection count and one correlated Aether getMany per batch; optional completed-server trace reconciliation enriches traces. Writes PASSED after cleanup, or INVALID evidence inside its protected trial body and rethrows.</td>
+</tr>
+<tr>
+<td><code>python_trial.prepare_batch(indices)</code></td>
+<td>Retrieves Aether packed values (closing packed response in finally) or mmap records minus their prefix. Requires all hits and expected byte lengths. Full-input mode unpacks, checks sample ID order, stacks arrays and normalizes CPU tensors. Returns PreparedBatch with lookup/decode/tensor timing, bytes, samples and correlated getMany trace IDs. No fallback transformation or publication exists here.</td>
+</tr>
+<tr>
+<td><code>python_trial.export_completed()</code></td>
+<td>With serverTrace off returns empty list. Otherwise drains completed traces, requires dropped==0 and returns records. Called after warmup and between epochs outside active epoch timing; missing dropped also fails. Does not independently validate every returned record here.</td>
+</tr>
+</tbody>
+</table>
+<p>Measured retrieval checks length, not full hashes again; full-input mode also checks
+decoded sample IDs. The byte preflight is the stronger initial content check.
+Lookup timing includes retrieval/copying but ends before hit/length checks; duration
+includes checks and optional CPU preparation. artifactDecodeNs includes unpack,
+identity checking and stacking; tensorMaterializationNs covers normalization.
+No transfer, model forward, backward or optimizer work is present.</p>
+<p>Prefetch uses one workload connection with one producer at a time. Epoch wall
+includes iterator consumption/close; trace export between epochs is excluded.
+Batch records keep producer duration and consumer wait separately; throughput uses
+sum of active epoch walls, not sum of overlapping producer phases. Tensors are
+released after consumption. Warmup traces are cleared and completed records
+discarded before measured snapshots.</p>
+<p>Publication count combines Java operation-2/6 deltas and mmap appended-entry delta.
+Measured control requests also affect protocol snapshots. Successful Aether trials
+require get trace count equals batch count and stable connections; they do not
+explicitly reject internal attempt_failed events if final outcome is complete.
+Server reconciliation rejects duplicate completed IDs and differing ID sets, but
+does not separately assert uniqueness of client IDs. Missing stage keys contribute
+zero in distributions. Java/storage phases are inclusive, not additive.</p>
+<p>The INVALID-report handler covers the inner protected body, including schedule and
+validation errors, not every construction/setup/cleanup failure. Exceptions before
+try, in client/mmap close or daemon-context exit can bypass that receipt or prevent
+the final PASSED write. client.close then mmap.close are not independently guarded.
+Each mmap trial still incurs excluded Java startup/drain/control activity to verify
+storage idleness, though measured data retrieval is local mmap.</p>
+<h2 id="comparison-and-campaign-functions">Comparison and Campaign Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>comparisons(reports, training_size)</code></td>
+<td>Indexes trials by backend/layer/size/depth (last duplicate wins). At depth zero computes RPC minus Java mean request duration only when Java report has no segment-backed entries; computes full-input minus RPC mean when available. Negative differences remain. Missing measurements give None. Missing Java report defaults inline-comparable true but still produces no Java subtraction.</td>
+</tr>
+<tr>
+<td><code>comparisons.latency(backend, layer)</code></td>
+<td>Finds depth-zero training-size trial and returns summary.durationNs.mean or None if missing. Does not check report PASSED, matching epochs or nonempty duration distribution itself.</td>
+</tr>
+<tr>
+<td><code>run(args)</code></td>
+<td>Builds plan; plan-only writes a plan without population. Otherwise exclusively owns output, rejects existing protocol/repetition evidence, records environment/source/manifest hashes, creates repeats and cache workspaces, prepares/seals stores and runs shuffled jobs. Writes per-repeat comparisons and final diagnostic summary. On protected-body BaseException writes INVALID with completed repetitions and rethrows.</td>
+</tr>
+</tbody>
+</table>
+<p>Plan-only allows an existing directory and overwrites hit-path-plan.json; it does
+not verify data, build Java or establish clean source. Active mode records sourceClean
+from successful empty git status, but does not reject a dirty checkout. Manifest
+hashes are recorded before repeats; this function does not rehash them each trial.
+Preparation/verification/warmup/process startup and trace export stay outside active
+epoch summaries. Cache-workspace retention/cleanup follows that helper's contract.</p>
+<p>The campaign INVALID handler starts after protocol/environment writes; setup failures
+before it need not produce hit-path-summary.json. Successful output uses its own
+diagnostic schema and explicitly confirmatory=false. No paper-block merging,
+checkpoint resume or research conclusion is inferred from these layer differences.</p>
+<h2 id="coverage-and-evidence">Coverage and Evidence</h2>
+<p>AST checks require all 19 qualified declarations. Existing
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_hit_path_profile.py">hit-path tests</a> check hit/idleness,
+activity rejection and plan constraints. Focused contracts cover interpolated
+percentiles, job construction, binary workload layout and descriptive differences.
+These local fixtures do not claim live Java/RPC/tensor throughput evidence.</p>
+<p>This module is <strong>19/19 declarations covered (100%; 0% remaining)</strong>. Wider repository
+documentation remains unfinished.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#three-layer-architecture">Three-Layer Architecture</a><a href="#hit-only-gates-and-statistical-helpers">Hit-Only Gates and Statistical Helpers</a><a href="#plan-and-workload-construction">Plan and Workload Construction</a><a href="#prepopulation-and-java-trials">Prepopulation and Java Trials</a><a href="#python-trial-and-nested-helpers">Python Trial and Nested Helpers</a><a href="#comparison-and-campaign-functions">Comparison and Campaign Functions</a><a href="#coverage-and-evidence">Coverage and Evidence</a></nav></aside>
+  </div>
+</body>
+</html>

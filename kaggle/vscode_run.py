@@ -26,19 +26,83 @@ def run_logged(command, *, cwd):
             raise subprocess.CalledProcessError(code, command)
 
 
+def run_restart_correctness(python):
+    os.environ["AETHER_JAVA_TEST"] = "1"
+    basetemp = repo / "build/restart-correctness"
+    basetemp.parent.mkdir(parents=True, exist_ok=True)
+    run_logged([python, "-m", "pytest",
+                "scripts/tests/test_longitudinal_comparison.py::test_real_five_version_process_restart",
+                "-q", "--basetemp", str(basetemp),
+                "--junitxml", str(results / "restart-correctness.xml")], cwd=repo)
+
+
+def validate_bulk_baseline(python):
+    # PYTHONPATH and the prepared dependencies apply to children, not this kernel.
+    run_logged([python, "-c",
+                "import sys; from profile_bulk_verification import baseline_identity; "
+                "identity = baseline_identity(sys.argv[1]); "
+                "expected = sys.argv[2]; "
+                "actual = identity['sourceManifestSha256']; "
+                "sys.exit('baseline provenance mismatch: ' + actual) if actual != expected else None",
+                str(baseline_repo), REMOTE_CONFIG["bulkBaselineManifestSha256"]], cwd=repo)
+
+
+def run_bulk_verification_gates(python):
+    modules = ("sstable", "wal", "io", "memtable", "lsm", "engine", "training-cache")
+    try:
+        run_logged(["bash", "gradlew", "--no-daemon", "--continue",
+                    *[f":modules:aether-{name}:test" for name in modules]], cwd=repo)
+    finally:
+        for name in modules:
+            for report in (repo / f"modules/aether-{name}/build/test-results/test").glob("*.xml"):
+                destination = results / "storage-tests" / name / report.name
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(report, destination)
+    os.environ["AETHER_JAVA_TEST"] = "1"
+    basetemp = repo / "build/bulk-verification-correctness"
+    basetemp.parent.mkdir(parents=True, exist_ok=True)
+    run_logged([python, "-m", "pytest", "scripts/tests/test_bulk_population.py",
+                "scripts/tests/test_bulk_verification.py", "-q",
+                "--basetemp", str(basetemp),
+                "--junitxml", str(results / "bulk-correctness.xml")], cwd=repo)
+
+
+def prepare_evolution_data(python, config_path):
+    configuration = json.loads(config_path.read_text(encoding="utf-8"))
+    for name, spec in configuration.items():
+        if not spec.get("evolutionSourceManifest"):
+            continue
+        v1, v2 = Path(spec["manifestV1"]), Path(spec["manifestV2"])
+        if v1.name != "v1.csv" or v2.name != "v2.csv" or v1.parent != v2.parent:
+            raise ValueError("generated evolution manifests require v1.csv and v2.csv in one directory")
+        run_logged([python, "scripts/prepare_evolution.py", "--manifest", spec["evolutionSourceManifest"],
+                    "--output", str(v1.parent), "--v1-size", str(spec["samplesV1"]),
+                    "--v2-size", str(spec["samplesV2"]), "--reusable", str(spec["expectedReusable"]),
+                    "--split", spec.get("split", "train"), "--seed", str(spec["evolutionSeed"])], cwd=repo)
+        receipt_dir = results / "data-preparation" / name
+        receipt_dir.mkdir(parents=True, exist_ok=False)
+        shutil.copy2(v1.parent / "evolution.json", receipt_dir / "evolution.json")
+    run_logged([python, "scripts/validate_manifests.py", "--config", str(config_path)], cwd=repo)
+
+
 results = Path("/kaggle/working/aether-results")
 repo = Path("/kaggle/working/Aether-Engine")
 venv = Path("/kaggle/working/aether-paper-venv")
 runtime_path = Path("/kaggle/working/aether-paper-runtime.json")
 results.mkdir(parents=True, exist_ok=False)
 repo_created = False
+baseline_repo = Path("/kaggle/working/Aether-Bulk-Baseline")
+baseline_created = False
 venv_existed = venv.exists()
 status = {"status": "running", "config": REMOTE_CONFIG}
 try:
     source = Path("/kaggle/input") / REMOTE_CONFIG["sourceDataset"].split("/")[1]
     repo.mkdir(parents=True, exist_ok=False)
     repo_created = True
-    archives = list(source.rglob("aether-paper-artifact.zip"))
+    opaque_source = REMOTE_CONFIG["mode"] in {"population-verification", "population-candidate-jfr", "population-streaming"}
+    archives = list(source.rglob("candidate-source.bin")) if opaque_source else list(source.rglob("aether-paper-artifact.zip"))
+    if opaque_source and len(archives) != 1:
+        raise ValueError("attached source has no unique opaque candidate archive")
     if archives:
         if len(archives) != 1:
             raise ValueError("ambiguous source archive")
@@ -53,8 +117,9 @@ try:
             raise ValueError("source dataset has no unique artifact manifest")
         shutil.copytree(manifests[0].parent, repo, dirs_exist_ok=True)
     manifest_path = repo / "artifact-provenance.json"
-    if hashlib.sha256(manifest_path.read_bytes()).hexdigest() != REMOTE_CONFIG["sourceManifestSha256"]:
-        raise ValueError("attached source dataset differs from the locally prepared notebook")
+    actual_manifest = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+    if actual_manifest != REMOTE_CONFIG["sourceManifestSha256"]:
+        raise ValueError(f"attached source dataset differs from the locally prepared notebook: expected {REMOTE_CONFIG['sourceManifestSha256']}, actual {actual_manifest}")
     manifest = json.loads(manifest_path.read_text())
     if not manifest.get("files"):
         raise ValueError("empty source manifest")
@@ -70,8 +135,59 @@ try:
     python = "/kaggle/working/aether-paper-venv/bin/python"
     if REMOTE_CONFIG["mode"] == "all":
         run_logged([python, "-m", "pip", "install", "-r", "env/requirements-dali.lock"], cwd=repo)
-    run_logged([python, "scripts/validate_gpu.py"], cwd=repo)
+    if REMOTE_CONFIG["mode"] in {"monai", "longitudinal", "longitudinal-persistent", "population", "population-bulk", "population-layout", "population-jfr", "population-verification", "population-candidate-jfr", "population-streaming"}:
+        run_logged([python, "-m", "pip", "install", "--no-deps", "-r", "env/requirements-monai.lock"], cwd=repo)
+    if REMOTE_CONFIG["mode"] not in {"population", "population-bulk", "population-layout", "population-jfr", "population-verification", "population-candidate-jfr", "population-streaming"}:
+        run_logged([python, "scripts/validate_gpu.py"], cwd=repo)
+    if REMOTE_CONFIG["mode"] in {"pilot", "primary", "monai"} and REMOTE_CONFIG.get("datasetConfig"):
+        prepare_evolution_data(python, repo / REMOTE_CONFIG["datasetConfig"])
     command = [python, "scripts/reproduce.py", REMOTE_CONFIG["mode"], "--output", str(results)]
+    if REMOTE_CONFIG["mode"] in {"population-verification", "population-streaming"}:
+        baseline_archives = list(source.rglob("baseline-source.bin"))
+        if len(baseline_archives) != 1 or hashlib.sha256(baseline_archives[0].read_bytes()).hexdigest() != REMOTE_CONFIG["bulkBaselineTransportSha256"]:
+            raise ValueError("attached baseline differs from the frozen comparison")
+        baseline_repo.mkdir(parents=True, exist_ok=False)
+        baseline_created = True
+        with zipfile.ZipFile(baseline_archives[0]) as archive:
+            for member in archive.infolist():
+                if not (baseline_repo / member.filename).resolve().is_relative_to(baseline_repo):
+                    raise ValueError("baseline archive path escapes repository")
+            archive.extractall(baseline_repo)
+        validate_bulk_baseline(python)
+        run_bulk_verification_gates(python)
+        run_logged(["bash", "gradlew", "--no-daemon",
+                    ":modules:aether-training-cache:paperRuntimeClasspath"], cwd=baseline_repo)
+        command = [python, "scripts/profile_bulk_verification.py", "--baseline-root", str(baseline_repo),
+                   "--repetitions", str(REMOTE_CONFIG["pilotRepeats"]), "--output", str(results / REMOTE_CONFIG["mode"])]
+        if REMOTE_CONFIG["mode"] == "population-streaming":
+            command.append("--streaming")
+    if REMOTE_CONFIG["mode"] == "population-jfr":
+        command = [python, "scripts/profile_bulk_jfr.py", "--output", str(results / "population-jfr")]
+    if REMOTE_CONFIG["mode"] == "population-candidate-jfr":
+        command = [python, "scripts/profile_bulk_jfr.py", "--candidate-only", "--output", str(results / "candidate-jfr")]
+    if REMOTE_CONFIG["mode"] == "monai":
+        command = [python, "scripts/monai_comparison.py", "--output", str(results / "monai-pilot")]
+    if REMOTE_CONFIG["mode"] in {"population", "population-bulk", "population-layout"}:
+        bulk = REMOTE_CONFIG["mode"] == "population-bulk"
+        extra = ["--include-bulk"] if bulk else []
+        prefix = "population-bulk" if bulk else "population"
+        if REMOTE_CONFIG["mode"] == "population-layout":
+            extra, prefix = ["--bulk-layout"], "population-layout"
+        run_logged([python, "scripts/profile_population.py", "--smoke",
+                    "--output", str(results / (prefix + "-smoke")),
+                    "--scratch-root", REMOTE_CONFIG["scratchRoot"]] + extra, cwd=repo)
+        command = [python, "scripts/profile_population.py", "--output", str(results / (prefix + "-diagnostic"))] + extra
+    if REMOTE_CONFIG["mode"] in {"longitudinal", "longitudinal-persistent"}:
+        # Separate smoke stores/results; a failure prevents all pilot measurements.
+        if REMOTE_CONFIG["mode"] == "longitudinal-persistent":
+            run_restart_correctness(python)
+        smoke_name = "longitudinal-persistent-smoke" if REMOTE_CONFIG["mode"] == "longitudinal-persistent" else "longitudinal-smoke"
+        pilot_name = "longitudinal-persistent-pilot" if REMOTE_CONFIG["mode"] == "longitudinal-persistent" else "longitudinal-pilot"
+        smoke = [python, "scripts/longitudinal_comparison.py", "--smoke",
+                 "--config", REMOTE_CONFIG["datasetConfig"], "--output", str(results / smoke_name),
+                 "--scratch-root", REMOTE_CONFIG["scratchRoot"]]
+        run_logged(smoke, cwd=repo)
+        command = [python, "scripts/longitudinal_comparison.py", "--output", str(results / pilot_name)]
     if REMOTE_CONFIG["mode"] == "smoke":
         command += ["--training-epochs", str(REMOTE_CONFIG.get("trainingEpochs", 1))]
     if REMOTE_CONFIG.get("datasetConfig"):
@@ -88,11 +204,11 @@ try:
         command += ["--prefetch-depths", REMOTE_CONFIG["prefetchDepths"]]
     if REMOTE_CONFIG.get("hitWarmupEpochs") is not None:
         command += ["--hit-warmup-epochs", str(REMOTE_CONFIG["hitWarmupEpochs"])]
-    if REMOTE_CONFIG["mode"] == "pilot":
+    if REMOTE_CONFIG["mode"] in {"pilot", "monai"}:
         command += ["--pilot-repeats", str(REMOTE_CONFIG.get("pilotRepeats", 10))]
-    if REMOTE_CONFIG.get("prefetchDepth") is not None:
+    if REMOTE_CONFIG.get("prefetchDepth") is not None and REMOTE_CONFIG["mode"] not in {"longitudinal", "longitudinal-persistent"}:
         command += ["--prefetch-depth", str(REMOTE_CONFIG["prefetchDepth"])]
-    if REMOTE_CONFIG.get("epochs") is not None:
+    if REMOTE_CONFIG.get("epochs") is not None and REMOTE_CONFIG["mode"] not in {"longitudinal", "longitudinal-persistent"}:
         command += ["--epochs", str(REMOTE_CONFIG["epochs"])]
     run_logged(command, cwd=repo)
     status["status"] = "passed"
@@ -109,6 +225,8 @@ finally:
     shutil.rmtree(results)
     if repo_created:
         shutil.rmtree(repo)
+    if baseline_created:
+        shutil.rmtree(baseline_repo)
     if not venv_existed and venv.exists():
         shutil.rmtree(venv)
     runtime_path.unlink(missing_ok=True)

@@ -1,0 +1,323 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/SSTABLE-READ-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="SSTable reads and verification: source-backed contributor documentation for Aether Engine.">
+  <title>SSTable reads and verification | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html" aria-current="page">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/SSTABLE-READ-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="sstable-reads-and-verification">SSTable Reads And Verification</h1>
+<p><a href="sstable-block-functions.html">Block functions</a> | <a href="persistent-internals.html">Persistent internals</a></p>
+<p><a href="sstable-build-functions.html">SSTable construction</a> follows the writer, partitioning
+and trace stages that precede these reads.</p>
+<p>This page describes functions in the local development checkout. In particular,
+the streaming verifier may not yet be present in published <code>main</code> source.</p>
+<h2 id="two-different-lifetimes">Two Different Lifetimes</h2>
+<p><code>SSTableReader</code> owns an open channel, a validated Bloom filter, index-derived
+block descriptors and lazily initialized decoded-entry caches. Its public open
+methods immediately run complete verification, which populates all those caches.
+Consequently, lazy loading is an implementation mechanism, not a promise that
+ordinary open avoids reading DATA blocks.</p>
+<p><code>SSTableVerifier</code> owns a temporary channel for one sequential validation pass.
+It materializes metadata blocks but uses <code>RestartBlockScanner</code> for DATA entries.
+It returns accounting, closes the channel and retains no general-purpose reader
+or decoded value cache. It does not publish a manifest or make a table live.</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>DATA values</th>
+<th>Persistent state after return</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reader <code>open</code></td>
+<td>Materialized and copied during complete verification.</td>
+<td>Open channel and decoded block caches.</td>
+</tr>
+<tr>
+<td>Reader <code>lookup</code> after open</td>
+<td>Reuses an owned cached result; its public value accessor still copies.</td>
+<td>Same cache/result identity.</td>
+</tr>
+<tr>
+<td>Reader <code>entries</code></td>
+<td>Copies values into new owning entries.</td>
+<td>Returned immutable list; reader cache remains.</td>
+</tr>
+<tr>
+<td>Reader <code>verify</code> again</td>
+<td>Reuses cache but copies values to obtain lengths.</td>
+<td>Same reader caches; no disk re-read required for cached blocks.</td>
+</tr>
+<tr>
+<td>Streaming <code>verify</code></td>
+<td>Skips value materialization; checksum still covers the bytes.</td>
+<td>Scalar verification result only.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="reader-construction-and-open-paths">Reader Construction And Open Paths</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableReader.java">SSTableReader.java</a>.</p>
+<h3 id="private-sstablereader">Private <code>SSTableReader(...)</code></h3>
+<p>Stores the path, expected metadata, channel, physical size, block descriptors and
+validated filter. The footer parameter is passed by <code>finishOpen</code> but is not stored
+or used by the constructor. Construction alone performs no I/O or verification.</p>
+<h3 id="openpath-expected"><code>open(path, expected)</code></h3>
+<p>Requires a path and <code>TableFileMetadata</code>, opens a read-only channel and checks
+exact file size and minimum header/footer capacity. It reads and decodes the
+4 KiB header region and 128-byte footer, then delegates to <code>finishOpen</code>.
+On any failure it closes the channel; an I/O failure from that cleanup is attached
+as suppressed rather than replacing the original failure.</p>
+<h3 id="openpath-databaseid-manifest"><code>open(path, databaseId, manifest)</code></h3>
+<p>Requires all three arguments and checks file size against manifest metadata.
+After decoding header/footer, it reads properties to obtain raw key/value byte
+counts absent from <code>ManifestFileMetadata</code>. It builds expected metadata from the
+manifest identity, counts, key bounds and sequence bounds, plus header block count
+and those properties. <code>finishOpen</code> then cross-checks observed content. The
+explicit key-bound comparison here compares the manifest with copies sourced
+from that same manifest; it is not the content proof. That comes later.</p>
+<h3 id="openpath-databaseid"><code>open(path, databaseId)</code></h3>
+<p>Opens an unreferenced candidate using its own header and properties as the source
+of expected file number, counts and bounds. The supplied database identity still
+must match the file. This proves internal consistency, not that a manifest has
+authorized or published the candidate. Failure cleanup matches the other paths.</p>
+<h3 id="finishopen"><code>finishOpen(...)</code></h3>
+<p>Checks identity and footer handle bounds/non-overlap, loads and validates the
+Bloom filter, properties, metaindex and index. A previously decoded properties
+payload is reused instead of re-reading it. It builds block descriptors, creates
+the reader and invokes <code>reader.verify()</code> before returning. It relies on the outer
+open method to close the channel if this sequence fails.</p>
+<h2 id="point-lookup-and-iteration">Point Lookup And Iteration</h2>
+<h3 id="lookupuserkey-visiblesequence"><code>lookup(userKey, visibleSequence)</code></h3>
+<p>Checks the reader is open, requires a non-null key and nonnegative visibility
+boundary. A Bloom negative returns <code>Absent</code> and increments filter-negative
+diagnostics. Otherwise an index search selects the first block whose upper-bound
+user key is at least the requested key. No candidate block also returns <code>Absent</code>.</p>
+<p>Within that block, a lower-bound search finds the user-key run. The method walks
+versions in newest-first internal order and returns the first whose sequence is
+not greater than the visibility boundary. It returns the cached <code>SSTableLookup</code>
+object itself. No visible version returns <code>Absent</code>; an I/O loading failure becomes
+<code>SSTableCorruptionException</code> with its cause. This method searches one selected
+block, not a cross-block version run. The current builder can split versions of
+one user key across blocks, so generic multi-version inputs require care; the
+reader does not compensate by scanning subsequent blocks. Index upper-bound
+validity is also required for correct selection.</p>
+<h3 id="findcandidateblock-binarysearch-sameuserkey-and-sequence"><code>findCandidateBlock</code>, <code>binarySearch</code>, <code>sameUserKey</code> And <code>sequence</code></h3>
+<ul>
+<li><code>findCandidateBlock(userKey)</code> performs a lower-bound binary search over index upper-bound user keys, returning -1 after the last block.</li>
+<li><code>binarySearch(entries, userKey)</code> finds the first decoded entry whose user key is at least the request; its result may equal the list size.</li>
+<li><code>sameUserKey(encoded, userKey)</code> compares the user portion directly, with no decoded-key allocation.</li>
+<li>Private <code>sequence(encoded)</code> delegates to the whole-array sequence accessor for an already validated internal key.</li>
+</ul>
+<h3 id="entries"><code>entries()</code></h3>
+<p>Loads each block and returns all entries in internal order as <code>List.copyOf</code>.
+Every element receives a newly decoded <code>InternalKey</code> and a copied value, which
+<code>SSTableEntry</code> clones again on construction. This is full materialization,
+not a streaming iterator or borrowed block view. Closing the reader does not
+invalidate the separately owned returned entries.</p>
+<h3 id="reader-verify">Reader <code>verify()</code></h3>
+<p>Traverses cached-or-loaded entries, decodes each internal key, checks strict
+global ordering, counts entries and raw key/value bytes, tracks minimum/maximum
+sequences and rejects Bloom false negatives. It compares these observations and
+first/last keys with expected metadata, then records a verification trace.</p>
+<p><code>entry.value().length</code> obtains a defensive value copy even though only the length
+is needed. A repeat call can therefore allocate heavily despite no DATA disk
+read. Cached bytes, not a new read of every physical block, are revalidated.
+The code assumes the first DATA block has an entry when checking its first key;
+it does not give that assumption a dedicated empty-block error here.</p>
+<h3 id="metadata-close-ensureopen-and-corrupt"><code>metadata()</code>, <code>close()</code>, <code>ensureOpen()</code> And <code>corrupt(...)</code></h3>
+<p><code>metadata</code> checks open state and returns the immutable metadata object.
+<code>close</code> marks the reader closed before closing its channel. <code>ensureOpen</code> rejects
+subsequent read/metadata/verification operations with an <code>IllegalStateException</code>
+that includes the path. <code>corrupt</code> constructs structural exceptions. Closing
+does not explicitly clear decoded cache fields; their memory is reclaimed when
+the reader and references to its cached results become unreachable.</p>
+<h2 id="index-metadata-and-physical-read-helpers">Index, Metadata And Physical Read Helpers</h2>
+<h3 id="decodeindexanddata"><code>decodeIndexAndData(...)</code></h3>
+<p>Materializes index entries under internal-key ordering and requires a nonempty
+index whose count matches the header. Each index value decodes to a handle,
+which must fit the body, not overlap its predecessor and end no later than the
+filter block's start. Each index key becomes a block's upper bound. The returned
+descriptor list is immutable; DATA content loads later, during verification.</p>
+<p>The channel parameter is unused in this helper. It does not compare each index
+upper bound with the actual last key of its DATA block. Global DATA order and
+table bounds are separate checks, not a proof of that correspondence.</p>
+<h3 id="validateidentity"><code>validateIdentity(...)</code></h3>
+<p>Matches header/footer file numbers and database IDs against expected metadata,
+both recorded sizes against actual size, and header entry/block counts and
+sequence bounds against expectations. The path supplies error context; it does
+not enforce a canonical filename by parsing it.</p>
+<h3 id="validatemetaindex-and-validateproperties"><code>validateMetaindex(...)</code> And <code>validateProperties(...)</code></h3>
+<p>The metaindex is decoded into named entries and must contain handles matching
+the footer for <code>aether.filter.bloom.v1</code> and <code>aether.properties.v1</code>. Properties
+must match comparator, file number/size, entry/block counts, raw byte counts,
+sequence/key bounds, Bloom policy, compression policy and creation timestamp.
+Required property checks do not reject every possible additional property.</p>
+<h3 id="bytewisemap-and-property-validators"><code>bytewiseMap(...)</code> And Property Validators</h3>
+<p><code>bytewiseMap</code> turns materialized metadata keys into US-ASCII strings and obtains
+defensive value copies. Duplicate decoded names are corruption. It does not
+independently validate that every input byte is ASCII.</p>
+<ul>
+<li><code>requireHandle(values, key, expected)</code> requires and decodes a handle, then compares it with the expected record.</li>
+<li><code>requireAscii(values, key, expected)</code> encodes the expected ASCII literal and delegates to byte comparison.</li>
+<li><code>requireLong</code> and <code>requireInt</code> require exact eight/four-byte little-endian representations and matching scalar values.</li>
+<li><code>requireBytes</code> compares array content against expected bytes.</li>
+<li><code>propertyLong</code> requires an eight-byte property and returns its scalar; semantic bounds are checked by consumers.</li>
+<li><code>propertyBytes</code> requires presence and returns a clone, not the map-owned array.</li>
+</ul>
+<h3 id="raw-and-readrange"><code>raw(...)</code> And <code>readRange(...)</code></h3>
+<p><code>raw</code> validates handle bounds and requires its offset to fit a signed <code>int</code>
+even though the lower-level reader accepts a <code>long</code> offset. It times and counts
+the physical block read, then calls <code>BlockEnvelope.decode</code> for metadata/checksum
+validation and payload copying. An offset above that addressable limit is
+corruption, not support for an arbitrarily large SSTable.</p>
+<p><code>readRange(channel, offset, length)</code> allocates exactly <code>length</code> bytes and loops
+positional channel reads until filled. End of file throws <code>EOFException</code>.
+The channel's shared position is not advanced. The method has no timeout or
+explicit zero-progress read limit. Diagnostics count requested block bytes,
+not physical-device I/O or operating-system cache misses.</p>
+<h2 id="decoded-block-cache">Decoded Block Cache</h2>
+<h3 id="datablock-and-loadentries"><code>DataBlock(...)</code> And <code>loadEntries(...)</code></h3>
+<p>Construction stores a handle, owned index-key array and initial entries list.
+<code>loadEntries</code> records a cache hit/miss from the initial observed volatile field.
+Double-checked initialization under the block monitor prevents simultaneous
+threads from publishing two converted lists. That diagnostic observation can
+report a miss even when another thread completes initialization before the lock.</p>
+<p>On first initialization it reads/checksums the DATA block, materializes restart
+entries, decodes and validates each internal key, rejects a tombstone with a
+nonempty value, and creates <code>DataBlockEntry</code> objects. <code>List.copyOf</code> is published
+through the volatile field. Decode timing ends in <code>finally</code>, including failures.
+Cached loads do not perform another envelope checksum read.</p>
+<h3 id="loadentriesunchecked-and-upperboundkey"><code>loadEntriesUnchecked(...)</code> And <code>upperBoundKey()</code></h3>
+<p><code>loadEntriesUnchecked</code> wraps an <code>IOException</code> from loading in
+<code>IllegalStateException</code>; it does not translate every failure to corruption.
+<code>upperBoundKey</code> exposes the internally owned key array only to private reader
+logic, without another clone.</p>
+<h3 id="datablockentry-encodedkey-lookup-and-value"><code>DataBlockEntry(...)</code>, <code>encodedKey()</code>, <code>lookup()</code> And <code>value()</code></h3>
+<p>The constructor stores its already-owned encoded key and creates one immutable
+lookup result using the encoded sequence. <code>encodedKey</code> and <code>lookup</code> return those
+private cached fields directly. <code>value</code> delegates to a found result's copying
+accessor or returns a new empty array for a tombstone.</p>
+<p>Current classification uses <strong>value length</strong>, not internal-key type: an empty
+value becomes <code>Tombstone</code>, even if its key type is 1. The codec permits a type-1
+empty value, so this reader-cache path should not be advertised as preserving
+that distinction. This reference describes existing behavior; it does not alter
+read semantics as part of documentation work.</p>
+<h2 id="authoritative-streaming-verification">Authoritative Streaming Verification</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableVerifier.java">SSTableVerifier.java</a>.</p>
+<p>The private <code>SSTableVerifier()</code> constructor prevents utility instantiation.
+<code>verify(path, databaseId, manifest)</code> opens a temporary read-only channel in
+try-with-resources. Its stages are:</p>
+<ol>
+<li>Require exact manifest file size and enough room for header/footer; decode both and validate footer handles.</li>
+<li>Read properties, construct expected metadata, check identity/properties/metaindex, and decode a reusable Bloom view.</li>
+<li>Materialize index entries using the validating internal-key range comparator; require a nonempty index with the expected block count.</li>
+<li>Visit DATA handles in order, rejecting overlap and handles extending beyond the DATA region. Read/checksum each block once through <code>raw</code> and scan entries without materializing values.</li>
+<li>Validate each internal-key range, require zero value length for type-2 tombstones, enforce global order, match the first key and check Bloom membership using the borrowed user-key range.</li>
+<li>Accumulate counts/byte lengths/sequence extrema, retain only previous-key scratch, then compare totals and final key with metadata. Return observations and record the streamed trace.</li>
+</ol>
+<p>The first empty DATA block is explicitly rejected. The implementation does not
+reject every later empty block independently; the aggregate checks still apply.
+As with the reader, it does not compare each index upper bound with that block's
+last scanned key. Handle gaps are not rejected merely for being gaps.</p>
+<p>The scanner's borrowed key is copied into previous-key scratch for cross-entry
+ordering; tensor-sized values are not cloned. Physical block arrays and the
+existing envelope payload copy remain. This is a low-allocation mandatory pass,
+not a zero-allocation or zero-I/O pass.</p>
+<p><code>IllegalArgumentException</code> and <code>IndexOutOfBoundsException</code> are normalized to
+<code>SSTableCorruptionException</code> with the original cause. Existing corruption and
+I/O failures propagate; the channel closes on success and failure. Private
+<code>corrupt(message)</code> creates direct structural failures.</p>
+<h3 id="verificationresult"><code>VerificationResult</code></h3>
+<p>The returned record contains observed entry count, raw internal-key/value byte
+counts, sequence extrema, requested read bytes, index-derived DATA-block count
+and elapsed nanoseconds. Generated accessors return scalars. <code>bytesRead</code> includes
+header/footer and physical metadata/DATA handles, not OS-level read amplification.
+Elapsed time includes this verification path; it is not total population time.</p>
+<h2 id="result-and-metadata-objects">Result And Metadata Objects</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableLookup.java">SSTableLookup</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableEntry.java">SSTableEntry</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/TableFileMetadata.java">TableFileMetadata</a>.</p>
+<ul>
+<li><code>SSTableLookup.sequence()</code> distinguishes a selected positive sequence from zero for absence. It is an interface contract, not a visibility search.</li>
+<li><code>Found(sequence, result)</code> requires a positive sequence and a non-null found <code>LookupResult</code>; it retains that immutable result. The byte-array constructor delegates to the copying <code>LookupResult.found</code> factory. <code>value()</code> returns a defensive copy; generated <code>result()</code> exposes the immutable result object, not its private array.</li>
+<li><code>Tombstone(sequence)</code> requires a positive selected deletion sequence. <code>Absent()</code> has no fields and its explicit <code>sequence()</code> returns zero.</li>
+<li><code>SSTableEntry(key, value)</code> requires both fields and forbids nonempty tombstone payloads, then clones the value. Its <code>value()</code> clones again; generated <code>key()</code> returns the immutable <code>InternalKey</code> object.</li>
+<li><code>TableFileMetadata(...)</code> validates non-null path/identity/key bounds, positive number/size/counts/sequence minimum, ordered sequence extrema and nonnegative raw byte counts. It copies both key-bound arrays. This constructor does not decode bounds or verify their semantic key order.</li>
+<li><code>smallestInternalKey()</code> and <code>largestInternalKey()</code> return clones. <code>smallestUserKey()</code> and <code>largestUserKey()</code> decode the owned bounds and obtain copied user keys; they are not allocation-free slices. Remaining generated metadata accessors return immutable references or scalars.</li>
+</ul>
+<h2 id="header-and-footer-functions">Header And Footer Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableHeaderV1.java">SSTableHeaderV1</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableFooterV1.java">SSTableFooterV1</a>.</p>
+<h3 id="sstableheaderv1-encode-and-decoderegion"><code>SSTableHeaderV1(...)</code>, <code>encode()</code> And <code>decodeRegion(...)</code></h3>
+<p>Construction requires positive file number, database identity, nonnegative
+counts/sequences, matching empty/nonempty entry and block counts, positive minimum
+sequence for nonempty content, ordered sequence extrema and minimum file size.
+Zero-count explicit fixtures are permitted here, unlike <code>TableFileMetadata</code>.
+Creation time is diagnostic, not a transaction sequence.</p>
+<p><code>encode</code> allocates the fixed 128-byte header with magic/version/length, identity,
+fixed format policy, counts, creation time and final size; it stores masked CRC32C
+at byte 124 over the preceding 124 bytes. It returns only the header, not the whole
+4 KiB reserved region. DATA target 16,384 and restart interval 16 are format
+options, distinct from the configured whole-SSTable size target.</p>
+<p><code>decodeRegion</code> requires the complete 4 KiB region, zero trailing reserved bytes,
+valid checksum/prefix/fixed policies and zero reserved header fields. It decodes
+fields through the validating constructor, translating invalid fields to
+corruption. Private <code>corrupt(message)</code> constructs format failures.</p>
+<h3 id="sstablefooterv1-encode-and-decode"><code>SSTableFooterV1(...)</code>, <code>encode()</code> And <code>decode(...)</code></h3>
+<p>Construction requires all four metadata handles, positive file number, database
+identity and minimum size. It does not call <code>validateHandles</code> itself. <code>encode</code>
+allocates 128 bytes, stores magic/version, handles, identity and size, and writes
+masked CRC32C over the first 124 bytes. <code>decode</code> requires exact size, valid checksum,
+canonical prefix/reserved bytes and valid constructor fields. It decodes handles
+through private <code>handle(ByteBuffer)</code>, which copies each 16-byte representation
+before delegating to <code>BlockHandle.decode</code>.</p>
+<h3 id="validatehandles-overlap-and-corrupt"><code>validateHandles()</code>, <code>overlap(...)</code> And <code>corrupt(...)</code></h3>
+<p><code>validateHandles</code> checks each mandatory metadata handle against the footer offset,
+then tests every pair with private <code>overlap</code>, using half-open byte intervals.
+It rejects overlap, not all gaps or every alternative metadata ordering. DATA
+handle validation occurs in the reader/verifier, not this method. Private
+<code>corrupt</code> constructs footer-format failures. Generated record accessors expose
+immutable handles/identity and scalars.</p>
+<h2 id="reading-the-tests">Reading The Tests</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/test/java/io/aetherdb/sstable/StreamingVerifierTest.java">StreamingVerifierTest</a>
+covers the streaming path. Tests and function-name inventory serve different
+purposes: name coverage catches reference omissions, while behavior tests establish
+which valid/corrupt files each implementation accepts. Neither should be described
+as proof that all reader and verifier acceptance rules are identical.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#two-different-lifetimes">Two Different Lifetimes</a><a href="#reader-construction-and-open-paths">Reader Construction And Open Paths</a><a href="#point-lookup-and-iteration">Point Lookup And Iteration</a><a href="#index-metadata-and-physical-read-helpers">Index, Metadata And Physical Read Helpers</a><a href="#decoded-block-cache">Decoded Block Cache</a><a href="#authoritative-streaming-verification">Authoritative Streaming Verification</a><a href="#result-and-metadata-objects">Result And Metadata Objects</a><a href="#header-and-footer-functions">Header And Footer Functions</a><a href="#reading-the-tests">Reading The Tests</a></nav></aside>
+  </div>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/WRITE-PRESSURE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Write pressure functions: source-backed contributor documentation for Aether Engine.">
+  <title>Write pressure functions | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html" aria-current="page">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/WRITE-PRESSURE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="write-pressure-functions">Write Pressure Functions</h1>
+<p><a href="persistent-internals.html">Persistent internals</a> | <a href="compaction-planning-functions.html">Compaction planning</a></p>
+<p>This reference describes the current checkout, including development changes not
+necessarily published on <code>main</code>. Pressure evaluation is a pure decision step.
+The engine owns measurement, waiting, retry, admission deadlines, sequence
+reservation, and WAL submission.</p>
+<h2 id="architecture-and-decision-order">Architecture and Decision Order</h2>
+<p>One <code>WritePressureInput</code> packages storage measurements. <code>WritePressureController</code>
+evaluates them under a <code>WritePressurePolicy</code> and returns a <code>WritePressureSnapshot</code>.
+It has no previous-state memory, hysteresis, worker wakeup, filesystem query,
+sleep, or write mutation. Consistent measurements must be gathered by its caller.</p>
+<p>Decision precedence is failure, retryable stop, normal, then slowdown. Reasons
+collect all applicable conditions rather than just the winning trigger. Admission
+must act on this result before consuming sequence or modifying WAL if it is to
+preserve that engine ordering contract; evaluation alone does not enforce it.</p>
+<h2 id="input-measurements">Input Measurements</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/pressure/WritePressureInput.java">WritePressureInput.java</a>.</p>
+<h3 id="writepressureinput"><code>WritePressureInput(...)</code></h3>
+<p>The compact record constructor requires nonnegative immutable count, retained WAL
+bytes, L0 count, compaction debt, usable disk bytes, and total disk bytes. It does
+not ensure usable space is below total space or that all fields came from one
+instant. Disk sizes must be nonnegative even when disk measurements are unavailable.</p>
+<p>Implicit accessors expose <code>immutableMemTables</code>, <code>nativeCapacityAvailable</code>,
+<code>retainedWalBytes</code>, <code>levelZeroFiles</code>, <code>compactionDebtBytes</code>, <code>usableDiskBytes</code>,
+<code>totalDiskBytes</code>, <code>diskMeasurementAvailable</code>, <code>backgroundFailed</code>, and
+<code>administrativelyPaused</code>. Availability/failure flags are caller-supplied facts,
+not independently measured by the record.</p>
+<h2 id="threshold-policy">Threshold Policy</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/pressure/WritePressurePolicy.java">WritePressurePolicy.java</a>.</p>
+<h3 id="writepressurepolicy-and-defaults"><code>WritePressurePolicy(...)</code> and <code>defaults()</code></h3>
+<p>Each slow threshold must be at least one; each stop threshold must be strictly
+larger than its corresponding slow threshold. Default pairs are:</p>
+<table>
+<thead>
+<tr>
+<th>Measurement</th>
+<th>Slow at or above</th>
+<th>Stop at or above</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Immutable memtables</td>
+<td>2</td>
+<td>4</td>
+</tr>
+<tr>
+<td>L0 files</td>
+<td>12</td>
+<td>20</td>
+</tr>
+<tr>
+<td>Retained WAL</td>
+<td>512 MiB</td>
+<td>2 GiB</td>
+</tr>
+<tr>
+<td>Compaction debt</td>
+<td>2 GiB</td>
+<td>8 GiB</td>
+</tr>
+</tbody>
+</table>
+<p>Record accessors return these configured thresholds. Native capacity, disk space,
+administrative pause, and background failure are not adjustable fields in this
+policy. These values are separate from compaction scoring thresholds and bulk
+loader table sizing.</p>
+<h3 id="forimmutablelimitimmutablememtablestop"><code>forImmutableLimit(immutableMemtableStop)</code></h3>
+<p>Derives immutable slow threshold as <code>max(1, stop / 2)</code> using integer division,
+sets the requested stop, and obtains other thresholds from defaults. A stop of
+one or less fails policy validation; this helper does not clamp it to a valid
+stop. It creates several default record instances while reading default fields,
+not one cached singleton.</p>
+<h2 id="controller-entry-point">Controller Entry Point</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/pressure/WritePressureController.java">WritePressureController.java</a>.</p>
+<h3 id="writepressurecontroller-and-writepressurecontrollerpolicy"><code>WritePressureController()</code> and <code>WritePressureController(policy)</code></h3>
+<p>The no-argument constructor delegates to defaults. The explicit constructor
+requires nonnull policy. The controller retains no mutable state from evaluations.</p>
+<h3 id="evaluateinput"><code>evaluate(input)</code></h3>
+<p>Creates an enum reason set. Retryable stop is triggered by immutable/WAL/L0/debt
+at or above stop, unavailable native capacity, or administrative pause. Reasons
+for those numeric measurements begin at their slow thresholds; unavailable native
+capacity, failure, and pause have dedicated reasons.</p>
+<p>When disk measurements are available, slow space is
+<code>max(10 GiB, floor(total * 15 / 100))</code>; stop space is
+<code>max(2 GiB, floor(total * 5 / 100))</code>. Usable space strictly below slow adds
+<code>DISK_SPACE</code>; strictly below stop sets the stop decision. Equality differs from
+the at-or-above numeric backlog thresholds. Unavailable disk measurements do not
+contribute any disk reason or disk severity.</p>
+<p>Returns in this order:</p>
+<ol>
+<li>Background failure: <code>FAILED</code>, delay 0, severity 1.</li>
+<li>Any stop condition: <code>STOPPED_RETRYABLE</code>, delay 0, severity 1.</li>
+<li>No reasons: <code>NORMAL</code>, delay 0, severity 0.</li>
+<li>Otherwise: <code>SLOWDOWN</code>, normalized severity, and a recommended delay.</li>
+</ol>
+<p>All collected reasons are preserved even for failure or stop. Delay zero on a
+stopped result means no artificial slowdown recommendation, not permission to
+submit immediately. Null input has no explicit guard and fails on dereference.</p>
+<h2 id="severity-and-delay-helpers">Severity and Delay Helpers</h2>
+<h3 id="maximumseverityinput-policy"><code>maximumSeverity(input, policy)</code></h3>
+<p>Computes normalized severity for immutable count, WAL bytes, L0 count, and debt,
+then takes their maximum. Available disk contributes reversed free-space severity:
+zero at or above slow free space, one at or below stop free space. Final severity
+is clamped to zero through one. Native shortage, pause, and failure bypass this
+slowdown calculation through higher-priority return paths.</p>
+<h3 id="ratiovalue-start-stop"><code>ratio(value, start, stop)</code></h3>
+<p>Calculates <code>(value - start) / (stop - start)</code> as a double and clamps to zero through
+one. Validated thresholds keep denominator positive and measured quantities are
+nonnegative. At the slow threshold severity is zero; at stop it is one.</p>
+<h3 id="percentagetotal-percent"><code>percentage(total, percent)</code></h3>
+<p>Computes integer percentage as quotient times percent plus remainder times percent
+divided by 100. For this function's actual 5% and 15% call sites, splitting avoids
+the overflow of multiplying the whole total first. It is a private helper, not a
+general validated percentage API.</p>
+<h3 id="delay-calculation-in-evaluate">Delay calculation in <code>evaluate</code></h3>
+<p>Slowdown delay in microseconds is
+<code>min(10000, round(100 + severity * severity * 9900))</code>.
+A just-reached slow threshold therefore recommends 100 microseconds, not zero.
+Delay rises quadratically toward 10 milliseconds, but stop/failure returns replace
+that recommendation with their own state. The controller never executes the delay.</p>
+<h2 id="result-and-enumerations">Result and Enumerations</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/pressure/WritePressureSnapshot.java">WritePressureSnapshot.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/pressure/WritePressureState.java">WritePressureState.java</a>,
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/main/java/io/aetherdb/lsm/pressure/WritePressureReason.java">WritePressureReason.java</a>.</p>
+<h3 id="writepressuresnapshotstate-reasons-delaymicros-severity"><code>WritePressureSnapshot(state, reasons, delayMicros, severity)</code></h3>
+<p>Copies reasons into an immutable set. It does not validate nonnull state,
+nonnegative delay, finite/clamped severity, or consistency between those fields.
+The controller produces conventional combinations; directly constructed snapshots
+can violate them. Its implicit accessors expose state, immutable reasons, delay,
+and severity without side effects.</p>
+<h3 id="states-and-reasons">States and reasons</h3>
+<p><code>NORMAL</code> represents no artificial delay, <code>SLOWDOWN</code> recommends bounded delay,
+<code>STOPPED_RETRYABLE</code> represents recoverable pressure, and <code>FAILED</code> represents
+required background failure. Whether a caller waits or rejects a stopped write
+is an admission-layer choice, not an enum implementation.</p>
+<p>Reasons are <code>IMMUTABLE_MEMTABLES</code>, <code>NATIVE_CAPACITY</code>, <code>WAL_BYTES</code>,
+<code>LEVEL_ZERO_FILES</code>, <code>COMPACTION_DEBT</code>, <code>DISK_SPACE</code>, <code>BACKGROUND_FAILURE</code>, and
+<code>ADMINISTRATIVE_PAUSE</code>. The immutable reason set has no promised iteration order;
+do not use its order as priority.</p>
+<h2 id="review-boundaries">Review Boundaries</h2>
+<p>Test exact threshold equality, failure precedence, unavailable disk measurements,
+and delay units. Trace the engine's measurement lock and admission loop before
+claiming the controller enforces write ordering or deadlines. It cannot prevent
+pressure changing between evaluation and actual submission. Function-name coverage
+does not prove that integration or a coherent measurement snapshot.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-decision-order">Architecture and Decision Order</a><a href="#input-measurements">Input Measurements</a><a href="#threshold-policy">Threshold Policy</a><a href="#controller-entry-point">Controller Entry Point</a><a href="#severity-and-delay-helpers">Severity and Delay Helpers</a><a href="#result-and-enumerations">Result and Enumerations</a><a href="#review-boundaries">Review Boundaries</a></nav></aside>
+  </div>
+</body>
+</html>

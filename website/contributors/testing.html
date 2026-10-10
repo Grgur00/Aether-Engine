@@ -1,0 +1,291 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/TESTING-AND-CONTRIBUTING.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Testing and contributing: source-backed contributor documentation for Aether Engine.">
+  <title>Testing and contributing | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html" aria-current="page">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/TESTING-AND-CONTRIBUTING.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="testing-and-contributing">Testing And Contributing</h1>
+<p><a href="index.html">Onboarding index</a> | <a href="getting-started.html">Getting started</a> | <a href="research.html">Experiments and profiling</a></p>
+<p>This guide describes the checks wired into the current source tree. A task name, version-catalog entry, or design specification is not proof that a test suite runs. Start with the module you changed, then expand to its callers and persistence boundaries.</p>
+<h2 id="build-and-test-contract">Build And Test Contract</h2>
+<p>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/src/main/kotlin/aether.java-base.gradle.kts">Java convention</a> selects Java 21, compiles with <code>--enable-preview</code>, <code>-Xlint:all</code>, and <code>-Werror</code>, and passes preview support to tests and Java application tasks. Warnings can fail compilation. Use the checked-in Gradle wrapper, not an unrelated system Gradle installation. When launching Java manually, use a compatible JDK and the same preview flag.</p>
+<p>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/src/main/kotlin/aether.testing.gradle.kts">testing convention</a> uses JUnit Jupiter through JUnit Platform, JUnit BOM 6.0.1, and AssertJ 3.27.7. The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/src/main/kotlin/aether.java-library.gradle.kts">library convention</a> applies both Java and testing conventions. Module tests normally live in <code>modules/&lt;module&gt;/src/test/java</code> beside the package they test; there is no separate, generally wired <code>src/integrationTest</code> source set.</p>
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
+    Change[Identify changed behavior] --&gt; Unit[Focused owning-module tests]
+    Unit --&gt; Cross{Crosses a boundary?}
+    Cross --&gt;|Format or durable state| Recovery[Round-trip, corruption, reopen and crash tests]
+    Cross --&gt;|Python to Java| Client[Protocol and opt-in real JVM tests]
+    Cross --&gt;|Research orchestration| Evidence[Fake lifecycle, accounting and provenance tests]
+    Cross --&gt;|No| Broad[Broader relevant regression suite]
+    Recovery --&gt; Broad
+    Client --&gt; Broad
+    Evidence --&gt; Broad
+    Broad --&gt; Review[Review diff, compatibility and documented limits]
+    Review --&gt; Perf{Performance claim?}
+    Perf --&gt;|Yes| Experiment[Separate frozen benchmark protocol]
+    Perf --&gt;|No| PR[Submit change with test evidence]
+    Experiment --&gt; PR
+</code></pre></details></figure>
+<h2 id="choose-a-check">Choose A Check</h2>
+<p>Commands below run from the repository root. PowerShell examples use <code>./gradlew.bat</code>; use <code>./gradlew</code> on POSIX systems. Timings depend heavily on dependency downloads, local storage, and which JVM tests are enabled.</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Command or entrypoint</th>
+<th>Scope and cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>One test class</td>
+<td><code>./gradlew.bat :modules:aether-engine:test --tests io.aetherdb.engine.InMemoryAetherDatabaseTest</code></td>
+<td>Smallest useful Java regression loop; may compile dependencies first.</td>
+</tr>
+<tr>
+<td>Owning module</td>
+<td><code>./gradlew.bat :modules:aether-engine:test</code></td>
+<td>Includes durable engine tests, not just in-memory tests. Needs scratch space and real filesystem behavior.</td>
+</tr>
+<tr>
+<td>Java-wide verification</td>
+<td><code>./gradlew.bat check</code></td>
+<td>Gradle's matching project verification tasks. Not Python tests, not a remote campaign, and not every standalone crash harness.</td>
+</tr>
+<tr>
+<td>Training cache plus Python runtime metadata</td>
+<td><code>./gradlew.bat :modules:aether-training-cache:test :modules:aether-training-cache:paperRuntimeClasspath</code></td>
+<td>Compiles the actual Java runtime and records its identity for Python integration.</td>
+</tr>
+<tr>
+<td>Python regression</td>
+<td><code>python -m pytest clients/python/tests scripts/tests -q</code></td>
+<td>Requires the Python environment and import path below; expensive real-JVM tests are opt-in.</td>
+</tr>
+<tr>
+<td>Artifact wrapper</td>
+<td><code>python scripts/reproduce.py test</code></td>
+<td>Runs training-cache Java tests, regenerates runtime metadata, then both Python suites. Broader than a pure Python test command.</td>
+</tr>
+<tr>
+<td>End-to-end smoke</td>
+<td><code>python scripts/reproduce.py smoke --output results/local-smoke</code></td>
+<td>Runs Java and Python tests, CPU training fixtures, transform evolution, process fault injection and a small concurrency matrix. This is not a zero-work health check.</td>
+</tr>
+<tr>
+<td>Website consistency</td>
+<td><code>python scripts/check-website-docs.py</code></td>
+<td>Checks published website documentation; not a complete Markdown link or correctness check for this onboarding directory.</td>
+</tr>
+</tbody>
+</table>
+<p>Use a new output directory for smoke/campaign work. To place generated training stores on another filesystem, the wrapper accepts <code>--scratch-root</code>; result files still go to <code>--output</code>.</p>
+<p>Java test reports normally appear under each module's <code>build/reports/tests/test/index.html</code>, with XML in <code>build/test-results/test</code>. The training-cache module also provides <code>trainingCacheTestReport</code>, which depends on <code>test</code> and writes <code>build/reports/training-cache-test.json</code> in that module.</p>
+<h3 id="tasks-that-are-not-full-gates">Tasks That Are Not Full Gates</h3>
+<p>Check <a href="https://github.com/Grgur00/Aether-Engine/blob/main/build.gradle.kts">root task definitions</a> before relying on their labels:</p>
+<ul>
+<li>Root <code>integrationTest</code> currently depends on the included <code>build-logic</code> build's <code>check</code>; it does not collect a separate suite from every module.</li>
+<li>Root <code>crashTest</code> and <code>crashTestSmoke</code> are registered placeholders with no attached suites in the current tree.</li>
+<li>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/src/main/kotlin/aether.quality.gradle.kts">quality convention</a> is an attachment point, not an enabled formatter/static-analysis pipeline.</li>
+<li>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/src/main/kotlin/aether.jmh.gradle.kts">JMH convention</a> applies the Java base convention but does not itself wire a JMH runner. Pinned JMH, JCStress, Spotless, SpotBugs and Error Prone versions in the catalog do not establish that those checks execute.</li>
+</ul>
+<p>The executable benchmark runner and real crash campaigns are described in <a href="research.html">Experiments and profiling</a>, not implied by these placeholder tasks.</p>
+<h2 id="python-environments-and-optional-tests">Python Environments And Optional Tests</h2>
+<p>Use an isolated interpreter. The normal installable client is defined by <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/pyproject.toml">clients/python/pyproject.toml</a>; its base requirements are different from the pinned scientific environment. Torch and MONAI are optional client extras. The research environment uses <a href="https://github.com/Grgur00/Aether-Engine/blob/main/env/requirements.lock">env/requirements.lock</a>, with Torch installed separately for the intended accelerator. MONAI/LMDB comparisons additionally use <a href="https://github.com/Grgur00/Aether-Engine/blob/main/env/requirements-monai.lock">env/requirements-monai.lock</a>; its install comment specifies <code>--no-deps</code> to preserve the existing Torch build. Keep Kaggle CLI dependencies in their separate <a href="https://github.com/Grgur00/Aether-Engine/blob/main/env/requirements-kaggle.lock">Kaggle lock</a>.</p>
+<p>Direct pytest invocations need both source roots on the import path:</p>
+<pre><code class="language-powershell">$env:PYTHONPATH = 'scripts;clients/python'
+$env:AETHER_JAVA_TEST = '0'
+.venv/Scripts/python.exe -m pytest clients/python/tests scripts/tests -q
+</code></pre>
+<p>POSIX equivalent, using the same virtual environment layout:</p>
+<pre><code class="language-bash">PYTHONPATH=scripts:clients/python AETHER_JAVA_TEST=0 \
+  .venv/bin/python -m pytest clients/python/tests scripts/tests -q
+</code></pre>
+<p><code>AETHER_JAVA_TEST=0</code> only disables tests explicitly guarded by that variable. It does not remove import-time Python dependencies or guarantee that every remaining test is purely in-memory. Tests such as <code>test_monai_comparison.py</code> skip when MONAI/LMDB are absent; a green run with skipped optional tests does not verify those integrations. Record skips when reporting coverage.</p>
+<h3 id="real-java-integration">Real Java Integration</h3>
+<p>First build both the runtime and test classes used by crash helpers:</p>
+<pre><code class="language-powershell">./gradlew.bat :modules:aether-training-cache:test :modules:aether-training-cache:paperRuntimeClasspath
+$env:PYTHONPATH = 'scripts;clients/python'
+$env:AETHER_JAVA_TEST = '1'
+.venv/Scripts/python.exe -m pytest scripts/tests/test_bulk_population.py -q
+</code></pre>
+<p>Other opt-in targets include:</p>
+<table>
+<thead>
+<tr>
+<th>Test file</th>
+<th>What the real-process tests establish</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_monai_comparison.py">test_monai_comparison.py</a></td>
+<td>Existing adapters and real Aether daemon use the same prepared data.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_profile_population.py">test_profile_population.py</a></td>
+<td>Every original population arm preserves tensors and does not create a model.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_longitudinal_comparison.py">test_longitudinal_comparison.py</a></td>
+<td>Five-version reuse across actual process restarts with tiny CPU fixtures.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_persistent_service.py">test_persistent_service.py</a></td>
+<td>Persistent-service accounting and the same Aether process through V4.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_bulk_population.py">test_bulk_population.py</a></td>
+<td>Offline bulk publication, ordinary-reader restart validation, abrupt process failures and supported table layouts.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_bulk_jfr.py">test_bulk_jfr.py</a></td>
+<td>Real JFR events, intact pipe protocol, and retained control/profile/control recording; requires the JDK's <code>jfr</code> executable on PATH.</td>
+</tr>
+</tbody>
+</table>
+<p>The five-version restart test starts many subprocesses despite its small dataset. Bulk crash tests deliberately halt child JVMs. These tests prove specified software behavior, not survival of physical power loss, disk-controller failure, or a full-scale workload's performance.</p>
+<h3 id="why-a-stale-build-fails">Why A Stale Build Fails</h3>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/paper_common.py">paper_common.java_classpath</a> compares current Java/build sources, the exported classpath, classes/resources and dependency JARs against <code>paper-runtime-build.json</code>. A valid-looking classpath file is insufficient. Changing Java source or build inputs can require:</p>
+<pre><code class="language-powershell">./gradlew.bat :modules:aether-training-cache:paperRuntimeClasspath
+</code></pre>
+<p>Do not edit the manifest to silence a mismatch. Do not change source files while a provenance-sensitive campaign is running: campaign resume additionally binds Python scripts, protocol and host environment.</p>
+<h2 id="where-to-add-tests">Where To Add Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Existing examples and ownership</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Embedded read/write semantics</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/test/java/io/aetherdb/engine">engine tests</a>, especially <code>RandomizedSemanticModelTest</code>, <code>PersistentAetherDatabaseTest</code>, and <code>BackgroundCompactionTest</code>.</td>
+</tr>
+<tr>
+<td>WAL, SSTable, manifest or memory lifetime</td>
+<td>Tests in the corresponding <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-wal/src/test">WAL</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-sstable/src/test">SSTable</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-lsm/src/test">LSM</a>, or <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/test">memory</a> module, plus affected engine reopen tests.</td>
+</tr>
+<tr>
+<td>Offline publication</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/test/java/io/aetherdb/engine/EmptyStoreBulkLoaderTest.java">EmptyStoreBulkLoaderTest</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/test/java/io/aetherdb/training/cache/BulkArtifactWriterTest.java">BulkArtifactWriterTest</a>, and Python abrupt-process tests.</td>
+</tr>
+<tr>
+<td>Python protocol, keys, prepared data or batching</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/tests">clients/python/tests</a>, especially request tracing, prefetch and <code>aether_ml</code> tests.</td>
+</tr>
+<tr>
+<td>Research accounting, statistics or provenance</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests">scripts/tests</a>: confirmatory guards, Java provenance, system campaigns, receipts, Kaggle preparation and result packaging.</td>
+</tr>
+<tr>
+<td>Fault orchestration</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-reliability/src/main/java/io/aetherdb/reliability">aether-reliability</a> provides scoped crash points and corruption helpers; assert recovered state rather than only checking that an exception occurred.</td>
+</tr>
+<tr>
+<td>Typed schema changes</td>
+<td>Codec/processor/typed module tests and <a href="schemas.html">schema workflow</a>; generated proposals are not automatically accepted schema locks.</td>
+</tr>
+</tbody>
+</table>
+<p>Use JUnit temporary directories or pytest's <code>tmp_path</code> for disposable stores. Follow the existing package structure, close resources explicitly, and avoid timing assertions that merely encode one machine's speed. For asynchronous code, test completion/failure invariants with bounded waits rather than assuming a fixed sleep is enough.</p>
+<p>For a cross-language or persisted-format change, test more than a successful round trip: malformed input, truncation/corruption, size limits, ownership after caller mutation, compatibility with existing readers, partial failure and restart behavior are distinct contracts. A deliberate format change must update its compatibility documentation and fixtures, not just the implementation.</p>
+<h2 id="working-on-a-change">Working On A Change</h2>
+<ol>
+<li>Read the owning API and its tests before editing. Follow the dependency direction in <a href="architecture.html">Architecture</a>; a test helper must not become an accidental production dependency.</li>
+<li>Keep engine behavior, integration behavior and benchmark orchestration separate. Changes to transforms, batching, durability or timing scope can invalidate performance comparisons even when all tests pass.</li>
+<li>Use a focused branch and descriptive commit subject. Review generated files and unrelated work before staging; do not remove someone else's uncommitted changes to obtain a clean benchmark snapshot.</li>
+<li>Add a failing regression or a focused invariant test, implement the change, then run the smallest relevant suite and expand as needed.</li>
+<li>Explain ownership, lifecycle, failure behavior, compatibility and verification in the PR. Mention skipped tests, platform limits and any benchmark not run.</li>
+</ol>
+<p>The top-level <a href="https://github.com/Grgur00/Aether-Engine/blob/main/CONTRIBUTING.md">contribution policy</a> requires focused branch names and Conventional Commit subjects, and reserves FFM allocation for <code>aether-memory</code> and raw storage NIO for <code>aether-io</code>. These are review expectations; do not interpret every historical call site as a new architecture precedent.</p>
+<p>For schema evolution, <code>aetherSchemaInit</code> and <code>aetherSchemaUpdate</code> generate proposals under build directories; <code>aetherSchemaAccept</code> copies proposals into source-controlled schema directories. Acceptance is a source edit, so inspect and review it. <code>aetherSchemaCheck</code> depends on compilation with the processor and committed locks. See <a href="schemas.html">Typed API and schemas</a> for the complete workflow.</p>
+<h2 id="failures-worth-investigating">Failures Worth Investigating</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>First checks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Java preview or class-version error</td>
+<td>JDK 21 selection, the runtime <code>java</code> on PATH, and <code>--enable-preview</code> on manual launches.</td>
+</tr>
+<tr>
+<td><code>Java build provenance validation failed</code></td>
+<td>Regenerate runtime metadata after verifying intended source changes; do not substitute stale classes.</td>
+</tr>
+<tr>
+<td>MONAI import skip or version rejection</td>
+<td>The scientific interpreter, installed optional packages and the campaign's pinned versions.</td>
+</tr>
+<tr>
+<td><code>DISK_SPACE</code> or capacity preflight failure</td>
+<td>Available space on the actual scratch filesystem and retained failed stores. Do not disable admission safeguards to claim a passing test.</td>
+</tr>
+<tr>
+<td>Store lock / interrupted worker still alive</td>
+<td>Identify the owning process before cleanup or restart; a lock filename alone does not prove a live owner.</td>
+</tr>
+<tr>
+<td>Resume provenance mismatch</td>
+<td>Changed source, protocol, package set or host. Preserve the old evidence and use a new campaign output where required.</td>
+</tr>
+<tr>
+<td>Gradle download/network failure</td>
+<td>Wrapper/dependency availability; distinguish setup failure from a source test failure.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="what-ci-currently-covers">What CI Currently Covers</h2>
+<p>The checked-in workflows are <a href="https://github.com/Grgur00/Aether-Engine/blob/main/.github/workflows/pages.yml">website deployment</a> and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/.github/workflows/maven-central.yml">Maven Central publication</a>. Website deployment runs <code>check-website-docs.py</code> for its selected changes. The manually dispatched release workflow runs Gradle <code>check</code>, release-version validation, publication staging and artifact checks before signing/publishing.</p>
+<p>There is no general pull-request workflow in this tree that automatically runs all Java, Python, real-process, GPU or research suites. A successful Pages deployment or release build must not be reported as that broader assurance. Run and report the checks appropriate to the change.</p>
+<h2 id="review-checklist">Review Checklist</h2>
+<ul>
+<li>Behavior and failure semantics are described, with tests at the actual boundary changed.</li>
+<li>Native buffers, files, sockets, background tasks and subprocesses have clear owners and bounded cleanup.</li>
+<li>Persisted formats and cross-language protocols remain compatible or have an explicit migration/version policy.</li>
+<li>Optional tests and platform-specific checks are identified, including skips and unrun checks.</li>
+<li>Scratch paths are disposable and owned; no user dataset or preserved campaign is a cleanup target.</li>
+<li>Results retain their measurement role. A correctness fixture is not performance evidence, and a pilot is not a confirmatory result.</li>
+<li>Relevant onboarding, API or experiment documentation is updated alongside changed behavior.</li>
+</ul>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#build-and-test-contract">Build And Test Contract</a><a href="#choose-a-check">Choose A Check</a><a href="#python-environments-and-optional-tests">Python Environments And Optional Tests</a><a href="#where-to-add-tests">Where To Add Tests</a><a href="#working-on-a-change">Working On A Change</a><a href="#failures-worth-investigating">Failures Worth Investigating</a><a href="#what-ci-currently-covers">What CI Currently Covers</a><a href="#review-checklist">Review Checklist</a></nav></aside>
+  </div>
+</body>
+</html>

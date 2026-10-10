@@ -1,0 +1,287 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/GLOSSARY.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Glossary: source-backed contributor documentation for Aether Engine.">
+  <title>Glossary | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html" aria-current="page">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/GLOSSARY.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="glossary-and-mental-models">Glossary and Mental Models</h1>
+<p><a href="index.html">Onboarding index</a> | <a href="architecture.html">Architecture</a></p>
+<p>These definitions describe how terms are used in this checkout. Follow the linked
+guide for implementation details and limitations; similarly named concepts in a
+specification may have a broader intended scope.</p>
+<h2 id="storage-and-ownership">Storage and Ownership</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Embedded</td>
+<td>Runs inside the owning Java process against a local directory, without requiring a remote server</td>
+</tr>
+<tr>
+<td>Sequence number</td>
+<td>Orders engine mutations and bounds snapshot visibility; not a wall-clock timestamp</td>
+</tr>
+<tr>
+<td>Write batch</td>
+<td>A group of mutations submitted atomically; does not make preceding application reads transactional</td>
+</tr>
+<tr>
+<td>WAL</td>
+<td>Write-ahead log used by the online persistent write/recovery path</td>
+</tr>
+<tr>
+<td>Durability barrier</td>
+<td>Required persistence operation before the relevant durable acknowledgement; distinct from making bytes visible in memory</td>
+</tr>
+<tr>
+<td>Group commit</td>
+<td>Several requests share commit processing and, when required, a force operation</td>
+</tr>
+<tr>
+<td>Memtable</td>
+<td>Mutable ordered in-memory state; this engine uses native memory for its main memtable</td>
+</tr>
+<tr>
+<td>FFM / arena / region</td>
+<td>Java foreign-memory APIs and scoped ownership used for native allocations; a view cannot outlive its owner</td>
+</tr>
+<tr>
+<td>SSTable</td>
+<td>Immutable sorted table file containing encoded entries, index/filter information and integrity metadata</td>
+</tr>
+<tr>
+<td>L0, L1, ...</td>
+<td>LSM levels; flush creates L0 files and compaction moves/merges data according to the implemented policy</td>
+</tr>
+<tr>
+<td>Flush</td>
+<td>Converts mutable data to an immutable table and publishes the associated metadata; not the same as compaction</td>
+</tr>
+<tr>
+<td>Compaction</td>
+<td>Builds replacement immutable files from selected existing files, then publishes a version change</td>
+</tr>
+<tr>
+<td>Manifest / VersionEdit</td>
+<td>Durable file-inventory history and its edits; publication controls which files are authoritative</td>
+</tr>
+<tr>
+<td><code>CURRENT</code></td>
+<td>Pointer used to locate the active manifest; not a copy of all database contents</td>
+</tr>
+<tr>
+<td>Tombstone</td>
+<td>Deletion marker that participates in visibility and compaction; do not substitute an empty value for a delete</td>
+</tr>
+<tr>
+<td>Snapshot</td>
+<td>A bounded historical read view that must be closed; can constrain reclamation</td>
+</tr>
+<tr>
+<td>Cursor</td>
+<td>Resource-owning iteration handle, not a detached Java collection</td>
+</tr>
+<tr>
+<td>Backpressure</td>
+<td>Admission delay/rejection when resource or lifecycle constraints prevent safe progress</td>
+</tr>
+<tr>
+<td>Quiescence</td>
+<td>The required work has drained according to the measured policy; not a general claim that every possible maintenance task has run</td>
+</tr>
+<tr>
+<td>Checkpoint / backup / salvage</td>
+<td>Respectively a consistent file set, an archived recoverable representation, and recovery of readable data with possible loss</td>
+</tr>
+</tbody>
+</table>
+<p>Read <a href="storage.html">Storage engine</a> and
+<a href="operations.html">Operations and debugging</a>.</p>
+<h2 id="schemas-and-cache-identity">Schemas and Cache Identity</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Codec</td>
+<td>A defined encoding/decoding contract, not arbitrary language-object serialization</td>
+</tr>
+<tr>
+<td>Collection ID</td>
+<td>Stable namespace for typed data; the convenience named-collection API derives it from the name</td>
+</tr>
+<tr>
+<td>Schema UUID / version / fingerprint</td>
+<td>Record-family identity, an evolution number, and the concrete schema descriptor identity</td>
+</tr>
+<tr>
+<td>Schema lock</td>
+<td>Committed generated schema metadata reviewed with record changes; not a runtime mutex</td>
+</tr>
+<tr>
+<td>Artifact</td>
+<td>Immutable derived data, such as a preprocessed tensor dictionary, identified independently of a training epoch</td>
+</tr>
+<tr>
+<td>Transform fingerprint</td>
+<td>Identity of preprocessing semantics/settings; changes can invalidate otherwise unchanged input artifacts</td>
+</tr>
+<tr>
+<td>Source hash</td>
+<td>Content identity of an input or source snapshot; distinguish those two uses in provenance fields</td>
+</tr>
+<tr>
+<td>Admission</td>
+<td>Preparing and publishing a missing artifact; not the same as a read hit</td>
+</tr>
+<tr>
+<td>Staged / published</td>
+<td>Volatile staging versus the completed publication boundary; inspect the specific API acknowledgement</td>
+</tr>
+<tr>
+<td>Inline / segment</td>
+<td>Artifact bytes in the database envelope versus an external artifact segment referenced by metadata</td>
+</tr>
+<tr>
+<td><code>putMany</code></td>
+<td>Online batched artifact publication request; not automatically an offline bulk import</td>
+</tr>
+<tr>
+<td>Bulk writer</td>
+<td>Experimental empty-store path that builds immutable files directly, with separate correctness/publication constraints</td>
+</tr>
+<tr>
+<td>Packed response</td>
+<td>Batched artifact bytes with shared response-buffer ownership; not unrestricted zero-copy through every layer</td>
+</tr>
+<tr>
+<td>PersistentDataset / LMDBDataset</td>
+<td>MONAI cache backends used by research adapters; their representation and durability differ from Aether's</td>
+</tr>
+</tbody>
+</table>
+<p>Read <a href="schemas.html">Typed API and schemas</a> and
+<a href="python.html">Training cache and Python</a>.</p>
+<h2 id="research-terms">Research Terms</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Paired block</td>
+<td>Matched backend measurements under the same inputs/configuration and block seed; the statistical comparison uses within-block ratios</td>
+</tr>
+<tr>
+<td>Randomized backend order</td>
+<td>Controls order effects; it does not turn different preprocessing or durability scopes into matched work</td>
+</tr>
+<tr>
+<td>Pilot</td>
+<td>Exploratory measurements used to understand effects and variance; not reusable confirmatory samples</td>
+</tr>
+<tr>
+<td>Confirmatory campaign</td>
+<td>Fresh measurements collected under a prospectively frozen implementation, endpoint, hypotheses and sample size</td>
+</tr>
+<tr>
+<td>Population / V0</td>
+<td>Initial cache construction, before later updates; must be charged when claiming full lifecycle cost</td>
+</tr>
+<tr>
+<td>Incremental update</td>
+<td>Preparation of the defined missing/changed set while retaining valid artifacts</td>
+</tr>
+<tr>
+<td>Lifecycle endpoint</td>
+<td>Explicit sum of measured stages; a field named <code>fullLifecycleMs</code> is not enough to establish identical scopes across runners</td>
+</tr>
+<tr>
+<td>Persistent service</td>
+<td>Keeps the service available across updates; distinct from close/reopen measurements and restart-correctness tests</td>
+</tr>
+<tr>
+<td>Throughput ratio</td>
+<td>Aether throughput divided by baseline throughput for matched work; above 1 favors Aether</td>
+</tr>
+<tr>
+<td>Time speedup</td>
+<td>Baseline elapsed time divided by Aether elapsed time; above 1 favors Aether, but the underlying endpoint must still match</td>
+</tr>
+<tr>
+<td>Equivalence / superiority</td>
+<td>Different hypotheses: containment within predefined bounds versus a predefined directional comparison</td>
+</tr>
+<tr>
+<td>JFR</td>
+<td>Java Flight Recorder event/sample capture for diagnosis; profiling overhead and event coverage must be reported</td>
+</tr>
+<tr>
+<td>Input-wait proxy</td>
+<td>Measured loader wait time, not a direct hardware GPU-idle measurement</td>
+</tr>
+<tr>
+<td>Receipt / provenance</td>
+<td>Verifiable completion metadata and the source/configuration/data identity needed to attribute a measurement</td>
+</tr>
+</tbody>
+</table>
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart LR
+    Diagnostic[Diagnostic profile] --&gt; Change[Possible implementation change]
+    Change --&gt; Pilot[Fresh exploratory pilot]
+    Pilot --&gt; Freeze[Freeze source, protocol and endpoint]
+    Freeze --&gt; Confirmatory[Fresh confirmatory measurements]
+    Restart[Separate restart correctness tests] -. prerequisite evidence .-&gt; Freeze
+</code></pre></details></figure>
+<p>The graph is a research workflow, not permission to launch a campaign. A diagnostic
+without training has no training epochs; a population speedup alone does not prove
+an end-to-end training gain. Read <a href="research.html">Experiments and profiling</a>
+before interpreting or collecting measurements.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#storage-and-ownership">Storage and Ownership</a><a href="#schemas-and-cache-identity">Schemas and Cache Identity</a><a href="#research-terms">Research Terms</a></nav></aside>
+  </div>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/RPC-SERVER-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Development RPC server and sockets: source-backed contributor documentation for Aether Engine.">
+  <title>Development RPC server and sockets | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html" aria-current="page">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/RPC-SERVER-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="development-rpc-server-and-socket-functions">Development RPC Server and Socket Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="rpc-api-functions.html">RPC API</a> | <a href="rpc-transport-limits.html">Transport limits</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-rpc-transport/src/main/java/io/aetherdb/rpc/transport/PlaintextDevelopmentRpc.java">PlaintextDevelopmentRpc</a>.
+This guide covers <strong>32 explicit declarations</strong>: factories/shared wire helpers,
+FrameInput, DevelopmentServer (including its anonymous responder), Cancellation
+and SetOfConnections. The <a href="rpc-client-functions.html">client reference</a> covers the
+other 22 declarations; the file contains 54 explicit declarations altogether.</p>
+<h2 id="server-architecture">Server Architecture</h2>
+<pre><code class="language-text">bind -&gt; listener + virtual-thread accept loop
+  -&gt; accepted socket -&gt; tracked connection -&gt; virtual-thread serve
+  -&gt; first HELLO -&gt; peer role/cluster/node checks -&gt; local HELLO
+  -&gt; REQUEST BEGIN -&gt; admission snapshot -&gt; reserve declared bytes
+  -&gt; per-stream assembler -&gt; complete body -&gt; shared handler executor
+  -&gt; exactly-once responder attempt -&gt; release stream -&gt; RESPONSE frames
+CANCEL / socket failure -&gt; cooperative cancellation callbacks
+close -&gt; close listener/sockets + shutdownNow both executors
+</code></pre>
+<p>The implementation is development-only plaintext, with CRC and bounded framing,
+not TLS or authenticated cluster membership. It does not use RpcConnectionState
+or RpcFlowController. HELLO limits are advertised, but the server does not retain
+remote limits or negotiate minima for response fragmentation.</p>
+<h2 id="factories-and-shared-wire-helpers">Factories and Shared Wire Helpers</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PlaintextDevelopmentRpc.PlaintextDevelopmentRpc()</code></td>
+<td>Private constructor for factory utility. Static initialization resolves development defaults and creates one reusable AdmissionController.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.bind(identity, host, port)</code></td>
+<td>Creates DevelopmentServer using static defaults; port zero permits OS-selected port. Constructor starts serving before return.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.bind(identity, host, port, configuration)</code></td>
+<td>Resolves/validates configuration before creating server. Does not select TLS even if caller configuration describes security settings.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.client(identity)</code></td>
+<td>Constructs DevelopmentClient using defaults. Connection creation/reuse is described by the client implementation, not this factory.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.client(identity, configuration)</code></td>
+<td>Resolves transport limits and constructs DevelopmentClient; does not eagerly connect.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.hello(identity, role, configuration)</code></td>
+<td>Chooses nonzero ThreadLocalRandom nonce, constructs HELLO with supplied identity/limits, fixed keepalive 30000/10000 ms, engine 0.2.0 and Java 21. Those runtime fields are constants, not detected installed versions. Nonce is not a cryptographic authentication token.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.helloFrame(hello)</code></td>
+<td>Encodes HELLO into one stream-zero BEGIN+END frame with zero invocation/code/timeout/credit, total equal to payload length. Allocates/copies bytes through codec/frame ownership.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.validatePeer(local, remote, expectedRole, expectedNode)</code></td>
+<td>Requires expected role, matching cluster, remote node different from local, and matching optional expected node. Throws RpcProtocolException on mismatch. Does not authenticate claimed identity, compare session IDs or negotiate limits.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.configuredSocket()</code></td>
+<td>Creates unconnected Socket with TCP_NODELAY, keepalive and requested send/receive buffers 256 KiB. OS can adjust buffer sizes; this is not application framing or deadline configuration. IOException propagates.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.writeFrame(output, writeLock, frame)</code></td>
+<td>Encodes outside lock, then synchronizes write and flush on shared lock. Serializes individual frames, allowing messages to interleave by stream between frames. IOException propagates; no socket-write deadline or automatic retry here.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.FrameInput.FrameInput(input, configuration)</code></td>
+<td>Stores input and creates decoder with local frame limit. Each instance also owns a 64 KiB read buffer and queue of completed frames.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.FrameInput.next()</code></td>
+<td>Reads until decoder yields queued frames, returns first. EOF raises IOException even when decoder is idle; does not distinguish partial-frame EOF. Decoding failures propagate. Coalesced frames queue for subsequent calls; a zero-byte read simply retries.</td>
+</tr>
+</tbody>
+</table>
+<p>Accepted sockets receive the same TCP settings in acceptLoop rather than calling
+configuredSocket. No server HELLO/read timeout is set here: a silent peer can
+hold a connection task. TCP keepalive is not the advertised application keepalive
+protocol, and no PING/PONG handler is supplied by the server path.</p>
+<h2 id="listener-and-connection-functions">Listener and Connection Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PlaintextDevelopmentRpc.DevelopmentServer.DevelopmentServer(identity, host, port, configuration)</code></td>
+<td>Requires identity/config, nonblank host and port 0..65535. Creates reuse-address ServerSocket, resolves/binds host, stores actual endpoint and submits acceptLoop. IOException becomes IllegalStateException. Virtual-thread connection/handler executors are initialized with the object; failed construction has no explicit cleanup block for all partial resources.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.DevelopmentServer.register(operation, handler)</code></td>
+<td>Rejects closed server/null arguments, then atomic putIfAbsent by code; duplicate raises IllegalArgumentException. Closed check and insertion are not one atomic operation, so this is not a linearized registration/shutdown barrier.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.DevelopmentServer.endpoint()</code></td>
+<td>Returns stored actual bound endpoint, including assigned port. Still returns it after close; not a readiness probe.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.DevelopmentServer.acceptLoop()</code></td>
+<td>While open, accepts/configures/tracks socket and submits serve. IOException while not closed triggers server close. Task rejection/runtime exceptions are not caught by its IOException catch; no global accepted-connection cap is implemented.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.DevelopmentServer.serve(socket)</code></td>
+<td>Owns socket/input/output with try-with-resources, per-connection stream map, inbound counter and write lock. Requires first frame type HELLO, decodes/validates DIALER identity and responds with ACCEPTOR HELLO, then processes frames. IOException/RuntimeException cancels stream tokens; finally removes tracked socket. Failures are swallowed without a diagnostic log or protocol-error response.</td>
+</tr>
+</tbody>
+</table>
+<p>serve checks the first frame's type and HELLO payload, not a separate exact
+HELLO-header flag/code policy. Cancellation callback failure can interrupt the
+failure-path iteration; try-with-resources still closes owned socket and finally
+removes tracking. Resource counters/maps are connection-local, not one server-wide
+admission budget.</p>
+<h2 id="assembly-and-dispatch-functions">Assembly and Dispatch Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PlaintextDevelopmentRpc.DevelopmentServer.applyServerFrame(frame, streams, inboundBytes, output, writeLock)</code></td>
+<td>CANCEL looks up stream ID, requests cancellation and releases an incomplete assembly; it does not compare CANCEL invocation identity. Other types must be REQUEST. New streams require BEGIN, evaluate inbound admission and reserve declared bytes before creating assembler/token/state. Rejections send mapped error status without installing stream. Valid fragments assemble; unknown completed operation releases state and sends INVALID_ARGUMENT. Known complete body gets deadline and asynchronous invoke dispatch.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.DevelopmentServer.invoke(operation, body, header, stream, streams, inboundBytes, deadline, output, writeLock)</code></td>
+<td>Creates atomic completion guard/responder. Checks wall-clock deadline before dispatch, otherwise constructs defensively copied RpcServerRequest and calls handler. RuntimeException/Error before completion becomes safe INTERNAL detail after releasing stream. No forced deadline interrupt, automatic completion for a handler that returns silently or lane-specific executor selection.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.DevelopmentServer.anonymous.success(response)</code></td>
+<td>Delegates to finish with OK and empty detail. Response body validation happens there; no pre-completion copying in this method.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.DevelopmentServer.anonymous.fail(status, detail)</code></td>
+<td>Delegates to finish with empty response bytes. Does not independently reject OK; fail(OK, empty detail) can complete as an empty success. Null detail can fail after completion has been claimed.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.DevelopmentServer.anonymous.finish(status, response, detail)</code></td>
+<td>Atomically claims completion, throwing on a second attempt; releases stream before validation/write. Rejects null status or OK with nonempty detail. Non-OK detail encodes UTF-8 with 4096-byte cap; successful response uses operation response limit. Null/oversized successful body or oversized error becomes RESOURCE_EXHAUSTED with safe fixed payload. Then sends response. Claimed completion is not rolled back on validation or encoding failure.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.DevelopmentServer.reserveInbound(inboundBytes, bytes)</code></td>
+<td>CAS loop adds declared bytes, rejecting aggregate above configuration.inboundBytes(). Internal caller supplies validated nonnegative length; helper has no independent negative check. Snapshot admission is supplemented by actual reservation.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.DevelopmentServer.releaseServerStream(streams, inboundBytes, streamId, stream)</code></td>
+<td>Conditional remove of exact stream value then subtracts its reservation once. Does not cancel handler, overwrite body or release unrelated streams.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.DevelopmentServer.respond(output, writeLock, stream, invocation, status, payload, responseLimit)</code></td>
+<td>Replaces payload beyond supplied limit with empty bytes, fragments RESPONSE using local frame limit and flushes each frame. Swallows IOException; runtime codec errors propagate. No remote-limit negotiation, error-detail sanitization beyond caller logic or confirmation of peer receipt.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.DevelopmentServer.close()</code></td>
+<td>Atomic idempotent closed flag; closes listener, tracked sockets and shutdownNow connection/handler executors. Ignores listener IOException. Does not send GOAWAY, wait for accepted work to finish or guarantee cooperative handlers stop.</td>
+</tr>
+</tbody>
+</table>
+<p>For existing streams, assembler checks stable type/code/stream/invocation and
+contiguous offsets. The server does not enforce dialer odd parity, permanent
+stream-ID nonreuse or authenticated operation authorization. A rejected fragmented
+BEGIN leaves no stream; later continuation can therefore terminate the connection
+as fragment-without-admitted-stream instead of being drained.</p>
+<p>Deadline starts <strong>after complete assembly</strong>, using BEGIN timeout captured in
+ServerStream (zero means operation default), not when first byte arrives. Instant
+is wall-clock here, and descriptor millisecond conversion can lose submillisecond
+precision. The deadline is checked once before handler call; cancellation is
+cooperative. All execution-policy values use the same handler executor today.</p>
+<p>An active handler retains its stream/reserved bytes until responder completion;
+returning without completing leaves those resources occupied. CANCEL on an already
+assembled request sets token but does not release stream itself. After successful
+completion the map entry is removed, so a malicious peer can reuse an ID or send
+another BEGIN while the prior handler still executes after responding. Exactly-once
+responder claim is not durable exactly-once operation execution.</p>
+<p>Error handling also has boundaries: if finish claims completion then fails
+validation, invoke's catch cannot claim again to send INTERNAL. The generic handler
+failure path bounds its fixed detail by the operation response limit, which can
+produce empty detail for small limits. Safe fixed handler-error text avoids exposing
+exception strings, but explicit handler detail is not comprehensively sanitized.</p>
+<p>RegisteredOperation and ServerStream are generated-method records; they hold
+descriptor/handler and per-stream identity/assembler/token/timeout/code/reservation.
+They have no explicit declarations in the compiler inventory.</p>
+<h2 id="cancellation-and-socket-tracking">Cancellation and Socket Tracking</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PlaintextDevelopmentRpc.Cancellation.isCancelled()</code></td>
+<td>AtomicBoolean observation; no blocking or interrupt.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.Cancellation.onCancel(callback)</code></td>
+<td>Synchronized registration, rejects null. If already cancelled invokes callback immediately while holding monitor; otherwise appends callback. Callback exceptions propagate.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.Cancellation.cancel()</code></td>
+<td>Under monitor atomically marks once, snapshots callbacks and clears list; invokes snapshot outside monitor on cancelling thread. Repeated cancellation returns. A throwing callback prevents later snapshot callbacks from running; no exception isolation.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.SetOfConnections.add(socket)</code></td>
+<td>Adds socket to concurrent set; no closed-state check or ownership transfer guarantee beyond tracking.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.SetOfConnections.remove(socket)</code></td>
+<td>Removes tracked socket; does not close it. serve's try-with-resources owns closing.</td>
+</tr>
+<tr>
+<td><code>PlaintextDevelopmentRpc.SetOfConnections.closeAll()</code></td>
+<td>Iterates concurrent set, closes each socket ignoring IOException, then clears set. Concurrent additions are not coordinated by a shutdown lock; clearing is not proof every racing addition was visited/closed.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="coverage-and-verification">Coverage and Verification</h2>
+<p>Compiler-tree coverage checks <strong>32/32 declarations in this partition (100%)</strong>.
+This is <strong>32/54 (59.3%)</strong> of PlaintextDevelopmentRpc; the client reference covers
+the other <strong>22/54 (40.7%)</strong>, completing explicit declaration coverage for this file.
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-rpc-transport/src/test/java/io/aetherdb/rpc/transport/PlaintextDevelopmentRpcTest.java">PlaintextDevelopmentRpcTest</a>
+contains loopback multiplexing, cancellation, identity mismatch, unsafe retry and
+admission checks. These do not prove production TLS, graceful drain or every race
+and malformed-frame behavior described above. Runtime code is unchanged.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#server-architecture">Server Architecture</a><a href="#factories-and-shared-wire-helpers">Factories and Shared Wire Helpers</a><a href="#listener-and-connection-functions">Listener and Connection Functions</a><a href="#assembly-and-dispatch-functions">Assembly and Dispatch Functions</a><a href="#cancellation-and-socket-tracking">Cancellation and Socket Tracking</a><a href="#coverage-and-verification">Coverage and Verification</a></nav></aside>
+  </div>
+</body>
+</html>

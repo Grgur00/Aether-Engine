@@ -1,0 +1,1365 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/README.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Overview: source-backed contributor documentation for Aether Engine.">
+  <title>Overview | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html" aria-current="page">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/README.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="developer-onboarding">Developer Onboarding</h1>
+<p>This guide explains the <strong>current source checkout</strong>, including its experimental ML
+cache tooling. It is an implementation guide, not a production-readiness certificate
+or a promise about a published artifact. Aether is pre-production: use disposable
+data while learning and keep irreplaceable data elsewhere.</p>
+<h2 id="start-here">Start Here</h2>
+<ol>
+<li><a href="getting-started.html">Get a working checkout</a>: JDK, wrapper, first sample, IDE and optional Python setup.</li>
+<li><a href="architecture.html">Understand the architecture</a>: module map, real runtime boundaries, and where to make changes.</li>
+<li>Follow the <a href="code-tour.html">guided code tour</a>: application, write, read, recovery and optional Python call chains.</li>
+<li>Use the <a href="modules.html">module guide</a> to locate the owning implementation, then <a href="testing.html">make a tested contribution</a>.</li>
+</ol>
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
+    Start[New developer] --&gt; Setup[Build and run the in-memory sample]
+    Setup --&gt; Map[Read the architecture map]
+    Map --&gt; App[Typed application and schema work]
+    Map --&gt; Engine[Storage and recovery work]
+    Map --&gt; ML[Python and training cache work]
+    App --&gt; Tests[Focused tests and contribution review]
+    Engine --&gt; Tests
+    ML --&gt; Tests
+    Tests --&gt; Ops[Operational safety and debugging]
+    Ops --&gt; Research[Optional experiments and profiling]
+</code></pre></details></figure>
+<p>The graph is a reading path, not a dependency graph.</p>
+<h2 id="reading-paths">Reading Paths</h2>
+<p>The <a href="function-index.html">function reference index</a> groups detailed source-backed
+references by subsystem and distinguishes their exact coverage from broader guides.</p>
+<p>The <a href="engine-functions.html">Engine function reference</a> describes database factory,
+write-batch, read, snapshot, cursor and result functions individually, including
+private helpers and overload differences.</p>
+<p>The <a href="sstable-block-functions.html">SSTable block function reference</a> follows internal
+keys, restart compression, streaming scanning, checksums and Bloom membership,
+with explicit ownership and validation boundaries.</p>
+<table>
+<thead>
+<tr>
+<th>Your work</th>
+<th>Read next</th>
+<th>First code to inspect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Embedded application</td>
+<td><a href="schemas.html">Typed API and schemas</a></td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-sample-app/src/main/java/io/aetherdb/examples/social/SocialNetworkRepository.java">SocialNetworkRepository</a></td>
+</tr>
+<tr>
+<td>Engine correctness or performance</td>
+<td><a href="storage.html">Storage engine</a></td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/PersistentAetherDatabase.java">PersistentAetherDatabase</a></td>
+</tr>
+<tr>
+<td>PyTorch/MONAI integration</td>
+<td><a href="python.html">Training cache and Python</a></td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/transform_cache.py">TransformCache</a></td>
+</tr>
+<tr>
+<td>Reproduction and profiling</td>
+<td><a href="research.html">Experiments and profiling</a></td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/reproduce.py">reproduce.py</a></td>
+</tr>
+<tr>
+<td>Reliability and operational tooling</td>
+<td><a href="operations.html">Operations and debugging</a></td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-tools/src/main/java/io/aetherdb/tools/AetherCli.java">AetherCli</a></td>
+</tr>
+<tr>
+<td>RPC, client, replication or Raft foundations</td>
+<td><a href="architecture.html">Architecture</a></td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/src/main/java/io/aetherdb/client/RemoteAetherClient.java">RemoteAetherClient</a></td>
+</tr>
+</tbody>
+</table>
+<p>Use the <a href="glossary.html">glossary</a> when terminology is unfamiliar. All paths in these
+documents are relative to the repository unless a command says otherwise.</p>
+<h2 id="a-practical-first-week">A Practical First Week</h2>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Exercise</th>
+<th>Completion evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First session</td>
+<td>Run the in-memory social sample and its tests</td>
+<td>Sample prints <code>Deleted draft exists: false</code>; tests pass</td>
+</tr>
+<tr>
+<td>Storage orientation</td>
+<td>Trace one <code>put</code> through admission, WAL, publication and subsequent <code>get</code></td>
+<td>Explain what changes before and after the durable acknowledgement</td>
+</tr>
+<tr>
+<td>API orientation</td>
+<td>Read a generated codec, its record and committed schema lock</td>
+<td>Explain why a collection name, field ID and schema UUID are not interchangeable</td>
+</tr>
+<tr>
+<td>Integration orientation</td>
+<td>Read one Python batch lookup and the matching Java protocol branch</td>
+<td>Identify cache identity, miss preparation, publication and buffer ownership</td>
+</tr>
+<tr>
+<td>First change</td>
+<td>Add a regression test for a small behavior before editing it</td>
+<td>Focused tests fail before the change and pass afterward</td>
+</tr>
+<tr>
+<td>Review</td>
+<td>Explain ownership, failure states and format impact</td>
+<td>Review links to source/tests, not only a benchmark chart</td>
+</tr>
+</tbody>
+</table>
+<p>These exercises do not require a GPU, Kaggle credentials, production data, a
+cluster, or a full paper campaign.</p>
+<h2 id="rules-that-prevent-expensive-mistakes">Rules That Prevent Expensive Mistakes</h2>
+<ul>
+<li>One persistent directory has one process owner. Close the application before opening it in Workbench or offline tooling.</li>
+<li>Never infer durable success from a volatile stage acknowledgement or an indeterminate result.</li>
+<li>Keep readers, cursors, snapshots, native regions and packed responses within their documented lifetimes.</li>
+<li>Do not edit a manifest, WAL, schema lock or generated codec as a shortcut around a failing check.</li>
+<li>Do not remove checksums, barriers, locks or admission guards merely to improve a timing.</li>
+<li>A configuration key, module name, specification chapter or empty task is not evidence of an integrated production feature.</li>
+<li>Diagnostics, pilot measurements and fresh confirmatory measurements have different roles. Do not pool them.</li>
+<li>Build outputs and benchmark stores are disposable only when you have verified their identity and ownership. Never use an unverified recursive cleanup path.</li>
+</ul>
+<h2 id="documentation-authority">Documentation Authority</h2>
+<p>Source and tests are the authority for behavior. These onboarding pages link to
+both. <a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/Aether_Engine_Documentation_Index.md">Historical specifications</a> explain
+design intent, but several describe future or only partially integrated behavior.
+<a href="../docs/index.html">Website documentation</a> and the root README are
+additional entry points, not replacements for source verification.</p>
+<p>The repository can contain uncommitted experiments. Record <code>git status --short</code>
+and the revision when comparing behavior. A clean research snapshot in <code>build/</code>
+can be intentionally different from the active worktree.</p>
+<h2 id="verification-record">Verification Record</h2>
+<p>The documentation was checked against this worktree on 2026-09-30. This records
+the scope of the documentation review, not a release certification:</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Repository coverage</td>
+<td>All 49 Java modules in <code>settings.gradle.kts</code> are represented in the architecture inventory; Python integration, research tooling, build and operations have dedicated guides</td>
+</tr>
+<tr>
+<td>Documentation structure</td>
+<td>Local links and heading targets checked; code fences balanced; all 22 Mermaid diagrams rendered successfully</td>
+</tr>
+<tr>
+<td>First-run commands</td>
+<td>In-memory social sample and offline CLI help succeeded on Windows/JDK 21</td>
+</tr>
+<tr>
+<td>Focused Java tests</td>
+<td>83 tests executed across the sample, typed adapter, codec processor, tools and configuration: 69 passed, 14 failed with <code>RESOURCE_EXHAUSTED: write pressure: DISK_SPACE</code></td>
+</tr>
+<tr>
+<td>Focused Python tests</td>
+<td>70 passed and 2 opt-in real-JFR tests skipped across JFR orchestration, system campaign, confirmatory and Kaggle preparation tests</td>
+</tr>
+</tbody>
+</table>
+<p>The Java command was:</p>
+<pre><code class="language-powershell">.\gradlew.bat :examples:aether-sample-app:test :modules:aether-embedded-typed:test :modules:aether-codec-processor:test :modules:aether-tools:test :modules:aether-config:test --console=plain
+</code></pre>
+<p>The Python subset used <code>PYTHONPATH=scripts;clients/python</code> and <code>AETHER_JAVA_TEST=0</code>:</p>
+<pre><code class="language-powershell">.venv/Scripts/python.exe -m pytest scripts/tests/test_bulk_jfr.py scripts/tests/test_system_campaign.py scripts/tests/test_confirmatory.py scripts/tests/test_kaggle_remote.py -q
+</code></pre>
+<p>The disk-space failures affect persistence/recovery checks and are not passing
+coverage. Safeguards were not disabled, and no existing stores were deleted.
+The full Java/Python suites, real-JFR runs, GPU campaigns and remote submissions
+were not part of this documentation verification. Runtime code was not changed
+to make this guide's checks pass.</p>
+<h2 id="maintaining-this-guide">Maintaining This Guide</h2>
+<h3 id="contributor-navigation-check-2026-10-07">Contributor Navigation Check: 2026-10-07</h3>
+<p>The module guide and code tour were checked against the active worktree, not the
+separately frozen research checkout. All 49 module declarations were matched to
+the guide; named module entry symbols were checked against <code>src/main</code> Java files.
+All 406 local links/heading targets across the 13 onboarding pages resolved and
+code fences were balanced. No new Mermaid diagrams were added in this update.</p>
+<p>The in-memory social sample ran and printed <code>Deleted draft exists: false</code>.
+<code>InMemoryAetherDatabaseTest</code> executed 9 tests with no failures, errors or skips:</p>
+<pre><code class="language-powershell">.\gradlew.bat :examples:aether-sample-app:run :modules:aether-engine:test --tests io.aetherdb.engine.InMemoryAetherDatabaseTest --console=plain
+</code></pre>
+<p>These checks verify the first source-reading/semantic exercise, not persistence,
+all distributed foundations, optional Python integration or a production release.
+The earlier verification record above remains separate, including its failures.</p>
+<h3 id="ml-function-reference-expansion-2026-10-08">ML Function Reference Expansion: 2026-10-08</h3>
+<p>The <a href="python-transform-functions.html">transform-cache reference</a> and
+<a href="python-dataset-functions.html">dataset reference</a> describe all 50 explicit function
+declarations in transform_cache.py, identity.py, codecs.py, and dataset.py,
+including nested helpers. Contracts were read from the active source; qualified
+function-entry checks prevent an unrelated method with the same name from hiding
+an omission. Architecture, copy boundaries, mode differences, identity limitations,
+and failure/counter behavior are documented separately from the frozen H2 worker.</p>
+<p>Verification: 49 contributor-documentation tests and 19 ML-wrapper tests passed.
+The website audit passed across 58 HTML pages. Both new references were checked
+with a local headless browser at 1440, 1024, and 390 pixels, including code contrast,
+table containment, navigation selection, and screenshots. No runtime implementation,
+GPU experiment, or daemon configuration changed for this documentation expansion.</p>
+<p>This completes these four files' reference coverage, not the whole repository's
+function-level overview. Lifecycle/framework adapters, research drivers, operational
+commands, schema Gradle tooling, offline bulk publication, and distributed
+foundations remain for further detailed coverage. The function index records scope;
+name/entry checks do not independently prove semantic accuracy or runtime correctness.</p>
+<h3 id="ml-lifecycle-and-framework-expansion-2026-10-08">ML Lifecycle and Framework Expansion: 2026-10-08</h3>
+<p>The <a href="python-lifecycle-functions.html">lifecycle/operations reference</a> and
+<a href="python-framework-functions.html">framework reference</a> complete the aether_ml package's
+explicit-function entry coverage: <strong>63 of 63 declarations</strong>, including private and
+nested functions. Inherited Torch dataset behavior, configuration's implicit
+dataclass contract, package import boundaries, and custom exception types are
+explained alongside those declarations. The inventory test scans the whole package
+so a new file containing functions cannot silently escape the coverage mapping.</p>
+<p>The latest checks passed: 52 contributor-documentation tests, 10 local
+documented-contract tests, and 19 ML-wrapper tests. The website audit passed across
+60 HTML pages. All four ML references rendered with contained tables and readable
+code at 1440, 1024, and 390 pixels in the local headless browser. This is engineering
+and documentation evidence, not a Java/GPU experiment or a production certification.</p>
+<p>Remaining detailed work includes lower-level prefetch/loader/provenance APIs,
+research drivers, operational commands, schema Gradle tooling, offline bulk
+publication, and distributed foundations. Completing aether_ml's declaration
+coverage does not mark the repository-wide overview complete.</p>
+<h3 id="offline-bulk-function-expansion-2026-10-08">Offline Bulk Function Expansion: 2026-10-08</h3>
+<p>The <a href="bulk-publication-functions.html">offline bulk reference</a> covers <strong>27 of 27
+explicit declarations</strong> across BulkArtifactWriter, EmptyStoreBulkLoader and
+scripts/bulk_population.py, including its stdout reader and preprocessing capture
+helpers. It follows ownership from Python pipe batches through sorted staging,
+deferred table construction, the authoritative inventory pass, append/force
+manifest publication, receipt delivery and ordinary-reader validation.</p>
+<p>The reference distinguishes volatile STAGED responses from durable acknowledgements,
+post-commit cleanup failure from prepublication failure, process death from power
+loss, a soft SSTable target from a hard file-size limit, and encoded-byte accounting
+from peak heap. It documents the prototype's development/pressure settings without
+changing them and keeps V0-only diagnostic timing separate from H2 lifecycle cost.</p>
+<p>Verification: 54 contributor-documentation tests and 10 documented ML-contract
+tests passed. Java executed eight loader tests and two artifact-writer tests with
+no failures, errors or skips. The website audit passed across 61 HTML pages.
+All 17 bulk-population Python tests also passed with <code>AETHER_JAVA_TEST=1</code>, using
+real local Java subprocesses, ordinary-reader reopening and disposable CPU image
+fixtures. Those include process-death/abort and layout/update checks, not GPU
+measurements or simulated storage power loss. Two Torch deprecation warnings
+were emitted; no tests were skipped.
+The bulk reference and four ML references were checked at 1440, 1024 and 390
+pixels, with readable code, contained tables, correct selected navigation and
+screenshots. Runtime implementations and frozen GPU experiments were not changed.</p>
+<p>This completes these three files' explicit-function reference entries, not the
+repository-wide goal. Remaining work includes lower-level Python pipeline and
+provenance helpers, research orchestration/analysis, operational commands, Gradle
+schema tooling and distributed foundations. Entry/signature checks prevent
+omissions; they do not independently prove every documented contract.</p>
+<h3 id="python-pipeline-and-store-adapter-expansion-2026-10-08">Python Pipeline and Store Adapter Expansion: 2026-10-08</h3>
+<p>The <a href="python-pipeline-functions.html">loading/worker/prefetch reference</a> and
+<a href="python-store-adapter-functions.html">store adapter/resource reference</a> cover
+<strong>54 of 54 explicit functions</strong> in six complete source files: dataset.py,
+loader_workers.py, prefetch.py, java_store.py, persistent_mmap.py and resources.py.
+They also cover both functions in the benchmark's prepared_batches subtree;
+the rest of that benchmark is not claimed as complete. Qualified AST entry checks
+include private, property and nested declarations.</p>
+<p>Architecture and behavior are separated by actual ownership: segment-reference
+loading, the ordered one-producer queue, spawned benchmark workers, Java RPC
+batching, append-journal mmap publication and Linux process observations. The
+references explain missing values, pinned copies, schedule/queue bounds,
+cancellation and join, response-view lifetime, partial multi-chunk publication,
+indeterminate baseline publication, worker aggregation and resource-counter limits.</p>
+<p>Verification: <strong>57 contributor-documentation tests</strong>, 10 ML documented-contract
+tests and 17 pipeline/store documented-contract tests passed (84 total).
+The existing prefetch/storage suites passed 31 tests and 21 subtests. Contract
+fixtures use fake transport/framework responses, modeled /proc observations and
+real disposable mmap files; they do not launch Torch worker processes or establish
+Java/GPU performance, cross-process locking or storage power-loss guarantees.</p>
+<p>The site audit passed across 63 HTML pages (61 contributor guides). Seven recent
+function references were checked with headless Edge at 1440, 1024 and 390 pixels:
+21 page/viewport combinations with contained tables, readable code, selected
+navigation and no page script errors. Desktop/mobile screenshots were inspected.
+The in-app browser connection was unavailable; the existing local headless browser
+was used instead. Runtime implementations and frozen GPU experiments were unchanged.</p>
+<p>This completes the selected six files' function entries, not the repository-wide
+goal. Further detail remains for the separate filesystem provenance API, research
+orchestration/analysis, operational commands, Gradle schema tooling and distributed
+foundations. Per-file entry coverage is measurable; no overall completion percentage
+is inferred from these narrowly scoped checks.</p>
+<h3 id="filesystem-provenance-expansion-2026-10-08">Filesystem Provenance Expansion: 2026-10-08</h3>
+<p>The separate aetherml implementation now has <strong>79 of 79 explicit function
+entries</strong> across three references: <a href="python-provenance-store-functions.html">artifact publication</a>
+(31), <a href="python-provenance-workflow-functions.html">dataset/lineage workflows</a> (29),
+and <a href="python-provenance-diagnostic-functions.html">validation/diagnostics</a> (19).
+AST checks partition the whole ml.py declaration inventory, including nested
+helpers and properties, so a duplicate name cannot conceal an omitted function.</p>
+<p>These references distinguish local Python files/pickle from the Java cache,
+content identity from provenance nodes, replaceable cache pointers from immutable
+admission, file fsync/replace from multi-file transactions, snapshot membership
+from model reproducibility and destructive cleanup from repair. They document
+per-instance locking, trusted-path limits, None cache behavior, metadata reuse,
+partial publication, direct-only snapshot verification and diagnostic blind spots.
+No runtime implementation or frozen experiment was changed.</p>
+<p>Verification: 58 contributor-documentation tests and 23 focused provenance
+contract tests passed. All 17 existing core provenance tests in test_aetherml.py
+(the source's first 17 tests, through environment-report fields) also passed.
+Those use real local disposable files and selected probe/framework doubles, not
+cross-process crash tests, power-loss experiments or GPU measurements. Research
+benchmark tests later in that file were not included in this scoped run.</p>
+<p>The site audit passed across 66 HTML pages (64 contributor guides). Ten recent
+references passed headless Edge checks at 1440, 1024 and 390 pixels, 30 combinations,
+with contained tables, readable code, selected navigation and no script errors.
+Desktop/mobile screenshots of the new references were inspected. The existing
+local browser fallback was used because the in-app browser connection was unavailable.</p>
+<p>This completes ml.py's function-reference coverage, not the repository-wide goal.
+Remaining detail includes research orchestration/analysis, Python workload helpers,
+operational commands, Gradle schema tooling and distributed foundations. Coverage
+checks establish entries; source review and scoped contracts support their meaning,
+without claiming exhaustive runtime correctness.</p>
+<h3 id="h2-harness-expansion-2026-10-08">H2 Harness Expansion: 2026-10-08</h3>
+<p>Three references cover <strong>42 of 42 explicit functions in five complete H2 harness
+files</strong>: <a href="h2-protocol-functions.html">protocol and freeze</a> (13),
+<a href="h2-execution-functions.html">execution, worker and input binding</a> (24), and
+<a href="h2-analysis-functions.html">analysis and figures</a> (5). Qualified AST table checks
+include nested callbacks and distinguish both main entry points, preventing a
+duplicate name from masking an omission.</p>
+<p>The architecture follows candidate/harness identity, audited pilot evidence,
+runtime freeze, full excluded preflight, backend-major lifecycles, same-JVM
+V0-V4 persistence, whole-block retries, leases, seals, checkpoints and archived
+analysis. It explains the fixed 24-block endpoint, same-host resume restriction,
+ratio direction, geometric intervals, degenerate variance, exact ties and observed
+break-even semantics. Direct arithmetic helpers are not the complete receipt gate.</p>
+<p>Verification: <strong>153 tests passed</strong>, comprising 61 contributor-documentation tests,
+24 focused H2 documentation-contract checks and 68 existing H2 execution/input
+tests. Disposable synthetic timing/file fixtures and injected worker/service
+doubles establish selected contracts, not real CUDA performance or platform
+restart guarantees. The nested-mount suite uses the preserved pilot parser.
+No live experiment, runtime implementation, frozen source or result was changed.</p>
+<p>The site audit passed across <strong>69 HTML pages (67 contributor guides)</strong>. Thirteen
+recent references passed headless Edge checks at 1440, 1024 and 390 pixels,
+39 page/viewport combinations, with contained tables, readable code, selected
+navigation and no page script errors. Desktop/mobile screenshots of H2 references
+were inspected. The local browser fallback was used after the in-app browser
+connection failed.</p>
+<p>Mobile H2 guide filtering, navigation, no-match state and Escape dismissal also
+passed after waiting for destination-page loading in the browser check.</p>
+<p>This completes the selected H2 harness files' function entries, not the full
+repository overview. Shared campaign/service infrastructure, original training
+workloads, operational commands, Gradle schema tooling and distributed foundations
+still need further detailed coverage. No repository-wide percentage is inferred
+from this selected subsystem's 100% entry coverage.</p>
+<h3 id="shared-research-infrastructure-expansion-2026-10-08">Shared Research Infrastructure Expansion: 2026-10-08</h3>
+<p>Four references cover <strong>38 of 38 explicit functions in six complete files</strong>:
+<a href="research-campaign-functions.html">campaign identity and evidence</a> (9),
+<a href="research-process-functions.html">build, environment and process ownership</a> (9),
+<a href="research-lifecycle-functions.html">stage checkpoints and persistent service</a> (16),
+and <a href="research-manifest-functions.html">dataset version manifests</a> (4).
+Qualified AST table checks match each reference's entries to its source inventory.</p>
+<p>The architecture distinguishes kernel locks from persistent marker files,
+source/runtime identity from descriptive probes, closed-store stage recovery from
+same-JVM whole-block execution, and manifest membership from raw-input validation.
+Function entries explain ownership, timing, return values, mutations and failure
+boundaries. They document nested identity aliasing, matching absent runtime entries,
+non-transactional multi-file receipts, post-commit cleanup failures, direct-helper
+numeric limitations and the external authority required to trust manifest receipts.</p>
+<p>Verification: <strong>149 tests passed, two skipped</strong>: 65 contributor-documentation
+checks, 32 infrastructure contracts, 15 manifest contracts and 37 passing existing
+campaign/provenance/evidence/longitudinal/service tests. The two skips are opt-in
+real-Java lifecycle tests. Disposable local files, CSV generation, a real child
+process exiting during stage work, and selected process/client/framework doubles
+support these contracts. No live JVM/GPU experiment, frozen source, implementation
+or scientific result was changed. The child crash test ran with the scripts
+directory exported through PYTHONPATH; it is not a power-loss test.</p>
+<p>The site audit passed across <strong>73 HTML pages (71 contributor guides)</strong>. Seventeen
+recent references passed headless Edge checks at 1440, 1024 and 390 pixels,
+51 page/viewport combinations, plus mobile guide filtering, navigation, no-match
+state and Escape dismissal. New mobile screenshots were inspected; tables and
+code remain contained and readable. The existing local browser fallback was used
+because the in-app browser connection was unavailable.</p>
+<p>This completes the selected helpers' function entries, not the repository-wide
+overview. Original training workloads, remaining research drivers/analysis,
+operational commands, Gradle schema tooling and distributed foundations still
+need detailed coverage. No global completion percentage is inferred from this
+subsystem's 100% entry coverage.</p>
+<h3 id="longitudinal-workload-expansion-2026-10-09">Longitudinal Workload Expansion: 2026-10-09</h3>
+<p>Three references cover <strong>35 of 35 explicit functions in four complete files</strong>,
+plus the Aether source-identity lambda:
+<a href="research-adapter-functions.html">MONAI comparison and adapters</a> (16 functions),
+<a href="longitudinal-worker-functions.html">longitudinal stage worker</a> (8), and
+<a href="longitudinal-runner-functions.html">pilot runner and analysis</a> (11).
+Qualified AST entries match each selected file; the callback has a separate check.</p>
+<p>The architecture distinguishes the older two-version update endpoint, V0
+population-only longitudinal worker, interleaved persistent-service pilot, and
+separately preserved H2 V0-training workload. The model explanation follows the
+actual convolution blocks, output head, BCE loss, AdamW and post-warmup hashes;
+the SmallUNet name does not imply pooling, a decoder or skip connections.
+Entries explain admitted versus cached tensors, synchronous training, excluded
+validation, sampled occupancy, stage/paired receipts, fresh versus completed-block
+checks, common-cost arithmetic, descriptive intervals and first-observed ties.</p>
+<p>Verification: <strong>110 tests passed, three skipped</strong>: 69 contributor-documentation
+checks, 25 new workload contracts and 16 passing existing longitudinal/service/
+MONAI tests. The skips are opt-in real-Java campaigns. A tiny real CPU/mmap V0-V1
+fixture confirmed initial admission without V0 training, one incremental admission,
+V1 training, readback and phase sums. Existing tests exercised actual local MONAI
+PersistentDataset and LMDB caches. Injected workers, local receipts and generated
+PNG fixtures test selected orchestration/analysis limits, not CUDA performance,
+power-loss behavior or clinical segmentation quality. This documentation work did
+not change runtime implementations or the frozen candidate.</p>
+<p>The site audit passed across <strong>76 HTML pages (74 contributor guides)</strong>. Twenty
+recent references passed headless Edge checks at 1440, 1024 and 390 pixels,
+60 page/viewport combinations, plus mobile filtering/navigation/empty-state/Escape
+checks. Desktop/mobile screenshots of the new references were inspected. The
+in-app browser connection failed, so the existing local fallback was used.</p>
+<p>Selected function-entry coverage is complete; the repository-wide overview is not.
+The main benchmark workload still has 138 explicit declarations, with only selected
+loading/model contracts described so far. Remaining research drivers/profilers,
+operational commands, Gradle schema tooling and distributed foundations also need
+individual-function detail and verification. No overall percentage is inferred
+from this selected subsystem's 100% entry coverage.</p>
+<h3 id="benchmark-data-expansion-2026-10-09">Benchmark Data Expansion: 2026-10-09</h3>
+<p>The <a href="benchmark-data-functions.html">benchmark data reference</a> covers <strong>27 explicit
+functions</strong> in benchmark_gpu_segmentation.py: source selection, manifest checks,
+deterministic preparation, payload packing/unpacking, checksums, batch plans and
+descriptive configuration. Together with the two existing loading/prefetch
+entries, this documents <strong>29 of 138 declarations (about 21%)</strong>, leaving <strong>109
+entries (about 79%)</strong> in this module. This is not repository-wide coverage.</p>
+<p>Entries distinguish trusted declared hashes from actual file verification,
+selected-row validation from whole-manifest validation, binary semantic masks
+from visualizations, float16 artifact quantization from float32 preprocessing,
+and descriptive version/storage labels from authoritative cache identity. They
+also explain payload length/decompression checks and the limits of those checks;
+metadata parsing does not establish authentication or a resource quota.</p>
+<p>Verification: <strong>112 tests passed</strong>: 70 contributor-documentation checks, 30 new
+data-contract checks, and 12 existing storage/manifest tests. Tiny actual PNG/CSV
+fixtures, NumPy arrays, payload corruption and isolated filesystem doubles
+exercise the documented boundaries. No GPU/JVM campaign or frozen implementation
+was changed. Qualified AST checks establish this selected function partition,
+not full coverage of the benchmark or proof of performance.</p>
+<p>The site audit passed across <strong>77 HTML pages (75 contributor guides)</strong>. Twenty-one
+recent references passed headless Edge checks at 1440, 1024 and 390 pixels,
+63 page/viewport combinations, plus mobile navigation/filter/empty-state/Escape
+checks. Desktop and mobile screenshots of the data reference were inspected.
+The existing local browser fallback was used because the in-app connection was
+unavailable.</p>
+<p>Training execution, backend ownership, timing/accounting and statistical helpers
+in the main benchmark still need individual entries. Remaining research tools,
+operational commands, Gradle tooling and distributed foundations also remain in
+the original documentation scope.</p>
+<h3 id="benchmark-training-expansion-2026-10-09">Benchmark Training Expansion: 2026-10-09</h3>
+<p>The <a href="benchmark-training-functions.html">model, training and device reference</a>
+covers <strong>25 explicit declarations</strong>, including the four nested model methods.
+The main benchmark now has <strong>54 of 138 declarations documented (about 39%)</strong>,
+leaving <strong>84 (about 61%)</strong>. This counts function entries in this module, not
+repository-wide completion or runtime correctness.</p>
+<p>The architecture follows the actual padded convolution stack rather than
+inferring a U-Net encoder/decoder from its name. Entries explain state-changing
+optimizer warmup, deterministic seed policy, augmentation outside cached values,
+blocking transfers, synchronized training phases, iterator/sampler cleanup and
+excluded sanity/model-hash work. They distinguish canonical CPU strides from
+generic contiguity and pooled first-batch overlap from held-out segmentation
+evaluation. Reported precision and GPU-name matching are not enforcement of
+every device/model property.</p>
+<p>Verification: <strong>125 tests passed</strong>: 71 contributor-documentation checks, 24 new
+training contracts and 30 data contracts. Actual local CPU torch exercised all
+three model tiers, warmup, inline/prepared optimizer steps, tensor sharing/strides
+and reference sanity checks. Injected factories, accelerator fields and backend
+sampling/resource boundaries exercised routing and failure cleanup. These tests
+do not establish CUDA/ROCm throughput, multi-GPU execution or clinical accuracy.
+No runtime implementation, frozen H2 source or GPU job was changed.</p>
+<p>The site audit passed across <strong>78 HTML pages (76 contributor guides)</strong>. Twenty-two
+recent references passed headless Edge checks at 1440, 1024 and 390 pixels,
+66 page/viewport combinations, plus mobile navigation/filter/empty-state/Escape
+checks. New desktop/mobile screenshots were inspected using the existing local
+browser fallback.</p>
+<p>The overall goal remains incomplete. Main-benchmark backend ownership,
+utilization sampling, orchestration and result accounting are next, alongside
+the remaining research tools, operations, Gradle tooling and distributed
+foundations in the original scope.</p>
+<h3 id="benchmark-backend-expansion-2026-10-09">Benchmark Backend Expansion: 2026-10-09</h3>
+<p>The <a href="benchmark-backend-functions.html">backend ownership reference</a> covers all
+<strong>24 BackendContext methods and two helpers</strong>. Main-benchmark entry coverage is
+now <strong>80 of 138 declarations (about 58%)</strong>, leaving <strong>58 (about 42%)</strong>. This is
+not a repository-wide percentage.</p>
+<p>The architecture distinguishes a local Python artifact root from a Java daemon
+namespace, incremental keyed mmap from its historical static label, and encoded
+RAM payloads from ready tensors. Entries document destructive fresh directories,
+partial-construction/close failure boundaries, actual versus simulated prefix
+reuse, reset behavior, ordinary batched publication versus offline bulk import,
+and logical counters versus transport/physical I/O. Population reports do not
+all include seed/discovery work; Aether population lookup/publish times are
+cumulative while its entry/hit/miss fields use call deltas.</p>
+<p>Verification: <strong>97 tests passed</strong>: 72 contributor-documentation checks, 16 new
+backend contracts and nine existing storage tests. Disposable real Python
+artifact/mmap stores exercised cold/warm batches against raw/RAM, prefix reuse,
+reopening, changed deterministic identity, population accounting and cleanup.
+Injected Java clients exercised engine/durability rejection, counter-only reset,
+worker transport merging and observation ownership. A cold-start test confirms
+count comparison is not exact initial-index-set validation. No live daemon,
+GPU campaign, frozen implementation or scientific result was changed.</p>
+<p>The site audit passed across <strong>79 HTML pages (77 contributor guides)</strong>. Twenty-three
+recent references passed headless Edge checks at 1440, 1024 and 390 pixels,
+69 page/viewport combinations, plus mobile navigation/filter/empty-state/Escape
+checks. New desktop/mobile screenshots were inspected with the existing local
+browser fallback.</p>
+<p>Utilization sampling, benchmark orchestration, validity checks and result
+accounting remain to expand. The broader research/operations/Gradle/distributed
+documentation scope remains active and incomplete.</p>
+<h3 id="benchmark-observation-expansion-2026-10-09">Benchmark Observation Expansion: 2026-10-09</h3>
+<p>The <a href="benchmark-metrics-functions.html">utilization/process reference</a> covers all
+<strong>seven sampler methods and eight parsing/process helpers</strong>. Main-benchmark entry
+coverage is <strong>95 of 138 declarations (about 69%)</strong>, leaving <strong>43 (about 31%)</strong>.
+This is a scoped function-entry count, not overall repository completion.</p>
+<p>Entries explain command fallback and sticky errors, device averaging without
+selected-device filtering, permissive numeric/unit extraction, sample-list
+ownership, bounded shutdown and retry behavior. They distinguish a sample being
+present from valid percentage measurements, allocated VRAM from activity,
+host-core-normalized CPU usage from one-core utilization, process-lifetime RSS
+peaks from interval memory, and Linux process I/O from artifact byte counters.</p>
+<p>Verification: <strong>164 tests passed</strong>: 73 contributor-documentation checks, 21 new
+observation contracts, and 70 earlier benchmark data/training/backend contracts.
+Injected vendor outputs, missing/failing commands, proc-file fixtures, resource
+values and stop/join doubles exercise parsing and lifecycle limits. Earlier
+contracts include real local CPU torch and disposable artifact/mmap stores.
+No vendor command, GPU run, live daemon or frozen implementation was changed.</p>
+<p>The site audit passed across <strong>80 HTML pages (78 contributor guides)</strong>. Twenty-four
+recent references passed headless Edge checks at 1440, 1024 and 390 pixels,
+72 page/viewport combinations, plus mobile navigation/filter/empty-state/Escape
+checks. New desktop/mobile screenshots were inspected using the existing local
+browser fallback.</p>
+<p>Main-benchmark orchestration, validity policy and result/statistical accounting
+remain. Other research tooling, operational commands, Gradle tooling and
+distributed foundations remain in the original goal's scope.</p>
+<h3 id="benchmark-control-expansion-2026-10-09">Benchmark Control Expansion: 2026-10-09</h3>
+<p>The <a href="benchmark-runner-functions.html">entry-point/run-control reference</a> covers
+<strong>13 declarations</strong>, including all three lazy-reference methods. Main-benchmark
+entry coverage is <strong>108 of 138 (about 78%)</strong>, leaving <strong>30 (about 22%)</strong>. This
+does not establish repository-wide completion.</p>
+<p>Entries trace CLI normalization/guard limits, population-only success versus
+accelerator-gated training, repeated lazy preparation, shared initial model
+state/fresh optimizers, separate prefix validation, seeded backend shuffling,
+Java background-drain accounting and later run-level invariants. They document
+descriptor-only invalidation checks, at-most-eight-sample tensor equivalence,
+non-atomic report writing and the measured-context cleanup gap before its later
+training finally. The original controller is explicitly distinct from frozen H2.</p>
+<p>Verification: <strong>186 tests passed</strong>: 74 contributor-documentation checks, 21 new
+runner contracts and 91 earlier benchmark contracts. A tiny actual CPU-only call
+to run_training_once used four backends and disposable local stores, confirming
+final model-state parity, backend tensor equivalence and cache invariants.
+Controlled reports/accelerator doubles checked unsupported skips, population-only
+success and GPU-count rejection without executing a GPU job. CLI/lazy/checksum
+fixtures exercise selected boundaries, not all hardware or workload combinations.
+No production CPU fallback, runtime change, frozen-source change or GPU campaign
+action was introduced.</p>
+<p>The site audit passed across <strong>81 HTML pages (79 contributor guides)</strong>. Twenty-five
+recent references passed headless Edge checks at 1440, 1024 and 390 pixels,
+75 page/viewport combinations, plus mobile navigation/filter/empty-state/Escape
+checks. New desktop/mobile screenshots were inspected using the existing local
+browser fallback.</p>
+<p>Result aggregation, lifecycle/break-even ratios, cache accounting and statistics
+remain in the main benchmark. The broader research/operations/Gradle/distributed
+documentation scope remains incomplete and active.</p>
+<h3 id="benchmark-accounting-completion-2026-10-09">Benchmark Accounting Completion: 2026-10-09</h3>
+<p>The <a href="benchmark-accounting-functions.html">lifecycle/cache/comparison reference</a>
+adds <strong>18 declarations</strong>, and <a href="benchmark-aggregation-functions.html">aggregation/statistics</a>
+adds <strong>12</strong>. A joint qualified AST check confirms <strong>138 of 138 explicit declarations
+(100% entry coverage, 0% remaining in this module)</strong> across seven benchmark
+references and the two existing prefetch entries, with no omissions or duplicate
+entries. This does not complete the repository-wide objective or establish all
+runtime/hardware behavior.</p>
+<p>Entries distinguish step-wall throughput from whole-backend throughput, supplied
+epoch accumulation from measured lifecycle total, logical cache counts from I/O,
+strict descriptive outcome signals from significance, and constant-mean epoch
+projections from observed longitudinal crossover. Aggregation documents first-run
+representative fields, missing-field zeros/omissions, unweighted run summaries,
+conditional crossover distributions, flag denominators and normal-approximation
+half-widths. Earlier benchmark pages now link the complete partition inventory
+instead of retaining stale unfinished-module counts.</p>
+<p>Verification: <strong>201 tests passed</strong>: 77 contributor-documentation checks, 12 new
+accounting/aggregation contracts and 112 earlier benchmark contracts. Arithmetic
+fixtures exercise fixed-grid/equality boundaries, denominators, missing/censored
+fields, checksum shape omissions and representative-field retention. Earlier
+contracts include real local CPU training and disposable artifact/mmap stores.
+The checks establish selected source behavior and documentation coverage, not a
+new performance result, inferential guarantee or clinical validation. No runtime
+implementation, frozen source or GPU campaign was changed.</p>
+<p>The site audit passed across <strong>83 HTML pages (81 contributor guides)</strong>. Twenty-seven
+recent references passed headless Edge checks at 1440, 1024 and 390 pixels,
+81 page/viewport combinations, plus mobile navigation/filter/empty-state/Escape
+checks. New desktop/mobile screenshots were inspected using the existing local
+browser fallback.</p>
+<p>This closes the main benchmark's explicit function inventory. Other research
+drivers/profilers, operational commands, Gradle tooling and distributed foundations
+remain in the original repository-wide documentation scope; no overall completion
+percentage is inferred from one module's 100% entry coverage.</p>
+<h3 id="ongoing-maintenance">Ongoing Maintenance</h3>
+<p>Experiment output/scratch ownership reference added on 2026-10-09: <strong>4/4
+declarations</strong> across cache_workspace.py and experiment_output.py now document
+capacity floors, OS locking, interruption retention, checked cleanup and metadata
+resume boundaries. Verification: <strong>97 passed</strong> across documentation, existing local
+workspace/output checks and seven focused contracts, including partial metadata
+write failure. The site audit passed <strong>90 HTML pages / 88 contributor guides</strong>.
+Thirty-four recent references passed three-width headless Edge checks (102
+page/viewport combinations) and mobile navigation; the new desktop screenshot was
+inspected. No runtime or frozen experiment changes were made. Other operational,
+build and distributed-system functions remain in the original documentation scope.</p>
+<p>Steady-state hit-path reference added on 2026-10-09: <strong>19/19 declarations</strong> in
+hit_path_profile.py now describe hit-only validity, preparation/byte parity,
+Java/RPC/mmap layers, CPU tensor preparation, prefetch, trace reconciliation and
+descriptive comparisons. Verification: <strong>99 passed</strong> across documentation, existing
+hit-path tests and six focused contracts. Fixtures check percentiles, epoch-wall
+throughput, seeded job inventories, binary workload encoding and comparison limits;
+they do not claim live JVM/GPU throughput. The site audit passed <strong>89 HTML pages /
+87 contributor guides</strong>. Thirty-three recent references passed three-width headless
+Edge checks (99 page/viewport combinations) and mobile navigation; the new desktop
+screenshot was inspected. Runtime/frozen experiments remain unchanged. Operational,
+build and distributed-system code remain in the broader documentation goal.</p>
+<p>Bulk verification campaign reference added on 2026-10-09: <strong>8/8 declarations</strong>
+in profile_bulk_verification.py are documented, including nested statistics,
+baseline source inventory, isolated worker imports and distinct population/streaming
+endpoints. Verification: <strong>102 passed</strong> across documentation, existing campaign
+tests and five focused contracts. Fixtures expose receipt limits, negative timing
+residuals and direct-summary assumptions; they do not establish a new performance
+result. The site audit passed <strong>88 HTML pages / 86 contributor guides</strong>. Thirty-two
+recent references passed three-width headless Edge checks (96 page/viewport
+combinations) plus mobile navigation; the new desktop screenshot was inspected.
+Runtime/frozen experiments were not changed. Other drivers, operational tooling
+and distributed foundations remain in the repository-wide documentation scope.</p>
+<p>Bulk JFR/background-compaction driver reference added on 2026-10-09: <strong>3/3
+declarations</strong> across profile_bulk_jfr.py and profile_background_compaction.py are
+documented with recording, drain/reopen, cleanup and failure boundaries. Verification:
+<strong>89 passed, 2 skipped</strong> across documentation, focused driver contracts and existing
+bulk JFR tests. The skips require live JVM/JFR runs. Doubles check candidate/smoke
+CLI rejection, missing-tool failure, durable-reopen control flow and the limits of
+empty foreground trace evidence; they do not prove real compaction or performance.
+The site audit passed <strong>87 HTML pages / 85 contributor guides</strong>. Thirty-one recent
+references passed three-width headless Edge checks (93 page/viewport combinations)
+and mobile navigation; the new desktop screenshot was inspected. Runtime and frozen
+experiments remain unchanged. Other profiling and repository subsystems remain in scope.</p>
+<p>Cache/bulk JFR analysis reference added on 2026-10-09: <strong>6/6 declarations</strong> across
+analyze_cache_jfr.py and bulk_jfr_analyze.py now have source-backed behavior and
+boundary entries. The reference distinguishes whole-export cache summaries from
+population intervals and verifier-thread attribution, documents inclusive sample
+counts, first-allocation sensitivity, export provenance limits and DataLoss handling.
+Verification: <strong>94 passed, 2 skipped</strong> across documentation, focused synthetic
+contracts and existing bulk JFR tests. The skips require live JVM/JFR execution;
+no real recording or performance result is claimed. The site audit passed
+<strong>86 HTML pages / 84 contributor guides</strong>. Thirty recent references passed headless
+Edge at three widths (90 page/viewport combinations), plus mobile navigation.
+New desktop/mobile screenshots were inspected. Runtime and frozen campaigns
+remain unchanged; other profiling drivers and repository subsystems remain in scope.</p>
+<p>Cache request/JFR diagnostic reference added on 2026-10-09: <strong>7/7 explicit
+declarations</strong> across profile_cache_requests.py and profile_cache_jfr.py are
+documented, including their nested callbacks. The guide distinguishes shared-store
+request windows from fresh-daemon recordings, warmup trace clearing from protocol
+counter scope, and descriptive overhead from independent experiment evidence.
+Verification: <strong>89 passed</strong> across documentation and ten focused contracts, using
+client/daemon doubles rather than live JVM recordings. The site audit passed
+<strong>85 HTML pages / 83 contributor guides</strong>. Headless Edge checked 29 recent references
+at three widths (87 page/viewport combinations), plus mobile navigation; the new
+desktop/mobile screenshots were inspected. Runtime and frozen campaigns were not
+changed. Other profilers and repository subsystems remain in scope.</p>
+<p>Population diagnostic reference added on 2026-10-09: all <strong>18/18 explicit
+declarations</strong> in profile_population.py now have behavior and boundary entries,
+including its nested callback. The guide separates population from readback,
+describes partial publication failures and trace reconciliation, and explains why
+these arms are not a persistent-daemon H2 experiment. This is file-local 100%
+declaration coverage, not repository-wide completion.</p>
+<p>Verification: <strong>85 passed, 1 skipped</strong> across documentation and existing population
+tests, plus <strong>5 passed</strong> focused documented-contract tests. The skipped test is
+the opt-in real-Java all-backend test; no GPU or daemon result is claimed. The site
+audit passed <strong>84 HTML pages / 82 contributor guides</strong>. Headless Edge checked 28
+recent references at 1440, 1024 and 390 pixels (84 page/viewport combinations),
+including table containment, code contrast and mobile navigation. The new desktop
+screenshot was inspected. Runtime and frozen experiment implementations were not
+changed.</p>
+<p>RPC frame/handshake reference added on 2026-10-09: <strong>28/28 explicit declarations</strong>
+across six codec files describe wire layout, defensive payload copies, incremental
+decoding, negotiated allocation guards, HELLO compatibility and validation limits.
+This is 100% coverage of those six files, not the entire RPC subsystem. Fragment
+assembly, stream allocation, transport and distributed foundations remain in scope.
+Verification: <strong>85 documentation tests passed</strong>; a fresh Gradle rerun executed all
+22 tasks and <strong>9 RPC codec tests passed</strong>, with no failures, errors or skips. The
+site audit passed <strong>91 HTML pages / 89 contributor guides</strong>. Thirty-five recent
+references passed three-width headless Edge checks (105 page/viewport combinations)
+and mobile navigation; the new desktop screenshot was inspected. Runtime and
+frozen experiment implementations were not changed.</p>
+<p>RPC codec reference expanded on 2026-10-09 to <strong>38/38 explicit declarations</strong>
+across all ten implementation files. Added fragmentation, assembly, stream-ID
+allocation and exception contracts, including retained state after protocol
+failures, defensive copies, negotiated versus global bounds and exhaustion.
+The compiler-tree test now rejects undocumented source-file additions. Verification:
+<strong>85 documentation tests passed</strong>; the site audit passed <strong>91 HTML pages / 89
+contributor guides</strong>. Thirty-five references passed all three browser widths
+(105 page/viewport combinations), code contrast and mobile navigation. The updated
+mobile screenshot was inspected. Existing nine codec tests passed in the preceding
+fresh Gradle run; this expansion changes documentation only. Codec declaration
+coverage is 100% (0% remaining); RPC API, transport/client and other repository
+subsystems remain in the broader goal.</p>
+<p>RPC API/admission reference added on 2026-10-09: <strong>33/33 explicit declarations</strong>
+across all 17 API implementation files, including abstract interface methods and
+both inbound-admission overloads. The guide separates interface promises from
+constructor validation, defensive copies, policy labels and resource charges;
+it records timeout mismatch, formatting limits and cancellation/retry boundaries.
+Verification: <strong>86 documentation tests passed</strong>, and a fresh Gradle rerun executed
+14 tasks with <strong>5 API tests passed</strong>, no failures/errors/skips. The site audit
+passed <strong>92 HTML pages / 90 contributor guides</strong>. Thirty-six recent references
+passed three-width headless Edge checks (108 page/viewport combinations) and mobile
+navigation; the new desktop screenshot was inspected. API declaration coverage
+is 100% (0% remaining), not transport/client or repository-wide completion.
+Runtime and frozen experiment implementations were not changed.</p>
+<p>RPC transport-support reference added on 2026-10-09: <strong>11/11 explicit
+declarations</strong> in configuration, identity and flow-control files, plus the
+method-free connection-state enum. Documents registry/HELLO conversion limits,
+permit rounding, different client/server inbound budgets and standalone foundations
+not wired into plaintext transport. Verification: <strong>87 documentation tests passed</strong>;
+a fresh Gradle run executed 26 tasks and the selected <strong>1 flow-controller test
+passed</strong> with no failures/errors/skips. This is not the full transport test suite.
+The site audit passed <strong>93 HTML pages / 91 contributor guides</strong>. Thirty-seven
+references passed three-width headless Edge checks (111 page/viewport combinations)
+and mobile navigation; the new mobile screenshot was inspected. This four-file
+partition is 100% covered (0% remaining), while PlaintextDevelopmentRpc and broader
+repository subsystems remain in scope. Runtime/frozen experiments are unchanged.</p>
+<p>Development RPC server reference added on 2026-10-09: <strong>32/32 declarations</strong> in
+the server/shared-socket/cancellation partition of PlaintextDevelopmentRpc. Maps
+listener ownership, HELLO, assembly/admission, handler dispatch, responder attempts
+and shutdown, including non-draining close, post-assembly deadlines and callback
+failure boundaries. This is <strong>32/54 (59.3%)</strong> of that file; its remaining client
+and admission internals are <strong>22/54 (40.7%)</strong>, not a repository-wide percentage.
+Verification: <strong>88 documentation tests passed</strong>; fresh Gradle executed 26 tasks
+and <strong>14 full transport-suite tests passed</strong> with no failures/errors/skips. The
+site audit passed <strong>94 HTML pages / 92 contributor guides</strong>. Thirty-eight references
+passed three-width headless Edge checks (114 page/viewport combinations) and mobile
+navigation; the new desktop screenshot was inspected. Runtime and frozen experiments
+are unchanged. The broader documentation goal remains open.</p>
+<p>Development RPC client reference added on 2026-10-09: <strong>22/22 declarations</strong> for
+connection caching, single retry, synchronous submission, timeout/cancellation,
+response cleanup and admission snapshots. Server/client partition checks prove
+disjoint <strong>54/54</strong> coverage for PlaintextDevelopmentRpc and <strong>65/65</strong> declarations
+across all transport main-source files. With API (33) and codec (38), the three
+RPC modules have <strong>136/136 explicit declarations documented (100%; 0% remaining)</strong>.
+Generated methods and lambda bodies are excluded; this is not repository-wide
+completion or production-readiness certification. Verification: <strong>89 documentation
+tests passed</strong>, site audit passed <strong>95 HTML pages / 93 contributor guides</strong> and
+39 references passed three-width headless Edge checks (117 page/viewport combinations)
+plus mobile navigation. New desktop screenshot inspected. The preceding fresh full
+transport run passed 14 tests; this documentation-only batch did not rerun it.
+Runtime/frozen experiments remain unchanged; client application integration,
+distributed foundations and other repository subsystems remain in scope.</p>
+<p>Remote client routing reference added on 2026-10-09: <strong>19/19 explicit
+declarations</strong> across six selected files cover resolver snapshots, inflight pool
+ownership, retry decision ordering and principal metadata. Documents leader
+tie-breaking, dependent-future cancellation limits, identity versus authentication
+and uncertainty handling. Verification: <strong>90 documentation tests passed</strong> and
+<strong>11 selected Java tests passed</strong> across resolver/pool/retry classes with no
+failures/errors/skips; Gradle executed the test task (29 other tasks up-to-date).
+The site audit passed <strong>96 HTML pages / 94 contributor guides</strong>. Forty references
+passed three-width headless Edge checks (120 page/viewport combinations) plus
+mobile navigation; new desktop screenshot inspected. This six-file partition is
+100% covered (0% remaining), not the entire client stack. Higher-level remote
+client, typed collections, API/codec and broader subsystems remain in scope.
+Runtime and frozen experiment implementations were not changed.</p>
+<p>Client protocol contract reference added on 2026-10-09: <strong>22/22 explicit
+declarations across all 11 API files</strong> document physical-byte ownership, request
+bounds, command identity, scan pages, application outcomes and redirect hints.
+The preceding remote facade reference completes <strong>46/46 declarations</strong> in
+aether-client together with routing. Neither reference promises server-side
+deduplication or an integrated production cluster. Verification: <strong>92 documentation
+tests passed</strong>, website audit passed <strong>98 HTML pages / 96 contributor guides</strong>,
+and 42 references passed three-width headless Edge checks (<strong>126 combinations</strong>)
+plus mobile filtering/navigation. New desktop screenshot inspected; a mobile
+overflow in the remote facade paragraph was corrected. Client API Gradle build
+succeeded with all 12 tasks up-to-date: its existing XML reports show four passing
+tests, not a fresh execution. Get/scan validation still lacks dedicated API tests.
+Runtime and frozen experiment sources remain unchanged. Repository breadth is
+approximately <strong>66% covered / 34% remaining</strong> by class/file-reference inventory,
+not a verified percentage of semantically documented functions. Client codecs,
+security, replication/cluster foundations and auxiliary tooling remain in scope.</p>
+<p>Client message codec reference added on 2026-10-09: <strong>27/27 explicit declarations
+across all four implementation files</strong> cover wire layouts, header CRC versus body
+SHA, status ordinals, byte ownership and rejection paths. Documents unvalidated
+padding, replacement UTF-8 decoding, scan detail encode/decode asymmetry and
+write-decoder allocation limits without changing runtime behavior. Together with
+client API and routing/facade references, the three client modules have complete
+explicit-declaration inventories, not a production protocol certification.
+Verification: <strong>93 documentation tests passed</strong>, <strong>10 codec Java tests freshly
+passed</strong> with no failures/errors/skips (test task rerun; 19 dependencies up-to-date),
+website audit passed <strong>99 HTML pages / 97 contributor guides</strong>, and 43 references
+passed three-width headless Edge checks (<strong>129 combinations</strong>) plus mobile
+navigation. Desktop table screenshot inspected. Broader repository class/file
+reference breadth is approximately <strong>67% covered / 33% remaining</strong>; security,
+replication, cluster foundations and auxiliary tooling remain open. Test gaps are
+listed in the codec reference; runtime/frozen experiment sources are unchanged.</p>
+<p>Crypto reference added on 2026-10-09: <strong>25/25 explicit declarations across seven
+files</strong> cover AES-GCM, envelope wire fields, backup identity/path AAD, metadata,
+key wrapping and destruction. Documents which epochs/IDs are or are not part of
+authenticated input, array copying and the absence of an enforced destroyed state.
+Verification: <strong>94 documentation tests passed</strong>, <strong>13 crypto Java tests freshly
+passed</strong> with no failures/errors/skips (one test task executed; 21 dependencies
+up-to-date), website audit passed <strong>100 HTML pages / 98 contributor guides</strong>, and
+44 references passed three-width headless Edge checks (<strong>132 combinations</strong>) plus
+mobile navigation. Desktop screenshot inspected. Repository class/file-reference
+breadth is approximately <strong>68% covered / 32% remaining</strong>, not a semantic
+per-function completeness claim. Security API/core, distributed foundations and
+auxiliary tooling remain open; no runtime or frozen experiment source was changed.</p>
+<p>Security reference added on 2026-10-09: <strong>49/49 explicit declarations across 22
+files</strong> complete security API/core inventories (24 API and 25 core declarations).
+Covers principal/permission validation, ID-only role binding, wildcard resource
+matching, audit contracts/storage/redaction and certificate SAN identity matching.
+Documents partial audit fan-out, unchecked failure boundaries and the distinction
+between identity matching and certificate trust. Verification: <strong>96 documentation
+tests passed</strong>, <strong>14 security Java tests freshly passed</strong> with no failures/errors/
+skips (both test tasks executed; 14 dependencies up-to-date), website audit passed
+<strong>101 HTML pages / 99 contributor guides</strong>, and 45 references passed three-width
+headless Edge checks (<strong>135 combinations</strong>) plus mobile navigation. Desktop
+screenshot inspected. Repository class/file-reference breadth is approximately
+<strong>72% covered / 28% remaining</strong>, not verified semantic per-function completion.
+Replication, Raft, cluster protocols and auxiliary tooling remain open. These
+security modules supply no concrete key-provider service and do not automatically
+enforce every endpoint; no runtime/frozen experiment source was changed.</p>
+<p>Replication contract reference added on 2026-10-09: <strong>34/34 explicit declarations
+across eight files</strong>, covering the complete replication API, StateSequencePlanner,
+and AppliedState. Documents entry-kind validation, defensive hash/payload copies,
+value versus array-identity equality, inclusive sequence planning and overflow,
+and abstract append/force/truncate responsibilities. Makes clear that the records
+do not authenticate hashes, enforce monotonic application, or publish themselves.
+Verification: <strong>97 documentation tests passed</strong>, <strong>seven selected replication-format
+Java tests freshly passed</strong> with no failures/errors/skips (one test task executed;
+23 dependencies up-to-date), website audit passed <strong>102 HTML pages / 100 contributor
+guides</strong>, and 46 references passed three-width headless Edge checks (<strong>138
+combinations</strong>) plus mobile navigation. Desktop screenshot inspected. Constructor
+validation matrices and AppliedState still lack dedicated tests in this selected
+suite. Repository class/file-reference breadth is approximately <strong>73% covered /
+27% remaining</strong>, not verified semantic per-function completion. Concrete replicated
+formats/store, Raft, cluster protocols and auxiliary tooling remain open; no runtime
+or frozen experiment source was changed.</p>
+<p>Replicated format reference added on 2026-10-09: <strong>43/43 explicit declarations
+across five complete format/codec files</strong> cover identity and segment headers,
+command envelope/body/operations, entry records, alignment and name helpers.
+Includes exact little-endian offsets, checksum/hash coverage, array ownership,
+constructor/decoder asymmetries, untrusted operation-count allocation, and
+payload-version narrowing. A record's self-consistent hash does not verify its
+actual predecessor or establish consensus commitment. Verification: <strong>98
+documentation tests passed</strong>, <strong>seven selected replication-format Java tests
+freshly passed</strong> with no failures/errors/skips (one test task executed; 23
+dependencies up-to-date), website audit passed <strong>103 HTML pages / 101 contributor
+guides</strong>, and 47 references passed three-width headless Edge checks (<strong>141
+combinations</strong>) plus mobile navigation. Desktop screenshot inspected. Selected
+tests do not exhaust parser fields, size/allocation limits or encode/decode
+asymmetries. Repository class/file-reference breadth is approximately <strong>74%
+covered / 26% remaining</strong>, not verified semantic per-function completeness.
+Concrete replicated-log storage, Raft, cluster protocols and auxiliary tooling
+remain open. Runtime/frozen experiment sources remain unchanged.</p>
+<p>Concrete replicated-log store reference added on 2026-10-09: <strong>43/43 explicit
+declarations in the complete store file</strong>, covering ownership, prevalidated
+append, force/rotation, fresh-channel reads, recovery/tail repair, suffix guards,
+identity publication and failure cleanup. Together with planner and format
+references, aether-replicated-log has <strong>89/89 declarations across all seven files</strong>
+inventoried. Documents partial append/truncation boundaries, first-record byte
+budget exception, writable-failure latch and close-force cleanup risk without
+changing runtime. Verification: <strong>99 documentation tests passed</strong>, website audit
+passed <strong>104 HTML pages / 102 contributor guides</strong>, and 48 references passed
+three-width headless Edge checks (<strong>144 combinations</strong>) plus mobile navigation.
+Desktop screenshot inspected. Fresh full-module Java run: <strong>14 tests, 10 passed,
+four failed, none skipped</strong>; all four normal-open store failures were directory
+channel AccessDeniedException in syncDirectory during identity publication on
+Windows. They do not prove append/reopen, truncation, repair or identity mismatch
+behavior. Seven format tests, two golden fixtures and reflective force-hook test
+passed; no platform bypass was added. Repository class/file-reference breadth
+remains approximately <strong>74% covered / 26% remaining</strong> at whole-percent precision,
+not semantic per-function completeness. Raft, cluster protocols and auxiliary
+tooling remain open. Runtime and frozen experiment sources remain unchanged.</p>
+<p>Raft contract/core reference added on 2026-10-09: <strong>25/25 explicit declarations
+across all 11 API/core files</strong> (four API, 21 core), plus every role/vote/append
+reason enum value. Covers record validation/ownership, term-first log freshness,
+follower mode/progress, majority/current-term commit gating, crash-hook ordering,
+and runtime settings. Documents complete-voter-set responsibility, missing
+deduplication/joint consensus, overflow partial mutation and the absence of a
+running election/AppendEntries/apply loop. Verification: <strong>101 documentation
+tests passed</strong>, <strong>four Raft core Java tests freshly passed</strong> with no failures/
+errors/skips (one test task executed; 17 dependencies up-to-date), website audit
+passed <strong>105 HTML pages / 103 contributor guides</strong>, and 49 references passed
+three-width headless Edge checks (<strong>147 combinations</strong>) plus mobile navigation.
+Desktop screenshot inspected. Vote validation, freshness, rejection/snapshot
+transitions, overflow and voter-set misuse lack dedicated coverage in that suite.
+Repository class/file-reference breadth is approximately <strong>76% covered / 24%
+remaining</strong>, not verified semantic per-function completion. Raft wire/state slots,
+cluster foundations and auxiliary tooling remain open. No runtime or frozen
+experiment source was changed.</p>
+<p>Raft storage reference added on 2026-10-09: <strong>17/17 explicit declarations across
+all three files</strong> complete vote codec, persistent-state record and slot codec
+inventories. Documents big-endian vote messages versus little-endian slots,
+reason ordinals, unknown kinds decoded to null, CRC versus semantic SHA coverage,
+hashed allocation-tail zeros, ignored fields and missing slot-selection/publication
+manager. Verification: <strong>102 documentation tests passed</strong>, <strong>six Raft storage Java
+tests freshly passed</strong> with no failures/errors/skips (one test task executed; 21
+dependencies up-to-date), website audit passed <strong>106 HTML pages / 104 contributor
+guides</strong>, and 50 references passed three-width headless Edge checks (<strong>150
+combinations</strong>) plus mobile navigation. Desktop screenshot inspected. Existing
+format tests do not cover recomputed-CRC ignored fields, unknown kinds or durable
+slot publication/restart invariants. Repository class/file-reference breadth is
+approximately <strong>77% covered / 23% remaining</strong>, not semantic per-function
+completeness. All three Raft modules now have explicit-declaration references;
+this does not establish a running consensus service. Cluster membership/codecs,
+observability and auxiliary tooling remain open. Runtime/frozen experiment sources
+remain unchanged.</p>
+<p>Cluster membership reference added on 2026-10-09: <strong>73/73 explicit declarations
+across all 12 API/core files</strong> (68 API, five core) cover endpoint parsing and
+ordering, identity/member ownership and validation, stable/joint configurations,
+and independent-majority/index calculations. Documents wildcard/binary-address
+validation gaps, array-identity record equality, supplied rather than verified
+hashes, retained interface ownership, and quorum candidates versus actual durable
+commit/publication. Verification: <strong>104 documentation tests passed</strong>, <strong>one cluster
+core Java test freshly passed</strong> with no failures/errors/skips (one test task
+executed; 13 dependencies up-to-date), website audit passed <strong>107 HTML pages / 105
+contributor guides</strong>, and 51 references passed three-width headless Edge checks
+(<strong>153 combinations</strong>) plus mobile navigation. Desktop screenshot inspected.
+The existing quorum example does not cover API constructor/ownership validation,
+malformed endpoints, index edge cases or durable membership publication; no
+dedicated cluster API test source tree is present. Repository class/file-reference
+breadth is approximately <strong>79% covered / 21% remaining</strong>, not verified semantic
+per-function completeness. Cluster codecs, observability and auxiliary tooling
+remain open. Runtime and frozen experiment sources remain unchanged.</p>
+<p>Cluster codec reference added on 2026-10-09: <strong>53/53 explicit declarations across
+all four codec files</strong> document identity/stable/joint headers, member/endpoint
+records, UUID byte order, SHA/CRC coverage, nested hash ownership, synthetic V1
+parsing and encode/decode acceptance differences. Highlights supplied zero nested
+hashes, member-flag narrowing, post-parse count caps, UTF-8 replacement,
+noncanonical ordering and independently checked rather than matched transition
+metadata. Verification: <strong>105 documentation tests passed</strong>, <strong>two cluster codec
+Java tests freshly passed</strong> with no failures/errors/skips (one test task executed;
+19 dependencies up-to-date), website audit passed <strong>108 HTML pages / 106 contributor
+guides</strong>, and 52 references passed three-width headless Edge checks (<strong>156
+combinations</strong>) plus mobile navigation. Desktop screenshot inspected. Existing
+tests cover basic round-trips and one CRC-corruption case, not exhaustive parser
+fields or the documented acceptance asymmetries. All three cluster modules now
+have explicit-declaration references, not a verified membership-change service.
+Repository class/file-reference breadth is approximately <strong>80% covered / 20%
+remaining</strong>, not semantic per-function completeness. Observability and auxiliary
+tooling remain open. Runtime and frozen experiment sources remain unchanged.</p>
+<p>Observability reference added on 2026-10-09: <strong>50/50 explicit declarations across
+14 files</strong> cover all eight API files and six engine telemetry files. Documents
+owning decorator boundaries, invocation versus cursor traversal, thrown-error
+counts, reset/in-flight ownership, approximate rolling percentiles, immutable
+snapshots, label/health validation and append-only registry exports. Exported
+percentiles are not histogram buckets; descriptors do not enforce instrument
+semantics. Verification: <strong>107 documentation tests passed</strong>, website audit passed
+<strong>109 HTML pages / 107 contributor guides</strong>, and 53 references passed three-width
+headless Edge checks (<strong>159 combinations</strong>) plus mobile navigation. Desktop
+screenshot inspected. <strong>Six API tests freshly passed</strong> (one task executed, 11
+dependencies up-to-date); selected engine run had <strong>four tests, three passed,
+one failed, none skipped</strong> (one task executed, 37 dependencies up-to-date).
+Persistent metering test failed initial put with RESOURCE_EXHAUSTED / DISK_SPACE
+admission pressure before reopen assertions; no bypass was added. Existing tests
+do not verify ring/reset concurrency, unbounded retention or all exporter cases.
+Repository class/file-reference breadth is approximately <strong>82% covered / 18%
+remaining</strong>, not verified semantic per-function completeness. Java benchmarks,
+build/release/workbench and remaining Python tooling remain open. Runtime and
+frozen experiment sources remain unchanged.</p>
+<p>Java benchmark runner reference added on 2026-10-09: <strong>41/41 explicit declarations
+across six complete profile/runner files</strong> document the registry, plan/CLI,
+combined load/read workflow, child halt recovery, deterministic payloads, cache
+controls, timing scopes and report provenance. Distinguishes 24 registered profiles
+from three executable mappings, hardcoded result identity from selected profile,
+record throughput from batch latency, and report heap-residency text from the
+current SSTable lookup path. Verification: <strong>108 documentation tests passed</strong>,
+<strong>five selected plan/registry Java tests freshly passed</strong> with no failures/errors/
+skips (one test task executed, 37 dependencies up-to-date), website audit passed
+<strong>110 HTML pages / 108 contributor guides</strong>, and 54 references passed three-width
+headless Edge checks (<strong>162 combinations</strong>) plus mobile navigation. Desktop
+screenshot inspected. Selected tests do not execute the benchmark, crash workers,
+cache purge or report validation; no performance or frozen experiment run launched.
+Repository class/file-reference breadth is approximately <strong>83% covered / 17%
+remaining</strong>, not verified semantic per-function completeness. Java benchmark
+formats/artifacts/comparisons, build/release/workbench and remaining Python tooling
+remain open. Runtime and frozen experiment sources remain unchanged.</p>
+<p>Java benchmark evidence reference added on 2026-10-09: <strong>27/27 explicit
+declarations across eight complete files</strong> document report validation, immutable
+ownership, deterministic JSON, artifact-path references, compact baseline entries
+and custom text serialization. Documents unchecked counter-sum overflow, incomplete
+JSON control escaping, late baseline count bounds and synthetic candidate context
+versus historical evidence. Verification: <strong>109 documentation tests passed</strong>,
+<strong>seven selected Java tests freshly passed</strong>, no failures/errors/skips (one test
+task executed; 37 dependencies up-to-date). Website audit passed <strong>111 HTML pages /
+109 contributor guides</strong>; 55 references passed three-width headless Edge checks
+(<strong>165 combinations</strong>) and mobile navigation. Desktop screenshot inspected.
+Tests do not prove artifact existence, strict JSON parsing for all accepted values
+or historical comparison parity. Remaining detailed coverage is approximately
+<strong>20-25%</strong>, revised from the earlier optimistic 17% estimate; this is a planning
+estimate, not verified per-function semantic completeness. Comparison/gating,
+build/release/workbench, remaining Python utilities and a final omission audit
+remain open. Runtime and frozen experiment sources remain unchanged.</p>
+<p>Java benchmark comparison reference added on 2026-10-09: <strong>14/14 explicit
+declarations across eight complete comparison/manifest files</strong> document regression
+thresholds, all-percentile policy behavior, median selection, persisted-baseline
+context and external comparison blockers/ratios. Together with runner/evidence
+references, all 22 production implementation files in aether-benchmarks are covered
+(package documentation and generated members are not declaration inventories).
+Verification: <strong>110 documentation tests passed</strong>, <strong>nine selected Java tests freshly
+passed</strong>, no failures/errors/skips (one task executed; 37 dependencies up-to-date).
+Website audit passed <strong>112 HTML pages / 110 contributor guides</strong>; 56 references
+passed three-width headless Edge checks (<strong>168 combinations</strong>) and mobile navigation.
+Desktop screenshot inspected. Tests do not prove boundary rounding, zero-baseline
+behavior, even medians, ratio overflow or actual external-engine equivalence.
+Overall remaining detailed coverage stays approximately <strong>20-25%</strong> pending final
+omission audit; build/plugin, release/workbench and remaining Python utilities
+remain open. Runtime and frozen experiment sources remain unchanged.</p>
+<p>Release certification reference added on 2026-10-09: <strong>22/22 explicit declarations
+across all nine implementation files</strong> cover evidence/blocker constructors, enum
+vocabulary, manifest ownership, properties parser/writer, declared-status evaluator
+and JSON report. Documents non-applicability acceptance, unverified artifact URIs,
+unbounded/negative count handling, permissive booleans, leading-space round-trip
+limits and report/manifest binding. Verification: <strong>111 documentation tests passed</strong>,
+<strong>eight release Java tests freshly passed</strong>, no failures/errors/skips (one task
+executed; 11 dependencies up-to-date). Website audit passed <strong>113 HTML pages / 111
+contributor guides</strong>; 57 references passed three-width headless Edge checks (<strong>171
+combinations</strong>) and mobile navigation. Desktop screenshot inspected. Existing tests
+do not prove artifact truth/reachability, strict parser bounds, exhaustive escaping
+or independently established release readiness. Overall remaining detailed coverage
+is approximately <strong>20-25%</strong>, pending final omission audit. Build/plugin, workbench
+and remaining Python utilities remain open. Runtime and frozen experiment sources
+remain unchanged.</p>
+<p>Gradle plugin/convention reference added on 2026-10-09: all <strong>five consumer plugin
+methods</strong>, two Kotlin publishing helpers, seven convention scripts and root schema
+task registration are documented. Distinguishes consumer dependencies/preview flags
+from repository conventions, shared proposal outputs, nonatomic copy acceptance,
+root-only aggregate schema check and placeholder JMH/quality conventions. Corrected
+the sample-scoped schema-check command in the typed guide. Verification: <strong>112
+documentation tests passed</strong>, plugin JAR packaging passed (one task executed; 12
+dependencies up-to-date), manifest Implementation-Version inspected. Schema proposal
+and root check task graph verified by <strong>dry run only</strong>; no proposals accepted or
+published artifacts uploaded. No dedicated plugin test tree is present. Website
+audit passed <strong>114 HTML pages / 112 contributor guides</strong>; 58 references passed three
+widths (<strong>174 combinations</strong>) and mobile navigation; desktop screenshot inspected.
+Packaging/task registration does not verify consumer TestKit behavior or schema-copy
+atomicity. Overall remaining coverage remains approximately <strong>20-25%</strong>, pending
+omission audit. Workbench, remaining Python utilities, root/module build detail and
+other audit gaps remain open. Runtime/frozen experiment sources remain unchanged.</p>
+<p>Workbench workspace/inspector reference added on 2026-10-09: <strong>38/38 explicit
+declarations across four complete files</strong> cover database ownership, cached display
+identity, edits/reloads, byte rendering, table model and local RPC/replication
+codec panels. Documents display collisions, binary-key rename limitations, ignored
+write outcomes, full materialization and inspector reencode fidelity. Verification:
+<strong>113 documentation tests passed</strong>, <strong>12 workbench Java tests freshly passed</strong>, no
+failures/errors/skips (one task executed; 49 dependencies up-to-date). Website audit
+passed <strong>115 HTML pages / 113 contributor guides</strong>; 59 references passed three-width
+checks (<strong>177 combinations</strong>) and mobile navigation; desktop screenshot inspected.
+Java tests exercise in-memory workspace/helpers, not desktop inspector controls or
+write-failure/collision behavior. Universal typed-value functions, main window and
+dialogs remain open. Overall remaining documentation stays approximately <strong>20-25%</strong>
+pending final omission audit; runtime/frozen experiment sources remain unchanged.</p>
+<p>Workbench typed-value/dialog coverage completed on 2026-10-10: <strong>20/20 explicit
+UniversalTypedValue declarations</strong> and <strong>14/14 RecordDialog declarations</strong> now
+have complete-file references, architecture, parsing/ownership boundaries and
+test limitations. Neither the desktop window nor modal interaction is claimed
+complete. Verification: <strong>115 documentation tests passed</strong>; website audit passed
+<strong>117 HTML pages / 115 contributor guides</strong>. Browser checks passed 61 references
+at three widths (<strong>183 combinations</strong>) plus mobile navigation; new dialog desktop
+screenshot inspected. This turn changed documentation and its coverage checks,
+not workbench runtime or frozen experiment implementation. Remaining whole-repo
+scope still needs omission audit; the <strong>20-25% remaining estimate is provisional</strong>,
+not a measured percentage of function semantics. Main window, remaining Python
+utilities and root/module build detail remain open.</p>
+<p>Workbench window/action reference completed on 2026-10-10: <strong>14/14 explicit
+declarations</strong>, including anonymous close/double-click callbacks, now document
+startup, borrowed database ownership, toolbar action failures, sorted selection
+and grouped rendering. Compiler-tree inventory verifies <strong>86 declarations across
+all seven workbench implementation files</strong> against their four references.
+Verification: <strong>116 documentation tests passed</strong>, website audit passed <strong>118 HTML
+pages / 116 guides</strong>, and 62 references passed three browser widths (<strong>186
+combinations</strong>) plus mobile navigation. Desktop table screenshot inspected; no
+claim of native Swing interaction tests. Runtime sources remain unchanged.
+A preliminary filename/AST omission scan found <strong>24 Python scripts</strong> not named
+in onboarding Markdown, including the new H2 session controller, DALI helpers,
+data preparation and publication/validation utilities. This is a follow-up list,
+not a semantic coverage metric. Remaining build detail and whole-repo omission
+audit stay open; the earlier <strong>20-25% estimate remains provisional</strong>.</p>
+<p>H2 amended session-controller reference added on 2026-10-10: <strong>8/8 explicit
+functions</strong> cover fixed session partitions, original archived receipts, safe
+extraction, atomic hash-verified checkpoints, new host identities and dependency
+selection. It explicitly distinguishes implemented session 2 from unimplemented
+session 3/final aggregation and preserves the original same-host resume fence.
+Verification: <strong>117 documentation tests passed</strong>, <strong>5 controller tests passed</strong>,
+website audit passed <strong>119 HTML pages / 117 guides</strong>, and 63 references passed
+three widths (<strong>189 combinations</strong>) plus mobile navigation after updating the
+H2 filter expectation from three to four guides. Desktop screenshot inspected.
+No GPU run was monitored or experiment implementation changed in this batch.
+The preliminary filename/AST backlog now has <strong>23 Python scripts / 74 named
+functions</strong>; build details and whole-repo semantic omission audit remain open.
+Overall <strong>20-25% remaining remains provisional</strong>, not a function-coverage result.</p>
+<p>DALI workload/comparison reference added on 2026-10-10: <strong>26/26 explicit
+declarations across four complete files</strong>, including the nested pipeline graph,
+cover canonical artifact identity, direct and cached training, payload/model
+parity, restart/resume validation, analysis and fixture smoke boundaries. The
+guide distinguishes this secondary RGB workload from H2 and does not assume
+Pillow/DALI equivalence. Verification: <strong>118 documentation tests passed</strong>,
+<strong>5 CPU contract tests passed</strong>, and website audit passed <strong>120 HTML pages /
+118 contributor guides</strong>. Browser checks covered 64 references at three widths
+(<strong>192 combinations</strong>) plus mobile navigation; the new desktop table screenshot
+was inspected. These checks do not verify actual GPU execution. No runtime or
+frozen experiment implementation changed. The preliminary filename/AST backlog
+is <strong>20 Python scripts / 58 named declarations</strong>; build detail and whole-repo
+semantic omission audit remain open. The <strong>20-25% remaining estimate is
+provisional</strong>, not a measured semantic coverage percentage.</p>
+<p>Bulk layout regression reference added on 2026-10-10: <strong>6/6 explicit
+declarations</strong> cover the sampled Python/Java RSS lifecycle, packed read callback,
+activity-fenced warm reads, unchanged-prefix incremental admission, drain and
+digest/cardinality checks. It records excluded V0 timing and cleanup/failure
+limitations. Verification: <strong>119 documentation tests and 3 CPU sampler contract
+tests passed</strong> (122 total); website audit passed <strong>121 HTML pages / 119 guides</strong>.
+Browser checks passed 65 references at three widths (<strong>195 combinations</strong>) plus
+mobile navigation; desktop table screenshot inspected. No Java/GPU integration
+or performance claim follows from these CPU tests. Runtime/frozen sources were
+unchanged. The preliminary remaining list is <strong>19 Python scripts / 52 named
+declarations</strong>; build detail and whole-repo semantic omission audit remain open.
+Overall <strong>20-25% remaining is still provisional</strong>.</p>
+<p>Dataset acquisition/preparation reference added on 2026-10-10: <strong>8/8 explicit
+functions across four complete files</strong> cover local COCO archive handling, hashed
+vision manifest publication, seeded V1/V2 membership and preflight validation.
+The guide distinguishes ID overlap from content/transform reuse and documents
+nontransactional publication, existing-directory shortcuts and unchecked hashes.
+Verification: <strong>140 selected tests passed</strong> (120 documentation tests plus local
+vision/evidence/preflight and four offline acquisition contracts); website audit
+passed <strong>122 HTML pages / 120 guides</strong>. Browser checks passed 66 references at
+three widths (<strong>198 combinations</strong>) plus mobile navigation; desktop screenshot
+inspected. No real download, GPU execution or runtime/frozen-source change was
+performed. A fresh filename/AST omission scan found <strong>15 Python scripts / 44
+named declarations</strong> still absent from onboarding source references. Build detail
+and whole-repo semantic omission audit remain open; <strong>20-25% remaining is
+provisional</strong>, not measured function-semantic coverage.</p>
+<p>Transform evolution reference added on 2026-10-10: <strong>3/3 explicit declarations</strong>
+cover the synthetic eight-sample artifact builder, six invalidation scenarios,
+isolated Java/mmap stores, stale-byte rejection and per-trial/campaign receipts.
+It distinguishes eager correctness preprocessing from avoided-work measurement,
+final-artifact reuse from stage reuse, and live-daemon parity from crash recovery.
+Verification: <strong>124 selected tests passed</strong> (121 documentation tests and three
+CPU evolution contracts using actual preprocessing/mmap with fake Java);
+website audit passed <strong>123 HTML pages / 121 guides</strong>. Browser checks passed
+67 references at three widths (<strong>201 combinations</strong>) plus mobile navigation;
+desktop table screenshot inspected. No Java integration/GPU/crash performance
+claim or runtime/frozen-source change was made. The filename/AST follow-up list
+now has <strong>14 Python scripts / 41 named declarations</strong>. Build detail and the
+whole-repo semantic omission audit remain open; <strong>20-25% remaining is provisional</strong>.</p>
+<p>Preflight/smoke utility reference added on 2026-10-10: <strong>4/4 explicit functions
+across three complete files</strong> cover recorded-file checksum publication/validation,
+CUDA host checks, optional DALI import and CPU backend/optimizer smoke stages.
+It documents unrecorded-file acceptance, empty-recording parsing, limited GPU
+coverage and temporary-store/report ownership. Verification: <strong>126 selected tests
+passed</strong> (122 documentation tests plus four offline checksum/fake-CUDA contracts);
+website audit passed <strong>124 HTML pages / 122 guides</strong>. Browser checks passed
+68 references at three widths (<strong>204 combinations</strong>) plus mobile navigation;
+desktop screenshot inspected. No CUDA, DALI pipeline or real Java smoke campaign
+was launched, and runtime/frozen sources were unchanged. The filename/AST list
+now has <strong>11 Python scripts / 37 named declarations</strong>; build-system detail and
+whole-repo semantic omission audit remain open. <strong>20-25% remaining is provisional</strong>.</p>
+<p>Concurrency/fault driver reference added on 2026-10-10: <strong>10/10 explicit
+functions across two complete files</strong> cover spawned shared-store clients,
+readiness/start barriers, timing/accounting, report validation, instrumented
+writer death, recovery verification and interrupted-trial preservation. It
+separates client publication attempts from unique commits, partial reports from
+complete campaigns, and process crash from power loss. Verification: <strong>130
+selected tests passed</strong> (123 documentation tests, five systems-campaign tests
+and two offline driver contracts); website audit passed <strong>125 HTML pages / 123
+guides</strong>. Browser checks passed 69 references at three widths (<strong>207 combinations</strong>)
+plus mobile navigation; desktop screenshot inspected. No real contention/JVM
+kill, GPU execution or runtime/frozen-source change occurred. The filename/AST
+follow-up list now has <strong>9 Python scripts / 27 named declarations</strong>. Build detail
+and whole-repo semantic omission audit remain open; <strong>20-25% remaining is provisional</strong>.</p>
+<p>Cache-comparison/systems-export reference added on 2026-10-10: <strong>9/9 explicit
+declarations across two complete files</strong> cover frozen classpath copying/checking,
+Java CPU sampling, alternating paired request observations, ratio summaries and
+training/resource/concurrency/recovery exports. It documents byte scopes,
+partial-campaign acceptance, log-Student-t interval assumptions and assertion/
+publication limits. Verification: <strong>127 selected tests passed</strong> (124 documentation
+tests and three offline inventory/CSV contracts); website audit passed <strong>126 HTML
+pages / 124 guides</strong>. Browser checks passed 70 references at three widths (<strong>210
+combinations</strong>) plus mobile navigation; desktop screenshot inspected. No JVM
+benchmark/GPU run or runtime/frozen-source change occurred. The filename/AST
+follow-up list now has <strong>7 Python scripts / 18 named declarations</strong>; build detail
+and whole-repo semantic omission audit remain open. <strong>20-25% remaining is provisional</strong>.</p>
+<p>Campaign audit/preservation reference added on 2026-10-10: <strong>5/5 explicit
+functions across three complete files</strong> cover fault receipt/contract validation,
+suite coverage and planned claims, archived V1 configuration checks and
+source-bound archive preservation. It distinguishes H2 from legacy steady-state
+evidence, automated readiness from human approval, and saved analysis from
+recomputed statistics. Verification: <strong>128 selected tests passed</strong> (125
+documentation tests and three offline audit contracts); website audit passed
+<strong>127 HTML pages / 125 guides</strong>. Browser checks passed 71 references at three
+widths (<strong>213 combinations</strong>) plus mobile navigation; desktop screenshot
+inspected. No real archive preservation, runtime/frozen-source changes or GPU
+execution occurred. The filename/AST list now has <strong>4 Python scripts / 13 named
+declarations</strong>: documentation rendering, paper build, Maven publication check
+and Windows Kaggle launcher. Build detail and whole-repo semantic omission audit
+remain open; <strong>20-25% remaining is provisional</strong>.</p>
+<p>Build/documentation utility reference added on 2026-10-10: <strong>13/13 explicit
+functions across four complete files</strong> cover Markdown rendering/link routing,
+static page generation, staged Maven metadata/artifact checks, draft Tectonic
+build receipts and Studio argument forwarding. It separates inspection from
+publication and compilation from scientific/submission approval. Verification:
+<strong>129 selected tests passed</strong> (126 documentation tests and three offline tooling
+contracts); website audit passed <strong>128 HTML pages / 126 guides</strong>. Browser checks
+passed 72 references at three widths (<strong>216 combinations</strong>) plus mobile navigation;
+desktop screenshot inspected. No Maven upload, TeX compilation, Kaggle invocation
+or frozen/runtime implementation change occurred. The script filename omission
+scan now has <strong>zero candidates</strong>; this is not proof of complete semantic coverage.
+Root/module build configuration detail and whole-repo function/architecture audit
+remain open. The earlier <strong>20-25% remaining estimate remains provisional</strong> until
+that broader audit supplies stronger evidence.</p>
+<p>Root build architecture reference added on 2026-10-10: root configuration and
+task actions plus the one explicit local Kotlin helper explain inclusion of
+49 modules and two examples, the 15-module publication scope, schema proposal
+and acceptance wiring, wrapper/toolchain defaults and verification placeholders.
+Static contracts cross-check the publication list against the Maven checker;
+they do not execute Gradle publication or schema acceptance. Verification:
+<strong>128 documentation tests passed</strong>, website audit passed <strong>129 HTML pages /
+127 guides</strong>, and browser checks passed 73 references at three widths
+(<strong>219 combinations</strong>) plus mobile navigation; desktop screenshot inspected.
+No runtime implementation, frozen source, GPU execution or remote submission
+changed. Module-specific build details and the whole-repo semantic coverage
+audit remain open; <strong>20-25% remaining is still provisional</strong>, not a measured
+percentage of undocumented functions.</p>
+<p>Training-cache build detail added on 2026-10-10 to the root build reference:
+all six registered module tasks and the local digest helper are explained,
+including ordered property defaults, runtime/source inventory selection,
+host-specific receipt fields, optional JFR arguments, daemon lifetime ownership
+and XML-to-JSON test report limitations. <strong>130 documentation tests passed</strong>;
+the website audit passed <strong>129 pages / 127 guides</strong>. Local browser checks passed
+73 references at three widths (<strong>219 combinations</strong>) plus mobile navigation;
+the new section's desktop screenshot was inspected. These checks do not run
+the benchmark, daemon, crash campaign or publishing tasks. Remaining build
+files and whole-repo semantic coverage audit are still open; the <strong>20-25%
+remaining estimate is provisional</strong>. No frozen/runtime source or remote run
+was changed.</p>
+<p>Module build topology reference added on 2026-10-10: all <strong>49 module and two
+example build files</strong> now have direct project-dependency scope rows, with BOM
+constraints, application entry points, annotation processors, fixture plugins,
+publication/convention distinctions and specialized launch/packaging actions.
+The inventory matches each declared project dependency; publication scope matches
+the root public set. Verification: <strong>132 tests passed in the full documentation
+run</strong>, followed by <strong>three module-build checks</strong> including the added convention
+check. Website audit passed <strong>130 pages / 128 guides</strong>; browser checks passed
+74 references at three widths (<strong>222 combinations</strong>) plus mobile navigation;
+desktop screenshot inspected. No applications, Gradle publication or remote GPU
+runs were launched. Module build inventory is now covered; whole-codebase
+function/semantic coverage and implicit/generated declarations still require
+the broader audit. <strong>20-25% remaining remains a provisional estimate</strong>, not an
+inventory-derived coverage percentage.</p>
+<p>Example application reference added on 2026-10-10 after the main-source omission
+scan: <strong>44 explicit declarations across eight classes/records</strong>, plus the social
+package documentation, cover both complete example main trees. It explains
+persistent notes, Swing/database ownership, CRUD and materialized joins, sequential
+guard races, partial seeding and implicit record/generated-codec behavior.
+Verification: <strong>134 documentation tests passed</strong>; after fixing a mobile unbroken
+field list, the declaration/generated-page checks passed again. Website audit
+passed <strong>131 pages / 129 guides</strong>; browser checks passed 75 references at three
+widths (<strong>225 combinations</strong>) plus mobile navigation, with desktop screenshot
+inspection. Existing example tests were read, not executed; no UI/store was opened.
+The first filename occurrence audit inspected <strong>468 main Java source files</strong>:
+seven missing-name candidates became four. This is only a lead list, not function
+or semantic coverage proof; filename mentions can miss overloads and contain false
+positives. Whole-repo declaration and implicit/generated/test ownership audit
+remain open. The earlier <strong>20-25% remaining estimate is provisional</strong> and cannot
+be replaced with the four-candidate ratio.</p>
+<p>Main-source omission follow-up added on 2026-10-10: <strong>11 explicit declarations
+across four files</strong> now explain the public cursor contract, snapshot-limit
+exception, persistent block-kind codes and opt-in training fault hook. Compiler
+checks cover all declarations in those files. <strong>138 documentation tests passed</strong>;
+website audit passed <strong>131 pages / 129 guides</strong>; targeted browser checks passed
+the three updated references at three widths (<strong>nine combinations</strong>), with mobile
+screenshot inspection. No engine/crash/GPU workload was run.</p>
+<p>The main Java filename occurrence scan now has <strong>zero missing-name candidates
+across 468 files</strong>, but the stronger compiler-tree declaration-name pass found
+<strong>86 candidates among 2524 explicit declarations</strong>. Independent module checks
+locate all 86: API 1, engine diagnostics 14, tools CLI 61, training benchmark/crash
+drivers 10. Those names are absent from all onboarding Markdown, even though their
+file/class names occur. This is a concrete documentation backlog, not complete
+semantic coverage measurement: common names, overloads, implicit/generated
+methods, Python, tests and resource/configuration behavior need further review.
+The measured absent-name fraction is approximately <strong>3.4% of explicit main Java
+declarations</strong>, not percentage of whole-codebase work remaining. The earlier
+20-25% estimate remains unvalidated. Next source-review batches should prioritize
+these API/diagnostic, CLI and benchmark declarations before claiming completion.</p>
+<p>Flush/compaction diagnostic reference added on 2026-10-10: all <strong>46 explicit
+declarations</strong> now have function-level contracts covering collector ownership,
+timing boundaries, flush/compaction/table links, no-op behavior and evidence limits.
+The engine reference also documents both explicit <strong>WriteResult declarations</strong>,
+constructor validation limits and implicit record behavior. Existing engine test
+assertions were read, not executed. Verification: <strong>140 documentation tests passed</strong>;
+website audit passed <strong>132 pages / 130 guides</strong>; targeted browser checks passed
+both references at three widths (<strong>six combinations</strong>), with mobile screenshot
+inspection. No engine/GPU workload or frozen experiment source was changed.</p>
+<p>This batch removes <strong>15 of the 86 identified missing declaration names</strong>. The
+independently checked backlog is now <strong>71</strong>: tools CLI 61 and training benchmark/
+crash drivers 10; the API and engine missing-name lists are empty. Approximately
+<strong>82.6% of that specific backlog remains</strong>, not 82.6% of whole-codebase documentation.
+Names appearing in prose are still weaker evidence than complete behavioral
+contracts. Whole-repo semantic coverage, overloads, implicit/generated members,
+Python, tests and resource/configuration ownership remain to be audited; the older
+global 20-25% estimate is not validated.</p>
+<p>Java training diagnostic driver reference added on 2026-10-10: <strong>24 explicit
+declarations across three complete source files</strong> cover raw get-loop diagnostics,
+synthetic cold/warm/mapped cache benchmarks and the forced-halt smoke campaign.
+The reference distinguishes timing scopes, encoded metadata versus segment bytes,
+destructive path handling, partial failure reports, unbounded worker waits and the
+campaign's absence-or-length-only recovery check. No benchmark/crash/GPU driver
+was executed or modified. <strong>141 documentation tests passed</strong>; website audit passed
+<strong>133 pages / 131 guides</strong>; the new page passed three responsive widths with mobile
+screenshot inspection.</p>
+<p>The repeated four-module declaration-name audit now finds API 0, engine 0,
+training-cache 0 and tools CLI <strong>61</strong> missing names. This removes 10 more of the
+original 86 omissions: <strong>25 resolved, 61 remaining</strong>, or approximately <strong>70.9% of
+that identified backlog remaining</strong>. It is still not a whole-codebase completion
+percentage; semantic, overload, implicit/generated, Python, test and resource
+coverage requires stronger evidence. Next focus is complete CLI function
+contracts, not merely adding its missing names.</p>
+<p>Update the relevant page when changing public APIs, configuration consumers,
+durability boundaries, CLI arguments, source layout or experiment protocols.
+Keep graph edges honest: label conceptual relationships, and do not draw a
+production cluster path where only independent foundations exist. Test commands
+against disposable fixtures and check local links after moving files.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#start-here">Start Here</a><a href="#reading-paths">Reading Paths</a><a href="#a-practical-first-week">A Practical First Week</a><a href="#rules-that-prevent-expensive-mistakes">Rules That Prevent Expensive Mistakes</a><a href="#documentation-authority">Documentation Authority</a><a href="#verification-record">Verification Record</a><a href="#maintaining-this-guide">Maintaining This Guide</a></nav></aside>
+  </div>
+</body>
+</html>

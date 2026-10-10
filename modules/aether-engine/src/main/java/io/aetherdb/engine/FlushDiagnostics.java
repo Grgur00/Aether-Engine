@@ -25,6 +25,11 @@ public final class FlushDiagnostics {
         private final List<Event> events = new ArrayList<>();
         private final List<Compaction> compactions = new ArrayList<>();
         private final List<TableFinish> tableFinishes = new ArrayList<>();
+        private final Map<String, Long> writeStages = new LinkedHashMap<>();
+        private final Map<String, Long> writeCounters = new LinkedHashMap<>();
+        public Map<String, Object> writeDiagnostics() {
+            return Map.of("stagesNs", Map.copyOf(writeStages), "counters", Map.copyOf(writeCounters));
+        }
         public List<Event> events() { return List.copyOf(events); }
         public List<Compaction> compactions() { return List.copyOf(compactions); }
         public List<TableFinish> tableFinishes() { return List.copyOf(tableFinishes); }
@@ -39,6 +44,15 @@ public final class FlushDiagnostics {
     }
 
     public static Collector current() { return ACTIVE.get(); }
+    public static long writeStart() { return current() == null ? 0 : System.nanoTime(); }
+    public static void writeEnd(String stage, long started) {
+        Collector collector = current();
+        if (collector != null) collector.writeStages.merge(stage, System.nanoTime() - started, Long::sum);
+    }
+    public static void writeCount(String counter, long value) {
+        Collector collector = current();
+        if (collector != null) collector.writeCounters.merge(counter, value, Long::sum);
+    }
     public static Collector attach(Collector collector) {
         Collector previous = ACTIVE.get();
         if (collector == null) ACTIVE.remove(); else ACTIVE.set(collector);

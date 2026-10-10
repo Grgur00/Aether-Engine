@@ -1,0 +1,141 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/FORMAT-CATALOG-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Format catalogs and fixtures: source-backed contributor documentation for Aether Engine.">
+  <title>Format catalogs and fixtures | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html" aria-current="page">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/FORMAT-CATALOG-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="format-catalog-functions">Format Catalog Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="manifest-codec-functions.html">Manifest wire formats</a></p>
+<p>This reference describes the current <code>aether-format</code> catalog source. Catalog
+metadata identifies known formats and canonical-fixture expectations; it does not
+parse files, negotiate compatibility, authenticate bytes, or certify a release.</p>
+<h2 id="architecture-and-authority">Architecture and Authority</h2>
+<p><code>AetherFormatCatalog</code> maps IDs to descriptors. <code>FormatGoldenFixtureCatalog</code> maps
+format/name pairs to expected lengths and SHA-256 strings. Both are immutable
+in-memory catalogs rebuilt by their factory calls, not registries dynamically
+populated from implementation classes or fixture files.</p>
+<p>Descriptors are not automatically checked against encoder constants. For example,
+the native-record descriptor currently declares <code>AENR</code> magic and header size 16,
+while <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-memory/src/main/java/io/aetherdb/memory/NativeRecordFormatV1.java">NativeRecordFormatV1</a>
+defines a 24-byte header and its writer has no magic field. The catalog also names
+<code>aether-security</code> as an owner even though module ownership must be checked against
+the actual module guide. These are existing descriptive inconsistencies, not
+format changes made by this documentation. Read the encoder/decoder for exact
+byte contracts.</p>
+<h2 id="descriptor-model">Descriptor Model</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-format/src/main/java/io/aetherdb/format/catalog/FormatDescriptor.java">FormatDescriptor.java</a>.</p>
+<h3 id="formatdescriptorid-kind-magic-version-headerbytes-byteorder-checksum-compatibility-ownermodule"><code>FormatDescriptor(id, kind, magic, version, headerBytes, byteOrder, checksum, compatibility, ownerModule)</code></h3>
+<p>Requires ID matching <code>aether.</code> plus an allowed lowercase identifier and <code>.v</code> plus
+digits; positive numeric version; nonnegative header size; nonblank magic and
+owner; and nonnull kind/order/checksum/compatibility enums. It does not check ID
+suffix agrees with numeric version, owner is a real module, or magic/header match
+an encoder. Zero header size permits text and implicit representations.</p>
+<p>Implicit record accessors expose the immutable scalar/string/enum fields. The
+string called magic can be descriptive text such as <code>implicit</code> or <code>json</code>, not
+necessarily literal bytes found in an encoded object.</p>
+<h2 id="current-format-registry">Current Format Registry</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-format/src/main/java/io/aetherdb/format/catalog/AetherFormatCatalog.java">AetherFormatCatalog.java</a>.</p>
+<h3 id="aetherformatcatalogdescriptors-and-current"><code>AetherFormatCatalog(descriptors)</code> and <code>current()</code></h3>
+<p>Private construction copies the map immutably. <code>current</code> builds 26 hard-coded
+descriptors spanning native records, internal keys, WAL, SSTables and subformats,
+manifest/CURRENT, database identity/options/checkpoint metadata, RPC, replicated
+logs, Raft voting/state, schema locks, security metadata, and backup manifests.
+Each call builds a new catalog; there is no singleton, discovery, or disk read.</p>
+<h3 id="add"><code>add(...)</code></h3>
+<p>Private helper constructs a validated descriptor and inserts by ID, throwing if
+one already existed. The duplicate replacement happens before the exception;
+normal <code>current</code> construction has no duplicates and does not expose that partial
+map. Insertion order is not a public iteration-order guarantee after <code>Map.copyOf</code>.</p>
+<h3 id="descriptors-and-requireid"><code>descriptors()</code> and <code>require(id)</code></h3>
+<p>The first returns the stored immutable map. <code>require</code> returns a matching descriptor
+or throws an unknown-format <code>IllegalArgumentException</code>. It does not select a reader,
+load an implementation, validate file bytes, or enforce compatibility policy.</p>
+<h2 id="policy-enumerations">Policy Enumerations</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-format/src/main/java/io/aetherdb/format/catalog/FormatKind.java">FormatKind.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-format/src/main/java/io/aetherdb/format/catalog/ByteOrderPolicy.java">ByteOrderPolicy.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-format/src/main/java/io/aetherdb/format/catalog/ChecksumPolicy.java">ChecksumPolicy.java</a>,
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-format/src/main/java/io/aetherdb/format/catalog/CompatibilityPolicy.java">CompatibilityPolicy.java</a>.</p>
+<p><code>FormatKind</code> groups storage files/records, metadata files, wire frames, schema
+locks, security metadata, and backup objects. <code>ByteOrderPolicy</code> names little-endian,
+big-endian, JSON text, or mixed encoding. <code>ChecksumPolicy</code> names none, masked CRC32C,
+AES-GCM tag, SHA-256 manifest, or format-specific protection.</p>
+<p><code>CompatibilityPolicy</code> names exact-version-only, backward-compatible reader,
+length-delimited optional fields, or text-schema compatibility. Enum membership
+does not implement those behaviors. An internal record declaring no checksum may
+be protected by an outer envelope; a format-wide checksum label does not specify
+which exact ranges a parser checks. See the byte-level references for coverage.</p>
+<h2 id="golden-fixture-model">Golden Fixture Model</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-format/src/main/java/io/aetherdb/format/catalog/FormatGoldenFixture.java">FormatGoldenFixture.java</a>.</p>
+<h3 id="formatgoldenfixtureformatid-fixturename-bytelength-sha256hex-description"><code>FormatGoldenFixture(formatId, fixtureName, byteLength, sha256Hex, description)</code></h3>
+<p>Requires a syntactically valid format ID, lowercase fixture name starting with
+letter/digit and continuing with letters/digits/dots/hyphens, positive byte length,
+exactly 64 lowercase hexadecimal digest characters, and nonblank description.
+Strips description's surrounding whitespace. Implicit accessors expose those
+fields. The constructor does not hash bytes, locate a resource, or check that
+the format ID is registered; registration handles the latter separately.</p>
+<h2 id="golden-fixture-registry">Golden Fixture Registry</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-format/src/main/java/io/aetherdb/format/catalog/FormatGoldenFixtureCatalog.java">FormatGoldenFixtureCatalog.java</a>.</p>
+<h3 id="formatgoldenfixturecatalogfixtures-and-currentformats"><code>FormatGoldenFixtureCatalog(fixtures)</code> and <code>current(formats)</code></h3>
+<p>Private construction copies the map immutably. <code>current</code> builds 21 hard-coded
+fixture expectations and checks their format IDs through the supplied catalog.
+They cover selected WAL, SSTable, manifest, identity/options/checkpoint, RPC,
+replicated-log, and Raft encodings. This is not one fixture for every catalog
+descriptor and not every input case for an encoder.</p>
+<p>Fixture length can include a complete region rather than just a descriptor's
+fixed header: the WAL header fixture is 32 KiB, for example. Different numbers
+therefore need not indicate drift. Construction does not read fixture files or
+compare actual encoder output to the declared digest.</p>
+<h3 id="addformats-fixtures-fixture-and-keyformatid-fixturename"><code>add(formats, fixtures, fixture)</code> and <code>key(formatId, fixtureName)</code></h3>
+<p><code>add</code> requires a known format ID, inserts under the joined format/name key, and
+throws on duplicate. The private key helper joins strings with <code>/</code>; it does not
+perform validation itself. Valid fixture model fields exclude that separator.</p>
+<h3 id="fixtures-and-requireformatid-fixturename"><code>fixtures()</code> and <code>require(formatId, fixtureName)</code></h3>
+<p>Return the immutable map or retrieve a matching expectation. Missing pair throws
+<code>IllegalArgumentException</code>. Neither validates an actual binary fixture or executes
+a compatibility test. Map iteration order is not promised.</p>
+<h2 id="checksum-implementation">Checksum Implementation</h2>
+<p>The separate <code>MaskedCrc32c</code> functions are covered in the
+<a href="manifest-codec-functions.html">manifest wire-format reference</a>. They compute byte
+checksums; the policy enum only describes a chosen protection mechanism.</p>
+<h2 id="review-boundaries">Review Boundaries</h2>
+<p>Compare descriptors against actual encoder constants and field coverage. Compare
+fixture digests against exact emitted bytes with fixed inputs, not only against
+another metadata string. Record any mismatch rather than silently altering an
+established wire format to match a stale catalog. Function-name coverage catches
+omissions, not catalog correctness, fixture execution, or release certification.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-authority">Architecture and Authority</a><a href="#descriptor-model">Descriptor Model</a><a href="#current-format-registry">Current Format Registry</a><a href="#policy-enumerations">Policy Enumerations</a><a href="#golden-fixture-model">Golden Fixture Model</a><a href="#golden-fixture-registry">Golden Fixture Registry</a><a href="#checksum-implementation">Checksum Implementation</a><a href="#review-boundaries">Review Boundaries</a></nav></aside>
+  </div>
+</body>
+</html>

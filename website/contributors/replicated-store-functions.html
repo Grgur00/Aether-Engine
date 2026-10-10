@@ -1,0 +1,419 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/REPLICATED-STORE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Replicated log storage and recovery: source-backed contributor documentation for Aether Engine.">
+  <title>Replicated log storage and recovery | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html" aria-current="page">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/REPLICATED-STORE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="replicated-log-storage-and-recovery-functions">Replicated Log Storage and Recovery Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="replication-contract-functions.html">Replication contracts</a> | <a href="replication-format-functions.html">Persisted formats</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replicated-log/src/main/java/io/aetherdb/replication/log/ReplicatedLogStoreV1.java">ReplicatedLogStoreV1.java</a>.
+This reference covers <strong>43 explicit declarations in the complete file</strong>, including
+private recovery/I/O helpers and the nested Location record. Together with the
+contract and format references, all seven implementation files in
+aether-replicated-log have explicit-declaration coverage: 43 store, 43 format,
+and three planner declarations. That is not an integrated Raft service certification.</p>
+<h2 id="ownership-and-runtime-architecture">Ownership and Runtime Architecture</h2>
+<pre><code class="language-text">open -&gt; create/validate root -&gt; exclusive DatabaseLock -&gt; identity -&gt; recover
+append -&gt; validate/encode entire input -&gt; append records -&gt; optional force
+read -&gt; in-memory Location -&gt; fresh file channel -&gt; exact decode + metadata check
+truncate -&gt; guard supplied commit/applied coordinates -&gt; delete/truncate/force
+close -&gt; mark closed -&gt; force/close active channel -&gt; release lock
+</code></pre>
+<p>The store owns one directory lock and one active read/write channel. A TreeMap
+retains one Location per entry: path, segment, byte offset/length, coordinates,
+state sequence and copied entry hash. It does not retain decoded payloads or a
+bounded cache. Recovery rebuilds this map from every complete entry, so retained
+log length determines index memory and recovery work.</p>
+<p>All public instance methods are synchronized on this store. Calls serialize
+within the instance, including reads and I/O; the directory lock establishes
+process exclusivity. Private helpers rely on their caller's lifecycle/monitor.
+No RPC, quorum, election, state-machine apply, snapshot installation, or commit
+index persistence is performed here. Supplied commit/applied numbers are caller
+claims, not internally maintained consensus state.</p>
+<h2 id="open-and-metadata-functions">Open and Metadata Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReplicatedLogStoreV1.open(requested, clusterId, nodeId)</code></td>
+<td>Normalizes absolute path, creates directories, validates root with PathSecurityValidator, acquires DatabaseLock, opens/publishes identity, constructs store, then recovers. Transfers lock ownership before recovery. Catches Throwable, attempts store/lock cleanup with suppressed failures, and wraps original problem in IllegalStateException. Null arguments and parser exceptions can therefore be wrapped too. Does not undo directories or already published files on failure.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.ReplicatedLogStoreV1(root, durableIdentity, lock)</code></td>
+<td>Private constructor stores ownership and creates immutable API identity from durable UUIDs. Does not open an active segment or run recovery itself.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.identity()</code></td>
+<td>Requires not closed, then returns immutable identity. Does not recheck disk or reject a previously failed writer.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.firstIndex()</code></td>
+<td>Requires open; TreeMap first key or zero when empty. No prefix-compaction API is implemented here.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.lastIndex()</code></td>
+<td>Requires open; final retained key or zero. Can include entries not yet forced.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.lastTerm()</code></td>
+<td>Requires open; final cached Location term or zero. Not the current election term.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.lastStateSequence()</code></td>
+<td>Requires open; cached sequence after last retained/appended entry. Not proof that mutations were applied.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.durableIndex()</code></td>
+<td>Requires open; cached force/recovery boundary. No persisted force-index receipt or quorum acknowledgment is stored.</td>
+</tr>
+</tbody>
+</table>
+<p>Metadata remains readable after a write-path failure because ensureOpen does not
+check the stored failure. The map may then represent only the prefix published
+in memory before the failure, not every byte partially written to disk.</p>
+<h2 id="append-rotation-and-force-functions">Append, Rotation, and Force Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReplicatedLogStoreV1.append(entries)</code></td>
+<td>Synchronized entry to appendInternal with force=false. Rotation may still force a previous segment; absence of explicit force does not mean no bytes became durable.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.appendAndForce(entries)</code></td>
+<td>Synchronized entry to appendInternal with force=true. A successful return follows forceThrough of final appended index; does not establish consensus commitment.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.appendInternal(entries, force)</code></td>
+<td>Requires writable; rejects null/empty list, copies list (null elements cause NullPointerException), validates continuity and encodes every record before I/O. Holds all encoded records in memory. Then appends each and optionally forces. Throwable during this I/O phase latches failure and becomes IllegalStateException; validation/encoding errors before the try block do not latch failure. No rollback of an already written batch prefix.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.appendOne(entry, record)</code></td>
+<td>If nonempty active segment plus record exceeds 128 MiB target, rotates first. Rejects resulting size above 256 MiB hard limit with IOException. Writes record positionally at prior size, then publishes Location and updates sequence. Does not itself force. Partial write before failure is not inserted into map.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.rotate()</code></td>
+<td>Forces old active channel, sets durableIndex to current last index, closes channel, and creates next segment linked to last index/term/hash. Post-increments nextSegmentNumber before creation finishes. Failure can leave old channel closed or a partial new file; outer append latches failure. No transactionally published segment inventory.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.createSegment(number, firstIndex, previousIndex, previousTerm, previousHash)</code></td>
+<td>Creates canonical path with CREATE_NEW, writes full 4096-byte header, forces file, then forces directory. Only then publishes active channel/path/number. Finally closes a not-transferred channel. Failed creation does not delete its file; a partial header can make later open fail.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.forceThrough(requestedIndex)</code></td>
+<td>Requires writable, accepts 0..lastIndex, returns if requested&lt;=durableIndex. Otherwise forces entire active file, sets durableIndex to current last index (possibly beyond request), then fires RAFT_APPEND_AFTER_LOG_PERSIST_BEFORE_REPLY with requested/durable attributes. IOException latches failure and wraps. Other hook exceptions propagate directly when called standalone; appendAndForce's outer catch latches/wraps them.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.appendPersistContext(requestedIndex, durableIndex)</code></td>
+<td>Builds CrashContext with unsigned decimal requested_index and durable_index values. Provides diagnostic context, not a durable receipt.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.validateNext(entry, expectedIndex, previousTerm, previousStateSequence, previousHash)</code></td>
+<td>Requires nonnull entry, exact next index, term&gt;=previous term, and predecessor hash content match. COMMAND derives inclusive count with Math.toIntExact then validates next sequence range via planner (1..10,000 operations). Non-COMMAND must have sequenceStart=0 and preserve prior state sequence. Throws IllegalArgumentException/ArithmeticException as appropriate. Entry codec separately validates command body/hash.</td>
+</tr>
+</tbody>
+</table>
+<p>Prevalidation avoids writing an invalid later entry from the same input list.
+It does not make a multi-entry append atomic against I/O failure or process death.
+Several full record/payload copies can coexist during encoding. There is no
+batch-size or aggregate-memory cap in appendInternal beyond per-record limits.
+Index increments and next-segment post-increment are ordinary long arithmetic,
+not checked allocation counters; later format/continuity validation still applies.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Boundary</th>
+<th>What it establishes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Record fully written, Location inserted</td>
+<td>Entry is visible to synchronized reads in this instance. Not necessarily forced.</td>
+</tr>
+<tr>
+<td>Rotation force</td>
+<td>Prior segment's entries become reflected in durableIndex before creating a new segment.</td>
+</tr>
+<tr>
+<td>Explicit force</td>
+<td>Whole active tail forced; durableIndex may exceed requested index.</td>
+</tr>
+<tr>
+<td>Persist-before-reply crash hook</td>
+<td>Force and durableIndex update have already occurred. Hook failure does not roll them back.</td>
+</tr>
+<tr>
+<td>Recovery success</td>
+<td>Complete validated retained prefix rebuilt and reported as durable. Recovery does not recover a separately recorded consensus commit/applied boundary.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="read-functions">Read Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReplicatedLogStoreV1.read(requestedIndex)</code></td>
+<td>Requires open and retained Location; missing index raises IllegalArgumentException. Reads/decode checks from fresh channel. IOException becomes IllegalStateException but does not latch writer failure; unchecked codec corruption errors propagate.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.readRange(startInclusive, endExclusive, byteLimit, entryLimit)</code></td>
+<td>Requires start&gt;=1, end&gt;=start, byteLimit&gt;=1, entryLimit&gt;=1. Iterates retained TreeMap subrange; gaps outside retained keys do not themselves throw. Equal endpoints return empty. First available record is returned even if larger than budget, then stops; later records stop before crossing byte budget or entry count. Accounts complete encoded record length, not payload length. Returns List.copyOf; read IOException wraps without latching.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.termAt(requestedIndex)</code></td>
+<td>Requires open/retained; returns cached Location term without rereading file. Disk corruption after open is not detected by this accessor.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.entryHashAt(requestedIndex)</code></td>
+<td>Requires open/retained; clones cached hash. Does not reverify disk or actual predecessor.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.readLocation(location)</code></td>
+<td>Opens location.path read-only per call, reads exact stored range, fully decodes record, then compares decoded index/term/hash against map. Metadata mismatch raises IOException. Channel closes on success/failure. Not a mapped read or cached payload.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.requiredLocation(requestedIndex)</code></td>
+<td>TreeMap lookup; absent key raises IllegalArgumentException naming requested index. Private helper does not independently check lifecycle.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.location(path, segment, offset, length, entry)</code></td>
+<td>Captures coordinates, state and defensive entry hash into a new Location (which copies hash again). No file existence validation.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.Location.Location(path, segmentNumber, offset, length, index, term, stateSequenceAfter, entryHash)</code></td>
+<td>Private compact constructor clones hash. No independent coordinate/path/length checks; construction relies on verified caller metadata.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.Location.entryHash()</code></td>
+<td>Defensive hash clone; other generated accessors expose immutable path/scalars. Outer store can also read private record fields directly.</td>
+</tr>
+</tbody>
+</table>
+<p>The concrete first-entry budget rule is stronger than the interface's wording
+about a fitting entry: readRange(1, 3, 1, 10) can return one record much larger
+than one byte. Budget controls subsequent accumulation, not strict first-record
+admission or peak decode allocation.</p>
+<h2 id="recovery-and-discovery-functions">Recovery and Discovery Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReplicatedLogStoreV1.recover()</code></td>
+<td>Discovers ordered segments; if none, creates initial linked-empty header and sets next number=2. Otherwise begins expected index=1, term/state=0, zero predecessor hash. Validates each full segment header against durable identity/file number and accumulated predecessor. Reads records, validates codec and continuity, and builds map. Only an incomplete final tail is truncated/forced; complete corruption is rejected. Rejects empty nonfinal segment. Opens final segment active, sets next number to checked max+1, durableIndex=last retained and sequence=accumulated state.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.discoverSegments()</code></td>
+<td>Lists directory into a temporary list. Ignores identity and matching identity temp names; collects exact RLOG-20-digit.aerlog names; rejects malformed RLOG- names except matching segment temp names. Unrelated names and matching temps are ignored, not cleaned. Rejects &gt;1,000,000 collected segments after discovery, sorts lexically, returns immutable list. Does not demand contiguous file numbers or bound all directory entries before materializing listing.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.validatedRecordLength(header)</code></td>
+<td>Requires exact 192 bytes and AERE prefix, reads declared int length at offset 8, checks 200..64 MiB and 8-byte alignment, and verifies header CRC over 0..167 against offset 168. Full version/reserved/payload semantics remain with entry decode. Runs before deciding whether a declared final record is incomplete.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.segmentNumber(path)</code></td>
+<td>Parses filename substring 5..24 as signed long. Relies on discovery naming shape; all-zero number or out-of-long decimal can still fail subsequent validation/parsing. No checked exception conversion here.</td>
+</tr>
+</tbody>
+</table>
+<p>Recovery starts at index 1 and a zero chain. This implementation has no accepted
+snapshot prefix base that would let it reopen a retained log beginning later.
+Segment numbers can have gaps if headers/entry continuity still agree; filenames
+are not the entry index. Recovery does not explicitly reject oversized preexisting
+segment files against the hard segment cap, although each record length is bounded.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Tail encountered</th>
+<th>Recovery action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Segment shorter than 4096-byte header</td>
+<td>Reject, even if final; never repairs a partial segment header.</td>
+</tr>
+<tr>
+<td>Fewer than 192 bytes remain after valid entries</td>
+<td>Final segment: truncate at entry boundary and force. Interior segment: reject.</td>
+</tr>
+<tr>
+<td>Validated 192-byte entry header declares more bytes than remain</td>
+<td>Final segment: truncate/force. Interior segment: reject.</td>
+</tr>
+<tr>
+<td>Full header with bad prefix/length/header CRC</td>
+<td>Reject, even if final. Not treated as harmless incomplete append.</td>
+</tr>
+<tr>
+<td>Complete entry with bad payload/trailer/hash/continuity</td>
+<td>Reject; does not discard complete corruption.</td>
+</tr>
+<tr>
+<td>Zero entries in a nonfinal segment</td>
+<td>Reject. Final empty header is accepted.</td>
+</tr>
+</tbody>
+</table>
+<p>Reopen reports the valid recovered prefix as durable; it does not distinguish
+which complete entries had an explicit force acknowledgment before the prior
+process stopped. Caller must not infer consensus commitment from recovered bytes.</p>
+<h2 id="suffix-truncation-and-close-functions">Suffix Truncation and Close Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReplicatedLogStoreV1.truncateSuffix(fromIndex, commitIndex, appliedIndex)</code></td>
+<td>Requires writable; rejects from&lt;1 or &gt;last+1, negative progress, and from&lt;=either protected boundary. Valid last+1 is a no-op. Looks up first removed record, collects later paths represented in removed Locations, closes active channel, deletes later files, truncates containing file at record offset and forces it, clears map suffix, forces directory, reopens containing file active and resets durableIndex/state to retained tail. Throwable inside I/O phase latches/wraps failure; no rollback journal. Does not independently verify supplied commit/applied truth or ordering.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.close()</code></td>
+<td>Idempotent flag check; marks closed before I/O. If active open, force then close, then separately attempts lock release and aggregates failures. Wraps any collected failure. If force throws, active.close in the same try is skipped; subsequent close returns immediately because flag is already set. Thus cleanup can leave an active channel after force failure despite releasing lock. Does not refresh durableIndex, which is inaccessible through public methods after close.</td>
+</tr>
+</tbody>
+</table>
+<p>Truncation deletes later files <strong>before</strong> shortening the containing file. Crash
+atomicity across those steps is not supplied by a manifest or transaction record.
+An empty active segment not represented by any Location is not in laterPaths;
+truncation therefore does not discover/delete every later segment by directory
+inventory. nextSegmentNumber is not rewound when reusing a containing segment.
+These details require failure/reopen testing, not an assumption that every guarded
+truncate is crash-atomic. No runtime changes are made by documenting them.</p>
+<h2 id="identity-raw-access-and-io-helpers">Identity, Raw Access, and I/O Helpers</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReplicatedLogStoreV1.openIdentity(root, clusterId, nodeId)</code></td>
+<td>Existing identity: reads whole file, decodes exact format, requires UUID match. New identity: uses current time, unique tmp name, CREATE_NEW write and file force, closes, requires ATOMIC_MOVE to final path, then directory force. Finally deletes tmp if present. No non-atomic fallback. Publication/directory-force failure can leave final identity visible; finally cleanup failure can replace an earlier exception.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.lastIndexRaw()</code></td>
+<td>Last cached key or zero, without lifecycle check.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.lastTermRaw()</code></td>
+<td>Last cached term or zero, without lifecycle check.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.lastHashRaw()</code></td>
+<td>Fresh 32-byte zero array when empty; otherwise cloned cached tail hash.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.ensureOpen()</code></td>
+<td>Throws IllegalStateException if closed; does not check latched write failure.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.ensureWritable()</code></td>
+<td>Calls ensureOpen, then wraps latched failure in IllegalStateException. No recovery/reset method clears failure in place.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.writeFully(channel, bytes, offset)</code></td>
+<td>Positional write loop advances supplied buffer and offset until consumed. Negative result raises EOFException. Does not force; a repeated zero-progress result has no backoff or explicit iteration bound.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.readFully(channel, offset, length)</code></td>
+<td>Allocates exact-length array, positional read loop, negative result raises EOFException. No independent length cap; verified callers bound record reads. Repeated zero-progress result has no backoff/bound.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.syncDirectory(directory)</code></td>
+<td>Opens directory as read-only FileChannel and force(true). IOException propagates. Requires filesystem/platform support; no Windows-specific bypass or best-effort fallback.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.failure(message, cause)</code></td>
+<td>Constructs IllegalStateException with cause; not logging, latching, or cleanup itself.</td>
+</tr>
+<tr>
+<td><code>ReplicatedLogStoreV1.closeSuppressed(closeable, failure)</code></td>
+<td>No-op for null; otherwise attempts close and appends Throwable as suppressed to original failure. Used by open cleanup; does not replace original cause.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tests-and-verification-boundaries">Tests and Verification Boundaries</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-replicated-log/src/test/java/io/aetherdb/replication/log/ReplicatedLogStoreV1Test.java">ReplicatedLogStoreV1Test.java</a>
+contains seven tests: append/range/force/reopen, two golden fixtures, guarded
+truncation/replacement, persist-before-reply hook, final short-tail repair versus
+complete corruption, and different-node identity rejection. The hook test creates
+a store reflectively with a raw active file to isolate forcing; it does not prove
+normal identity/header publication. The other format suite contributes seven tests.</p>
+<p>Missing dedicated cases include multi-segment rotation/truncation, directory-force
+and close-force failures, partial multi-entry append I/O, empty unindexed active
+segments, interior incomplete tails and the full discovery error matrix. Local
+directory channel support determines whether normal-open tests can execute on this
+Windows host; a passing codec/hook test is not substitute evidence for those paths.
+Raft commitment, state-machine application and crash-atomic truncation remain
+separate verification responsibilities.</p>
+<p>Fresh full-module verification on 2026-10-09 ran 14 tests: <strong>10 passed, four
+failed, none skipped</strong>. All four failures were AccessDeniedException from opening
+a directory channel in syncDirectory during initial openIdentity publication.
+They affect normal append/reopen, guarded truncation, tail repair, and node-identity
+tests before those assertions are reached. The seven format tests, two golden
+fixture tests and reflective force-hook test passed. This Windows result does
+not verify successful normal-open storage behavior on a supporting filesystem.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#ownership-and-runtime-architecture">Ownership and Runtime Architecture</a><a href="#open-and-metadata-functions">Open and Metadata Functions</a><a href="#append-rotation-and-force-functions">Append, Rotation, and Force Functions</a><a href="#read-functions">Read Functions</a><a href="#recovery-and-discovery-functions">Recovery and Discovery Functions</a><a href="#suffix-truncation-and-close-functions">Suffix Truncation and Close Functions</a><a href="#identity-raw-access-and-io-helpers">Identity, Raw Access, and I/O Helpers</a><a href="#tests-and-verification-boundaries">Tests and Verification Boundaries</a></nav></aside>
+  </div>
+</body>
+</html>

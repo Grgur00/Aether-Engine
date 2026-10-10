@@ -1,0 +1,172 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/CACHE-PROFILE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Cache request and JFR diagnostics: source-backed contributor documentation for Aether Engine.">
+  <title>Cache request and JFR diagnostics | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html" aria-current="page">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/CACHE-PROFILE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="cache-request-and-jfr-diagnostic-functions">Cache Request and JFR Diagnostic Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="population-profile-functions.html">Population diagnostics</a> | <a href="research.html">Research tooling</a></p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/profile_cache_requests.py">profile_cache_requests.py</a> and
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/profile_cache_jfr.py">profile_cache_jfr.py</a>. This reference covers
+all <strong>7 explicit declarations</strong>, including nested key, invocation, command and
+workload functions. The JFR module's CLI parser is module-level code, not an
+additional main function.</p>
+<h2 id="two-diagnostic-architectures">Two Diagnostic Architectures</h2>
+<pre><code class="language-text">request profile: one daemon / one growing store
+  -&gt; prepublish warm keys
+  -&gt; randomized windows: hit / miss / publish x untraced / traced
+  -&gt; fresh client connection per arm; three excluded warmup calls
+  -&gt; wall and Python CPU timing; trace JSONL; paired window ratios
+
+JFR profile: three sequential fresh-daemon cases
+  -&gt; build recording configuration
+  -&gt; warmup -&gt; unrecorded baseline -&gt; JFR.start -&gt; workload -&gt; JFR.stop
+  -&gt; recording hash / event export / partial runs inventory / environment
+</code></pre>
+<p>Neither script loads OCT5K tensors or trains a model. These synthetic request
+diagnostics do not measure the longitudinal ML lifecycle or compare mmap/MONAI.
+They do not independently certify frozen source identity or campaign completeness.
+Request windows share a store and daemon; JFR cases use separate stores and
+daemons. OS page-cache conditions remain uncontrolled in both.</p>
+<h2 id="request-profiler-functions">Request Profiler Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>profile(output, *, windows=30, operations=10, payload_bytes=4096, batch_size=1, seed=42, server_trace=False)</code></td>
+<td>Requires positive counts, batch &lt;=4096 and batch_size*(payload_bytes+256) below 64 MiB. Creates a new output directory, deterministic payload and fingerprint, prepublishes warm keys, then executes six randomized arms per window. Records API/result-check/trace-collection wall time and Python process CPU time, writes traced records outside timing, and computes traced/untraced wall ratios paired by case/window. Saves profile.json with environment and scope caveats. Returns no report object.</td>
+</tr>
+<tr>
+<td><code>profile.keys(prefix)</code></td>
+<td>Builds batch_size CacheKeys in namespace request-profile using prefix-index and the shared request-profile-v1 transformation fingerprint. Warm/missing keys are reused; publication prefixes include window, tracing state and operation index to avoid deliberate overwrite. Does not encode payloads or check identities against source files.</td>
+</tr>
+<tr>
+<td><code>profile.invoke(index)</code></td>
+<td>Warm-hit calls get_many(warm); miss calls get_many(missing); publish constructs fresh keys and a payload pair list, then calls put_many. Captures the current arm/client/window. Warmup publication indices -3/-2/-1 differ from measured nonnegative indices, so warmup grows the store without consuming measured keys.</td>
+</tr>
+<tr>
+<td><code>main()</code></td>
+<td>Parses output/count/payload/batch/seed/server-trace arguments and forwards them to profile. CLI integers are validated by profile; it does not accept a supplied argv parameter. Server tracing is requested only on instrumented connections, requiring the appropriate protocol support.</td>
+</tr>
+</tbody>
+</table>
+<p>Payload generation and order randomization use separate Random(seed) instances:
+payload generation does not advance the arm-order generator. Each client gets
+three warmup invocations before timing. traces.clear removes their trace records,
+but protocol_metrics still includes those three operations. Connection setup,
+daemon startup, prepopulation, warmup and JSONL serialization are excluded from
+window wall time. Warm read equality and empty miss results are checked inside
+the measured loop; publication has no separate readback check.</p>
+<p>The two clocks have different meanings: process_time_ns measures Python process
+CPU, not Java CPU or wall time; perf_counter_ns includes API waits. The CPU clock
+is stopped before the wall clock. requestMeanMs is window wall divided by API call
+count, not a distribution of independently timed request latencies. Batch samples
+are not the same unit as requests.</p>
+<p>trace_errors rejects trace-sink failures, but this script does <strong>not</strong> require a
+specific trace count, reject attempt_failed/retry events, reconcile completed
+server trace IDs or enforce operation counts. Those stronger gates belong to the
+population diagnostic. Embedded server stages remain inclusive correlations,
+not resolved scheduler/transport attribution. stageAComplete stays false even
+when server_trace is enabled.</p>
+<p>PairedWindowWallRatios are descriptive overhead observations. Randomized arm order
+does not make windows independent process repetitions: all six arms and all
+windows share one daemon/store, and publish operations continually enlarge it.
+No ratio-denominator guard is added. A failing arm stops execution; the context
+managers close client/daemon/trace file, but output and store remain and no final
+profile.json is guaranteed. Existing output paths are rejected, not resumed.</p>
+<h2 id="jfr-profiler-functions">JFR Profiler Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>run(output, seconds=30, baseline_seconds=15, warmup_seconds=5)</code></td>
+<td>Requires positive durations, creates a new directory, locates jcmd/jfr, and derives lib/jfr/profile.jfc from the resolved jfr executable. Configures sampling thresholds, runs three cases with fresh 128 MiB initial/512 MiB max-heap daemons, captures baseline then JFR workload, checks a nonempty recording and hashes it. After daemon shutdown exports summary/events and writes cumulative runs.json after each successful case; environment.json is written only after all cases.</td>
+</tr>
+<tr>
+<td><code>run.command(args, log)</code></td>
+<td>Runs a checked subprocess, captures stdout/stderr with UTF-8 replacement, writes their concatenation to the supplied log and returns stdout. No timeout. If the subprocess exits unsuccessfully, check=True raises before the log write, so that log is not guaranteed to preserve failure output.</td>
+</tr>
+<tr>
+<td><code>run.workload(duration)</code></td>
+<td>Repeatedly performs the current case until elapsed wall reaches duration. Publish allocates fresh sequence-based keys and submits a batch; warm-single uses get and validates bytes; warm-batch uses get_many and validates the mapping. Counts successful calls and derives samples/requests/payload-byte throughput from actual elapsed wall. sequence persists across warmup, baseline and recording, preventing publication-key reuse between phases.</td>
+</tr>
+</tbody>
+</table>
+<p>Cases are warm-batch-4k (32 x 4096-byte values), publish-batch-4k (4 x 4096-byte
+values) and warm-single-1m (one 1 MiB value). Payloads come from seed 42 and keys use
+the jfr-diagnostic-v1 fingerprint. Non-publish cases prepopulate before warmup.
+The publication baseline and recorded phase see progressively larger stores;
+baseline always precedes recording. Their throughput ratio is <strong>not</strong> a randomized
+instrumentation-overhead estimate. No persistent cross-version service is used.</p>
+<p>The timed loop includes public API calls, key/list construction for publish and
+value checks for reads. A call can overrun the requested duration; wallSeconds
+reports actual elapsed rather than the nominal duration. requests is API calls,
+samples is calls*batch_size and payloadBytesPerSecond is logical value traffic,
+not measured wire bandwidth, disk write amplification or total allocations.</p>
+<p>Configuration requests 2 ms execution/native samples, allocation throttle 300/s,
+0 ms file-force threshold, 1 ms monitor threshold and 5 ms park/socket thresholds.
+It inherits other settings from the stock profile. Selected event export includes
+CPU, allocation, GC/pause, file/force, monitor/park, socket and DataLoss events with
+stack depth 64. Exporting DataLoss does not mean this runner rejects data loss or
+validates statistical representativeness; inspect the recording/analyzer.</p>
+<p>JFR.start occurs after baseline. Once start succeeds, stop runs in finally even
+if workload fails; a stop error can replace the original workload error. Start
+failure occurs before that finally. A nonempty file check does not validate event
+coverage. Reports are appended before post-daemon export, but runs.json is updated
+only after summary and event export succeed. Events export writes directly to its
+destination, so failure can leave a partial JSON file. No resume, subprocess timeout
+or cleanup of diagnostic stores is implemented.</p>
+<h2 id="coverage-and-evidence">Coverage and Evidence</h2>
+<p>AST checks require every qualified declaration from both source files. Focused
+contract tests exercise validation and full request-report generation with a fake
+daemon/client, including excluded warmup trace records and included warmup protocol
+counters. These doubles establish control flow and report boundaries, not real
+Java timing, GPU performance or valid JFR recordings.</p>
+<p>Combined file coverage is <strong>7/7 declarations (100%; 0% remaining)</strong>. Other profilers
+and repository subsystems remain in the wider documentation goal.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#two-diagnostic-architectures">Two Diagnostic Architectures</a><a href="#request-profiler-functions">Request Profiler Functions</a><a href="#jfr-profiler-functions">JFR Profiler Functions</a><a href="#coverage-and-evidence">Coverage and Evidence</a></nav></aside>
+  </div>
+</body>
+</html>

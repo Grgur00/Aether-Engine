@@ -1,0 +1,249 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/TRAINING-DRIVER-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Java training diagnostic drivers: source-backed contributor documentation for Aether Engine.">
+  <title>Java training diagnostic drivers | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html" aria-current="page">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/TRAINING-DRIVER-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="java-training-diagnostic-driver-functions">Java Training Diagnostic Driver Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="training-cache-functions.html">Cache operations</a> | <a href="hit-path-functions.html">Hit-path orchestration</a> | <a href="root-build-architecture.html">Root build tasks</a></p>
+<p>This reference covers all <strong>24 explicit declarations</strong> in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/HitPathBenchmark.java">HitPathBenchmark.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheBenchmark.java">TrainingCacheBenchmark.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheCrashCampaign.java">TrainingCacheCrashCampaign.java</a>.
+These are standalone Java diagnostics, not model-training implementations or the
+paired persistent-daemon H2 experiment. Their argument, process and timing
+boundaries differ; results are not interchangeable.</p>
+<h2 id="ownership-and-measurement-boundaries">Ownership and Measurement Boundaries</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Driver</th>
+<th>Process/store ownership</th>
+<th>Measured work and limits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HitPathBenchmark</td>
+<td>One isolated JVM opens an existing durable cache with a 1 TiB logical capacity, drains compaction and closes it normally.</td>
+<td>Times raw database get loops and defensive value copies. No RPC, artifact decoding, tensor assembly or training; segment values return metadata, not segment payload reads.</td>
+</tr>
+<tr>
+<td>TrainingCacheBenchmark</td>
+<td>Deletes its run directory, then opens/closes three caches sequentially over that path.</td>
+<td>Cold, warm and mapped timings include open and close. Synthetic payload generation is outside timings. Does not preserve one daemon or prove ML lifecycle superiority.</td>
+</tr>
+<tr>
+<td>TrainingCacheCrashCampaign</td>
+<td>Parent deletes each trial directory, starts a child, waits, then reopens the child's store.</td>
+<td>Child halts after put returns, without orderly close. Parent accepts absence or the expected length, not exact payload equality. Not a power-loss or arbitrary crash-point campaign.</td>
+</tr>
+</tbody>
+</table>
+<p>The benchmark and crash drivers recursively delete supplied run paths without
+workspace containment checks. Use only disposable fixture directories, never
+an existing dataset/cache or shared results directory. This documentation does
+not execute them. The hit-path driver also opens and closes a real cache; its
+preparation mode deliberately captures close/seal activity outside timing.</p>
+<h2 id="hit-path-functions">Hit-Path Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and failure boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HitPathBenchmark.HitPathBenchmark()</code></td>
+<td>Private empty constructor prevents normal external instantiation.</td>
+</tr>
+<tr>
+<td><code>HitPathBenchmark.main(args)</code></td>
+<td>Requires five or six arguments: dbPath, workloadPath, outputPath, requestSize, epochs, optional warmupEpochs (default 1). Request size must be 1..4096; epochs/warmups nonnegative. Requires DB-IDENTITY at cache root, parses keys, checks cache cardinality against unique keys, verifies presence, identifies segment-backed entries and drains compaction. For positive epochs runs warmups, captures idle baseline, then times each batch under a ReadDiagnostics collector restored in finally. Adds metadata/activity/trace evidence, rejects misses or changed activity, writes JSON status and rethrows captured Exception. Zero epochs skips warmups and timings, captures before/after close diagnostics as preparation.</td>
+</tr>
+<tr>
+<td><code>HitPathBenchmark.lookupBatch(database, keys, offset, requestSize)</code></td>
+<td>Allocates an outer byte array capped by remaining keys; performs one get per key and invokes value only when found, storing null on misses. Preserves input order and duplicate keys. No RPC, cache-envelope decoding or segment mapping. Caller supplies valid offset/request size; helper has no independent argument validation.</td>
+</tr>
+<tr>
+<td><code>HitPathBenchmark.readWorkload(path)</code></td>
+<td>Reads big-endian count, then namespace/sample length-prefixed strings and exactly 32 fingerprint bytes per key. Count must be positive and at most (file size minus four)/40, a minimum-size plausibility bound, not full validation. Builds CacheKey storage keys and rejects trailing bytes; truncated fields propagate I/O errors. Duplicates are allowed; unique cardinality is checked separately by main.</td>
+</tr>
+<tr>
+<td><code>HitPathBenchmark.readString(input)</code></td>
+<td>Accepts lengths 0..64 MiB, allocates/readFully then decodes UTF-8 with malformed/unmappable input reporting. Rejects negative/oversized lengths; permits empty strings at this layer, with identity validation delegated to CacheKey.</td>
+</tr>
+<tr>
+<td><code>HitPathBenchmark.requireIdle(activity)</code></td>
+<td>Requires state IDLE, numeric debtBytes equal to zero and empty lastFailure. Throws on mismatch. Assumes expected fields/types; malformed diagnostics may instead fail with null/type errors.</td>
+</tr>
+<tr>
+<td><code>HitPathBenchmark.requireUnchanged(before, after)</code></td>
+<td>Requires after idle, then equality of flushesStarted, flushesCompleted, backgroundCompactionsStarted, completed and failed counters against the original baseline. Does not compare every metric or prove absence of unrelated system activity.</td>
+</tr>
+<tr>
+<td><code>HitPathBenchmark.summarize(batches)</code></td>
+<td>Sums samples, misses, durations, database bytes, declared artifact bytes and segmented values. Sorts batch durations; emits per-batch mean/median/p95/p99 plus samples per summed timed second. Empty input yields zero statistics. Includes batches already appended before a later failure, not necessarily all attempted work.</td>
+</tr>
+<tr>
+<td><code>HitPathBenchmark.percentile(sorted, fraction)</code></td>
+<td>Returns zero for empty input, otherwise nearest-rank element at ceil(length * fraction) minus one. Assumes sorted array and valid fraction; main summary uses 0.95 and 0.99. No interpolation.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="timing-and-report-semantics">Timing and Report Semantics</h3>
+<p>Presence scans and warmups precede the activity baseline. Each duration includes
+outer-array allocation, database lookups and returned-value copies; collector
+attachment, activity snapshots, metadata validation and JSON encoding are outside
+that duration. Read instrumentation inside the lookup remains included. A short
+final batch has fewer samples; duration percentiles are <strong>batch</strong>, not per-sample,
+statistics. Repeated epochs repeatedly count the same bytes and samples.</p>
+<p>The metadata check after timing requires at least 12 bytes, recognized inline or
+segment magic, version 1 and nonnegative declared length. It is not full envelope
+checksum validation or segment payload verification. artifactBytes sums declared
+lengths; databaseValueBytes sums actual encoded values returned. The two are not
+equivalent I/O measurements.</p>
+<p>Argument parsing/validation occurs before the report try/catch. Caught Exceptions
+inside the workload emit FAILED with a string and partial evidence, but Errors
+are not caught. JSON summary/directory creation/write happen afterward and can
+fail, preventing a receipt or obscuring the original exception. Output writes are
+not atomic or forced. PASSED therefore means this diagnostic's checks completed,
+not certification of every storage invariant.</p>
+<h2 id="synthetic-benchmark-functions">Synthetic Benchmark Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and failure boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TrainingCacheBenchmark.TrainingCacheBenchmark()</code></td>
+<td>Private empty utility constructor.</td>
+</tr>
+<tr>
+<td><code>TrainingCacheBenchmark.main(arguments)</code></td>
+<td>Requires directory, samples, payloadBytes and output. Samples positive; payload nonnegative integer or case-insensitive matrix. Matrix uses 256, 1024, 4096, 16384, 65536, 262144, 1048576 and 4194304 bytes in payload-specific subdirectories. Prints each report; writes one object for a single size or an array for matrix. Report output occurs only after all runs finish; exceptions propagate without FAILED receipt.</td>
+</tr>
+<tr>
+<td><code>TrainingCacheBenchmark.runBenchmark(directory, samples, payloadBytes)</code></td>
+<td>Deletes run directory; preallocates all keys/payloads with fixed benchmark-v1 transform identity. Times cold getOrCompute population, reopened get reuse and reopened map traversal independently, including each open/close. Samples cold/warm metrics before close; mapped phase sums remaining buffer lengths and rejects missing mappings. Formats timings, rates, warm hits, mapped bytes and cold/warm metrics. Warm get loop does not reject misses or validate returned payloads.</td>
+</tr>
+<tr>
+<td><code>TrainingCacheBenchmark.payload(seed, length)</code></td>
+<td>Allocates length bytes, filling byte(seed + index), wrapping modulo 256. Deterministic synthetic pattern, not an OCT/image decoding or augmentation workload.</td>
+</tr>
+<tr>
+<td><code>TrainingCacheBenchmark.seconds(nanos)</code></td>
+<td>Converts max(1, nanos) to seconds, avoiding zero/negative division in rates. Does not validate timer quality.</td>
+</tr>
+<tr>
+<td><code>TrainingCacheBenchmark.formatBytes(bytes)</code></td>
+<td>Labels exact multiples of MiB as MB, otherwise exact multiples of KiB as KB, else B. These display labels use binary factors, not decimal SI.</td>
+</tr>
+<tr>
+<td><code>TrainingCacheBenchmark.metricsJson(metrics)</code></td>
+<td>Locale.ROOT formatted JSON for hit/miss ratio, served/written bytes, evictions, corrupt entries, disk accounting and get/put p50/p95/p99. Six-decimal ratio is rounded. No mapped-phase metrics or device-level write-byte evidence.</td>
+</tr>
+<tr>
+<td><code>TrainingCacheBenchmark.ratio(hits, misses)</code></td>
+<td>Returns zero for zero total, otherwise hits divided by hits plus misses. Assumes nonnegative realistic counters; no overflow validation.</td>
+</tr>
+<tr>
+<td><code>TrainingCacheBenchmark.delete(directory)</code></td>
+<td>No-op when nonexistent; otherwise walks path, reverse-sorts descendants and deletes each. Wraps per-entry I/O failure in UncheckedIOException; walk failures propagate. No containment check, rollback or guaranteed all-or-nothing deletion.</td>
+</tr>
+</tbody>
+</table>
+<p>Synthetic payload arrays stay live across phases; their memory footprint scales
+with samples times payload size. The mapped phase counts buffer lengths without
+reading every byte, so mappedSamplesPerSecond is not proven full-payload throughput.
+Default cache policy governs evictions; requested cardinality alone does not
+guarantee all warm hits. Compare warmHits and missing-map failure rather than
+assuming reuse. Each phase's cache close can flush/seal, and metrics captured
+before close do not account for every close-time action.</p>
+<h2 id="crash-campaign-functions">Crash Campaign Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and failure boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TrainingCacheCrashCampaign.TrainingCacheCrashCampaign()</code></td>
+<td>Private empty utility constructor.</td>
+</tr>
+<tr>
+<td><code>TrainingCacheCrashCampaign.main(arguments)</code></td>
+<td>Exact two-argument --worker dispatch runs child logic. Otherwise accepts root and optional trials (default 1000). For each trial deletes trial-N, launches current java/classpath with --enable-preview and inherited I/O, waits without timeout, requires exit 91, then opens cache and permits null or 512 KiB recovered value. Prints completed count only after loop. Trials are not validated as positive; zero/negative values run no trials.</td>
+</tr>
+<tr>
+<td><code>TrainingCacheCrashCampaign.runWorker(directory)</code></td>
+<td>Constructs fixed crash/sample/campaign-v1 identity and zero-filled 512 KiB value; opens cache, puts it and calls Runtime.halt(91). Successful halt bypasses try-with-resources close/shutdown cleanup. No randomized timing, marker handshake or crash during append/install.</td>
+</tr>
+<tr>
+<td><code>TrainingCacheCrashCampaign.javaBinary()</code></td>
+<td>Resolves java.home/bin/java, adding .exe on Windows. Assumes the executable exists; ProcessBuilder failure propagates.</td>
+</tr>
+<tr>
+<td><code>TrainingCacheCrashCampaign.isWindows()</code></td>
+<td>Lowercases os.name using default locale and checks substring win. Platform heuristic, not an independent capability check.</td>
+</tr>
+<tr>
+<td><code>TrainingCacheCrashCampaign.delete(path)</code></td>
+<td>Skips nonexistent path; reverse-sorted Files.walk deletion, wrapping per-item I/O exceptions. No safe-root check or cleanup rollback.</td>
+</tr>
+</tbody>
+</table>
+<p>The parent allows loss of the published value and tests only length when found.
+It does not compare zero bytes, require acknowledged durability, inspect WAL or
+manifest state, vary artifact identity, or establish recovery after host/power
+failure. A hung worker can hang the parent indefinitely; unexpected exits stop
+the campaign with an exception and leave trial evidence on disk. This narrow
+smoke campaign is separate from fault-injection and H3 consistency protocols.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p>Compiler-tree checks match all 24 declaration rows, including the three private
+constructors and both delete helpers. That inventory prevents silent documentation
+omissions; it does not run these drivers or prove timing, corruption, power-loss,
+GPU performance or recovery correctness. Read the Python hit-path orchestration
+and cache/diagnostic contracts alongside these local implementation limits.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#ownership-and-measurement-boundaries">Ownership and Measurement Boundaries</a><a href="#hit-path-functions">Hit-Path Functions</a><a href="#synthetic-benchmark-functions">Synthetic Benchmark Functions</a><a href="#crash-campaign-functions">Crash Campaign Functions</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

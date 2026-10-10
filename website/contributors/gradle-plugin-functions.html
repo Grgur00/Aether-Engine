@@ -1,0 +1,289 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/GRADLE-PLUGIN-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Gradle plugin and build conventions: source-backed contributor documentation for Aether Engine.">
+  <title>Gradle plugin and build conventions | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html" aria-current="page">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/GRADLE-PLUGIN-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="gradle-plugin-and-build-convention-functions">Gradle Plugin and Build Convention Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="schemas.html">Schemas</a> | <a href="testing.html">Testing</a></p>
+<p>This reference covers all <strong>five explicit Java methods</strong> in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-gradle-plugin/src/main/java/io/aetherdb/gradle/AetherPlugin.java">AetherPlugin.java</a>
+and the two explicit Kotlin publishing helpers, plus the configuration actions in
+all seven <a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/src/main/kotlin">shared convention scripts</a>.
+Gradle-generated accessors, implicit constructor and lambda bodies are explained
+through their owning methods/actions, not counted as named Java declarations.</p>
+<h2 id="two-build-layers">Two Build Layers</h2>
+<pre><code class="language-text">Repository includeBuild(build-logic)
+    -&gt; aether.java-base / testing / library / application conventions
+    -&gt; repository compilation and test tasks
+
+Published io.github.grgur00.aether consumer plugin
+    -&gt; Java plugin + three versioned Aether dependencies
+    -&gt; Java 21 preview configuration
+    -&gt; compileJava schema verification + schema proposal/accept tasks
+</code></pre>
+<p>These are different plugins. Applying aether.java-application does not apply the
+published consumer plugin. The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples/aether-sample-app/build.gradle.kts">current sample build</a>
+uses repository conventions/project dependencies. Root-build actions separately
+register its schema init/update/accept tasks. Root aetherSchemaCheck aggregates
+compilation; the root implementation does not register a sample-scoped check task.</p>
+<h2 id="consumer-plugin-methods">Consumer Plugin Methods</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Configuration behavior</th>
+<th>Boundaries and failures</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherPlugin.apply(project)</code></td>
+<td>Applies java; reads plugin implementation version; adds implementation dependencies aether-embedded-typed and aether-codec, plus annotationProcessor aether-codec-processor, all under io.github.grgur00 at the same version. Invokes Java/schema configuration.</td>
+<td>Does not configure dependency repositories, a BOM, application main class or publication. Missing implementation version fails after Java plugin application. Dependencies are coordinates, not project dependencies.</td>
+</tr>
+<tr>
+<td><code>AetherPlugin.configureJava(project)</code></td>
+<td>Sets Java toolchain and compiler release to 21, UTF-8 compilation and --enable-preview on all JavaCompile tasks. Adds preview JVM flag to all Test and JavaExec tasks via configureEach.</td>
+<td>Does not enable JUnit Platform or add test dependencies, -parameters, warnings-as-errors, Javadoc flags or archive reproducibility. Later consumer configuration may override settings; JVM flags are appended.</td>
+</tr>
+<tr>
+<td><code>AetherPlugin.configureSchemaTasks(project)</code></td>
+<td>Finds main source set, annotationProcessor configuration and compileJava. Defines project aether-schemas and build aether-schema/proposal directories; registers two proposal compiles, accept and check. Adds schemaDirectory processor argument to compileJava; registers schema directory as input only if it exists when configuration action runs.</td>
+<td>Depends on Java plugin extensions/tasks existing. No extension for custom schema paths or version. Proposal/accept are explicit source-changing workflow, not ordinary compilation. Processor default mode is VERIFY.</td>
+</tr>
+<tr>
+<td><code>AetherPlugin.proposalTask(project, name, description, main, schemaDirectory, proposalDirectory, processorPath, compileJava)</code></td>
+<td>Lazily registers JavaCompile using main Java sources/compile classpath, compileJava's compiler provider and annotation processor path. Outputs build/aether-schema/classes and generated sources under build/aether-schema/generated. Adds -proc:only, schemaMode=PROPOSE and absolute schema/proposal paths. Declares proposal directory output and existing schema input.</td>
+<td>Init/update share all output locations and same proposal behavior; name/description differ. Provider wiring supplies compiler, not a dependency on completing normal compilation. Does not clean old proposal files itself or atomically accept them. No explicit coordination for both proposal tasks sharing output.</td>
+</tr>
+<tr>
+<td><code>AetherPlugin.implementationVersion()</code></td>
+<td>Reads Package.getImplementationVersion; returns nonblank value or throws IllegalStateException.</td>
+<td>No fallback to project.version or system property. Loading unpackaged classes without manifest metadata can fail.</td>
+</tr>
+</tbody>
+</table>
+<p>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-gradle-plugin/build.gradle.kts">plugin module build</a>
+registers ID io.github.grgur00.aether with implementation class AetherPlugin and
+adds Implementation-Version=project.version to the JAR manifest. Sources/Javadoc
+JARs and Maven publishing are build configuration, not work done by apply.</p>
+<h2 id="schema-task-actions">Schema Task Actions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Task/action</th>
+<th>Execution</th>
+<th>What remains caller-owned</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>aetherSchemaInit</td>
+<td>JavaCompile proposalTask with initial-lock description.</td>
+<td>No separate empty-schema precondition in plugin; processor determines proposal content.</td>
+</tr>
+<tr>
+<td>aetherSchemaUpdate</td>
+<td>Same proposalTask settings and outputs as init, with update description.</td>
+<td>No plugin-level compatibility decision; see schema processor references.</td>
+</tr>
+<tr>
+<td>aetherSchemaAccept registration/doLast</td>
+<td>Depends on update. If proposal/index.json is a file, Project.copy copies entire proposal tree into project/aether-schemas. Otherwise silently does nothing.</td>
+<td>Not an atomic directory swap, validation of proposal inventory or removal of stale destination files. No plugin-level explicit source output/input declaration on accept. Review copied files before committing.</td>
+</tr>
+<tr>
+<td>aetherSchemaCheck registration</td>
+<td>Verification-group task depending on compileJava; no independent action.</td>
+<td>Processor diagnostics during compilation provide the check. Task name alone adds no separate schema scanner.</td>
+</tr>
+<tr>
+<td>compileJava.configure</td>
+<td>Appends absolute aether.schemaDirectory processor option; existing schema directory is tracked as input.</td>
+<td>Does not force processor execution when Gradle considers compilation up-to-date. No task changes to source-controlled schemas.</td>
+</tr>
+</tbody>
+</table>
+<p>Generated source compilation and lock verification belong to
+<a href="schema-annotation-functions.html">annotation processing</a> and
+<a href="schema-resource-functions.html">schema resource functions</a>, not the plugin's copy action.
+These methods do not create a durable database or verify a running deployment.</p>
+<h2 id="shared-java-and-test-conventions">Shared Java and Test Conventions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Script/action</th>
+<th>Behavior</th>
+<th>Limits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/src/main/kotlin/aether.java-base.gradle.kts">aether.java-base.gradle.kts</a>: plugins/java configuration</td>
+<td>Applies java and selects Java 21 toolchain.</td>
+<td>Toolchain selection is not an assertion that an arbitrary external launcher uses the same JDK.</td>
+</tr>
+<tr>
+<td>java-base: JavaCompile.configureEach</td>
+<td>release=21, UTF-8, --enable-preview, -parameters, -Xlint:all and -Werror.</td>
+<td>Warnings become compile errors. These extra strict flags differ from consumer plugin configuration.</td>
+</tr>
+<tr>
+<td>java-base: Test.configureEach</td>
+<td>Adds --enable-preview and heap-dump-on-OOM JVM flag.</td>
+<td>Does not itself choose JUnit engine, configure heap size or classify tests.</td>
+</tr>
+<tr>
+<td>java-base: JavaExec.configureEach</td>
+<td>Adds --enable-preview.</td>
+<td>Does not create a run task without an application/other task registration.</td>
+</tr>
+<tr>
+<td>java-base: Javadoc.configureEach</td>
+<td>Enables preview and source 21 via StandardJavadocDocletOptions.</td>
+<td>Cast expects standard doclet options. Not an exhaustive documentation-coverage check.</td>
+</tr>
+<tr>
+<td>java-base: AbstractArchiveTask.configureEach</td>
+<td>Disables preserved file timestamps and enables reproducible file order.</td>
+<td>Does not remove timestamps embedded in contents or establish byte-for-byte reproducibility across differing inputs/toolchains.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/src/main/kotlin/aether.testing.gradle.kts">aether.testing.gradle.kts</a></td>
+<td>Applies java; adds JUnit BOM 6.0.1, Jupiter, AssertJ 3.27.7, platform launcher; all Test tasks use JUnit Platform.</td>
+<td>Does not register custom integration/crash source sets, test filters or failure-policy overrides.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/src/main/kotlin/aether.java-library.gradle.kts">aether.java-library.gradle.kts</a></td>
+<td>Applies java-library, Java base/testing; enables sources and Javadoc JARs.</td>
+<td>Does not apply publishing by itself.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/src/main/kotlin/aether.java-application.gradle.kts">aether.java-application.gradle.kts</a></td>
+<td>Applies application, Java base/testing.</td>
+<td>Main class is configured in consuming module; no consumer schema plugin.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/src/main/kotlin/aether.jmh.gradle.kts">aether.jmh.gradle.kts</a></td>
+<td>Applies Java base only.</td>
+<td>Comment describes intended benchmark isolation, but file adds no JMH dependency/plugin/source set or benchmark task.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/src/main/kotlin/aether.quality.gradle.kts">aether.quality.gradle.kts</a></td>
+<td>Applies base only; an attachment point for future quality tools.</td>
+<td>Does not run formatters, static analysis or pinned quality tools itself.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="publishing-helpers-and-actions">Publishing Helpers and Actions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/src/main/kotlin/aether.publishing.gradle.kts">aether.publishing.gradle.kts</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function/action</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MavenPublication.configurePom()</code></td>
+<td>Sets name to project.name and description from module name; adds repository URL, Apache 2.0 license, developer, SCM and issue tracker metadata.</td>
+<td>Declared metadata, not license scanning, provenance verification or signing.</td>
+</tr>
+<tr>
+<td><code>configureMavenPublication(componentName)</code></td>
+<td>Creates mavenJava publication from named component and configures POM.</td>
+<td>Requires component to exist; not an idempotent lookup. No artifact upload performed by helper itself.</td>
+</tr>
+<tr>
+<td>publishing.repositories</td>
+<td>Defines staging Maven repository at root build/staging-deploy URI.</td>
+<td>Local staging is not Maven Central or a remote release.</td>
+</tr>
+<tr>
+<td>withPlugin(java)</td>
+<td>Unless java-gradle-plugin already present, creates publication from java component.</td>
+<td>Conditional plugin state at callback time matters; no rollback of existing publications.</td>
+</tr>
+<tr>
+<td>withPlugin(java-platform)</td>
+<td>Creates mavenJava from javaPlatform component.</td>
+<td>No automatic BOM contents here.</td>
+</tr>
+<tr>
+<td>withPlugin(java-gradle-plugin)</td>
+<td>Configures POM for each MavenPublication, including later-created ones.</td>
+<td>Gradle plugin machinery owns publication creation; convention supplies metadata.</td>
+</tr>
+</tbody>
+</table>
+<p>The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/build.gradle.kts">root build</a> separately chooses published modules,
+version policy, staging aggregation and JReleaser configuration. This reference
+does not inventory every root/module build action or certify a release upload.
+Do not execute publishing or schema acceptance to test documentation.</p>
+<h2 id="root-schema-configuration">Root Schema Configuration</h2>
+<p>The root build defines root-level init/update/accept/check aggregate tasks. For
+each subproject receiving java, its local Kotlin <code>proposalTask(name, descriptionText)</code>
+registers init/update JavaCompile tasks with the same processor mode and output
+locations as the consumer plugin. It declares the schema directory as an optional
+input unconditionally, unlike the plugin's existence-based declaration.
+Subproject accept depends on update, checks proposal/index.json, creates the schema
+directory and copies the tree. Root aggregates depend on corresponding project
+tasks; root check depends on each Java subproject's compileJava. No project check
+task is registered here. After evaluation, projects with explicitly declared
+annotationProcessor dependencies get schemaDirectory input/processor configuration
+on normal compilation. This checks dependency declarations, not resolved processor
+capabilities. Copy acceptance still has no atomic replacement or stale-file cleanup.</p>
+<h2 id="build-logic-bootstrap-and-verification">Build-Logic Bootstrap and Verification</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/build.gradle.kts">build-logic/build.gradle.kts</a> applies kotlin-dsl,
+sets Java/Kotlin toolchains to 21 and redirects output to .build/Gradle-version.
+That separates generated Kotlin DSL outputs for different Gradle versions, not
+every possible concurrent invocation of the same version. It uses plugin portal
+and Maven Central repositories. The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic/settings.gradle.kts">included build settings</a>
+configure repositories, Foojay resolver 1.0.0 and aether-build-logic name.
+The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/settings.gradle.kts">root settings</a> include this build and enforce
+FAIL_ON_PROJECT_REPOS for main dependency resolution.</p>
+<p>No dedicated src/test tree is present in aether-gradle-plugin. Compiler-tree
+documentation tests verify all five method names, not plugin application or TestKit
+behavior. Building plugin classes/resources/JAR verifies compilation and packaging,
+not proposal correctness, shared-output concurrency, task up-to-date semantics,
+acceptance atomicity or published consumer dependency resolution. Those require
+disposable consumer fixtures, including a packaged plugin with version metadata.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#two-build-layers">Two Build Layers</a><a href="#consumer-plugin-methods">Consumer Plugin Methods</a><a href="#schema-task-actions">Schema Task Actions</a><a href="#shared-java-and-test-conventions">Shared Java and Test Conventions</a><a href="#publishing-helpers-and-actions">Publishing Helpers and Actions</a><a href="#root-schema-configuration">Root Schema Configuration</a><a href="#build-logic-bootstrap-and-verification">Build-Logic Bootstrap and Verification</a></nav></aside>
+  </div>
+</body>
+</html>

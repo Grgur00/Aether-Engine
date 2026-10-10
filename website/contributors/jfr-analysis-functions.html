@@ -1,0 +1,178 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/JFR-ANALYSIS-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="JFR analysis and attribution: source-backed contributor documentation for Aether Engine.">
+  <title>JFR analysis and attribution | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html" aria-current="page">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/JFR-ANALYSIS-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="cache-and-bulk-jfr-analysis-functions">Cache and Bulk JFR Analysis Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="cache-profile-functions.html">Cache recording drivers</a> | <a href="research.html">Research tooling</a></p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/analyze_cache_jfr.py">analyze_cache_jfr.py</a> and
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/bulk_jfr_analyze.py">bulk_jfr_analyze.py</a>.
+All <strong>6 explicit declarations</strong> are covered here. These functions consume exported
+JFR JSON and receipts; they do not run a workload or perform an optimization.</p>
+<h2 id="evidence-and-attribution-architecture">Evidence and Attribution Architecture</h2>
+<pre><code class="language-text">cache: runs.json -&gt; verify recording SHA-256 -&gt; adjacent events.json
+  -&gt; whole-export event counts / Java and native leaf samples
+  -&gt; raw allocation weights + sensitivity view excluding first sample per thread
+  -&gt; per-recording analysis-summary.json
+
+bulk: exported events + one candidate or three control/profile/control receipts
+  -&gt; unique successful population marker and sample-count agreement
+  -&gt; interval-overlap events / leaf stacks / weighted classes / phase association
+  -&gt; candidate-only: unique verifier marker, verifier-thread attribution
+  -&gt; jfr-analysis.json + jfr-summary.md
+</code></pre>
+<p>The cache analyzer hashes the recording, but does not hash or regenerate its
+adjacent events.json to establish that the export came from that recording.
+The bulk analyzer does not verify recording/export hashes itself. Their evidence
+must be bound to actual recordings and frozen source by the caller/campaign.
+Neither analyzer rejects a recording merely because DataLoss events exist.</p>
+<h2 id="cache-analyzer-functions">Cache Analyzer Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>summarize(folder, case)</code></td>
+<td>Resolves case.recording under folder, checks its bytes against case.sha256, and parses adjacent events.json. Counts every exported event. Execution samples count leaf and nearest io/aetherdb/ frame; native samples count leaf separately. Allocation weights are attributed raw to nearest Aether frame, then each thread's first sample is excluded from the sensitivity view of leaf/frame/class weights. Sums supported event durations, carries baseline/recorded reports unchanged, writes analysis-summary.json and prints verification/sample count. Returns None.</td>
+</tr>
+<tr>
+<td><code>main(folder)</code></td>
+<td>Reads runs.json and calls summarize for every cases entry in order. Does not validate schema, required case count, event-export provenance, homogeneous configuration or timing ratios. Failure stops later cases, leaving earlier summaries intact. CLI parser is module-level.</td>
+</tr>
+</tbody>
+</table>
+<p>Method names retain JVM slash-style class names, assembled as type.name + '.' +
+method.name. The first frame is the leaf; nearest Aether attribution is the first
+matching frame from leaf upward, not every Aether frame in the stack. Missing
+stacks use &lt;none&gt;. Top lists retain at most 12 entries; totals cannot be recovered
+by summing truncated lists alone.</p>
+<p>First-allocation tracking keys by javaThreadId, falling back to osThreadId then
+the shared string unknown. It uses eventThread, not sampledThread. Input order
+defines first; events are not sorted by timestamp. Threads with no identifying
+field collapse into one bucket. The excluded sample's weight/time/leaf/thread
+name are retained, and raw frame weights still include it. Exclusion is a startup
+sensitivity analysis, <strong>not</strong> a correction that proves exact steady-state bytes.</p>
+<p>All events in the export are processed: no client-workload interval or thread
+filter is applied. The JFR recording includes start/stop margins. Durations must
+have PT...S form and a float-parsable interior; hours/minutes are not supported by
+this parser. Counter fields can overlap across event kinds and threads. Native
+samples can include blocked threads and are not automatically CPU observations.
+Malformed fields or unsupported durations raise before the summary write.
+The recording is read entirely for hashing and the export is loaded into memory.</p>
+<h2 id="bulk-analyzer-functions">Bulk Analyzer Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>seconds(value)</code></td>
+<td>Converts numeric inputs to float; otherwise parses unsigned optional hours/minutes/seconds components in PT notation and returns seconds. Falsey strings/None default to PT0S; bare PT also matches as zero. Unsupported forms raise ValueError. Numeric booleans follow Python's int behavior; negative numeric values are not rejected here.</td>
+</tr>
+<tr>
+<td><code>instant(value)</code></td>
+<td>Replaces Z with +00:00, parses datetime.fromisoformat and returns timestamp. Explicit offsets identify absolute instants; naive timestamps depend on host timezone. Does not require UTC or enforce timestamp ordering.</td>
+</tr>
+<tr>
+<td><code>verification_detail(events)</code></td>
+<td>Requires exactly one SSTABLE_VERIFY BulkPhase across the entire export, not just within the population marker. Builds its time interval and eventThread javaThreadId. Includes overlapping events on that thread (sampledThread preferred to eventThread), plus JVM-wide GC/pause/DataLoss events regardless of thread. Counts inclusive unique method names per execution/native sample, weighted allocation classes/full stacks, clipped overlap duration and full recorded file-byte fields. Returns detail with limitations; does not write files.</td>
+</tr>
+<tr>
+<td><code>analyze(events_file, output, reports)</code></td>
+<td>Loads all exported events, requires exactly one successful BulkPopulation and one or three reports, then compares its artifactCount with candidate/profiled receipt samples. Clips event durations to the population interval, counts Java/native leaf samples and first 16-frame stacks together, accumulates allocation classes, phase durations, GC observations and recorded file bytes. Three reports use middle profile versus mean control population timing; one report adds verification_detail. Writes JSON/Markdown and returns details.</td>
+</tr>
+</tbody>
+</table>
+<p>Overlap tests include events exactly touching either boundary; their clipped
+duration may be zero while count/weight/recorded bytes remain included. File bytes
+and allocation weights are not prorated to the overlap fraction. Negative or
+reversed intervals are not separately validated. Each event's startTime is parsed
+before filtering, so a malformed timestamp outside the intended interval can
+still fail analysis.</p>
+<p>verification_detail updates a set of all stack names for each sample: recursion
+does not count the same method twice within one sample, but method counts overlap
+across methods. Execution and native samples are pooled here. Allocation stacks
+retain 40 top entries, with 15 printed in Markdown. JVM-wide GC overlap is context,
+not proof that the verifier caused GC. Other-thread allocations are excluded;
+worker-thread activity outside the marker thread is not attributed to verification.</p>
+<h2 id="population-phases-and-ratios">Population Phases and Ratios</h2>
+<p>Whole-population analysis is <strong>not thread-filtered</strong>. Leaf method counts pool
+execution/native samples with stacks; percentages use that pool as denominator,
+not all exported events or exact CPU time. Allocations count every overlapping
+allocation event's class weight, without first-sample exclusion. Top methods,
+classes and stacks are truncated independently.</p>
+<p>For phase-associated method samples, sampledThread selects same-thread markers
+active at the sample instant. The shortest-duration active marker wins as an
+innermost heuristic; eventThread is not a fallback on this path. Phase elapsed
+durations remain inclusive and can nest. The marker list spans the full export.
+Sorting/partition traversal, integrity/admission and builder phases have different
+semantic boundaries; they are not interchangeable with SHA-only time.</p>
+<p>The three-report ratio divides the profiled population milliseconds by the mean
+of the two controls. Only the selected profile's sample count is compared against
+the marker; control identity, sample count and correctness are not independently
+checked here. There is no zero-control-time guard. Fixed control/profile/control
+ordering is descriptive and does not remove machine drift. Candidate-only mode
+has no overhead ratio; its generated text retains the historical failed 750 ms
+gate statement, not a freshly computed decision about current performance.</p>
+<p>Estimated allocation/payload ratio uses sum of weighted class bytes divided by
+max(payloadBytes,1). GC heap high-water is max of observed GCHeapSummary values,
+not continuously sampled RSS/heap peak. GC pause overlap sum may overlap other
+events. Missing thresholded file/socket/lock events do not establish zero cost.
+Offline transport is a pipe; input reads can reflect waiting on preprocessing.</p>
+<p>The output directory must already exist. JSON is written before Markdown, directly
+to final paths with no atomic pair publication: a later write failure can leave
+one updated output. Existing outputs are overwritten. Candidate verifier failure
+occurs before either write. The analyzer records DataLoss counts but does not
+fail the result, select an optimization or establish recoverable wall-time gains.</p>
+<h2 id="coverage-and-evidence">Coverage and Evidence</h2>
+<p>AST tests check all six qualified declarations. Existing bulk JFR tests check
+duration parsing, unique successful population and verifier-thread allocation
+filtering. Focused contracts additionally cover boundary-touching events, JVM-wide
+GC inclusion, first-sample sensitivity and recording-hash failure. These use
+synthetic exports; opt-in live JFR tests are separate evidence.</p>
+<p>These two files are <strong>6/6 declarations covered (100%; 0% remaining)</strong>. Recording
+drivers, other profilers and wider repository references have separate coverage.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#evidence-and-attribution-architecture">Evidence and Attribution Architecture</a><a href="#cache-analyzer-functions">Cache Analyzer Functions</a><a href="#bulk-analyzer-functions">Bulk Analyzer Functions</a><a href="#population-phases-and-ratios">Population Phases and Ratios</a><a href="#coverage-and-evidence">Coverage and Evidence</a></nav></aside>
+  </div>
+</body>
+</html>

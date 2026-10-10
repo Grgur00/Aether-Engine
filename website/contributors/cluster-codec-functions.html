@@ -1,0 +1,567 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/CLUSTER-CODEC-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Cluster identity and configuration codecs: source-backed contributor documentation for Aether Engine.">
+  <title>Cluster identity and configuration codecs | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html" aria-current="page">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/CLUSTER-CODEC-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="cluster-identity-and-configuration-codec-functions">Cluster Identity and Configuration Codec Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="cluster-membership-functions.html">Membership and quorum</a> | <a href="raft-storage-functions.html">Raft storage</a> | <a href="format-catalog-functions.html">Format catalog</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-codec/src/main/java/io/aetherdb/cluster/codec">aether-cluster-codec</a>.
+All <strong>53 explicit declarations across four files</strong> are covered here, including
+private helpers. These are byte-array codecs, not filesystem publication or a
+membership-change service. Read the membership reference for constructor rules.</p>
+<h2 id="encoding-architecture">Encoding Architecture</h2>
+<pre><code class="language-text">identity values -&gt; fixed 256-byte identity records
+stable V1 -&gt; 160-byte header + aligned member/endpoint records
+stable V2 -&gt; 192-byte header + reused V1 member bytes
+joint V1 -&gt; 256-byte header + encoded old stable + encoded target V2
+</code></pre>
+<p>All numeric fields use little-endian order. UUIDs are written as most-significant
+long followed by least-significant long, each little-endian, not RFC network-order
+UUID bytes. SHA-256 and masked CRC32C provide unkeyed integrity, not authenticity.
+No codec verifies real log ancestry, proposer authorization, certificate identity,
+membership durability or consensus commitment. Arrays returned by encoders are new;
+decoders wrap caller input without taking an initial immutable snapshot. Callers
+must not mutate input concurrently with validation/parsing.</p>
+<p>Stable and joint encoders accept an all-zero supplied configuration hash as a
+request to compute the hash; nonzero supplied hashes must match. Encoding does not
+update the original object. Decode the result to obtain a value with populated
+hash before embedding it in a joint configuration. Joint header embedded-hash
+fields come from the original old/target objects, not the newly encoded arrays.
+Zero nested hashes can therefore encode successfully but fail joint decoding.</p>
+<h2 id="identity-byte-layouts">Identity Byte Layouts</h2>
+<p>Offsets below are zero-based, end-exclusive ranges. Both identities are 256 bytes.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Range</th>
+<th>Cluster identity</th>
+<th>Node identity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0..8</td>
+<td>ASCII AETHCLI1</td>
+<td>ASCII AETHNDI1</td>
+</tr>
+<tr>
+<td>8..10 / 10..12 / 12..16</td>
+<td>version=1 / size=256 / zero flags</td>
+<td>Same common header</td>
+</tr>
+<tr>
+<td>16..32</td>
+<td>Cluster UUID</td>
+<td>Cluster UUID</td>
+</tr>
+<tr>
+<td>32..48</td>
+<td>Created i64 at 32, constant i64=1 at 40</td>
+<td>Node UUID</td>
+</tr>
+<tr>
+<td>48..56</td>
+<td>Second constant i64=1</td>
+<td>Created i64</td>
+</tr>
+<tr>
+<td>56..72</td>
+<td>Bootstrap configuration UUID</td>
+<td>Role u8 at 56; zero 57..64; generation i64 at 64</td>
+</tr>
+<tr>
+<td>72..104</td>
+<td>Bootstrap configuration hash</td>
+<td>Computed node hash</td>
+</tr>
+<tr>
+<td>104..136</td>
+<td>Compatibility fingerprint</td>
+<td>Zero reserved bytes</td>
+</tr>
+<tr>
+<td>136..252</td>
+<td>Zero reserved bytes</td>
+<td>Zero reserved bytes</td>
+</tr>
+<tr>
+<td>252..256</td>
+<td>Masked CRC32C over 0..252</td>
+<td>Same CRC coverage</td>
+</tr>
+</tbody>
+</table>
+<p>Node SHA-256 is over exactly 49 bytes: cluster UUID, node UUID, role byte,
+created i64, generation i64 in that order. The physical node record puts creation
+before role; nodeHash deliberately uses a separate semantic field order. There
+is no domain prefix or keyed authentication. Cluster bootstrap hash/fingerprint
+are supplied values checked for length by the record, not recomputed here.</p>
+<h2 id="identity-functions">Identity Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-codec/src/main/java/io/aetherdb/cluster/codec/IdentityCodecV1.java">IdentityCodecV1.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IdentityCodecV1.IdentityCodecV1()</code></td>
+<td>Private empty utility constructor.</td>
+</tr>
+<tr>
+<td><code>IdentityCodecV1.encodeCluster(v)</code></td>
+<td>Allocates common cluster header, writes UUID/timestamp, two constants=1, bootstrap UUID/hash/fingerprint, then CRC. Unwritten reserved bytes stay zero. Null value raises NullPointerException. No bootstrap verification or file write.</td>
+</tr>
+<tr>
+<td><code>IdentityCodecV1.decodeCluster(in)</code></td>
+<td>Validates exact size/header/CRC, reads fields, requires both constants=1 and zero 136..252; constructs ClusterIdentity for identifier/timestamp/hash-length checks and defensive ownership.</td>
+</tr>
+<tr>
+<td><code>IdentityCodecV1.encodeNode(v)</code></td>
+<td>Writes common node header, UUIDs, timestamp, role byte, generation at 64, computed nodeHash at 72, then CRC. Zero-initialized array supplies padding.</td>
+</tr>
+<tr>
+<td><code>IdentityCodecV1.decodeNode(in)</code></td>
+<td>Validates header/CRC, resolves unsigned role through MemberRole.fromCode, requires zero 57..64 and 104..252, constructs NodeIdentity, then compares stored/computed hash with MessageDigest.isEqual. Generation must be exactly 1 through constructor.</td>
+</tr>
+<tr>
+<td><code>IdentityCodecV1.base(magic)</code></td>
+<td>Allocates zero-filled 256 bytes and writes ASCII magic, version short=1, size short=256, flags int=0. Internal fixed literals supply expected eight-byte magic; helper itself does not validate arbitrary magic length.</td>
+</tr>
+<tr>
+<td><code>IdentityCodecV1.validate(in, magic)</code></td>
+<td>Rejects null/wrong size/CRC first, then exact magic/version/size/flags. Returns buffer wrapping caller bytes. Does not check payload or all reserved ranges.</td>
+</tr>
+<tr>
+<td><code>IdentityCodecV1.nodeHash(v)</code></td>
+<td>Builds exact 49-byte little-endian semantic identity buffer and SHA-256 digest. Missing SHA provider becomes IllegalStateException. Does not verify a certificate or ClusterMember.identityHash.</td>
+</tr>
+<tr>
+<td><code>IdentityCodecV1.finish(out)</code></td>
+<td>Writes masked CRC32C of first 252 bytes at 252.</td>
+</tr>
+<tr>
+<td><code>IdentityCodecV1.le(b)</code></td>
+<td>Package helper wraps array with little-endian ByteBuffer; no copy or validation.</td>
+</tr>
+<tr>
+<td><code>IdentityCodecV1.putUuid(b, u)</code></td>
+<td>Writes UUID MSB then LSB longs using buffer order.</td>
+</tr>
+<tr>
+<td><code>IdentityCodecV1.getUuid(b)</code></td>
+<td>Reads two longs into UUID; no zero-UUID check.</td>
+</tr>
+<tr>
+<td><code>IdentityCodecV1.get(b, n)</code></td>
+<td>Allocates n bytes and reads them, advancing position. Negative size/short input use normal allocation/buffer exceptions.</td>
+</tr>
+<tr>
+<td><code>IdentityCodecV1.zero(b, from, to)</code></td>
+<td>Requires each byte in end-exclusive range to equal zero; does not validate range bounds separately.</td>
+</tr>
+<tr>
+<td><code>IdentityCodecV1.invalid()</code></td>
+<td>Creates IllegalArgumentException with identity-encoding message; callers throw it.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="stable-header-layouts">Stable Header Layouts</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Field</th>
+<th>V1 offset/size</th>
+<th>V2 offset/size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Magic, version, header size</td>
+<td>0/4 AECF, 4/2=1, 6/2=160</td>
+<td>0/4 AEC2, 4/2=2, 6/2=192</td>
+</tr>
+<tr>
+<td>Kind, auxiliary byte, reserved short</td>
+<td>8/1=1, 9/1=0, 10/2=0</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>Total byte length</td>
+<td>12/4</td>
+<td>12/4</td>
+</tr>
+<tr>
+<td>Cluster UUID, state version, configuration UUID</td>
+<td>16/16, 32/8, 40/16</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>Previous hash</td>
+<td>56/32</td>
+<td>56/32</td>
+</tr>
+<tr>
+<td>Completed transition UUID</td>
+<td>Absent</td>
+<td>88/16</td>
+</tr>
+<tr>
+<td>Voters, staged, total members, member bytes</td>
+<td>88/4, 92/4, 96/4, 100/4</td>
+<td>104/4, 108/4, 112/4, 116/4</td>
+</tr>
+<tr>
+<td>Creation timestamp</td>
+<td>104/8</td>
+<td>120/8</td>
+</tr>
+<tr>
+<td>Changed members, reserved int</td>
+<td>Absent</td>
+<td>128/4, 132/4=0</td>
+</tr>
+<tr>
+<td>Configuration SHA-256</td>
+<td>112/32</td>
+<td>136/32</td>
+</tr>
+<tr>
+<td>Zero reserved bytes</td>
+<td>144..156</td>
+<td>168..188</td>
+</tr>
+<tr>
+<td>Header masked CRC32C</td>
+<td>156/4 over 0..156</td>
+<td>188/4 over 0..188</td>
+</tr>
+<tr>
+<td>Member body begins</td>
+<td>160</td>
+<td>192</td>
+</tr>
+</tbody>
+</table>
+<p>Configuration SHA covers the entire record with its hash and CRC fields replaced
+by zero. Header CRC excludes the member body; SHA includes it. Neither validates
+previousHash against a predecessor. Decoders require memberBytes=actual body size,
+count=voters+staged, actual voter count matching header, and no trailing member
+bytes. API constructors enforce 1..31 voters, at most 64 staged, unique members
+and full endpoint values. Those caps are checked after parsing, not before loops.</p>
+<h2 id="member-and-endpoint-layouts">Member and Endpoint Layouts</h2>
+<p>Member header is 96 bytes: node UUID 0/16; role 16/1; member flags 17/1;
+endpoint count 18/2; record length 20/4; generation 24/8; added index 32/8;
+added term 40/8; UTF-8 name length 48/8; identity hash 56/32; reserved zero
+88/8. Name bytes follow, then zero padding to eight-byte alignment, then endpoint
+records. Length includes header/name/padding/all endpoints.</p>
+<p>Endpoint header is 24 bytes: scheme 0/1, address type 1/1, flags 2/2, port
+4/2, priority 6/2, address length 8/4, record length 12/4, reserved zero 16/8.
+Address bytes follow; zero padding rounds the total to eight-byte alignment.
+Role/scheme/type and endpoint short fields decode unsigned. Member flags narrow
+to one byte on encode even though the API accepts any int; round-trip may change
+flags. Scheme/type decoding uses enum position code-1, depending on current enum
+ordering rather than searching their explicit code fields.</p>
+<h2 id="stable-v1-functions">Stable V1 Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-codec/src/main/java/io/aetherdb/cluster/codec/StableConfigurationCodecV1.java">StableConfigurationCodecV1.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>StableConfigurationCodecV1.StableConfigurationCodecV1()</code></td>
+<td>Private empty utility constructor.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV1.encode(value)</code></td>
+<td>Sums member lengths, addExact for header+body allocation, writes header/member records, computes hash, accepts zero supplied hash or matching digest, fills hash/header CRC. Accepts StableConfiguration interface; trusts member ordering, counts and accessor consistency of custom implementations. Aggregate stream sum itself is ordinary int arithmetic.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV1.decode(in)</code></td>
+<td>Validates minimum size, header constants/total length, reserved bytes, header CRC and full-record SHA. Parses count members, rejects trailing bytes and voter mismatch, then constructs V1 for value constraints. Does not pre-cap count before iteration or explicitly reject noncanonical member/endpoint ordering.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV1.putMember(b, m)</code></td>
+<td>Writes fixed member header, narrowed flags, UTF-8 name, zero alignment padding and endpoints; requires bytes written equal calculated memberLength, otherwise IllegalStateException.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV1.getMember(b)</code></td>
+<td>Reads fixed fields, requires reserved long=0, name length 0..128, member length at least 96 and within remaining-buffer bound; reads name, validates padding, parses endpoint count, checks exact consumed length and constructs ClusterMember. UTF-8 conversion replaces malformed sequences rather than using a strict decoder. Endpoints are not parsed in a member-limited buffer; length equality is checked afterward.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV1.putEndpoint(b, e)</code></td>
+<td>Writes fixed fields, aligned length, reserved zero, address and padding. Repeated address() calls obtain clones.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV1.getEndpoint(b)</code></td>
+<td>Reads unsigned codes/shorts, requires reserved zero, positive address length, aligned record-length equality and buffer bound; allocates address, verifies zero padding, resolves enums and constructs endpoint. Constructor checks representation length/flags/port, not binary DNS grammar or wildcard address.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV1.enumAt(values, code)</code></td>
+<td>Requires code 1..values.length, returns values[code-1]; unknown codes use invalid().</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV1.memberLength(m)</code></td>
+<td>Aligns 96+UTF-8-name length, adds aligned 24+address length for each endpoint using Math.addExact.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV1.aligned(n)</code></td>
+<td>Returns (n+7)&amp;~7; unchecked addition, no negative/overflow guard.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV1.pad8(b)</code></td>
+<td>Writes zero until absolute buffer position is divisible by eight.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV1.skipZeroPad(b)</code></td>
+<td>Reads until absolute position is eight-aligned; nonzero byte raises invalid().</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV1.hash(in, h1, h2, c1, c2)</code></td>
+<td>Clones complete record, zeroes hash/CRC ranges, returns SHA-256. Invalid ranges use normal array exceptions; missing SHA provider becomes IllegalStateException.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV1.allZero(v)</code></td>
+<td>True if every byte is zero, including an empty array; internal valid values supply 32-byte hashes. Null fails naturally.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV1.le(in)</code></td>
+<td>Wraps caller array little-endian, without copy.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV1.invalid()</code></td>
+<td>Creates stable-V1 IllegalArgumentException. Not every malformed-buffer exception is converted to this type.</td>
+</tr>
+</tbody>
+</table>
+<p>API constructors sort decoded members/endpoints but stored hash still reflects
+original wire bytes. A recomputed-integrity unsorted input can consequently yield
+a normalized object whose re-encoding fails supplied-hash comparison. Malformed
+UTF-8 replacement can also alter bytes; resulting name may pass or fail the API
+128-byte UTF-8 cap. Do not infer canonical-wire acceptance merely from method names.
+Truncated fixed headers can raise BufferUnderflowException. Length additions,
+alignment and count arithmetic are not uniformly overflow-checked; this is not a
+uniform bounded-allocation parser for arbitrary hostile input.</p>
+<h2 id="stable-v2-functions">Stable V2 Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-codec/src/main/java/io/aetherdb/cluster/codec/StableConfigurationCodecV2.java">StableConfigurationCodecV2.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>StableConfigurationCodecV2.StableConfigurationCodecV2()</code></td>
+<td>Private empty utility constructor.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV2.encode(v)</code></td>
+<td>Builds V1 value with zero hash and encodes it to obtain member bytes; allocates V2, writes transition/count/change header, copies member body, computes V2 SHA and checks supplied hash, then fills SHA/header CRC. Intermediate V1 encoding is extra allocation/hashing, not durable publication.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV2.decode(in)</code></td>
+<td>Validates V2 header, reserved fields, body size/count relation, SHA/CRC; builds synthetic V1 record with copied member bytes and newly calculated V1 SHA/CRC, decodes via V1, then constructs V2 with original V2 digest. Constructor checks changed count 0..16 and nonnull transition, but does not compare a real transition.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV2.hash(b, ranges)</code></td>
+<td>Package alias forwarding to sha with zeroed ranges.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV2.sha(b, ranges)</code></td>
+<td>Clones bytes, zeroes each start/end pair, hashes complete clone. Odd range count or invalid endpoints fail through ordinary array/index checks; no separate range validation. Missing SHA provider becomes IllegalStateException.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV2.le(b)</code></td>
+<td>Wraps array little-endian.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV2.putUuid(b, u)</code></td>
+<td>Writes UUID MSB then LSB longs.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV2.getUuid(b)</code></td>
+<td>Reads two longs into UUID.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV2.get(b, n)</code></td>
+<td>Allocates/copies n bytes and advances buffer.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV2.zero(b, s, e)</code></td>
+<td>Requires end-exclusive reserved range zero; no separate bounds validation.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV2.allZero(b)</code></td>
+<td>Scans supplied hash for all-zero sentinel; empty is also true, null fails naturally.</td>
+</tr>
+<tr>
+<td><code>StableConfigurationCodecV2.invalid()</code></td>
+<td>Creates stable-V2 IllegalArgumentException.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="joint-header-layout">Joint Header Layout</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Field</th>
+<th>Offset/size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Magic/version/header size</td>
+<td>0/4 AECJ, 4/2=1, 6/2=256</td>
+</tr>
+<tr>
+<td>Kind/auxiliary/reserved/total length</td>
+<td>8/1=2, 9/1=1, 10/2=0, 12/4</td>
+</tr>
+<tr>
+<td>Cluster UUID/joint state version/transition UUID</td>
+<td>16/16, 32/8, 40/16</td>
+</tr>
+<tr>
+<td>Old/target versions, old/target byte lengths</td>
+<td>56/8, 64/8, 72/4, 76/4</td>
+</tr>
+<tr>
+<td>Old/target configuration hashes</td>
+<td>80/32, 112/32</td>
+</tr>
+<tr>
+<td>Old/target voter counts, intersection count, changed count</td>
+<td>144/4, 148/4, 152/4, 156/4</td>
+</tr>
+<tr>
+<td>Proposer UUID/creation timestamp</td>
+<td>160/16, 176/8</td>
+</tr>
+<tr>
+<td>Joint SHA/reserved/CRC</td>
+<td>184/32, zero 216..252, 252/4</td>
+</tr>
+<tr>
+<td>Body</td>
+<td>Old stable bytes at 256, target V2 immediately after</td>
+</tr>
+</tbody>
+</table>
+<p>Joint SHA covers whole record with 184..216 and 252..256 zeroed. CRC covers
+only 0..252. Nested records retain their own integrity fields; whole joint SHA
+also covers those bytes. Header lengths must sum to actual input length, but the
+int additions and old/target version increments are unchecked.</p>
+<h2 id="joint-functions">Joint Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-codec/src/main/java/io/aetherdb/cluster/codec/JointConfigurationCodecV1.java">JointConfigurationCodecV1.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JointConfigurationCodecV1.JointConfigurationCodecV1()</code></td>
+<td>Private empty utility constructor.</td>
+</tr>
+<tr>
+<td><code>JointConfigurationCodecV1.encode(v)</code></td>
+<td>Encodes old stable and target V2; writes header from object accessors, voter/intersection/changed counts, proposer/time; copies embedded records, computes joint SHA, checks zero-or-matching supplied hash and fills SHA/CRC. Does not replace original embedded hashes with encoded-record hashes. Allocation length addition is unchecked.</td>
+</tr>
+<tr>
+<td><code>JointConfigurationCodecV1.decode(in)</code></td>
+<td>Validates header/reserved/lengths, version N/N+1/N+2 relation, header changed count 1..16, SHA/CRC; slices and decodes nested records; checks cluster IDs, versions, voter/intersection counts and embedded hashes against header, then constructs joint value. Does not compare header changed count to target.changedMemberCount, bind target completedTransitionId to joint transition, validate proposer membership or verify history.</td>
+</tr>
+<tr>
+<td><code>JointConfigurationCodecV1.encodeStable(s)</code></td>
+<td>Uses V2 codec for actual StableConfigurationV2 instance; otherwise V1 interface codec.</td>
+</tr>
+<tr>
+<td><code>JointConfigurationCodecV1.decodeStable(b)</code></td>
+<td>If length&gt;5 and byte 4 equals 2, chooses V2; otherwise V1. Dispatch uses low version byte, not full header validation; selected decoder validates magic/version.</td>
+</tr>
+<tr>
+<td><code>JointConfigurationCodecV1.le(b)</code></td>
+<td>Wraps caller bytes little-endian.</td>
+</tr>
+<tr>
+<td><code>JointConfigurationCodecV1.put(b, u)</code></td>
+<td>Writes UUID MSB then LSB longs.</td>
+</tr>
+<tr>
+<td><code>JointConfigurationCodecV1.get(b)</code></td>
+<td>Reads UUID from two longs.</td>
+</tr>
+<tr>
+<td><code>JointConfigurationCodecV1.bytes(b, n)</code></td>
+<td>Allocates and reads n bytes.</td>
+</tr>
+<tr>
+<td><code>JointConfigurationCodecV1.invalid()</code></td>
+<td>Creates joint-V1 IllegalArgumentException; malformed slicing/buffer failures are not uniformly converted.</td>
+</tr>
+</tbody>
+</table>
+<p>Encoding accepts target changed count=0 through the API, while joint decoding
+requires header count&gt;=1. A recomputed-integrity header count can differ from the
+target's count and still pass because each is checked independently, not compared.
+Nested previous hashes are not checked for chain continuity. Passing decoding
+proves the implemented consistency checks, not an authorized committed transition.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-codec/src/test/java/io/aetherdb/cluster/codec/ClusterCodecTest.java">ClusterCodecTest.java</a>
+has two tests: identity size/round-trip and one unrecomputed-CRC corruption;
+stable V1/V2/joint round-trip with populated nested hashes and header-size checks.
+It does not exhaust fields/padding, malformed lengths/counts/UTF-8, supplied-hash
+sentinels, ordering canonicality, flag narrowing or transition metadata mismatches.</p>
+<pre><code class="language-powershell">.\gradlew.bat --no-daemon :modules:aether-cluster-codec:test --rerun
+.venv\Scripts\python.exe -m pytest scripts/tests/test_contributor_docs.py -q
+</code></pre>
+<p>Compiler inventory checks guard declaration omissions; they do not prove semantic
+accuracy or runtime safety. Format publication, authorization and quorum rules
+must be reviewed in their separate owning modules before service integration.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#encoding-architecture">Encoding Architecture</a><a href="#identity-byte-layouts">Identity Byte Layouts</a><a href="#identity-functions">Identity Functions</a><a href="#stable-header-layouts">Stable Header Layouts</a><a href="#member-and-endpoint-layouts">Member and Endpoint Layouts</a><a href="#stable-v1-functions">Stable V1 Functions</a><a href="#stable-v2-functions">Stable V2 Functions</a><a href="#joint-header-layout">Joint Header Layout</a><a href="#joint-functions">Joint Functions</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

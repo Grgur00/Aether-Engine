@@ -1,0 +1,324 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/ARCHITECTURE.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Architecture: source-backed contributor documentation for Aether Engine.">
+  <title>Architecture | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html" aria-current="page">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/ARCHITECTURE.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="architecture-and-repository-map">Architecture and Repository Map</h1>
+<p><a href="index.html">Onboarding index</a> | <a href="storage.html">Storage internals</a> | <a href="glossary.html">Glossary</a></p>
+<h2 id="three-different-entry-paths">Three Different Entry Paths</h2>
+<p>Aether is not a single distributed service with every module enabled. The current
+checkout contains a local embedded engine, an application-specific training cache,
+and independent distributed-system foundations.</p>
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
+    App[Java application] --&gt; Typed[Typed embedded adapter]
+    Typed --&gt; Byte[Byte database API]
+    App --&gt; Byte
+    Python[Python ML integration] --&gt; Cache[Local training-cache daemon]
+    Cache --&gt; Byte
+    Bulk[Experimental offline bulk writer] --&gt; Tables[SSTable and manifest components]
+    Byte --&gt; Engine[Persistent or in-memory engine]
+    Engine --&gt; WAL[WAL and commit coordinator]
+    Engine --&gt; Mem[Native memtable]
+    Engine --&gt; Tables
+    Tables --&gt; Files[Validated database files]
+    WAL --&gt; Files
+    Remote[Remote Java client] -. separate development path .-&gt; RPC[Framed development RPC]
+    RPC -. handler integration is separate .-&gt; Foundations[Replication and Raft foundations]
+</code></pre></details></figure>
+<p>Arrows describe calls and conceptual data flow, not every Gradle dependency. A
+dashed path is not a claim that the repository provides an integrated production
+Raft cluster. The training-cache wire protocol is also <strong>not</strong> the general Java
+client/RPC protocol.</p>
+<h2 id="module-inventory">Module Inventory</h2>
+<p>For an individual-module lookup with concrete class search targets and dependency
+boundaries, use the <a href="modules.html">module guide</a>. For a first source-reading
+session, follow the <a href="code-tour.html">guided code tour</a> rather than opening every module.</p>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/settings.gradle.kts">settings.gradle.kts</a> is the authoritative project list;
+each module's <code>build.gradle.kts</code> defines its actual dependency boundary. In the
+table, every name has the <code>aether-</code> prefix.</p>
+<table>
+<thead>
+<tr>
+<th>Modules</th>
+<th>Responsibility and where to begin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aether-api</code></td>
+<td>Byte database contract, batches, cursors, snapshots, outcomes, typed interfaces</td>
+</tr>
+<tr>
+<td><code>aether-engine</code></td>
+<td>Entry points, persistent/in-memory implementations, commit coordination, lifecycle and metrics</td>
+</tr>
+<tr>
+<td><code>aether-memory</code>, <code>aether-memtable</code></td>
+<td>Native memory ownership/allocation and ordered mutable records</td>
+</tr>
+<tr>
+<td><code>aether-format</code>, <code>aether-io</code></td>
+<td>Shared binary-format helpers, identities, validated paths, locks, backup/restore primitives</td>
+</tr>
+<tr>
+<td><code>aether-wal</code></td>
+<td>Durable log format, fragments/groups, append/recovery primitives</td>
+</tr>
+<tr>
+<td><code>aether-sstable</code></td>
+<td>Immutable table encoding/readers, checksums, Bloom/index data, manifest versions</td>
+</tr>
+<tr>
+<td><code>aether-lsm</code>, <code>aether-cache</code></td>
+<td>LSM policies/utilities and cache building blocks; presence does not imply every policy is used by the engine</td>
+</tr>
+<tr>
+<td><code>aether-codec-annotations</code>, <code>aether-codec-processor</code></td>
+<td>Record schema annotations and compile-time generation</td>
+</tr>
+<tr>
+<td><code>aether-codec</code>, <code>aether-embedded-typed</code></td>
+<td>Typed envelopes/codecs, durable collection metadata, typed adapter</td>
+</tr>
+<tr>
+<td><code>aether-training-cache</code></td>
+<td>Immutable ML artifacts, loopback daemon, integrity policy, inline/segment storage and experimental bulk import</td>
+</tr>
+<tr>
+<td><code>aether-admission</code>, <code>aether-config</code></td>
+<td>Resource admission, typed setting registry, validation, configuration composition/reload models</td>
+</tr>
+<tr>
+<td><code>aether-observability-api</code>, <code>aether-reliability</code></td>
+<td>Diagnostic contracts and explicit fault/crash hooks</td>
+</tr>
+<tr>
+<td><code>aether-security-api</code>, <code>aether-security-core</code>, <code>aether-crypto</code></td>
+<td>Security contracts, audit/identity helpers and crypto primitives; not automatic end-to-end runtime security</td>
+</tr>
+<tr>
+<td><code>aether-rpc-api</code>, <code>aether-rpc-codec</code>, <code>aether-rpc-transport</code></td>
+<td>Calls/status/handler contracts, binary framing, bounded development socket transport</td>
+</tr>
+<tr>
+<td><code>aether-client-api</code>, <code>aether-client-codec</code>, <code>aether-client</code></td>
+<td>Remote get/write/scan contracts, serializers, pools, retry policy and typed client facade</td>
+</tr>
+<tr>
+<td><code>aether-replication-api</code>, <code>aether-replicated-log</code>, <code>aether-state-machine</code></td>
+<td>Replicated command contracts/encoding and applied-state foundations</td>
+</tr>
+<tr>
+<td><code>aether-raft-api</code>, <code>aether-raft-core</code>, <code>aether-raft-storage</code></td>
+<td>Raft records, quorum/progress/commit helpers and persisted-state codecs</td>
+</tr>
+<tr>
+<td><code>aether-cluster-api</code>, <code>aether-cluster-codec</code>, <code>aether-cluster-core</code></td>
+<td>Cluster identity/membership encodings and dual-majority logic</td>
+</tr>
+<tr>
+<td><code>aether-tools</code>, <code>aether-workbench</code></td>
+<td>Offline CLI and Swing database viewer/editor</td>
+</tr>
+<tr>
+<td><code>aether-testkit</code>, <code>aether-concurrency-tests</code></td>
+<td>Fixtures/testing boundaries; inspect tasks/source sets rather than assuming a runner</td>
+</tr>
+<tr>
+<td><code>aether-rpc-testkit</code>, <code>aether-client-testkit</code>, <code>aether-replication-testkit</code>, <code>aether-raft-testkit</code></td>
+<td>Domain fixtures and protocol/consensus test support</td>
+</tr>
+<tr>
+<td><code>aether-benchmarks</code></td>
+<td>Java benchmark sources and executable workloads; see actual registered tasks</td>
+</tr>
+<tr>
+<td><code>aether-release</code></td>
+<td>Release-evidence models, evaluation and certification-report machinery</td>
+</tr>
+<tr>
+<td><code>aether-bom</code>, <code>aether-gradle-plugin</code></td>
+<td>Consumer dependency alignment and application/schema build integration</td>
+</tr>
+</tbody>
+</table>
+<p>Do not use a testkit as a production dependency. Do not infer production readiness
+from a module compiling or from a schema/configuration field existing.</p>
+<h2 id="non-java-areas">Non-Java Areas</h2>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>What belongs here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/build-logic">build-logic</a></td>
+<td>Shared Gradle conventions, Java 21 preview, tests and packaging behavior</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/examples">examples</a></td>
+<td>Social typed application and persistent desktop notes; runnable teaching fixtures</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python">clients/python</a></td>
+<td>Installed client packages, adapters and workload definitions</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts">scripts</a></td>
+<td>Reproduction, campaign orchestration, analysis, remote preparation and tests</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/configs">configs</a></td>
+<td>Workload/protocol configuration and frozen dataset manifests</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/env">env</a></td>
+<td>Reproduction dependency locks and runtime requirements</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle">kaggle</a></td>
+<td>Notebook orchestration and experiment-specific protocols</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/paper">paper</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/results">results</a></td>
+<td>Research narrative/evidence and local results; not engine APIs</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/benchmarks">benchmarks</a></td>
+<td>Benchmark instructions/artifacts distinct from unit tests</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs">Docs</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/website">website</a></td>
+<td>Specifications/onboarding and static site/docs assets</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/docker">docker</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/.github/workflows">.github/workflows</a></td>
+<td>Packaging/deployment assets and automation; inspect coverage before relying on them</td>
+</tr>
+</tbody>
+</table>
+<h2 id="actual-runtime-boundaries">Actual Runtime Boundaries</h2>
+<h3 id="embedded-engine">Embedded engine</h3>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/Aether.java">Aether</a>
+chooses in-memory or local persistent implementations. The persistent engine owns
+the database lock, WAL, native memtable, current immutable table inventory and
+background compaction lifecycle. Reads and snapshots are local; no Raft quorum
+is involved in an ordinary <code>Aether.open(path)</code> call.</p>
+<h3 id="typed-application-layer">Typed application layer</h3>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-embedded-typed/src/main/java/io/aetherdb/embedded/typed/AetherEmbedded.java">AetherEmbedded</a>
+wraps a byte database and transfers close ownership to the typed adapter. Collection
+identity, key ordering, schema fingerprints and value envelopes are implemented
+above the byte engine. The social sample's joins and relationship checks are
+ordinary Java code, not native relational indexes or serializable transactions.</p>
+<h3 id="training-cache">Training cache</h3>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheDaemon.java">TrainingCacheDaemon</a>
+is a separate local service. Python clients identify derived artifacts and retrieve
+them in batches; preprocessing and model code remain Python-side. The offline
+bulk writer instead owns an empty database directly and does not route population
+through the online daemon. See <a href="python.html">integration details</a>.</p>
+<h3 id="remotedistributed-foundations">Remote/distributed foundations</h3>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-rpc-transport/src/main/java/io/aetherdb/rpc/transport/PlaintextDevelopmentRpc.java">PlaintextDevelopmentRpc</a>
+really does implement a development socket transport with framing, identity
+handshake, multiplexing, limits, cancellation and deadlines. It explicitly lacks
+confidentiality and certificate authentication. <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/src/main/java/io/aetherdb/client/RemoteAetherClient.java">RemoteAetherClient</a>
+uses a supplied pool/resolver and conservative retry policy for remote operations.</p>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-core/src/main/java/io/aetherdb/raft/core/RaftCommitTracker.java">RaftCommitTracker</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-storage/src/main/java/io/aetherdb/raft/storage/RaftPersistentState.java">RaftPersistentState</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-cluster-core/src/main/java/io/aetherdb/cluster/core/DualMajority.java">DualMajority</a>
+are useful foundations, not evidence of complete election, membership-change,
+deployment and recovery orchestration. Do not deploy the training-cache daemon
+as though it were a secured, replicated cluster server.</p>
+<h2 id="choose-the-smallest-correct-ownership-boundary">Choose the Smallest Correct Ownership Boundary</h2>
+<table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Start here</th>
+<th>Review companions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Public write result or snapshot lifetime</td>
+<td><code>aether-api</code>, typed interfaces</td>
+<td>Engine/typed adapter tests and callers</td>
+</tr>
+<tr>
+<td>Durable file bytes</td>
+<td>Specific WAL/SSTable/manifest/format codec</td>
+<td>Recovery, corruption, compatibility and crash tests</td>
+</tr>
+<tr>
+<td>Commit ordering or compaction</td>
+<td><code>PersistentAetherDatabase</code>, commit coordinator</td>
+<td>Concurrency, replay, snapshots, admission and drain behavior</td>
+</tr>
+<tr>
+<td>Record schema</td>
+<td>Record source + processor + committed locks</td>
+<td>Evolution/older-writer tests; generated codec output</td>
+</tr>
+<tr>
+<td>Cache miss or artifact identity</td>
+<td>Python identity/adapter and Java cache key/envelope</td>
+<td>Content/version invalidation and restart correctness</td>
+</tr>
+<tr>
+<td>General RPC framing or retries</td>
+<td>RPC/client codec and transport</td>
+<td>Limits, cancellation, deduplication and ambiguous outcomes</td>
+</tr>
+<tr>
+<td>Experiment endpoint</td>
+<td>Campaign/analysis/configuration scripts</td>
+<td>Provenance, pairing, accounting and fresh data policy</td>
+</tr>
+</tbody>
+</table>
+<p>Changing a benchmark is not a substitute for fixing an engine contract. Conversely,
+do not modify engine storage behavior to fix a notebook path or environment problem.</p>
+<h2 id="source-reading-pattern">Source Reading Pattern</h2>
+<p>For each subsystem, read its public entry point, the owner of mutable state, the
+format/identity boundary, a normal-path test, and a failure-path test. Follow a
+complete call chain before optimizing one method. The most important questions
+are: who owns this resource, when is success durable, what happens on failure,
+and which persisted bytes must remain readable after the next release?</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#three-different-entry-paths">Three Different Entry Paths</a><a href="#module-inventory">Module Inventory</a><a href="#non-java-areas">Non-Java Areas</a><a href="#actual-runtime-boundaries">Actual Runtime Boundaries</a><a href="#choose-the-smallest-correct-ownership-boundary">Choose the Smallest Correct Ownership Boundary</a><a href="#source-reading-pattern">Source Reading Pattern</a></nav></aside>
+  </div>
+</body>
+</html>

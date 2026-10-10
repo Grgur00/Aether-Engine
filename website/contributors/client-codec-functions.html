@@ -1,0 +1,556 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/CLIENT-CODEC-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Client message codecs: source-backed contributor documentation for Aether Engine.">
+  <title>Client message codecs | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html" aria-current="page">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/CLIENT-CODEC-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="client-message-codec-functions">Client Message Codec Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="client-protocol-functions.html">Protocol contracts</a> | <a href="remote-facade-functions.html">Remote facade</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-codec/src/main/java/io/aetherdb/client/codec">aether-client-codec</a>.
+This reference covers <strong>27 explicit declarations across all four codec files</strong>,
+including private constructors and validation/error helpers.</p>
+<h2 id="serialization-architecture">Serialization Architecture</h2>
+<pre><code class="language-text">validated client record -&gt; new big-endian byte array -&gt; RPC operation payload
+received complete payload -&gt; header validation -&gt; bounded field parsing
+  -&gt; client record constructor -&gt; application outcome mapping
+</code></pre>
+<p>These codecs operate on complete byte arrays, not a stream or incremental parser.
+They do not create the outer RPC frame, authenticate senders, register handlers,
+implement command deduplication, or guarantee transport integrity. Returned arrays
+are newly allocated. Record byte accessors clone; repeated accessor calls during
+encoding create additional copies. Decoding usually copies payload slices and
+then copies again through record constructors. No codec offers a borrowed view.</p>
+<p>Integers, UUID halves and checksums are big-endian. Status is encoded with
+ClientStatus.ordinal(); changing enum order changes the wire meaning. A version
+field of 1 is checked, but there is no negotiation or fallback here. Detail/host
+text uses UTF-8. new String(bytes, UTF_8) replaces malformed sequences rather
+than using a strict decoding error action; accepted text need not preserve the
+original bytes on re-encoding.</p>
+<h2 id="integrity-boundaries">Integrity Boundaries</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Message</th>
+<th>Header</th>
+<th>Integrity implemented by this codec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Get request/response</td>
+<td>64 bytes</td>
+<td>Masked CRC32C over bytes 0..59, stored at 60; payload is not covered</td>
+</tr>
+<tr>
+<td>Scan request/response</td>
+<td>64 bytes</td>
+<td>Same header-only CRC policy</td>
+</tr>
+<tr>
+<td>Write request</td>
+<td>128 bytes</td>
+<td>SHA-256 of the complete mutation region plus masked CRC32C over bytes 0..123, stored at 124</td>
+</tr>
+<tr>
+<td>Write response</td>
+<td>128 bytes</td>
+<td>Header-only CRC over bytes 0..123</td>
+</tr>
+</tbody>
+</table>
+<p>The checksum range includes otherwise uninterpreted padding, but a decoder does
+not necessarily require that padding to be zero after a recomputed checksum.
+Checksums and an unkeyed digest are not authentication. Outer RPC integrity is a
+separate layer; these tables describe only the client message codec.</p>
+<h2 id="point-read-functions">Point-Read Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-codec/src/main/java/io/aetherdb/client/codec/ClientGetCodecV1.java">ClientGetCodecV1.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ClientGetCodecV1.ClientGetCodecV1()</code></td>
+<td>Private empty constructor; static codec cannot normally be instantiated.</td>
+</tr>
+<tr>
+<td><code>ClientGetCodecV1.encodeRequest(request)</code></td>
+<td>Allocates 64 + key length bytes. Writes request magic, version, header size, configuration version and key length; leaves reserved/padding bytes zero, appends key, then stamps header CRC. Null request raises NullPointerException.</td>
+</tr>
+<tr>
+<td><code>ClientGetCodecV1.decodeRequest(in)</code></td>
+<td>Checks envelope CRC before magic/version/header size, four zero reserved longs, key length 1..65,536 and exact total length. Copies the key into ClientGetRequest; its constructor rejects a negative configuration version. Structural errors use invalidRequest; constructor errors retain their own message.</td>
+</tr>
+<tr>
+<td><code>ClientGetCodecV1.encodeResponse(response)</code></td>
+<td>UTF-8 encodes detail and rejects encoded detail over 4,096 bytes even if the record's character count was legal. Allocates header + value + detail, writes status ordinal and lengths, appends both payloads and stamps CRC. Null response raises NullPointerException.</td>
+</tr>
+<tr>
+<td><code>ClientGetCodecV1.decodeResponse(in)</code></td>
+<td>Validates envelope, response magic/version/header size, ordinal, four reserved longs, value length 0..16 MiB, detail length 0..4,096 and exact total length. Copies slices, replacement-decodes detail, and constructs ClientGetResponse, which rejects non-OK values. No payload checksum is checked here.</td>
+</tr>
+<tr>
+<td><code>ClientGetCodecV1.validEnvelope(in)</code></td>
+<td>Returns false for null, fewer than 64 bytes, or CRC mismatch. Reads CRC at 60; does not check magic, total payload size or reserved values.</td>
+</tr>
+<tr>
+<td><code>ClientGetCodecV1.putChecksum(out)</code></td>
+<td>Mutates the supplied array's four-byte field at 60 using CRC of the first 60 bytes. Assumes a sufficiently large array; used only on encoder-owned output.</td>
+</tr>
+<tr>
+<td><code>ClientGetCodecV1.invalidRequest()</code></td>
+<td>Creates IllegalArgumentException with invalid CLIENT_GET request body. Does not log or attach a cause.</td>
+</tr>
+<tr>
+<td><code>ClientGetCodecV1.invalidResponse()</code></td>
+<td>Creates IllegalArgumentException with invalid CLIENT_GET response body.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="get-wire-layout">Get Wire Layout</h3>
+<p>Offsets are zero-based; length is in bytes. The common first eight bytes contain
+magic (4), version (2), and header size (2). Request magic is 0x41454751;
+response magic is 0x41454752.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Offset</th>
+<th>Request field</th>
+<th>Response field</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8</td>
+<td>configuration version, 8 bytes</td>
+<td>status ordinal, 4 bytes</td>
+</tr>
+<tr>
+<td>12</td>
+<td>part of configuration version</td>
+<td>value length, 4 bytes</td>
+</tr>
+<tr>
+<td>16</td>
+<td>key length, 4 bytes</td>
+<td>detail length, 4 bytes</td>
+</tr>
+<tr>
+<td>20</td>
+<td>four reserved zero longs, 32 bytes</td>
+<td>four reserved zero longs, 32 bytes</td>
+</tr>
+<tr>
+<td>52</td>
+<td>padding, 8 bytes; not required zero by decode</td>
+<td>same</td>
+</tr>
+<tr>
+<td>60</td>
+<td>header CRC, 4 bytes</td>
+<td>same</td>
+</tr>
+<tr>
+<td>64</td>
+<td>key</td>
+<td>value followed by detail</td>
+</tr>
+</tbody>
+</table>
+<p>Encoders zero-initialize padding. Exact length checks reject trailing bytes, but
+a same-length change to the key, value or detail is not detected by header CRC.</p>
+<h2 id="scan-functions">Scan Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-codec/src/main/java/io/aetherdb/client/codec/ClientScanCodecV1.java">ClientScanCodecV1.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ClientScanCodecV1.ClientScanCodecV1()</code></td>
+<td>Private empty constructor.</td>
+</tr>
+<tr>
+<td><code>ClientScanCodecV1.encodeRequest(request)</code></td>
+<td>Sums start/end/token lengths, allocates 64 + region bytes and writes configuration, maxEntries and lengths. Appends start, end, token in that order and stamps header CRC. Record bounds keep this request-size arithmetic small.</td>
+</tr>
+<tr>
+<td><code>ClientScanCodecV1.decodeRequest(in)</code></td>
+<td>Checks envelope, magic/version/header, three reserved longs, positive bounds &lt;=65,536 bytes each, token length 0..4,096 and exact total size. Copies slices; ClientScanRequest then validates configuration/maxEntries. It does not compare the two keys or interpret the token.</td>
+</tr>
+<tr>
+<td><code>ClientScanCodecV1.encodeResponse(response)</code></td>
+<td>UTF-8 encodes detail, accumulates entry sizes with Math.addExact, then appends each length-prefixed key/value, token and detail. Unlike get/write response encoding, it does not reject encoded detail over 4,096 bytes. A valid record containing multibyte detail can produce bytes its own decoder rejects. No aggregate page-size cap is applied; subsequent region/allocation sums use ordinary int arithmetic.</td>
+</tr>
+<tr>
+<td><code>ClientScanCodecV1.decodeResponse(in)</code></td>
+<td>Checks envelope, magic/version/header, reserved fields, status, entry count 0..10,000, token/detail lengths 0..4,096. Each entry needs an eight-byte length pair, key length 1..65,536, value length 0..16 MiB and enough remaining bytes. Allocates entry arrays/records, then requires exactly token + detail bytes remain. Constructs ClientScanResponse, which rejects page data for non-OK status. No aggregate page-size cap or key order check.</td>
+</tr>
+<tr>
+<td><code>ClientScanCodecV1.validEnvelope(in)</code></td>
+<td>Null/minimum-size/header-CRC predicate only; same coverage boundary as get.</td>
+</tr>
+<tr>
+<td><code>ClientScanCodecV1.putChecksum(out)</code></td>
+<td>Writes masked CRC32C at offset 60 over the first 60 bytes of encoder-owned output.</td>
+</tr>
+<tr>
+<td><code>ClientScanCodecV1.invalidRequest()</code></td>
+<td>Creates IllegalArgumentException with invalid CLIENT_SCAN request body.</td>
+</tr>
+<tr>
+<td><code>ClientScanCodecV1.invalidResponse()</code></td>
+<td>Creates IllegalArgumentException with invalid CLIENT_SCAN response body.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="scan-wire-layout">Scan Wire Layout</h3>
+<p>Magic is 0x41455351 for requests and 0x41455352 for responses. The common first
+eight bytes again contain magic, version and header size.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Offset</th>
+<th>Request field</th>
+<th>Response field</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8</td>
+<td>configuration version, 8 bytes</td>
+<td>status ordinal, 4 bytes</td>
+</tr>
+<tr>
+<td>12</td>
+<td>part of configuration version</td>
+<td>entry count, 4 bytes</td>
+</tr>
+<tr>
+<td>16</td>
+<td>maxEntries, 4 bytes</td>
+<td>token length, 4 bytes</td>
+</tr>
+<tr>
+<td>20</td>
+<td>start length, 4 bytes</td>
+<td>detail length, 4 bytes</td>
+</tr>
+<tr>
+<td>24</td>
+<td>end length, 4 bytes</td>
+<td>three reserved zero longs, 24 bytes</td>
+</tr>
+<tr>
+<td>28</td>
+<td>token length, 4 bytes</td>
+<td>part of reserved region</td>
+</tr>
+<tr>
+<td>32</td>
+<td>three reserved zero longs, 24 bytes</td>
+<td>part of reserved region</td>
+</tr>
+<tr>
+<td>48</td>
+<td>part of reserved region</td>
+<td>reserved zero int, 4 bytes</td>
+</tr>
+<tr>
+<td>52</td>
+<td>part of reserved region</td>
+<td>padding, 8 bytes; not required zero by decode</td>
+</tr>
+<tr>
+<td>56</td>
+<td>padding, 4 bytes; not required zero by decode</td>
+<td>part of padding</td>
+</tr>
+<tr>
+<td>60</td>
+<td>header CRC, 4 bytes</td>
+<td>same</td>
+</tr>
+<tr>
+<td>64</td>
+<td>start + end + token</td>
+<td>repeated entries + token + detail</td>
+</tr>
+</tbody>
+</table>
+<p>Each response entry is key length (4), value length (4), key, then value. Header
+lengths describe the tail token/detail, not a separate aggregate entry-byte count.
+SCAN_OPEN and SCAN_NEXT use this same request body; the outer operation code
+selects the action. These functions do not encode SCAN_CLOSE or maintain cursors.</p>
+<h2 id="write-request-functions">Write Request Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-codec/src/main/java/io/aetherdb/client/codec/ClientWriteCodecV1.java">ClientWriteCodecV1.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ClientWriteCodecV1.ClientWriteCodecV1()</code></td>
+<td>Private empty constructor. HEADER_BYTES is publicly exposed as 128.</td>
+</tr>
+<tr>
+<td><code>ClientWriteCodecV1.encode(request)</code></td>
+<td>Accumulates 16-byte entry headers plus key/value bytes with Math.addExact and rejects mutation region over 32 MiB. Accumulates key/value totals as longs. Writes identity/dedup flag, ordered entries, SHA-256 of a copied mutation region and header CRC. Integer accumulation overflow raises ArithmeticException before the explicit size rejection; null request raises NullPointerException.</td>
+</tr>
+<tr>
+<td><code>ClientWriteCodecV1.decode(in)</code></td>
+<td>Rejects null, total size outside 128..32 MiB+128, bad header CRC, magic/version/header/reserved int, region-size mismatch, non-1 algorithm marker, unknown dedup bits, nonzero 20-byte reserved tail or mismatched body SHA. Parses ordered entries and verifies zero entry reserved fields, nonnegative lengths and matching ordinal. Requires no trailing bytes and exact key/value totals, then constructs ClientWriteRequest. Record constructors enforce operation types, per-entry bounds, DELETE emptiness, configuration, count and command-ID policy.</td>
+</tr>
+<tr>
+<td><code>ClientWriteCodecV1.sha(value)</code></td>
+<td>Acquires SHA-256 for each call and returns digest bytes. An unavailable algorithm becomes AssertionError wrapping NoSuchAlgorithmException. Not a keyed hash or reusable digest pool.</td>
+</tr>
+<tr>
+<td><code>ClientWriteCodecV1.invalid()</code></td>
+<td>Creates IllegalArgumentException with invalid CLIENT_WRITE body. Record-constructor failures and allocation/buffer errors are not normalized through this helper.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="write-request-wire-layout">Write Request Wire Layout</h3>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Offset</th>
+<th>Field</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>magic 0x41454357, 4 bytes</td>
+</tr>
+<tr>
+<td>4</td>
+<td>version 1 and header size 128, two shorts</td>
+</tr>
+<tr>
+<td>8</td>
+<td>reserved zero int</td>
+</tr>
+<tr>
+<td>12</td>
+<td>operation count, 4 bytes</td>
+</tr>
+<tr>
+<td>16</td>
+<td>mutation-region bytes, 4 bytes</td>
+</tr>
+<tr>
+<td>20</td>
+<td>algorithm marker 1, 4 bytes</td>
+</tr>
+<tr>
+<td>24</td>
+<td>configuration version, 8 bytes</td>
+</tr>
+<tr>
+<td>32</td>
+<td>command UUID, two 8-byte halves</td>
+</tr>
+<tr>
+<td>48</td>
+<td>deduplication flags, 8 bytes; only bit 0 is allowed</td>
+</tr>
+<tr>
+<td>56</td>
+<td>total key bytes, 8 bytes</td>
+</tr>
+<tr>
+<td>64</td>
+<td>total value bytes, 8 bytes</td>
+</tr>
+<tr>
+<td>72</td>
+<td>mutation-region SHA-256, 32 bytes</td>
+</tr>
+<tr>
+<td>104</td>
+<td>reserved zero bytes, 20 bytes</td>
+</tr>
+<tr>
+<td>124</td>
+<td>header CRC, 4 bytes</td>
+</tr>
+<tr>
+<td>128</td>
+<td>ordered mutation region</td>
+</tr>
+</tbody>
+</table>
+<p>Each mutation is type (one byte: PUT=1, DELETE=2), zero byte, zero short, key
+length (4), value length (4), zero-based ordinal (4), then key and value.
+Empty write keys are accepted by the record contract.</p>
+<p>Decode does not bound count to 1..10,000 before iterating or bound individual
+lengths before allocation; those bounds are enforced later by records. The
+remaining-byte test uses kl + vl with ordinary int arithmetic, so adversarial
+large lengths can overflow that sum and reach allocation/buffer failures instead
+of the intended invalid-body exception. The 32 MiB input cap is not a complete
+allocation-safety proof. This is a documented implementation limit, not a runtime
+change or an assertion that malformed-input handling is exhaustive.</p>
+<h2 id="write-response-functions">Write Response Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client-codec/src/main/java/io/aetherdb/client/codec/ClientWriteResponseCodecV1.java">ClientWriteResponseCodecV1.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ClientWriteResponseCodecV1.ClientWriteResponseCodecV1()</code></td>
+<td>Private empty constructor; public HEADER_BYTES is 128.</td>
+</tr>
+<tr>
+<td><code>ClientWriteResponseCodecV1.encode(response)</code></td>
+<td>Encodes optional leader host and detail as UTF-8, rejecting host over 255 bytes or detail over 4,096 bytes. Writes hint flag, status, command UUID, counts/sequences, endpoint fields and tail lengths. Null expected node UUID becomes two zero halves. Appends host/detail and stamps header-only CRC.</td>
+</tr>
+<tr>
+<td><code>ClientWriteResponseCodecV1.decode(in)</code></td>
+<td>Checks null/minimum size/CRC, magic/version/header, flags (only leader-hint bit), status ordinal, four reserved longs, host/detail lengths and exact total size. Parses payload text with replacement decoding. Hint flag constructs ClientEndpointHint; zero node UUID becomes null. Without a hint, host length, port and node halves must all be zero. ClientWriteResponse then enforces status/hint and sequence rules.</td>
+</tr>
+<tr>
+<td><code>ClientWriteResponseCodecV1.invalid()</code></td>
+<td>Creates IllegalArgumentException with invalid CLIENT_WRITE response body. Endpoint/response constructor failures propagate separately.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="write-response-wire-layout">Write Response Wire Layout</h3>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Offset</th>
+<th>Field</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>magic 0x41454352, 4 bytes</td>
+</tr>
+<tr>
+<td>4</td>
+<td>version 1 and header size 128, two shorts</td>
+</tr>
+<tr>
+<td>8</td>
+<td>flags, 4 bytes; leader hint is bit 0</td>
+</tr>
+<tr>
+<td>12</td>
+<td>status ordinal, 4 bytes</td>
+</tr>
+<tr>
+<td>16</td>
+<td>command UUID, two 8-byte halves</td>
+</tr>
+<tr>
+<td>32</td>
+<td>operation count, 4 bytes</td>
+</tr>
+<tr>
+<td>36</td>
+<td>first sequence, 8 bytes</td>
+</tr>
+<tr>
+<td>44</td>
+<td>last sequence, 8 bytes</td>
+</tr>
+<tr>
+<td>52</td>
+<td>leader port, 4 bytes</td>
+</tr>
+<tr>
+<td>56</td>
+<td>expected node UUID, two 8-byte halves</td>
+</tr>
+<tr>
+<td>72</td>
+<td>host length, 4 bytes</td>
+</tr>
+<tr>
+<td>76</td>
+<td>detail length, 4 bytes</td>
+</tr>
+<tr>
+<td>80</td>
+<td>four reserved zero longs, 32 bytes</td>
+</tr>
+<tr>
+<td>112</td>
+<td>padding, 12 bytes; not required zero by decode</td>
+</tr>
+<tr>
+<td>124</td>
+<td>header CRC, 4 bytes</td>
+</tr>
+<tr>
+<td>128</td>
+<td>host followed by detail</td>
+</tr>
+</tbody>
+</table>
+<p>The response constructor requires a hint for NOT_LEADER and forbids it for other
+statuses. Codec validation does not verify that the response command UUID matches
+the caller's request, authenticate the redirect, or compare sequence range length
+with operationCount.</p>
+<h2 id="evidence-and-change-boundaries">Evidence And Change Boundaries</h2>
+<p>Compiler-tree coverage checks every explicit declaration. Existing codec tests
+exercise get/scan round trips and header corruption, write order/command identity
+and body corruption, and write-response sequences/redirects/header corruption.
+Those tests do not exhaustively cover payload corruption without an outer frame,
+recomputed checksums, padding, multibyte scan detail, malformed UTF-8 or adversarial
+allocation lengths. Read the implementations before changing any wire field.
+Changes need coordinated API, codec, facade and server compatibility review;
+documentation alone is not protocol certification. Frozen storage/ML experiments
+and runtime codec implementations are unchanged by this reference.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#serialization-architecture">Serialization Architecture</a><a href="#integrity-boundaries">Integrity Boundaries</a><a href="#point-read-functions">Point-Read Functions</a><a href="#scan-functions">Scan Functions</a><a href="#write-request-functions">Write Request Functions</a><a href="#write-response-functions">Write Response Functions</a><a href="#evidence-and-change-boundaries">Evidence And Change Boundaries</a></nav></aside>
+  </div>
+</body>
+</html>

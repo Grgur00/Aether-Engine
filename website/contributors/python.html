@@ -1,0 +1,779 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/TRAINING-CACHE-AND-PYTHON.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Python and training cache: source-backed contributor documentation for Aether Engine.">
+  <title>Python and training cache | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html" aria-current="page">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/TRAINING-CACHE-AND-PYTHON.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="training-cache-and-python-integration">Training Cache and Python Integration</h1>
+<p><a href="index.html">Onboarding index</a> | <a href="storage.html">Storage engine</a> | <a href="research.html">Experiments</a></p>
+<p>This guide follows the implemented Java training-cache module and Python packages.
+It is an onboarding map, not a promise that every feature in the numbered design
+specifications is shipped. Commands below run from the repository root unless
+stated otherwise. For storage internals, follow the linked engine classes rather
+than treating this adapter as a separate database implementation.</p>
+<p>Jump to the <a href="#2-run-a-small-daemon-backed-example">local example</a>,
+<a href="#3-identity-is-the-invalidation-mechanism">identity</a>, <a href="#4-dataset-and-transform-flow">dataset flow</a>,
+<a href="#5-codecs-and-ownership">codecs</a>, <a href="#6-protocol-connections-and-trust">protocol</a>,
+<a href="#7-durability-integrity-and-capacity">durability</a>, <a href="#8-pytorch-workers-and-prefetch">workers</a>,
+<a href="#9-monai-and-benchmark-backends">MONAI</a>, or <a href="#10-offline-bulk-population-and-jfr">bulk/JFR</a>.</p>
+<p>For individual Java functions, read the <a href="training-identity-functions.html">artifact identity and policy reference</a>
+and <a href="training-cache-functions.html">cache operations and segment reference</a>. They
+separate identity construction, publication, integrity admission, copy ownership,
+eviction and diagnostics. Continue with <a href="training-daemon-functions.html">daemon lifecycle</a>
+and <a href="training-protocol-functions.html">protocol/tracing functions</a> for connection
+ownership and wire handling. Python details continue in
+<a href="python-client-functions.html">client connections</a>,
+<a href="python-cache-value-functions.html">value/batch APIs</a>, and
+<a href="python-mapping-functions.html">mapped views/tensors</a>. Higher-level paths have separate
+<a href="python-transform-functions.html">transform-cache/identity/codec</a> and
+<a href="python-dataset-functions.html">dataset integration</a> references; they do not replace
+the low-level client or the separately frozen research worker.
+Continue with <a href="python-lifecycle-functions.html">ML client lifecycle and operations</a>
+and <a href="python-framework-functions.html">PyTorch/MONAI integration functions</a> for
+environment configuration, capability negotiation, batching, worker startup,
+and descriptor-based medical-image identities.
+The <a href="bulk-publication-functions.html">offline bulk publication reference</a> follows
+the Java artifact wrapper and engine loader through staging, full verification,
+manifest publication, failure recovery and receipt/JFR boundaries.
+The <a href="python-pipeline-functions.html">loading, worker and prefetch reference</a> traces
+the separate reference loader, ordered queue and spawned benchmark workers.
+The <a href="python-store-adapter-functions.html">store adapter and resource reference</a>
+explains Java batching, mmap journal publication, copy ownership and process-counter
+limits. These are current-checkout contracts, not changes to the frozen H2 worker.
+For the separate aetherml prototype, read <a href="python-provenance-store-functions.html">filesystem artifact publication</a>,
+<a href="python-provenance-workflow-functions.html">dataset/lineage workflows</a>, and
+<a href="python-provenance-diagnostic-functions.html">validation/diagnostics</a>. These distinguish
+content deduplication from provenance, per-file replacement from transactions,
+snapshot membership from reproducible training, and cleanup from repair.</p>
+<h2 id="1-choose-the-correct-api">1. Choose the Correct API</h2>
+<table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>What it owns</th>
+<th>Start here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Java <code>TrainingCache</code></td>
+<td>Immutable preprocessing keys, integrity envelopes, eviction index, segment files, embedded Aether database</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCache.java">TrainingCache.java</a></td>
+</tr>
+<tr>
+<td>Python <code>aether_training_cache</code></td>
+<td>Low-level local daemon client, packed values, segment references and pipeline helpers</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_training_cache/client.py">client.py</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_training_cache/__init__.py">exports</a></td>
+</tr>
+<tr>
+<td>Python <code>aether_cache</code></td>
+<td>Compatibility import for the low-level client</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_cache/__init__.py">exports</a></td>
+</tr>
+<tr>
+<td>Python <code>aether_ml</code></td>
+<td>Daemon-backed deterministic transform cache and indexable datasets</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/__init__.py">exports</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/transform_cache.py">transform_cache.py</a></td>
+</tr>
+<tr>
+<td>Python <code>aether_ml.monai</code></td>
+<td>Dictionary-dataset adapter with an explicit deterministic/random transform boundary</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/monai/dataset.py">dataset.py</a></td>
+</tr>
+<tr>
+<td>Python <code>aetherml</code> without an underscore</td>
+<td>Separate local filesystem artifact/provenance prototype, snapshots and experiment records</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aetherml/__init__.py">exports</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_training_cache/ml.py">ml.py</a></td>
+</tr>
+<tr>
+<td>Research <code>JavaArtifactStore</code></td>
+<td>Adapter used by benchmark workloads to access the real Java daemon</td>
+<td><a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_training_cache/java_store.py">java_store.py</a></td>
+</tr>
+</tbody>
+</table>
+<p>Do not substitute <code>aetherml.open(...)</code> for daemon-backed <code>aether_ml</code>. The former
+stores artifacts through a local Python implementation and defaults to pickle
+serialization. It does not measure Java WAL, SSTable or compaction behavior.
+Never deserialize untrusted pickle artifacts. The <code>aether_ml</code> built-in codecs use
+explicit binary/JSON formats instead.</p>
+<p>There are also multiple <code>AetherDataLoader</code> names. The one in <code>aether_ml.torch</code>
+delegates to PyTorch. The low-level one in <code>aether_training_cache.dataset</code> loads
+segment references. The <code>aetherml</code> loader belongs to the filesystem prototype.
+Imports determine the behavior; the class name alone is not enough.</p>
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart TD
+    Train[Training loop] --&gt; Dataset[aether_ml AetherDataset]
+    Dataset --&gt; Cache[AetherTransformCache]
+    Cache --&gt; Client[aether_training_cache client]
+    Client --&gt;|local TCP / Unix socket / TLS| Protocol[TrainingCacheProtocol]
+    Protocol --&gt; Java[Java TrainingCache]
+    Java --&gt;|inline integrity envelope| Engine[AetherDatabase]
+    Java --&gt;|large payload| Segments[segments directory]
+    Java --&gt;|segment metadata| Engine
+    Engine --&gt; Storage[WAL / memtable / SSTables / manifest]
+    Separate[aetherml filesystem prototype] --&gt; Files[Python artifact blobs and metadata]
+</code></pre></details></figure>
+<h2 id="2-run-a-small-daemon-backed-example">2. Run a Small Daemon-Backed Example</h2>
+<p>The Python distribution is named <code>aether-training-cache</code>, version <code>0.1.0</code> in the
+current <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/pyproject.toml">pyproject.toml</a>. It requires Python
+3.10 or newer. Its base dependencies include NumPy, Pillow and tiktoken; optional
+<code>torch</code> and <code>monai</code> extras add those integrations. Use the repository's validated
+environment/lock files for experiments, not arbitrary dependency upgrades.</p>
+<p>On Windows, with the development virtual environment already created:</p>
+<pre><code class="language-powershell">.venv\Scripts\python.exe -m pip install -e clients/python
+</code></pre>
+<p>For PyTorch/MONAI development:</p>
+<pre><code class="language-powershell">.venv\Scripts\python.exe -m pip install -e &quot;clients/python[torch,monai]&quot;
+</code></pre>
+<p>Start the Java daemon in a separate terminal using the Gradle task, which supplies
+the complete runtime classpath:</p>
+<pre><code class="language-powershell">$cacheDir = Join-Path (Get-Location) 'build/onboarding-cache'
+.\gradlew.bat :modules:aether-training-cache:trainingCacheDaemon &quot;-PcacheDir=$cacheDir&quot; -Pport=9484
+</code></pre>
+<p>The Unix equivalent is:</p>
+<pre><code class="language-bash">./gradlew :modules:aether-training-cache:trainingCacheDaemon \
+  -PcacheDir=&quot;$PWD/build/onboarding-cache&quot; -Pport=9484
+</code></pre>
+<p>The task's daemon uses <code>RECOVERABLE</code>, not <code>DURABLE</code>. It binds loopback and prints
+the selected port. If 9484 is occupied, select another port in both daemon and
+client. Do not run two daemon processes against the same store directory.</p>
+<p>This Python example needs no model, dataset download or GPU:</p>
+<pre><code class="language-python">from aether_training_cache import (
+    AetherTrainingCache, CacheKey, TransformationFingerprint,
+)
+from aether_ml import validate_capabilities
+
+transform = TransformationFingerprint.from_descriptor(&quot;onboarding-uppercase-v1&quot;)
+key = CacheKey(&quot;onboarding&quot;, &quot;sample-content-v1&quot;, transform)
+
+with AetherTrainingCache(port=9484) as cache:
+    info = validate_capabilities(cache)
+    assert info[&quot;engine&quot;] == &quot;java-training-cache&quot;
+    cache.put_many([(key, b&quot;PREPARED SAMPLE&quot;)])
+    assert cache.get_many([key])[key] == b&quot;PREPARED SAMPLE&quot;
+    print(info[&quot;durability&quot;], cache.protocol_metrics())
+</code></pre>
+<p>Repeating this example is safe because the same key receives the same bytes.
+Publishing different bytes under that key is rejected. Close/reopen the daemon
+and repeat the read to exercise persistence, rather than merely creating another
+Python client connected to the original process.</p>
+<p>For a <code>DURABLE</code> daemon, first export the built runtime classpath, then pass the
+fourth Java argument explicitly. The Gradle daemon task currently passes only
+directory and port; a guessed <code>-Pdurability</code> flag would not configure it.</p>
+<pre><code class="language-powershell">.\gradlew.bat :modules:aether-training-cache:paperRuntimeClasspath
+$cp = (Get-Content 'modules/aether-training-cache/build/paper-runtime-classpath.txt' -Raw).Trim()
+$cacheDir = Join-Path (Get-Location) 'build/onboarding-durable-cache'
+java --enable-preview -cp $cp io.aetherdb.training.cache.TrainingCacheDaemon $cacheDir 9485 10737418240 DURABLE
+</code></pre>
+<p>Direct launches need Java 21 with <code>--enable-preview</code> for the native memtable;
+Gradle's JavaExec convention supplies that flag automatically.
+The helper also writes a source/runtime hash manifest. Research scripts validate
+that manifest and can reject stale builds after Java source changes. Regenerate
+the classpath task after such edits; do not hand-edit its generated manifest.
+See <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/build.gradle.kts">build.gradle.kts</a>.</p>
+<h2 id="3-identity-is-the-invalidation-mechanism">3. Identity Is the Invalidation Mechanism</h2>
+<p>At the low-level API, a <code>CacheKey</code> contains a namespace, sample identity and a
+32-byte transformation fingerprint. Java derives a stable storage key from these
+fields and retains the namespace prefix for namespace operations. Read
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/CacheKey.java">CacheKey.java</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TransformationFingerprint.java">TransformationFingerprint.java</a>
+before changing cross-language identity encoding.</p>
+<p>The higher-level <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/identity.py">artifact_key</a> binds:</p>
+<pre><code class="language-text">namespace
+  + source_identity
+  + canonical transform identity and artifactSchemaVersion
+  -&gt; CacheKey
+</code></pre>
+<p>Use stable sample/content identities. An array index is not an identity if the
+dataset can be reordered. A pathname alone is not a content revision. Include
+every deterministic input that can affect the prepared artifact: image content,
+mask/label content when cached, relevant metadata, preprocessing version and
+parameters, output shape/dtype/schema, and dependencies whose behavior matters.</p>
+<table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Intended identity behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Append new samples</td>
+<td>Keep retained sample identities and transform unchanged; only additions miss</td>
+</tr>
+<tr>
+<td>Correct a cached source or mask</td>
+<td>Change that sample's source identity</td>
+</tr>
+<tr>
+<td>Change deterministic preprocessing</td>
+<td>Change the transform identity</td>
+</tr>
+<tr>
+<td>Change codec/schema incompatibly</td>
+<td>Change schema/transform identity; never decode old bytes with a new incompatible codec</td>
+</tr>
+<tr>
+<td>Change random augmentation</td>
+<td>Apply it after the cache; do not store a random realization under a deterministic key</td>
+</tr>
+<tr>
+<td>Name a new dataset version</td>
+<td>Keep the version label outside the artifact key when retained samples should be reusable</td>
+</tr>
+</tbody>
+</table>
+<p><code>AetherDataset</code> requires <code>identity_fn</code>. Prefer an explicit <code>transform_identity</code>.
+Automatic transform fingerprinting only supports selected torchvision/MONAI
+objects and rejects unsupported state; it does not hash arbitrary Python code.
+<code>artifact_schema_version</code> is configurable on <code>AetherTransformCache</code>; the dataset
+wrapper currently uses its default <code>&quot;1&quot;</code>. Include an explicit schema field in the
+dataset's transform descriptor when evolving its artifact representation.</p>
+<p>The MONAI identity helpers are conveniences, not canonical content preflight:
+<code>monai_dict_identity</code> hashes an ID field, <code>dicom_study_identity</code> hashes available
+UIDs, and <code>nifti_file_identity</code> hashes resolved path, size and modification time.
+They do not hash medical-image bytes or detect every possible label correction.
+See <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/monai/identity.py">monai/identity.py</a>.</p>
+<p>Changing identity makes old entries unreachable by the new pipeline; it does not
+delete them. Java exposes <code>invalidateNamespace</code>/<code>deleteNamespace</code>, but the current
+wire protocol has no namespace-delete opcode. Python <code>normalize_namespace</code> is an
+explicit utility, not an automatic normalization step in dataset construction.</p>
+<h2 id="4-dataset-and-transform-flow">4. Dataset and Transform Flow</h2>
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">sequenceDiagram
+    participant Loader as DataLoader / caller
+    participant Dataset as AetherDataset
+    participant Cache as AetherTransformCache
+    participant Daemon as Java daemon
+    Loader-&gt;&gt;Dataset: get_batch(indices)
+    Dataset-&gt;&gt;Cache: source values + stable identities
+    Cache-&gt;&gt;Daemon: GET_MANY(unique keys)
+    Daemon--&gt;&gt;Cache: hit payloads / misses
+    opt Missing keys in read-write or populate mode
+        Cache-&gt;&gt;Cache: deterministic transform + codec.encode
+        Cache-&gt;&gt;Daemon: PUT_MANY(new immutable payloads)
+        Daemon--&gt;&gt;Cache: publication acknowledgment
+    end
+    Cache-&gt;&gt;Cache: codec.decode in original caller order
+    Cache--&gt;&gt;Dataset: prepared values
+    Dataset-&gt;&gt;Dataset: optional metadata merge, then random augmentation
+    Dataset--&gt;&gt;Loader: requested batch
+</code></pre></details></figure>
+<p>The implementation deduplicates keys within a request while preserving caller
+order in its returned list. It chunks more than 4,096 source entries, performs
+one lookup per chunk, and publishes missing entries in a batch. It still accesses
+the underlying source dataset before a cache lookup. If that dataset eagerly
+decodes images, this access can remain expensive even on a warm hit. A lightweight
+manifest/path dataset with decoding inside the deterministic transform gives the
+cache the intended boundary.</p>
+<p>A small configuration suitable for the <code>aether-ml</code> CLI is:</p>
+<pre><code class="language-python">import hashlib
+from aether_ml import AetherDataset, BytesCodec
+
+raw_samples = [b&quot;scan-001&quot;, b&quot;scan-002&quot;]
+
+def source_identity(sample, index):
+    return hashlib.sha256(sample).hexdigest()
+
+def prepare(sample):
+    return sample.upper()
+
+dataset = AetherDataset(
+    raw_samples,
+    deterministic_transform=prepare,
+    namespace=&quot;onboarding/prepared&quot;,
+    identity_fn=source_identity,
+    transform_identity={&quot;operation&quot;: &quot;uppercase&quot;, &quot;version&quot;: 1, &quot;schema&quot;: &quot;bytes-v1&quot;},
+    codec=BytesCodec(),
+)
+</code></pre>
+<p>The CLI imports a trusted Python configuration file and expects a module-level
+<code>dataset</code>. With this configuration in <code>training_dataset.py</code>, supported commands
+are:</p>
+<pre><code class="language-text">aether-ml plan training_dataset.py
+aether-ml populate training_dataset.py --workers 1
+aether-ml stats training_dataset.py
+</code></pre>
+<p><code>plan()</code> uses metadata-only <code>contains_many</code>; it neither preprocesses nor verifies
+every payload. <code>populate()</code> does not apply random augmentation. With one worker
+it uses the batched transform path; with multiple workers it uses a thread pool
+of individual requests. The latter is not automatically faster, since one client
+serializes socket exchanges. <code>stats()</code> reports this Python object's counters,
+not a persistent daemon-wide history: a new CLI process generally starts with
+empty counters. For entry count and durability, call <code>client.engine_info()</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Current behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read-write</code></td>
+<td>Fetch hits, compute and publish misses</td>
+</tr>
+<tr>
+<td><code>populate</code></td>
+<td>Uses the same fetch/compute/publish behavior; not an offline bulk import</td>
+</tr>
+<tr>
+<td><code>read-only</code></td>
+<td>Raise <code>CacheMissError</code> if any requested artifact is absent</td>
+</tr>
+<tr>
+<td><code>disabled</code></td>
+<td>Run the deterministic transform directly, without cache access</td>
+</tr>
+</tbody>
+</table>
+<p>The default <code>on_cache_error=&quot;raise&quot;</code> surfaces lookup/publication failures. With
+<code>&quot;fallback&quot;</code>, lookup failures are logged and trigger uncached computation;
+publication failures log and return the computed output. Do not use fallback in
+a cache performance experiment that requires zero hidden recomputation. Decode
+errors are not covered by this lookup/publication fallback. See
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/transform_cache.py">transform_cache.py</a>.</p>
+<p><code>cache_selector</code> can limit the cached value to tensor inputs; pair it with
+<code>merge_cached_artifact</code> to restore fresh metadata after retrieval. Metadata that
+affects preprocessing must still enter the identity. This facility is on
+<code>AetherDataset</code>; the current MONAI convenience constructor does not expose it.</p>
+<h2 id="5-codecs-and-ownership">5. Codecs and Ownership</h2>
+<table>
+<thead>
+<tr>
+<th>Codec</th>
+<th>Encoded value</th>
+<th>Important behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BytesCodec</code></td>
+<td>Bytes-like data</td>
+<td>Returns materialized bytes</td>
+</tr>
+<tr>
+<td><code>NumPyCodec</code></td>
+<td>Contiguous array, <code>AENP1</code> header, JSON dtype/shape</td>
+<td>Decode makes a copy</td>
+</tr>
+<tr>
+<td><code>TensorCodec</code></td>
+<td>Detached CPU NumPy representation</td>
+<td>Decode returns a CPU tensor; device and autograd history are not preserved</td>
+</tr>
+<tr>
+<td><code>TensorDictCodec</code></td>
+<td>Sorted string-key dictionary, <code>AETD1</code> header, dtype/shape/offset/type metadata</td>
+<td>Array/tensor values only; tensor entries return as CPU tensors</td>
+</tr>
+<tr>
+<td><code>AutoCodec</code></td>
+<td>Tagged bytes, array, tensor or tensor dictionary</td>
+<td>Does not serialize arbitrary Python objects</td>
+</tr>
+</tbody>
+</table>
+<p>These codecs target plain numeric artifacts, not arbitrary object-dtype arrays,
+MONAI metadata graphs, lazy transform history or arbitrary Python classes. Keep
+unsupported metadata outside the cached artifact and test dtype/shape round trips
+for new workloads. Serialization choices are part of experimental comparability.
+See <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/codecs.py">codecs.py</a> and
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/tests/test_aether_ml.py">test_aether_ml.py</a>.</p>
+<p>The low-level <code>get_many_values()</code> returns one packed response with statuses,
+offsets, lengths and memoryviews. <code>get_many()</code> materializes per-key bytes.
+Neither makes network transfer zero-copy; Python and Java still frame, pack and
+copy data. Release packed batches after use. A retained payload view can keep the
+immutable response alive; an array or tensor view must not outlive its actual
+backing mapping. Do not mutate read-only mapped data through tensor adapters.</p>
+<p>For large segment-backed values, <code>get_ref</code>/<code>get_many_refs</code> return location and SHA
+metadata rather than payload bytes. <code>MappedSegmentRegistry</code> needs access to the
+same local <code>segments</code> directory and validates SHA when creating views. <code>get_ref</code>
+also returns <code>None</code> for an inline value, so it is not a general existence check.
+This path is distinct from an incremental mmap benchmark store and from the
+default <code>aether_ml</code> materialized-byte path.</p>
+<h2 id="6-protocol-connections-and-trust">6. Protocol, Connections and Trust</h2>
+<p>The shared <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheProtocol.java">TrainingCacheProtocol.java</a>
+is used by the TCP, Unix-domain and TLS daemons. The ordinary client is protocol
+1; server tracing sends version 2 with a 16-byte correlation ID. Engine INFO
+advertises protocol 1 and feature strings, not a separate user-authentication
+protocol.</p>
+<pre><code class="language-text">request:  u32 big-endian frame length | u8 version | u8 operation | body
+response: u32 big-endian frame length | u8 status | u32 value length | value
+key:      u32 namespace bytes | UTF-8 namespace
+          u32 sample bytes | UTF-8 sample ID | 32-byte transform digest
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Opcode</th>
+<th>Operation</th>
+<th>Python entry point</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>GET</td>
+<td><code>get</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>PUT</td>
+<td><code>put</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>GET_REF</td>
+<td><code>get_ref</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>GET_MANY_REF</td>
+<td><code>get_many_refs</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>GET_MANY packed payload</td>
+<td><code>get_many_values</code>, <code>get_many</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>PUT_MANY</td>
+<td><code>put_many</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>INFO</td>
+<td><code>engine_info</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td>CONTAINS_MANY</td>
+<td><code>contains_many</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td>DRAIN_TRACES</td>
+<td><code>drain_completed_server_traces</code></td>
+</tr>
+</tbody>
+</table>
+<p>Requests are capped at 64 MiB and batched operations at 4,096 keys. These are
+independent limits: 4,096 large artifacts do not fit in one request. The generic
+<code>aether_ml</code> batching logic chunks by count, not byte budget; choose appropriately
+small batches for large tensors. The benchmark <code>JavaArtifactStore</code> separately
+chunks writes at 64 artifacts and roughly 60 MiB. Do not assume this policy
+exists in every client.</p>
+<p>Wire limits do not override storage admission limits. Inline envelopes still
+enter a Java <code>WriteBatch</code>, whose estimated encoded limit is 32 MiB, with 16 MiB
+per value; the complete batch must also fit one configured memtable. Segment
+storage changes the database value to metadata but does not remove the network
+frame limit. Include framing/envelope overhead when choosing a batch size.</p>
+<p>The server checks request sizes/counts and value/string lengths, validates opcode
+and protocol version, and has 128 concurrent dispatch permits. A rejected permit
+returns an error. Malformed requests generally close the connection; exceptions
+are swallowed by the serve loop rather than returned as detailed typed errors.
+The protocol is not a hardened hostile-client boundary: allocation of the frame
+occurs before dispatch admission, the TCP daemon uses a cached thread pool, and
+the Python response parser has no equivalent global 64 MiB response cap. Keep
+the service local and trusted; do not expose it publicly based on these limits.</p>
+<p>The normal daemon binds loopback. The TLS variant also binds loopback and accepts
+an application-supplied <code>SSLContext</code> with optional required client certificates.
+The Unix-domain variant exposes the same protocol through a filesystem socket.
+These are transport choices, not implemented multi-tenant namespace authorization.
+Review <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheDaemon.java">TrainingCacheDaemon</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheTlsDaemon.java">TrainingCacheTlsDaemon</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheUnixDaemon.java">TrainingCacheUnixDaemon</a>.</p>
+<p>The Python client lazily retains one connection and protects exchanges with an
+<code>RLock</code>. It retries connection/EOF/OS errors once, including potentially a write
+whose acknowledgment was lost. Immutable same-key/same-value publication makes
+that retry useful, but it is not an exactly-once request protocol. A conflicting
+write fails; do not create non-deterministic payloads under the same key.</p>
+<p>Java <code>getOrCompute</code> has per-key in-process single-flight. Python's low-level
+<code>get_or_compute</code> and <code>aether_ml</code> use lookup/compute/publish and do not provide
+distributed single-flight across workers. Concurrent workers can duplicate
+computation even though immutable publication checks protect stored content.</p>
+<h2 id="7-durability-integrity-and-capacity">7. Durability, Integrity and Capacity</h2>
+<p>Java cache publication first validates the entire batch and rejects conflicting
+duplicate keys or conflicting existing content. Existing identical entries are
+reused. New payloads receive SHA-256 and an encoded CRC32C, then a database write
+publishes the index before acknowledgment. Do not equate cache integrity with
+semantic correctness: checksums prove bytes match their stored digest, not that
+the source identity or preprocessing algorithm was correct.</p>
+<table>
+<thead>
+<tr>
+<th>Durability</th>
+<th>Actual adapter behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EPHEMERAL</code></td>
+<td>In-memory engine; no persistence; automatic large-segment storage has no persistent segment directory</td>
+</tr>
+<tr>
+<td><code>RECOVERABLE</code></td>
+<td>Persistent engine, <code>GROUP_SYNC</code> database write; segment files are atomically renamed but not explicitly forced by this mode</td>
+</tr>
+<tr>
+<td><code>DURABLE</code></td>
+<td><code>SYNC</code> database write; segment file force before rename and directory force on supported non-Windows systems</td>
+</tr>
+</tbody>
+</table>
+<p><code>RECOVERABLE</code> is not a claim that every segment payload survives power loss.
+Windows segmented publication explicitly has a process-crash rather than full
+directory-fsync contract. Filesystem/device guarantees and process-crash tests
+are separate evidence. See <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCacheSegmentStore.java">TrainingCacheSegmentStore.java</a>.</p>
+<p>Automatic storage uses segments at payload sizes <strong>greater than or equal to
+256 KiB</strong>; smaller values are inline. Java can select an explicit storage policy.
+The cache's normal open path uses the development security profile and disables
+the engine's disk-pressure guard. The default 10 GiB <code>maximumBytes</code> controls a
+cache accounting/eviction index, not a hard cap on physical WAL/SSTable/temporary
+disk consumption. Deployment and benchmark preflight must separately ensure
+free space. Do not describe this adapter as a production capacity governor.</p>
+<p>The integrity policy reported by INFO is <code>immutable-inline-admission-v1</code>:</p>
+<ul>
+<li>An inline resident immutable SSTable lookup validates CRC32C and SHA-256 once
+on that exact immutable value. Reloaded values validate again.</li>
+<li>Native-memtable lookups materialize values and validate each materialization.</li>
+<li>Segment metadata retains CRC32C and each storage payload read validates SHA.</li>
+<li>Writes retain content SHA-256 and encoded CRC32C.</li>
+</ul>
+<p>The trusted marker attaches to an immutable lookup result, not globally to a
+key. The optimization is not a blanket checksum bypass. Cache-level corruption
+can become a miss and trigger index deletion; storage-level corruption can still
+fail the operation. On open, <code>loadIndex</code> scans and validates stored cache entries
+and rebuilds accounting. That can make startup significant and is why a
+persistent-service performance scenario differs from repeated restart tests.</p>
+<p>The low-level <code>wait_for_background_compaction</code> helper polls INFO until state is
+not RUNNING/STOPPING or timeout. Its <code>drained</code> result alone is weaker than the
+research invariant: inspect state, debt and failures explicitly before claiming
+strict quiescence. The <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/monai_comparison.py">MONAI diagnostic drain helper</a>
+performs those additional checks. Charge drain time to an endpoint when its
+protocol requires it; do not count it twice if included in another stage.</p>
+<h2 id="8-pytorch-workers-and-prefetch">8. PyTorch, Workers and Prefetch</h2>
+<p><code>aether_ml.torch.AetherDataLoader</code> returns the ordinary PyTorch <code>DataLoader</code>.
+PyTorch 2 uses <code>AetherDataset.__getitems__</code> to request a batch, routing it to one
+batched cache lookup rather than one call per sample. A custom sampler or
+collation path must preserve this property if batching is the intended design.</p>
+<p><code>AetherTransformCache</code> resolves its client lazily and detects PID changes; the
+raw <code>AetherTrainingCache</code> socket client does not provide that protection itself.
+Use the default factory or a top-level custom factory for multiprocessing so
+each worker creates its own client; do not pass an already-open socket client
+into worker processes. On Windows/spawn, callbacks/configuration must be picklable,
+and the executable entry point needs the usual <code>if __name__ == &quot;__main__&quot;:</code>
+guard. The optional <code>aether_worker_init</code> opens a worker-local client early.
+Parent <code>stats()</code> does not automatically aggregate counters from worker processes.
+See <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/torch/loader.py">torch/loader.py</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/torch/worker.py">torch/worker.py</a> and the worker
+matrix in <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/tests/test_aether_ml.py">test_aether_ml.py</a>.</p>
+<p>The research <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_training_cache/prefetch.py">BoundedPrefetchIterator</a>
+is a different component, not an implicit setting on <code>AetherDataset</code>:</p>
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart LR
+    Schedule[Fixed caller schedule] --&gt; Prepare[One producer callback]
+    Prepare --&gt; Queue[Ready queue: capacity depth]
+    Queue --&gt; Consumer[Ordered consumer]
+    Consumer -. early close .-&gt; Cancel[Cancel pending I/O, then join]
+    Cancel -.-&gt; Prepare
+</code></pre></details></figure>
+<p>Depth zero creates no worker and prepares synchronously. Positive depth creates
+one producer, a queue of exactly that depth, and at most one additional batch in
+preparation or waiting to enqueue. It preserves schedule order, forwards failures
+and joins on close. Close the iterator before its caller-owned client; use
+<code>cancel_callback=client.cancel_pending_requests</code> when early exit must interrupt
+socket work. Cancellation permanently disables that client, while normal full
+consumption preserves its persistent connection.</p>
+<p>Queue occupancy is an event-sampled mean, not a time-weighted average.
+<code>inputWaitMs</code>, queue wait and consumer wait are host-side timing/proxy metrics,
+not direct measurements of hardware GPU idle time. Keep lookup/decode timing,
+prefetch overlap and device compute measurements distinct.</p>
+<h2 id="9-monai-and-benchmark-backends">9. MONAI and Benchmark Backends</h2>
+<p><code>AetherPersistentDataset</code> accepts ordinary callable deterministic and random
+transforms, including MONAI <code>Compose</code> objects; the wrapper itself does not import
+MONAI. It does not discover the random boundary for you. Pass deterministic
+preprocessing separately from random augmentation, with explicit identity, and
+ensure output fits <code>TensorDictCodec</code> or supply a codec.</p>
+<p>The research comparison deliberately shares the canonical transformation and
+input order across four distinct persistence implementations:</p>
+<table>
+<thead>
+<tr>
+<th>Backend</th>
+<th>Artifact representation and persistence path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Aether</td>
+<td><code>AetherPersistentDataset</code>, TensorDictCodec, real daemon, durable Java cache</td>
+</tr>
+<tr>
+<td>Incremental mmap</td>
+<td>TensorDictCodec with the repository's persistent mmap store/index</td>
+</tr>
+<tr>
+<td>MONAI PersistentDataset</td>
+<td>MONAI native persistent files and native <code>torch.save</code> serialization</td>
+</tr>
+<tr>
+<td>MONAI LMDBDataset</td>
+<td>MONAI native LMDB cache and serialization</td>
+</tr>
+</tbody>
+</table>
+<p>The benchmark descriptor binds source checksum/identity and transform identity
+into the hash function, including for LMDB. Its measured stages include cache
+construction/admission work that can occur inside constructors. MONAI native
+serialization, filesystem sync contracts and indexing are not identical to
+Aether's. Keep these differences in reports; equal decoded tensors do not imply
+identical byte representations or durability guarantees. See
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/monai_comparison.py">monai_comparison.py</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_training_cache/persistent_mmap.py">persistent_mmap.py</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_monai_comparison.py">test_monai_comparison.py</a> and
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/MONAI-PILOT.md">MONAI pilot protocol</a>.</p>
+<h2 id="10-offline-bulk-population-and-jfr">10. Offline Bulk Population and JFR</h2>
+<p>The experimental <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/BulkArtifactWriter.java">BulkArtifactWriter</a>
+is <strong>not</strong> <code>AetherDataset.populate()</code>, a network opcode or a new normal-write
+policy. It holds the database lock for an empty store, consumes version-1
+PUT_MANY bodies through an offline stdin pipe, and uses
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/EmptyStoreBulkLoader.java">EmptyStoreBulkLoader</a>
+to build sorted SSTables directly. Existing online writes remain on their normal
+WAL/memtable path.</p>
+<figure class="docs-diagram" data-diagram-state="pending"><div class="docs-diagram-view" tabindex="0" aria-label="Diagram" hidden></div><details class="docs-diagram-source" open><summary>Diagram source</summary><pre><code class="language-mermaid">flowchart LR
+    Python[Python preprocess and encode] --&gt; Pipe[PUT_MANY body over local pipe]
+    Pipe --&gt; Stage[STAGED: volatile acknowledgment]
+    Stage --&gt; Sort[Bounded sorted buffer]
+    Sort --&gt; SST[Build / force / rename SSTables]
+    SST --&gt; Verify[One full inventory verification]
+    Verify --&gt; Manifest[One forced manifest edit]
+    Manifest --&gt; Finish[Explicit finish: committed receipt]
+    Finish --&gt; Restart[Fresh normal daemon: full readback]
+</code></pre></details></figure>
+<p>Only explicit finish publishes the inventory. EOF/close is not commit; a failed
+or indeterminate commit requires reopen/validation, not blind retries. The
+prototype is bounded to 512 MiB encoded key/value buffering and 100,000 entries,
+not dataset-size-independent streaming or a hard JVM heap limit. It supports
+artifacts up to and including 256 KiB, keeps SHA/CRC envelopes, and writes an empty successor
+WAL header for future ordinary writes rather than artifact WAL records. The
+default SSTable target remains 32 MiB; the layout diagnostic varies targets
+without silently changing that default.</p>
+<p>At exactly 256 KiB this differs from the ordinary automatic storage policy,
+which selects a segment. Preserve or report that representation difference in
+comparisons near the threshold.</p>
+<p>Bulk startup, pipe transport and skipped empty-cache scans differ from the online
+path. End-to-end speed differences cannot all be attributed to WAL elimination.
+The separate restart readback is a correctness gate; a later full-lifecycle
+experiment must also charge the transition into the online service. Do not pool
+changed-implementation measurements with earlier pilots.</p>
+<p>The JFR diagnostic profiles the <strong>offline writer JVM</strong>, not the regular TCP
+daemon. Opt-in events include <code>aether.BulkPopulation</code> and <code>aether.BulkPhase</code>;
+controls leave the event property off. Population includes waiting for Python
+input but excludes JVM/bootstrap startup. The control/profile/control sequence
+estimates recording overhead. Nested phase durations must not be summed, sampled
+allocation weights are estimates, and missing thresholded I/O events do not
+prove zero I/O. A tiny Windows fixture is correctness evidence, not the full
+medical-image workload's performance result.</p>
+<p>Detailed contracts and scripts:</p>
+<ul>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/BULK-POPULATION-PROTOTYPE.md">Bulk prototype</a> and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/BULK-POPULATION-V2.md">bulk layout diagnostic</a>.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/kaggle/BULK-JFR.md">JFR diagnostic</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/profile_bulk_jfr.py">profile_bulk_jfr.py</a> and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/bulk_jfr_analyze.py">bulk_jfr_analyze.py</a>.</li>
+<li><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/test/java/io/aetherdb/training/cache/BulkArtifactWriterTest.java">BulkArtifactWriterTest</a>, <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_bulk_population.py">test_bulk_population.py</a> and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_bulk_jfr.py">test_bulk_jfr.py</a>.</li>
+</ul>
+<h2 id="11-tests-and-first-changes">11. Tests and First Changes</h2>
+<p>For the separately frozen research harness, see <a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/H2-TRAINING-WORKLOAD.md">H2 training workload</a>.
+It documents the actual segmentation CNN, fresh-model-per-version behavior and
+same-JVM offline-to-online handoff. That bootstrap is not a new public cache API
+or a change to the normal daemon protocol described in this guide.</p>
+<p>Fast Python integration tests, without launching a Kaggle experiment:</p>
+<pre><code class="language-powershell">$env:PYTHONPATH = 'clients/python'
+.venv\Scripts\python.exe -m pytest clients/python/tests/test_aether_ml.py clients/python/tests/test_prefetch.py clients/python/tests/test_request_tracing.py clients/python/tests/test_batch_request_timing.py -q
+</code></pre>
+<p>Java adapter tests:</p>
+<pre><code class="language-powershell">.\gradlew.bat :modules:aether-training-cache:test
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Area changed</th>
+<th>Essential regression evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Identity</td>
+<td>Stable old keys on append; changed source/mask/transform/schema produces misses</td>
+</tr>
+<tr>
+<td>Codec</td>
+<td>Byte/array/tensor round trips; explicit incompatible-schema behavior; equal prepared tensor hashes</td>
+</tr>
+<tr>
+<td>Batch path</td>
+<td>Caller order, duplicate identities, missing values, count/byte limits, immutable conflicting write rejection</td>
+</tr>
+<tr>
+<td>Multiprocessing</td>
+<td>Fresh client per PID, Windows spawn, no inherited live sockets, expected sample count</td>
+</tr>
+<tr>
+<td>Prefetch</td>
+<td>Depth zero, bounded occupancy, errors, early cancellation, producer joined, unchanged order</td>
+</tr>
+<tr>
+<td>Durability/integrity</td>
+<td>Real process restart, fault injection, corruption rejection, platform-specific sync limits</td>
+</tr>
+<tr>
+<td>Performance instrumentation</td>
+<td>Trace-off behavior unchanged, nested timing interpretation, no diagnostic error causes a write retry</td>
+</tr>
+</tbody>
+</table>
+<p>Read <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/test/java/io/aetherdb/training/cache/TrainingCacheTest.java">TrainingCacheTest</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-training-cache/src/test/java/io/aetherdb/training/cache/TrainingCacheTraceTest.java">TrainingCacheTraceTest</a>
+before changing publication or packed responses. The Python tests use in-memory
+fakes where appropriate; passing them alone does not prove Java persistence or
+real MONAI compatibility. The scripts' opt-in real-Java tests and restart gates
+provide a separate level of evidence.</p>
+<p>For a first contribution, a focused identity/codec/batch test is a good starting
+point. Preserve the deterministic transform boundary and use existing adapters.
+Do not introduce a second cache format or new publication path merely to make a
+benchmark faster without documenting its changed semantics.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#1-choose-the-correct-api">1. Choose the Correct API</a><a href="#2-run-a-small-daemon-backed-example">2. Run a Small Daemon-Backed Example</a><a href="#3-identity-is-the-invalidation-mechanism">3. Identity Is the Invalidation Mechanism</a><a href="#4-dataset-and-transform-flow">4. Dataset and Transform Flow</a><a href="#5-codecs-and-ownership">5. Codecs and Ownership</a><a href="#6-protocol-connections-and-trust">6. Protocol, Connections and Trust</a><a href="#7-durability-integrity-and-capacity">7. Durability, Integrity and Capacity</a><a href="#8-pytorch-workers-and-prefetch">8. PyTorch, Workers and Prefetch</a><a href="#9-monai-and-benchmark-backends">9. MONAI and Benchmark Backends</a><a href="#10-offline-bulk-population-and-jfr">10. Offline Bulk Population and JFR</a><a href="#11-tests-and-first-changes">11. Tests and First Changes</a></nav></aside>
+  </div>
+</body>
+</html>

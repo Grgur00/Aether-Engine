@@ -1,0 +1,316 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/DALI-COMPARISON-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="DALI workload and comparisons: source-backed contributor documentation for Aether Engine.">
+  <title>DALI workload and comparisons | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html" aria-current="page">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/DALI-COMPARISON-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="dali-workload-and-comparison-functions">DALI Workload and Comparison Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="benchmark-training-functions.html">Benchmark training</a> | <a href="experiment-ownership-functions.html">Research ownership</a></p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_training_cache/dali_workload.py">dali_workload.py</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/dali_comparison.py">dali_comparison.py</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/dali_analyze.py">dali_analyze.py</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/dali_smoke.py">dali_smoke.py</a>.
+This guide covers <strong>26 explicit declarations across all four complete files</strong>,
+including the nested pipeline graph. Lambdas/comprehensions are explained at their
+owning call sites. This is a secondary RGB workload, not the OCT/H2 experiment.</p>
+<h2 id="architecture-and-timing-boundary">Architecture and Timing Boundary</h2>
+<pre><code class="language-text">real source manifest -&gt; source hashes + pipeline descriptor -&gt; artifact keys
+canonical DALI preflight -&gt; expected serialized payload hashes (excluded)
+initial reusable prefix -&gt; populate Java and mmap stores -&gt; stop Java daemon
+restart Java daemon -&gt; shuffled raw / Aether / mmap paired training
+    raw: scheduled asynchronous DALI -&gt; GPU model input
+    cache: byte lookup -&gt; missing-only manual DALI -&gt; durable publication
+           -&gt; validate payload -&gt; CPU decode/stack -&gt; GPU model input
+all final model hashes equal -&gt; report + byte-hash receipt
+validated real reports -&gt; secondary analysis/figures
+generated fixture smoke -&gt; correctness only; research loader rejects
+</code></pre>
+<p>Direct and cache-miss paths use the same DALI operators, not a presumed
+bit-identical Pillow decoder. Cache paths serialize CPU-visible artifacts and
+transfer decoded tensors back to CUDA; direct processing keeps the image on the
+GPU. This difference belongs to the measured workflow. Source/canonical preflight
+warms files; page cache is explicitly uncontrolled.</p>
+<p>Reported throughput uses training-loop wall time. Model/pipeline/store setup and
+initial population are recorded separately. <code>workflowCostMs</code> sums those three
+parts but does not include source loading, canonical preflight, Java daemon
+startup/stop, result archival or cleanup. It is not H2's cumulative V0-V4 endpoint.</p>
+<h2 id="canonical-identity-and-payload-functions">Canonical Identity and Payload Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>descriptor(args, dali_version)</code></td>
+<td>Returns an identity dictionary naming DALI version, dataset, RGB mixed decode, linear antialiased square resize, divide-by-255 normalization, CHW float16 output, float32 training, class count and uncompressed artifact encoding.</td>
+<td>Describes this implementation's pipeline. Does not construct or inspect a running pipeline; excludes performance knobs such as prefetch depth.</td>
+</tr>
+<tr>
+<td><code>artifact_key(source, parameters)</code></td>
+<td>SHA-256 of sorted compact JSON containing sample ID, source hash and pipeline parameters.</td>
+<td>Source content/version and descriptor changes invalidate reuse. Unkeyed identity digest; caller/source loader supplies trustworthy hashes.</td>
+</tr>
+<tr>
+<td><code>targets(sources, indices, classes, np)</code></td>
+<td>Creates a float32 zero matrix, setting each source's listed label columns to one.</td>
+<td>Multi-hot shape <code>[batch, classes]</code>; no label-range/type guard beyond NumPy indexing. Used for both ImageNet and COCO here.</td>
+</tr>
+<tr>
+<td><code>payloads(images, sources, indices, classes, np)</code></td>
+<td>Builds targets, then maps each requested source index to existing benchmark <code>pack_payload</code> bytes containing sample ID, its row image and mask/labels.</td>
+<td>Assumes rows align with indices; no explicit shape/length validation here. Imports shared packing lazily. Serialization and training decode remain separate helpers.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="dali-input-and-pipeline-functions">DALI Input and Pipeline Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EncodedSource.__init__(sources, schedule)</code></td>
+<td>Stores the supplied source/schedule references for stateless scheduled input.</td>
+<td>Does not copy or validate them.</td>
+</tr>
+<tr>
+<td><code>EncodedSource.__call__(iteration)</code></td>
+<td>Stops when iteration reaches/exceeds schedule length; otherwise reads each scheduled image file as a NumPy uint8 byte array.</td>
+<td>No mutable cursor, so repeat/speculative calls at an index are repeatable. Negative iteration is not independently rejected. File failures propagate.</td>
+</tr>
+<tr>
+<td><code>DaliBatches.__init__(args, sources, schedule=None)</code></td>
+<td>Lazily imports CUDA/DALI, requires CUDA availability/version, stores arguments and chooses scheduled callback versus manual feed. Builds a device-zero pipeline with seed, batch size and threads. Scheduled mode enables async/pipelined/dynamic execution with requested prefetch; manual mode disables those and uses depth one.</td>
+<td>No CPU timing fallback. Creation/build failures happen before callers' later loop-cleanup handlers in several paths. Runtime DALI availability is not tested by plan-only execution.</td>
+</tr>
+<tr>
+<td><code>DaliBatches.__init__.graph()</code></td>
+<td>Defines external uint8 encoded batches, mixed RGB decode, GPU linear antialiased resize and GPU crop/mirror-normalize to CHW float16 with mean zero/std 255.</td>
+<td>Decorated pipeline graph; despite operator name, no random crop/mirror parameters are supplied. Square resize, not the Pillow workload's implicit equivalence.</td>
+</tr>
+<tr>
+<td><code>DaliBatches.batch(indices=None)</code></td>
+<td>Manual mode requires a nonempty index list no larger than declared batch size and feeds encoded files. Scheduled mode rejects explicit indices. Runs pipeline, converts the output tensor through DLPack and casts float16 output to CUDA float32.</td>
+<td>Direct path has no host image round trip here. Producer/consumer synchronization is delegated to DLPack; missing-input and pipeline exceptions propagate.</td>
+</tr>
+<tr>
+<td><code>DaliBatches.close()</code></td>
+<td>Synchronizes CUDA and clears the pipeline reference.</td>
+<td>No explicit context-manager protocol or idempotence state check. Does not close storage or the Java daemon.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="comparison-preparation-functions">Comparison Preparation Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>batches(count, size, epochs=1)</code></td>
+<td>Materializes ordered index lists, including a final partial batch, repeated for each epoch.</td>
+<td>No shuffle. CLI checks positive batch size/epochs; direct calls do not validate count or size. The entire schedule is held in memory.</td>
+</tr>
+<tr>
+<td><code>model_hash(network)</code></td>
+<td>Hashes sorted state-dict names followed by contiguous CPU NumPy tensor bytes.</td>
+<td>Captures final parameter/buffer bytes, not optimizer state, tensor shape/dtype metadata or loss trajectory. Moving tensors to CPU can synchronize; called after measured loop wall time is captured.</td>
+</tr>
+<tr>
+<td><code>validate_payloads(values, expected)</code></td>
+<td>Checks SHA-256 equality for every supplied index/payload against canonical expected hashes.</td>
+<td>Does not itself prove all expected indices were supplied; missing coverage is checked elsewhere. Unknown indices can raise KeyError.</td>
+</tr>
+<tr>
+<td><code>canonical_hashes(args, sources, np)</code></td>
+<td>Runs one scheduled canonical DALI pass, moves each batch to CPU, serializes payloads and records hashes by source index. Closes pipeline in <code>finally</code>.</td>
+<td>Excluded preflight, but warms source files and GPU pipeline. Construction happens before the protected loop. Does not publish artifacts.</td>
+</tr>
+<tr>
+<td><code>open_store(backend, root, port)</code></td>
+<td>For Aether, connects a <code>JavaArtifactStore</code> in namespace <code>dali-canonical</code>, requires actual <code>java-training-cache</code>/<code>DURABLE</code> engine info and attaches that info to the store; closes and rejects mismatches. Otherwise creates durable PersistentMmapStore under <code>root/mmap</code>.</td>
+<td>Unknown non-Aether strings fall through to mmap; callers use fixed backend names. Probe/constructor exceptions are not universally cleanup-protected.</td>
+</tr>
+<tr>
+<td><code>publish(store, backend, values, keys)</code></td>
+<td>Aether sends one <code>commit_bytes_many</code> list of cache-key/data dictionaries; other backends use mmap <code>put_many</code> key/value tuples.</td>
+<td>Delegates durability/publication to adapter. Does not inspect returned Aether commit values or batch results here.</td>
+</tr>
+<tr>
+<td><code>populate(args, sources, keys, expected, initial, backend, root, port, np)</code></td>
+<td>Times opening store, optional manual DALI construction, ordered prefix batches, canonical payload validation, publication and final closes; returns elapsed milliseconds.</td>
+<td>Only <code>initial</code> prefix is prepared. With zero initial entries no pipeline is created. If pipeline close raises, the subsequent store close in that <code>finally</code> is skipped.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="training-lifecycle-function">Training Lifecycle Function</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>train(args, sources, keys, expected, initial, backend, root, port, np, torch)</code></td>
+<td>Seeds a fresh CUDA model and AdamW optimizer, selects CrossEntropyLoss for ImageNet or BCEWithLogitsLoss otherwise, constructs schedule/pipeline/store, verifies exactly the initial reusable key prefix survived restart, resets metrics/peak allocation, and measures training over every batch/epoch. Returns throughput, wall/setup/input-wait times, final model hash/losses, cache counts, storage/engine metrics and peak CUDA allocation.</td>
+<td>Setup checks precede the protected training loop. A setup/parity failure can leave an opened store/pipeline without the loop's cleanup. Pipeline close failure can prevent store close. No training CPU fallback, epoch checkpoint or same-daemon H2 lifecycle.</td>
+</tr>
+</tbody>
+</table>
+<p>Within the training loop:</p>
+<ol>
+<li>Raw mode gets scheduled DALI images directly and creates CPU targets then
+transfers them to CUDA. It does not individually compare raw payload hashes
+during training; final model equality provides the paired end-state check.</li>
+<li>Aether batch-loads key bytes. Mmap reads each key and removes its four-byte
+wrapper before shared payload decoding. Missing values are computed using
+manual DALI, serialized, hash-validated and published once.</li>
+<li>All cached/generated payloads are hash-validated, decoded and stacked in batch
+index order on CPU, then transferred to CUDA. These steps count as input wait.</li>
+<li>Only the consumer CUDA stream is synchronized at the input-wait boundary so
+scheduled DALI can prepare future batches on its streams. Optimizer zeroing,
+forward/loss/backward/update and <code>loss.item()</code> follow. Nonfinite loss rejects
+the block. <code>inputWaitPercent</code> is scoped to these measured input sections, not
+a generic GPU-stall profiler.</li>
+<li>Final global synchronization ends the wall timer. Cached backends require
+<code>lookups=N*epochs</code>, <code>misses=N-initial</code>, and <code>published=misses</code>; reports record
+hits separately. Later epochs must therefore reuse first-epoch publications.</li>
+<li><code>gpuHoursDuringTraining</code> is wall seconds divided by 3600, not a utilization
+integral or cloud billing measurement. Peak allocation is PyTorch's allocated
+memory counter, not total device/driver/DALI reserved memory.</li>
+</ol>
+<h2 id="paired-block-and-resume-functions">Paired Block and Resume Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>run_block(args, point, index, output, protocol, env_id)</code></td>
+<td>Computes conservative payload floor and enters owned cache-workspace management, delegating measurement with that generated-store root.</td>
+<td>Stores and capacity checks are separate from report output. Does not launch independent process isolation for each backend.</td>
+</tr>
+<tr>
+<td><code>measure_block(args, point, index, output, protocol, env_id, root)</code></td>
+<td>Merges args/condition, sets seed to base+block, loads sources, derives keys/canonical hashes, computes rounded reusable prefix, shuffles three backends using a private seeded RNG, populates cached stores inside one Java daemon context, then reopens another daemon over the same Java root for all three training runs. Requires identical final model hashes and writes report plus report-byte receipt.</td>
+<td>Always uses separate population/training daemon lifetimes, not a persistent V0-V4 experiment. Python-rounded reuse count is the actual prefix, not exactly the requested percentage. Report write and receipt write are separate operations; partial evidence remains after failure.</td>
+</tr>
+<tr>
+<td><code>validated_report(path, protocol, env_id)</code></td>
+<td>Verifies report-byte receipt hash, report protocol/environment, PASSED/model parity, both cache invariants, scheduled condition/index/seed, exact backend set/order membership, complete canonical hash keys, finite positive matching throughput, expected cache lifecycle counts and Java DURABLE engine evidence. Returns the report.</td>
+<td>Does not recompute canonical tensors, model hashes or measured durations. Does not rederive random backend order, validate loss list contents or workflow-cost sums. Receipt's own protocolHash field is not compared here; report protocol hash is.</td>
+</tr>
+</tbody>
+</table>
+<p>The block stores initial population time separately for Aether/mmap, per-backend
+setup and loop times, canonical artifact hashes and a truthful page-cache note.
+Throughput comparisons do not automatically establish total-workflow dominance.
+The exact loss trajectories are retained, but equality of trajectories is not an
+explicit guard; only final model byte hashes must match across all three backends.</p>
+<h2 id="cli-campaign-and-analysis-functions">CLI, Campaign and Analysis Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+<th>Boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dali_comparison.main(argv=None)</code></td>
+<td>Parses dataset/config, repeats/epochs/batch/reuse, DALI thread/prefetch, model/seed, smoke/resume/scratch/output options. Requires positive matrix dimensions and reuse 0..100; supports only COCO/ImageNet. Builds secondary protocol and either writes plan-only JSON without CUDA/DALI or enters exclusive output ownership and executes.</td>
+<td>Defaults: 12 repeats, five epochs, batch 16, reuse 66.6445%, four threads, prefetch two, small model. Dataset names are comma-split without stripping. Plan-only is not measured evidence and writes outside the exclusive execution lock.</td>
+</tr>
+<tr>
+<td><code>execute(args, points, plan)</code></td>
+<td>Sets default cuBLAS workspace config, requires CUDA and imports DALI, captures environment/accelerator identity, binds source/manifest hashes and pipeline descriptors into plan, freezes campaign metadata, then loads validated existing results for resume or measures new blocks. Archives ordinary failures with traceback/identity and rethrows; writes summary only after all loop blocks pass.</td>
+<td>Resume requires unchanged frozen protocol/environment via shared metadata helper. No automatic retry or maximum-attempt policy like H2. Summary's role string is generic secondary DALI even for fixture mode; analysis admission uses protocol measurementRole and rejects fixture protocols. KeyboardInterrupt is outside <code>except Exception</code>.</td>
+</tr>
+<tr>
+<td><code>load_dali_blocks(root)</code></td>
+<td>Requires canonical-DALI protocol schema and real secondary role, discovers immediate subdirectory block JSONs excluding receipts, verifies each environment ID/file/source/CUDA identity and report, rejects duplicate condition-digest/block pairs, and adapts reports to shared analysis conditions/throughput fields. Requires at least one valid block.</td>
+<td>Does not require every configured condition/repetition or one common environment ID itself. Multiple internally valid environment files can be read; execution metadata fencing is separate. Adapted fields omit workflow costs, model hashes and backend order.</td>
+</tr>
+<tr>
+<td><code>dali_analyze.main(argv=None)</code></td>
+<td>Requires input/output, loads accepted blocks, generates figures labeled <code>DALI direct</code>, calls shared <code>analyze_blocks</code>, adds secondary/non-Pillow/non-OCT scope and writes analysis JSON.</td>
+<td>Delegates statistical/sample completeness to shared analysis, not H2's fixed 24-block inference. Figures are generated before final report writing; failures can leave partial output. Does not modify original source reports.</td>
+</tr>
+<tr>
+<td><code>run(output)</code></td>
+<td>Smoke helper creates a fresh output, seeded five RGB PNG/JPEG fixtures with two class folders and varied dimensions, prepares an ImageNet manifest/config with resize eight, then calls comparison for one repeat, two epochs, batch two, two threads and 40% reuse with fixture-smoke flag. Prints correctness-only success.</td>
+<td>Requires actual CUDA/DALI despite generated input. Existing output is rejected. No cleanup rollback for failed fixture creation/run. Not a real dataset benchmark or research observation.</td>
+</tr>
+</tbody>
+</table>
+<p>The smoke script's module-level argparse block supplies output and calls <code>run</code>;
+it is not a separately declared <code>main</code> function. Shared <code>analyze_blocks</code>/figure
+implementation and source preparation are separate code ownership boundaries.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_dali_workload.py">test_dali_workload.py</a> exercises descriptor
+and content identity, payload parity/packing, stateless callback exhaustion,
+partial batches and plan-only without DALI. Its orchestration case deliberately
+uses CPU/DALI/Java/CUDA doubles plus a real mmap adapter; five samples, two epochs
+and a two-entry prefix yield 10 lookups, seven hits, three misses/publications.
+It also proves the fixture-role protocol is rejected by the research loader.</p>
+<p>Those checks do not establish GPU decoder parity, DALI prefetch behavior, CUDA
+model reproducibility, real Java transport durability or actual accelerator
+performance. This documentation batch does not run the GPU smoke or a campaign.
+The qualified AST gate checks all 26 named declarations against individual table
+entries; it is not semantic correctness or experimental completion evidence.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-timing-boundary">Architecture and Timing Boundary</a><a href="#canonical-identity-and-payload-functions">Canonical Identity and Payload Functions</a><a href="#dali-input-and-pipeline-functions">DALI Input and Pipeline Functions</a><a href="#comparison-preparation-functions">Comparison Preparation Functions</a><a href="#training-lifecycle-function">Training Lifecycle Function</a><a href="#paired-block-and-resume-functions">Paired Block and Resume Functions</a><a href="#cli-campaign-and-analysis-functions">CLI, Campaign and Analysis Functions</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

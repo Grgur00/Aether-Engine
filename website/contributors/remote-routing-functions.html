@@ -1,0 +1,230 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/REMOTE-ROUTING-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Remote client routing and retries: source-backed contributor documentation for Aether Engine.">
+  <title>Remote client routing and retries | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html" aria-current="page">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/REMOTE-ROUTING-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="remote-client-routing-and-retry-functions">Remote Client Routing and Retry Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="rpc-client-functions.html">RPC client</a> | <a href="modules.html">Module guide</a></p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/src/main/java/io/aetherdb/client">aether-client</a>.
+This reference covers <strong>19 explicit declarations</strong> in RemoteEndpointResolver,
+RemoteConnectionPool, RemoteRetryPolicy, RemoteRetryDecision and RemoteClientIdentity,
+plus method-free RetryAction. The <a href="remote-facade-functions.html">facade reference</a>
+covers RemoteAetherClient, typed collections and result types separately.</p>
+<h2 id="routing-architecture">Routing Architecture</h2>
+<pre><code class="language-text">configured endpoints + observed leader -&gt; bounded ordered resolver snapshot
+pool.call -&gt; least-busy candidate + per-endpoint/total inflight reservation
+  -&gt; supplied RpcClient.call -&gt; underlying completion -&gt; release reservation
+pool.callOn -&gt; explicit resolver candidate (leader redirect caller)
+ClientStatus + retry class + attempt budget -&gt; RemoteRetryDecision
+  (caller owns delay, next attempt, request identity and dedup evidence)
+</code></pre>
+<p>The pool does not create sockets or authenticate principal names. A supplied
+transport owns concrete channels, while this layer selects endpoints and tracks
+inflight calls. Leader hints are observations, not consensus or peer authentication.
+The retry policy is distinct from plaintext RpcClient's one exceptional retry.</p>
+<h2 id="endpoint-resolver-functions">Endpoint Resolver Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/src/main/java/io/aetherdb/client/RemoteEndpointResolver.java">RemoteEndpointResolver</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RemoteEndpointResolver.RemoteEndpointResolver(initialEndpoints, maximumEndpoints)</code></td>
+<td>Requires positive maximum, stores it and delegates to replacement validation. No network discovery or endpoint health probe.</td>
+</tr>
+<tr>
+<td><code>RemoteEndpointResolver.replaceEndpoints(replacements)</code></td>
+<td>Synchronized, requires nonnull list, deduplicates in insertion order and requires nonempty set within maximum before replacing current set. Clears preferred leader if absent from replacement. Does not explicitly reject null elements; malformed lists can fail later in candidates().</td>
+</tr>
+<tr>
+<td><code>RemoteEndpointResolver.observeLeader(leader)</code></td>
+<td>Synchronized, requires nonnull leader. Adds missing leader if capacity permits, then sets preference. Full set rejects new leader without evicting an endpoint. Existing leader consumes no new capacity.</td>
+</tr>
+<tr>
+<td><code>RemoteEndpointResolver.clearLeader(leader)</code></td>
+<td>Synchronized, clears preference only if equal to current preferred leader. Does not remove endpoint from set or mark unhealthy; null argument simply fails equality against a nonnull preferred value.</td>
+</tr>
+<tr>
+<td><code>RemoteEndpointResolver.candidates()</code></td>
+<td>Synchronized immutable list snapshot: leader first if present, then remaining insertion-order endpoints. Does not load-balance or contact nodes. Null set member can cause NullPointerException while comparing/copying.</td>
+</tr>
+</tbody>
+</table>
+<p>Endpoint identity uses RpcEndpoint record equality, including expectedNodeId, not
+only canonical host:port. Endpoints with the same address but different pins can
+therefore count separately here, while the concrete plaintext transport caches
+by canonical address alone. Replacing resolver candidates does not close old
+transport channels or clear the pool's accounting for already-running calls.</p>
+<h2 id="pool-and-ownership-functions">Pool and Ownership Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/src/main/java/io/aetherdb/client/RemoteConnectionPool.java">RemoteConnectionPool</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RemoteConnectionPool.RemoteConnectionPool(transport, resolver, identity, maximumInflightPerEndpoint, maximumInflightTotal)</code></td>
+<td>Requires nonnull collaborators/identity, positive limits and total &gt;=per-endpoint. Owns HashMap counters protected by synchronized methods. No identity credential verification or binding to supplied RpcClient occurs.</td>
+</tr>
+<tr>
+<td><code>RemoteConnectionPool.call(operation, body, options)</code></td>
+<td>Null arguments throw synchronously before reservation. Reservation failure returns failed future. Calls supplied transport; RuntimeException or null returned future releases endpoint and returns failure. Otherwise returns dependent whenComplete future whose underlying completion releases reservation. Does not copy body or independently check operation byte limits.</td>
+</tr>
+<tr>
+<td><code>RemoteConnectionPool.callOn(endpoint, operation, body, options)</code></td>
+<td>Requires nonnull arguments, reserves exact candidate and delegates like call. Does not observe/add leader automatically or fall back to another candidate when selected one is full.</td>
+</tr>
+<tr>
+<td><code>RemoteConnectionPool.identity()</code></td>
+<td>Returns immutable principal metadata supplied at construction; not proof of authentication or channel identity.</td>
+</tr>
+<tr>
+<td><code>RemoteConnectionPool.inflight(endpoint)</code></td>
+<td>Synchronized current count, default zero for unknown endpoint. Snapshot is not a reservation.</td>
+</tr>
+<tr>
+<td><code>RemoteConnectionPool.totalInflight()</code></td>
+<td>Synchronized total running-call count; not socket count or byte capacity.</td>
+</tr>
+<tr>
+<td><code>RemoteConnectionPool.close()</code></td>
+<td>Sets closed under monitor, then invokes transport.close outside lock. Repeated calls invoke underlying close repeatedly. Does not wait itself, clear counts, cancel futures or guarantee graceful drain beyond transport behavior.</td>
+</tr>
+<tr>
+<td><code>RemoteConnectionPool.reserveEndpoint()</code></td>
+<td>Synchronized closed/total-limit checks, then chooses candidate below per-endpoint cap with smallest inflight count. Strictly-lower comparison preserves resolver order on ties. Increments chosen and total counters atomically under pool monitor; no candidate yields IllegalStateException.</td>
+</tr>
+<tr>
+<td><code>RemoteConnectionPool.reserveEndpoint(endpoint)</code></td>
+<td>Synchronized closed check, requires endpoint in current resolver snapshot, then enforces total/per-endpoint bounds and increments counts. Throws for noncandidate/full/closed; no waiting queue.</td>
+</tr>
+<tr>
+<td><code>RemoteConnectionPool.releaseEndpoint(endpoint)</code></td>
+<td>Synchronized decrements/removes endpoint count and decrements positive total. Does not assert matched reservation; missing endpoint still can decrement positive total. Callback discipline is responsible for pairing.</td>
+</tr>
+</tbody>
+</table>
+<p>Leader preference is a tie-breaker, not unconditional routing: a less-busy follower
+can beat a busy preferred leader. The pool holds its monitor while asking resolver
+for synchronized snapshots. There is no independent endpoint-health state,
+backpressure wait or retry loop in this class.</p>
+<p>The returned future is a dependent future, not necessarily the original transport
+future. Cancelling it does not automatically cancel transport work; reservations
+are released when the underlying response completes. A transport future that never
+completes can retain capacity indefinitely. Error (rather than RuntimeException)
+from transport is not caught by the release-on-failure block. close can race with
+an already-reserved call before transport invocation; the pool does not serialize
+that whole interval with shutdown. These follow source ordering, not test claims.</p>
+<h2 id="retry-decision-functions">Retry Decision Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/src/main/java/io/aetherdb/client/RemoteRetryPolicy.java">RemoteRetryPolicy</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/src/main/java/io/aetherdb/client/RemoteRetryDecision.java">RemoteRetryDecision</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RemoteRetryPolicy.decide(status, retryClass, current, leaderHint, commandDeduplicated, attempt, maximumAttempts)</code></td>
+<td>Requires status/class/current and 1 &lt;=attempt &lt;=maximumAttempts. Ordered decisions: OK completes; INDETERMINATE stops uncertain; exhausted budget completes; NOT_LEADER with hint redirects; otherwise unsafe class completes; safe transient statuses retry current endpoint; remaining statuses complete. Does not sleep, mutate resolver or perform another call.</td>
+</tr>
+<tr>
+<td><code>RemoteRetryPolicy.retrySafe(retryClass, commandDeduplicated)</code></td>
+<td>Private helper true for IDEMPOTENT, or DEDUP_REQUIRED with caller-supplied true flag. NEVER false. Boolean is an assertion from caller, not verified durable deduplication.</td>
+</tr>
+<tr>
+<td><code>RemoteRetryDecision.RemoteRetryDecision(action, nextEndpoint, reason)</code></td>
+<td>Requires nonnull action, normalizes null reason to empty string. Retry actions require endpoint; COMPLETE/STOP_UNCERTAIN forbid it. No reason length/sanitization or membership check.</td>
+</tr>
+</tbody>
+</table>
+<p>Transient statuses are RESOURCE_EXHAUSTED, DEADLINE_EXCEEDED, NO_LEADER_KNOWN and
+LEADER_NOT_READY. INDETERMINATE stops even when class/flag would otherwise permit
+retry and even at the attempt budget boundary. NOT_LEADER with hint is checked
+<strong>before retry safety</strong>, so it can redirect NEVER or nondeduplicated operations
+when attempts remain. The policy assumes the redirect response is a safe rejection;
+it does not itself prove the server crossed no mutation/uncertainty boundary.
+Without a hint, NOT_LEADER falls through to terminal completion.</p>
+<p>RetryAction has COMPLETE, RETRY_SAME_ENDPOINT, RETRY_PREFERRED_LEADER and
+STOP_UNCERTAIN, with no explicit methods. RemoteRetryPolicy has an implicit default
+constructor, excluded from the explicit-declaration inventory. Policy uses
+ClientStatus, not RpcStatus; status conversion and actual loop ownership must be
+traced in the higher-level client.</p>
+<h2 id="principal-identity-function">Principal Identity Function</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/src/main/java/io/aetherdb/client/RemoteClientIdentity.java">RemoteClientIdentity</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RemoteClientIdentity.RemoteClientIdentity(principal)</code></td>
+<td>Rejects null/blank, length &gt;256 Java characters, NUL or ISO control characters, then strips outer whitespace. Validation length is before stripping. Stores immutable text; no credential verification, case normalization or authorization lookup.</td>
+</tr>
+</tbody>
+</table>
+<p>The comment's authenticated-identity wording describes intended use. A caller can
+construct this record with any accepted text; this pool does not share a global
+identity-indexed channel registry or transmit the principal to RpcClient.call.
+Avoid describing metadata validation as a security boundary without concrete
+transport/security integration evidence.</p>
+<h2 id="coverage-and-verification">Coverage and Verification</h2>
+<p>Compiler-tree checks cover <strong>19/19 explicit declarations (100%; 0% remaining)</strong>
+in these six selected files, including both reservation overloads. This is not full
+aether-client/API/codec coverage. Resolver tests check preference/discovery/bounds;
+pool tests check least-busy selection, completion release, exhaustion, shutdown and
+explicit candidates; policy tests check redirect ordering, uncertainty, dedup flag
+and attempt cap. They use transport doubles, not authenticated network services,
+and do not exercise every cancellation/close race or malformed resolver list.</p>
+<p>See <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/src/test/java/io/aetherdb/client/RemoteEndpointResolverTest.java">RemoteEndpointResolverTest</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/src/test/java/io/aetherdb/client/RemoteConnectionPoolTest.java">RemoteConnectionPoolTest</a>
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-client/src/test/java/io/aetherdb/client/RemoteRetryPolicyTest.java">RemoteRetryPolicyTest</a>.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#routing-architecture">Routing Architecture</a><a href="#endpoint-resolver-functions">Endpoint Resolver Functions</a><a href="#pool-and-ownership-functions">Pool and Ownership Functions</a><a href="#retry-decision-functions">Retry Decision Functions</a><a href="#principal-identity-function">Principal Identity Function</a><a href="#coverage-and-verification">Coverage and Verification</a></nav></aside>
+  </div>
+</body>
+</html>

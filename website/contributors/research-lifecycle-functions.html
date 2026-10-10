@@ -1,0 +1,227 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/RESEARCH-LIFECYCLE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Research checkpoints and persistent service: source-backed contributor documentation for Aether Engine.">
+  <title>Research checkpoints and persistent service | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html" aria-current="page">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/RESEARCH-LIFECYCLE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="research-stage-checkpoint-and-persistent-service-functions">Research Stage Checkpoint and Persistent Service Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="research-campaign-functions.html">Campaign identity</a> | <a href="research-process-functions.html">Process ownership</a> | <a href="h2-execution-functions.html">H2 execution</a></p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/longitudinal_state.py">longitudinal_state.py</a> (11 functions)
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/persistent_service.py">persistent_service.py</a> (five).
+All 16 explicit functions, including class lifecycle methods, are covered.
+The two files implement different recovery policies. A receipt/checkpoint boundary
+for a closed-store restart experiment is not a way to resume a persistent live JVM.</p>
+<h2 id="two-recovery-architectures">Two Recovery Architectures</h2>
+<pre><code class="language-text">restart-per-stage:
+  prior closed checkpoint + receipt -&gt; verify -&gt; live store -&gt; pending marker
+  worker closes store -&gt; inventory -&gt; copy/verify checkpoint -&gt; committed receipt
+  interruption -&gt; require no live lease -&gt; restore prior checkpoint -&gt; rerun stage
+
+persistent-per-block:
+  fresh block marker -&gt; V0 start + controller/daemon lease
+  V0..V4 use same daemon -&gt; per-stage receipts, no live-store checkpoint
+  V4 closes and accounts residence -&gt; full-block validation/completion
+  interruption -&gt; cleanup -&gt; preserve block -&gt; fresh whole-block attempt
+</code></pre>
+<p>H2 uses the persistent controller and whole-block retry policy. The earlier restart
+pilot uses execute_stage's closed-store checkpoints. Shared receipt/capacity/PID
+helpers do not decide which policy applies. Do not copy a live Aether store as though
+it were an independently verified closed checkpoint.</p>
+<h2 id="identity-path-and-capacity-functions">Identity, Path and Capacity Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>backend_order(block, stage, seed)</code></td>
+<td>Shuffles the four backend names using private Random(seed), rotates by (block+stage)%4 and returns order. Does not change global RNG or enforce a 24-permutation schedule. Seed/type/range policy is left to callers; this is the earlier rotating pilot order, not H2 schedule.</td>
+</tr>
+<tr>
+<td><code>inventory(directory)</code></td>
+<td>Requires existing nonsymlink directory, recursively rejects symlinks and resolved paths outside root, hashes regular files into sorted relative POSIX names. No lock, open-file lease, directory hash or protection against concurrent filesystem changes. Empty directory produces empty inventory.</td>
+</tr>
+<tr>
+<td><code>remove_owned(path, owner)</code></td>
+<td>Rejects direct symlink, resolves both paths, refuses owner itself or anything outside owner, then recursively removes an existing descendant directory. Does not require an ownership receipt or examine inventory before deletion; caller supplies trusted owner/path. Missing descendant is a no-op; filesystem races can still raise.</td>
+</tr>
+<tr>
+<td><code>capacity_required(count, image_size)</code></td>
+<td>Returns <code>4 * count * image_size**2 * 3 * 12 + 512 MiB</code>: a conservative estimate for four stores, checkpoints, overhead and reserve. No argument validation, disk reservation or exact backend format model.</td>
+</tr>
+<tr>
+<td><code>check_capacity(root, required, free=None)</code></td>
+<td>Obtains disk free space unless supplied, rejects available&lt;required and otherwise returns required/free bytes plus explicit nonreservation scope. Equal capacity passes. Free-space changes and format growth can still exhaust storage.</td>
+</tr>
+<tr>
+<td><code>stage_paths(scratch, backend, stage)</code></td>
+<td>Constructs scratch/backend/live and scratch/backend/checkpoint-vN without resolving, creating or validating names. Trusted backend/stage ownership is a caller invariant, not generic arbitrary-path sanitization.</td>
+</tr>
+<tr>
+<td><code>pid_alive(pid)</code></td>
+<td>Windows: OpenProcess query handle, false for invalid PID error 87, query exit code==259, close handle in finally; other access/query failures raise. Unix: kill(int(pid),0), false only on ProcessLookupError. Permission/type errors can propagate. Checks a PID, not process start identity, host ownership or worker correctness.</td>
+</tr>
+</tbody>
+</table>
+<p>PID reuse can identify a different process as live. Unix kill(pid,0) semantics
+also include special nonpositive PID meanings; callers must supply actual trusted
+worker PIDs. A stale lease file is not itself proof of a running process. Conversely,
+permission failure must not be interpreted as safely dead. No function here kills
+an orphan automatically or silently resumes beside it.</p>
+<h2 id="stage-receipt-functions">Stage Receipt Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>save_receipt(path, report, identity)</code></td>
+<td>Shallow-merges report then identity so identity wins collisions, hashes parsed payload with evidence.digest and atomically writes one sha256/payload envelope. Returns payload. No scientific schema validation, no-overwrite, file fsync, signature or store-inventory verification.</td>
+</tr>
+<tr>
+<td><code>load_receipt(path, identity)</code></td>
+<td>Parses envelope using default text encoding, requires payload digest and equality for every requested identity field, returns payload. Additional payload fields are allowed. Does not independently validate counts/timing/device, compare live store or require all possible identity fields; caller chooses identity. Missing/malformed fields can raise.</td>
+</tr>
+<tr>
+<td><code>cumulative(stages)</code></td>
+<td>Enumerates supplied stages, checks every timing value is numeric/finite/nonnegative, compares sum with fullLifecycleMs within 1e-6, then cumulatively sums fullLifecycleMs into V0..VN keys. Does not require five stages, fixed phase names or positive preparation/training. Numeric isinstance accepts bool; fullLifecycleMs itself has no explicit finite/type guard.</td>
+</tr>
+</tbody>
+</table>
+<p>cumulative's accounting check is not a full timing schema: NaN in fullLifecycleMs
+can evade the absolute-difference comparison even with finite phase values. H2
+adds required stage/phase/count guards and analysis's positive finite ratio checks;
+do not use this helper alone as certification of arbitrary input dictionaries.
+An empty stage sequence returns an empty result. A receipt's object hash is not
+the file's byte hash, so JSON whitespace alone need not invalidate it.</p>
+<h2 id="closed-store-stage-execution">Closed-Store Stage Execution</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>execute_stage(scratch, reports, backend, stage, identity, worker)</code></td>
+<td>If committed target receipt exists, validates/returns it without running worker or rechecking stores/leases. Otherwise rejects live lease, verifies prior-stage receipt/checkpoint, resolves pending interruption by owned deletion and restoration, or verifies current live store matches prior inventory. Creates live/pending marker, invokes worker, hashes/copies/verifies closed store, records checkpoint time/workspace bytes/attempt, publishes receipt, removes pending and then prior checkpoint. No persistent live-daemon resume.</td>
+</tr>
+</tbody>
+</table>
+<p>The worker contract is to return only after store closure. execute_stage does not
+enforce that closure itself. It writes a pending marker before worker mutation,
+but does not create/remove a PID lease; worker/controller code owns leases. Normal
+next-stage execution requires both prior checkpoint and live inventory consistency.
+After interruption, restored live state comes from the verified prior checkpoint;
+stage zero instead starts empty. Partial current output is not trusted.</p>
+<p>Checkpoint copying/verification and workspace stat accounting are outside worker
+timing. checkpointMs starts after worker returns and includes inventory/copy/check;
+the disk snapshot covers whole block scratch before prior checkpoint deletion.
+allocatedBytes is st_blocks*512 only if all file stat records expose that field,
+otherwise None. This is not per-process physical device-write accounting.</p>
+<p>The receipt commit precedes pending deletion and prior-checkpoint deletion. If
+cleanup fails after commit, subsequent calls can return the committed receipt
+while old markers/checkpoints remain. A committed receipt fast path does not
+revalidate its referenced store bytes. Next-stage preflight validates its prior
+checkpoint. These JSON/filesystem steps are not one transaction, and copying is
+not a storage snapshot under concurrent writes or a power-loss durable commit.</p>
+<h2 id="persistent-service-functions">Persistent Service Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>validate_service_stages(stages)</code></td>
+<td>Requires exactly five stages, one engineInfo PID, starts [1,0,0,0,0], stops [0,0,0,0,1] and persistent-per-block markers. Does not inspect a live process, validate PID positivity or prove recorded continuity against PID reuse; checks receipt fields.</td>
+</tr>
+<tr>
+<td><code>PersistentService.__init__(scratch, reports, identity, *, completed=False, factory=java_daemon, clock=time.perf_counter)</code></td>
+<td>Stores paths/identity/factory/clock and completion flag, initializes manager/daemon/start state and service lease path. No filesystem/process work or validation yet.</td>
+</tr>
+<tr>
+<td><code>PersistentService.__enter__()</code></td>
+<td>Creates report directory. Unless completed, rejects existing block marker, v*-*.json files or any existing scratch path; writes started marker with lifecycle. Returns self without starting daemon. completed bypasses freshness checks, not a complete-receipt loader or live-state restore.</td>
+</tr>
+<tr>
+<td><code>PersistentService.run_stage(backend, stage, worker)</code></td>
+<td>For Aether V0 obtains factory manager, times its enter, retains daemon and writes controller/daemon PID lease. Later Aether stages require existing daemon, never restart fallback. Makes live directory, runs callback, sets lifecycle/checkpoint policy, validates reported daemon PID and start/stop markers. Charges V0 startup, closes/times V4, records residence, recomputes Aether totals/nested stage total and saves receipt. Other backends receive markers/receipt but no Java start/stop accounting.</td>
+</tr>
+<tr>
+<td><code>PersistentService.__exit__(exc_type, exc, traceback)</code></td>
+<td>If both manager/daemon are held, delegates exit with body exception, then clears state and removes lease in finally. Does not suppress body exceptions by returning manager's result, remove scratch/receipts or retry. Cleanup can raise. If manager enter failed before daemon assignment, this method does not exit that partial manager; factory must own startup cleanup.</td>
+</tr>
+</tbody>
+</table>
+<p>run_stage is not itself an order/range state machine. Callers must call Aether V0
+once then V1..V4; an arbitrary repeated V0 can replace retained manager state.
+The separate five-stage validator and orchestration establish the recorded sequence.
+The default factory is a lazy generator; factory creation occurs before startup
+timer, while actual child launch occurs inside its enter. Injected factories should
+respect that measurement boundary.</p>
+<p>serviceResidenceMs spans daemon startup through final exit and can include Python
+launch/validation/report gaps. It is diagnostic wall time, not the sum of the six
+measured phases. Worker phases must correctly exclude externally charged startup/
+shutdown. V4 shutdown can drain/export background work through java_daemon. On a
+mid-block exception, cleanup closes the held service but there is no successful
+V4 report to turn that interrupted lifecycle into an observation.</p>
+<p>The started marker survives cleanup to reject partial-block reuse. Stage receipts
+do not imply a block is complete. H2's completed-block loader validates all stages
+and inventory before reuse, while whole-block retry preserves the failed attempt
+and selects a fresh scratch directory. No tuning or performance-based retry rule
+is provided by this controller.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_longitudinal_comparison.py">test_longitudinal_comparison.py</a>
+checks closed-store checkpoint validation/recovery, including a disposable child
+that exits during mutation. <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_persistent_service.py">test_persistent_service.py</a>
+uses factory/clock doubles for one start/stop, charged timing and partial-block
+rejection. Their real Java campaign tests are opt-in and are not implied by these
+local fixture results. <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_research_infrastructure_contracts.py">Documentation contracts</a>
+check receipt identity, accounting-helper limits and ownership/failure edges.
+Qualified AST checks cover all 16 declarations across these two files.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#two-recovery-architectures">Two Recovery Architectures</a><a href="#identity-path-and-capacity-functions">Identity, Path and Capacity Functions</a><a href="#stage-receipt-functions">Stage Receipt Functions</a><a href="#closed-store-stage-execution">Closed-Store Stage Execution</a><a href="#persistent-service-functions">Persistent Service Functions</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

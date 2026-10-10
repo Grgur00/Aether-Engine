@@ -1,0 +1,182 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/RESEARCH-PROCESS-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Research build and process ownership: source-backed contributor documentation for Aether Engine.">
+  <title>Research build and process ownership | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html" aria-current="page">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/RESEARCH-PROCESS-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="research-build-environment-and-process-functions">Research Build, Environment, and Process Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="research-campaign-functions.html">Campaign identity</a> | <a href="research-lifecycle-functions.html">Stage and service ownership</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/paper_common.py">paper_common.py</a>. All nine explicit functions,
+including the nested stdout reader, are covered. ROOT is the module's checkout
+root and its clients/python path is prepended at import. A separately bootstrapped
+candidate checkout can therefore select different dependency bytes from the active
+development tree; recorded and executing roots must not be conflated.</p>
+<h2 id="shared-ownership-architecture">Shared Ownership Architecture</h2>
+<pre><code class="language-text">source inventory + classpath file + runtime files -&gt; Java build receipt validation
+environment probes + selected source hashes -&gt; descriptive provenance report
+JSON producer -&gt; .tmp bytes -&gt; os.replace -&gt; visible document
+java_daemon -&gt; owned child + stderr file + stdout reader -&gt; announced port
+caller body -&gt; bounded background drain/export -&gt; terminate/wait/kill -&gt; reader cleanup
+</code></pre>
+<p>These helpers do not choose sample sizes, statistical hypotheses, backend order or
+dataset revision rules. They provide file/process mechanics that different runners
+measure differently. In particular, closing java_daemon drains background work;
+it is not merely an instantaneous process-handle release.</p>
+<h2 id="file-and-probe-functions">File and Probe Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>write_json(path, value)</code></td>
+<td>Creates parents, serializes indented JSON with allow_nan=False and newline, writes UTF-8 to the fixed sibling path whose suffix ends .tmp, then os.replace publishes destination. Rejects nonfinite JSON values. No fsync, unique temp name, cleanup-on-failure, no-overwrite or multi-file atomicity. Concurrent writers need caller coordination.</td>
+</tr>
+<tr>
+<td><code>sha256(path)</code></td>
+<td>Reads a file in bounded 1 MiB binary chunks through hashlib SHA-256. Returns exact byte hash. Does not validate schema, trusted path, immutable input or scientific correctness.</td>
+</tr>
+<tr>
+<td><code>capture(command)</code></td>
+<td>Runs command in ROOT, captures text stdout/stderr, applies 30-second timeout and strips output. Nonzero exits remain result objects. Only OS launch failures/timeouts become an unavailable object; programming/decoding exceptions can propagate. Does not stream progress or raise automatically for nonzero status.</td>
+</tr>
+<tr>
+<td><code>environment()</code></td>
+<td>Collects Python/executable/platform/CPU count/time, Git/Java/pip/GPU/CPU/storage/mount probes and eight performance-related environment variables. Hashes selected Python/Java/build/config/lock patterns, optionally attaches the Java build manifest and archive provenance verification. Returns descriptive report; unavailable probes need not abort. Does not itself run java_classpath or require clean source/CUDA.</td>
+</tr>
+</tbody>
+</table>
+<p>write_json's replace gives a single visible-file publication boundary, not a
+power-loss durable receipt. Serialization happens before writing the temporary
+file; serialization failure preserves destination. Write/replace failure may leave
+the fixed temporary file. An existing destination may be overwritten. Campaign
+locking and new-output guards are separate policies, not implicit in this utility.</p>
+<p>Environment source inventory includes the specified recursive Python, module Java,
+Gradle Kotlin, paper JSON and environment-lock patterns. It is not all repository
+content: datasets/results and unlisted formats/directories are not automatically
+bound. Archive verification checks each declared file within ROOT, requires a
+nonempty files mapping for verified=true, and compares bytes; it does not reject
+all additional undeclared files or authenticate an originating Git commit.
+sourceClean is copied separately and can be true while verified is false.</p>
+<p>Eight captured performance variables are OMP_NUM_THREADS, MKL_NUM_THREADS,
+OPENBLAS_NUM_THREADS, CUDA_VISIBLE_DEVICES, CUDA_DEVICE_ORDER, CUBLAS_WORKSPACE_CONFIG,
+NVIDIA_TF32_OVERRIDE and PYTORCH_CUDA_ALLOC_CONF. Other environment changes are not
+automatically covered. Generic probes are records, not a capability smoke test.</p>
+<h2 id="java-build-identity-functions">Java Build Identity Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>java_build_sources(root)</code></td>
+<td>Hashes regular files matching declared root Gradle/properties/wrapper, module build/main source and build-logic patterns. Returns sorted POSIX relative names. Includes main resources under broad patterns, excludes module test source and other unlisted paths. No symlink rejection/containment guard or dependency-resolution verification here. Expects a Path-like root with glob.</td>
+</tr>
+<tr>
+<td><code>java_runtime_record(path)</code></td>
+<td>Returns file kind/SHA, directory kind/recursive file SHA mapping, or absent kind. Follows ordinary filesystem file/dir checks; no independent size, signature, nonempty-directory or symlink policy. Receipts describe absence as well as presence.</td>
+</tr>
+<tr>
+<td><code>java_classpath()</code></td>
+<td>Requires paper-runtime-classpath.txt and adjacent paper-runtime-build.json, validates schema/classpath byte hash and exact current Java source inventory, then records each nonempty classpath entry and compares exact runtime map. Returns stripped classpath. Supported IO/parse/type/attribute failures become a RuntimeError with rebuild command; no build is run automatically.</td>
+</tr>
+</tbody>
+</table>
+<p>Java runtime identity covers compiled classes/resources/dependency bytes as recorded,
+not merely source hashes. Added/removed source/runtime files change inventory.
+Classpath parsing uses os.pathsep; entry keys use absolute paths and duplicates
+collapse in the runtime dict. Empty classpath map is rejected, but a matching
+recorded absent entry or empty directory is not independently prohibited. The
+downstream JVM still determines whether an executable class is loadable.</p>
+<p>The manifest is unkeyed JSON, not a signature or independent compiler attestation.
+This validation does not probe the Java executable/version, and does not lock files
+against changes after hashing. Executable/package checks and exact runtime matching
+belong to the calling protocol. Sources outside these patterns require their own
+identity controls. Tests use explicit fake class/JAR bytes, not real Java compilation.</p>
+<h2 id="daemon-functions">Daemon Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>java_daemon(directory, *, maximum_bytes=1 &lt;&lt; 40, durability=&quot;DURABLE&quot;, jvm_options=())</code></td>
+<td>Context-manager generator resolving/creating store, obtaining verified classpath and launching Java with supplied JVM options, preview flag, training-cache main class, ephemeral port, capacity and durability. Uses hidden creation flag on Windows, stdout pipe, sibling overwritten stderr log and daemon reader thread. Waits up to 60 seconds for a valid decimal port, yields port/PID/command, drains/exports compaction on body exit, then always runs process/thread cleanup.</td>
+</tr>
+<tr>
+<td><code>java_daemon.read_port()</code></td>
+<td>Nested thread callback strips each stdout line into a queue and pushes None at EOF. Does not parse the port, report thread exceptions or bound queue growth. Daemon thread status permits interpreter exit; it is not proof the worker has terminated.</td>
+</tr>
+</tbody>
+</table>
+<p>Startup ignores non-port lines, rejects EOF before announcement and distinguishes
+deadline expiry from queue timeout. Port must be decimal and in 1..65535. There is
+no explicit health/RPC handshake before yielding; the caller's first connection and
+workload validation test the service. The queue is unbounded and the reader continues
+collecting stdout after startup. stderr is a file, not merged into the queue.</p>
+<p>On leaving the yielded body, a diagnostics client asks for bounded background
+compaction drain, writes a uniquely timestamped sibling compaction JSON, then
+rejects undrained or failed background work. Connection/drain/export failures can
+raise and replace the body's exception; termination still runs in the outer finally.
+Drains reported by a workload are separate from this final cleanup drain. Callers
+must record their timing boundary, rather than assume this exit is always excluded.</p>
+<p>Cleanup checks process.poll: a live child receives terminate and a 15-second wait;
+timeout triggers kill and another 15-second wait. A second timeout can still raise.
+It joins the reader for at most five seconds and closes stdout, not an unconditional
+thread-termination assertion. There is no process-group descendant cleanup, remote
+host recovery, automatic retry or deletion of store/log data. Startup exceptions
+also enter this outer cleanup after the reader starts.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_java_provenance.py">test_java_provenance.py</a> checks matching
+fixture inventories and source/class/JAR/classpath drift. The
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_research_infrastructure_contracts.py">documentation contracts</a>
+exercise JSON publication, probe return semantics, descriptive environment checks,
+runtime-record limits and modeled daemon port/drain/termination paths. These checks
+use disposable files and process/client doubles, not a new real JVM/GPU experiment,
+power-loss test or guarantee that all child descendants are gone. Qualified AST
+coverage includes every explicit function in this module.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#shared-ownership-architecture">Shared Ownership Architecture</a><a href="#file-and-probe-functions">File and Probe Functions</a><a href="#java-build-identity-functions">Java Build Identity Functions</a><a href="#daemon-functions">Daemon Functions</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/SCHEMA-RESOURCE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Schema locks and generated resources: source-backed contributor documentation for Aether Engine.">
+  <title>Schema locks and generated resources | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html" aria-current="page">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/SCHEMA-RESOURCE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="schema-locks-and-generated-resources">Schema Locks and Generated Resources</h1>
+<p><a href="function-index.html">Function index</a> | <a href="schema-annotation-functions.html">Annotations and validation</a> | <a href="generated-container-functions.html">Runtime lookup</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-codec-processor/src/main/java/io/aetherdb/codec/processor/AetherRecordProcessor.java">AetherRecordProcessor</a>.
+This is the resource/metadata part of its current-checkout reference. Field-expression
+generation and the FieldType implementation remain separate work.</p>
+<h2 id="compile-time-and-runtime-artifacts">Compile-Time and Runtime Artifacts</h2>
+<table>
+<thead>
+<tr>
+<th>Artifact</th>
+<th>Producer/consumer boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Schema directory <code>index.json</code> and referenced lock files</td>
+<td>Read by <code>loadLock()</code> during compilation.</td>
+</tr>
+<tr>
+<td><code>&lt;Record&gt;_AetherCodecProvider.java</code></td>
+<td>Generated source linking Java class to its codec singleton.</td>
+</tr>
+<tr>
+<td><code>META-INF/aether/schemas/&lt;UUID&gt;/&lt;version&gt;.aesch</code></td>
+<td>Descriptor written to CLASS_OUTPUT, fingerprinted and later checked by runtime lookup.</td>
+</tr>
+<tr>
+<td><code>META-INF/services/io.aetherdb.codec.generated.GeneratedCodecProvider</code></td>
+<td>ServiceLoader registration consumed by GeneratedCodecs.</td>
+</tr>
+<tr>
+<td><code>META-INF/aether/generated-codecs.idx</code></td>
+<td>Additional pipe-delimited generated inventory; GeneratedCodecs loads providers, not this index.</td>
+</tr>
+<tr>
+<td>Proposal directory <code>&lt;UUID&gt;.schema.json</code> and <code>index.json</code></td>
+<td>Candidate schema-tool output, not automatically accepted committed locks.</td>
+</tr>
+</tbody>
+</table>
+<p>These are compiler outputs and schema metadata, not engine files or transaction
+records. Writing them does not publish a database collection or migrate values.</p>
+<h2 id="lock-loading">Lock Loading</h2>
+<h3 id="loadlocktype">loadLock(type)</h3>
+<p>Reads <code>aether.schemaDirectory</code>. Missing/blank option, missing regular <code>index.json</code>,
+or absence of a matching index entry returns null. The matching regular expression
+expects ordered properties javaType, schemaId, currentVersion, and lockFile with
+particular JSON string/number shapes. Qualified Java type text is regex-quoted.
+This is not general JSON parsing: property reordering or escaped strings can fail
+to match even when JSON is otherwise valid.</p>
+<p>Parses UUID/version from the matched index entry, resolves and normalizes the lock
+path, requires it to lexically start with the normalized configured directory, and
+requires a regular file. This is not a real-path/symlink containment check. Directory
+and index Path construction occurs before the I/O parsing catch block.</p>
+<p>Within lock text it recognizes field objects with ordered ID, Java name, wire type,
+Java type, requiredness, and maximumEncodedBytes properties. It builds a map by
+Java name: duplicate recognized names overwrite earlier entries. Wire type text
+is matched but not retained. Requiredness is reduced to a retired boolean only
+when equal to <code>RETIRED</code>; OPTIONAL/REQUIRED distinctions are not retained in
+<code>LockedField</code>. Matching can collect fields from both retired fields and versions
+without an explicit current-version selection in this method.</p>
+<p>The first lowercase 64-hex descriptorSha256 match becomes the stored fingerprint;
+absence becomes empty. The first reservedFieldIds array is comma-split and parsed
+as integers. There is no general JSON syntax validation, formatVersion validation,
+duplicate-ID check, or descriptor-file hashing inside this loader.</p>
+<p>Returns <code>LockedSchema</code> with copied maps/sets. I/O and caught illegal-argument
+failures emit <code>AETHER_SCHEMA_LOCK_INVALID</code> and return null; null alone therefore
+does not distinguish missing locks from locks that already produced a compiler
+error. The validation caller handles identity/version checks separately.</p>
+<h2 id="reserved-and-retired-identity">Reserved and Retired Identity</h2>
+<h3 id="removedandreservedidslocked-current">removedAndReservedIds(locked, current)</h3>
+<p>Builds the active current field-ID set, starts with existing reserved IDs, adds
+every locked field ID absent from the active set, and returns <code>Set.copyOf</code>.
+It does not distinguish a rename by name: retaining the stable ID preserves its
+active identity. It builds a sorted set internally, but the returned immutable
+set does not promise iteration order; serialization sorts reserved IDs again.</p>
+<h3 id="retiredfieldslocked-current">retiredFields(locked, current)</h3>
+<p>Uses active IDs to retain locked name/field entries whose IDs are no longer active,
+then returns <code>Map.copyOf</code>. Existing retired records are retained when their IDs
+remain inactive. The returned map's iteration order is not guaranteed despite
+the intermediate TreeMap; <code>proposalJson()</code> does not re-sort that map.</p>
+<h2 id="provider-and-descriptor-emission">Provider and Descriptor Emission</h2>
+<h3 id="writeproviderpackagename-simplename">writeProvider(packageName, simpleName)</h3>
+<p>Creates <code>&lt;simpleName&gt;_AetherCodecProvider</code> source through Filer, emits a public class
+implementing GeneratedCodecProvider, and emits <code>recordType()</code> returning the Java
+record class and <code>codec()</code> returning <code>&lt;simpleName&gt;_AetherCodec.INSTANCE</code>. There is
+no generated mutable provider registry or reflective construction. This createSourceFile
+call does not supply originating elements. I/O failure propagates to the generation
+caller; the writer closes through try-with-resources.</p>
+<h3 id="writedescriptorschemaid-version-descriptor-originating">writeDescriptor(schemaId, version, descriptor, originating)</h3>
+<p>Creates the UUID/version <code>.aesch</code> resource in CLASS_OUTPUT with the originating
+type, writes descriptor text, and closes its writer. It does not hash again, sign,
+validate compatibility, or merge with an existing resource. Hash input is UTF-8
+descriptor bytes in the validation caller; this method uses Filer's text writer.</p>
+<h3 id="writeregistrationresources">writeRegistrationResources()</h3>
+<p>Sorts generated records by qualified Java name, opens the service file and generated
+index, then emits provider names and qualifiedName|UUID|version|providerName|fingerprint
+rows. Both writers close via try-with-resources. I/O failures emit
+<code>CODEC_GENERATION_FAILED registration</code>. Opening/writing two files is not atomic:
+one resource may exist or contain a prefix when another operation fails. This
+helper does not deduplicate providers or merge previous service-file contents.</p>
+<h2 id="proposal-emission">Proposal Emission</h2>
+<h3 id="writeschemaproposals">writeSchemaProposals()</h3>
+<p>Returns unless proposal mode is active and proposals exist. Requires a nonblank
+proposal-directory option or emits <code>AETHER_SCHEMA_PROPOSAL_DIRECTORY_MISSING</code>.
+Normalizes the configured directory, creates it, sorts proposals by Java type,
+writes each <code>&lt;UUID&gt;.schema.json</code> as UTF-8, then writes an index describing those
+proposals. Writes use ordinary <code>Files.writeString</code>, not staged rename/force/rollback.</p>
+<p>The helper does not merge an earlier proposal index or delete stale proposal files.
+Same-UUID proposals target the same filename and can overwrite each other; this
+function has no independent identity-conflict check. I/O failure produces
+<code>AETHER_SCHEMA_PROPOSAL_FAILED</code> with potentially partial output already written.
+Schema acceptance is not performed here.</p>
+<h3 id="proposaljsonproposal">proposalJson(proposal)</h3>
+<p>Builds JSON text with formatVersion 1, schema identity/type/version, unknown-field
+policy SKIP, sorted reserved IDs, retired fields, one version's active fields,
+descriptor fingerprint, and a compatibility label. Active fields inherit sorted-ID
+order from validation. Retired map entries use map iteration order, not a fresh sort.
+Java names/type text are concatenated without a general JSON escaping routine.</p>
+<p>Emitted active fields contain ID/name/wire type/Java type/requiredness/byte bound.
+Container maximumEntries and enum/nested detail metadata are not emitted as separate
+proposal field properties here, though the descriptor includes them. The proposal
+is not a complete runtime descriptor substitute.</p>
+<p><code>compatibilityFromPrevious</code> is INITIAL for version 1 and COMPATIBLE otherwise.
+That choice does not run a compatibility algorithm or preserve previous version
+history. Treat it as generated metadata, not independent evidence that arbitrary
+source changes are compatible.</p>
+<h3 id="wirenamejavatype">wireName(javaType)</h3>
+<p>Used for retired-field proposal entries. Container names become CONTAINER. The
+switch maps primitive boolean, long/int, double, String, UUID, and Instant to their
+wire labels, with UNKNOWN fallback. This is narrower than supported active FieldType
+coverage: several boxed scalars and additional scalar types produce UNKNOWN here.
+The Optional-Instant switch branch is preceded by container recognition, so an
+ordinary Optional type follows the container branch.</p>
+<h2 id="descriptor-and-fingerprint-helpers">Descriptor and Fingerprint Helpers</h2>
+<h3 id="descriptorschemaid-version-type-fields">descriptor(schemaId, version, type, fields)</h3>
+<p>Constructs newline-delimited AETHER_SCHEMA_DESCRIPTOR_V1 text with UUID/version/
+qualified type, payloadFormat 1, and unknownFields SKIP. Emits each field's ID,
+name, FieldType name, byte bound, optional flag, and count bound for containers.
+Enum details preserve constant-model order and include numeric IDs/names; nested
+details include UUID/version. Fields are not sorted inside this helper: the caller
+passes an already sorted list. Descriptor fingerprints can change when names or
+details change, not only when physical payload bytes change.</p>
+<h3 id="maximumbytesfields-sha256bytes-byteliteralsbytes-hexbytes">maximumBytes(fields), sha256(bytes), byteLiterals(bytes), hex(bytes)</h3>
+<p><code>maximumBytes()</code> starts at the 24-byte header and adds 22 plus each field's bound
+using <code>Math.addExact</code> for the running sum. It is a declared upper bound, not a size
+measurement of a particular value. The inner <code>22 + bound</code> uses ordinary int
+arithmetic, so do not infer complete overflow checking for arbitrary extreme bounds.</p>
+<p><code>sha256()</code> returns a new SHA-256 digest and wraps missing-algorithm failure in
+IllegalStateException. <code>byteLiterals()</code> formats unsigned bytes as comma-separated
+<code>(byte)0xNN</code> Java source literals. <code>hex()</code> uses HexFormat for lowercase hex. These
+helpers serialize metadata; they do not establish authenticity or durability.</p>
+<h2 id="internal-models">Internal Models</h2>
+<table>
+<thead>
+<tr>
+<th>Record</th>
+<th>Stored role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FieldModel</code></td>
+<td>Stable ID/name/type, byte/count bounds, optional flag, enum/nested metadata.</td>
+</tr>
+<tr>
+<td><code>ResolvedFieldType</code></td>
+<td>FieldType plus optional enum/nested resolution result.</td>
+</tr>
+<tr>
+<td><code>EnumModel</code>, <code>EnumConstantModel</code></td>
+<td>Java enum type and constant name/positive persistent ID.</td>
+</tr>
+<tr>
+<td><code>NestedModel</code></td>
+<td>Nested schema UUID/version.</td>
+</tr>
+<tr>
+<td><code>GeneratedRecord</code></td>
+<td>Qualified record/provider names, schema UUID/version, fingerprint.</td>
+</tr>
+<tr>
+<td><code>LockedSchema</code>, <code>LockedField</code></td>
+<td>Parsed lock identity/version, fields/reserved IDs/hash, and field ID/type/bound/retired state.</td>
+</tr>
+<tr>
+<td><code>ProposedSchema</code></td>
+<td>Current proposed fields, retired/reserved identities, and fingerprint.</td>
+</tr>
+</tbody>
+</table>
+<p>These records have implicit constructors/accessors without independent validation
+or deep-copying bodies. Their callers establish copied collections where shown;
+record declarations alone do not enforce schema invariants.</p>
+<h2 id="coverage-boundary">Coverage Boundary</h2>
+<p>This page covers lock loading, retired/reserved IDs, provider/descriptor/registration
+resources, proposal serialization, fingerprint/size helpers, and internal models.
+Together with the annotation reference it explains validation-to-metadata flow.
+Continue with <a href="codec-generation-functions.html">codec generation</a> for <code>writeCodec</code>,
+field encode/decode/default generation, container-expression helpers, and FieldType
+methods. Gradle schema acceptance tooling remains separate documentation work.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#compile-time-and-runtime-artifacts">Compile-Time and Runtime Artifacts</a><a href="#lock-loading">Lock Loading</a><a href="#reserved-and-retired-identity">Reserved and Retired Identity</a><a href="#provider-and-descriptor-emission">Provider and Descriptor Emission</a><a href="#proposal-emission">Proposal Emission</a><a href="#descriptor-and-fingerprint-helpers">Descriptor and Fingerprint Helpers</a><a href="#internal-models">Internal Models</a><a href="#coverage-boundary">Coverage Boundary</a></nav></aside>
+  </div>
+</body>
+</html>

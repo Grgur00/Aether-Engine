@@ -1,0 +1,390 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/JAVA-BENCHMARK-RUNNER-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Java benchmark profiles and execution: source-backed contributor documentation for Aether Engine.">
+  <title>Java benchmark profiles and execution | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html" aria-current="page">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/JAVA-BENCHMARK-RUNNER-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="java-benchmark-profiles-and-execution-functions">Java Benchmark Profiles and Execution Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="engine-functions.html">Engine</a> | <a href="research.html">Research workflows</a> | <a href="observability-functions.html">Observability</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks">aether-benchmarks</a>.
+This guide covers <strong>41 explicit declarations in six complete files</strong>: profile,
+registry, plan, runner, scope enum and CvBenchmark (including private/nested helpers).
+<a href="java-benchmark-evidence-functions.html">Result formats, artifacts and baselines</a>
+have a separate reference; <a href="java-benchmark-comparison-functions.html">comparison/gating classes</a>
+are documented separately too. Generated
+record/enum members are excluded from the declaration count.</p>
+<h2 id="executable-architecture">Executable Architecture</h2>
+<pre><code class="language-text">BenchmarkProfileRegistry metadata (24 profiles)
+    -&gt; BenchmarkProfileRunner.plan
+    -&gt; supported profile? CLI overrides -&gt; CvBenchmark arguments
+    -&gt; fresh directory -&gt; load -&gt; close -&gt; reopen/warmup -&gt; measured point reads
+    -&gt; optional child-process durable-marker halts + reopen checks
+    -&gt; one local.cv.persistence JSON report
+</code></pre>
+<p>Only local.write.sequential.group_sync, local.read.point_warm and
+local.recovery.wal_replay have argument mappings. The other 21 registered profiles
+return nonexecutable plans. Neither registration nor DISTRIBUTED scope implies
+an RPC/Raft workload exists. All three executable profiles run the same combined
+load/read/recovery program, not isolated benchmark implementations. Output profile
+is hardcoded local.cv.persistence, not the requested registry profile ID.</p>
+<p>This is a local Java storage benchmark, not the Python ML lifecycle/H2 campaign,
+not JMH, and not an external-engine comparison. HdrHistogram is the existing
+latency engine; metrics are not sourced from the metered database decorator.
+No repeated paired-block design, random backend ordering or statistical
+uncertainty estimation occurs in this runner.</p>
+<h2 id="profile-metadata-and-registry-functions">Profile Metadata and Registry Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/BenchmarkProfile.java">BenchmarkProfile.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/BenchmarkProfileRegistry.java">BenchmarkProfileRegistry.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/BenchmarkProfileScope.java">BenchmarkProfileScope.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BenchmarkProfile.BenchmarkProfile(id, scope, description)</code></td>
+<td>Requires nonblank id&lt;=128 chars matching [a-z0-9_.]+, nonnull scope, nonblank description&lt;=512. Then strips strings. ID surrounding whitespace already fails regex; dots/underscores alone can pass if nonblank. Description limit is checked before strip. No executable-workload validation.</td>
+</tr>
+<tr>
+<td><code>BenchmarkProfileRegistry.BenchmarkProfileRegistry()</code></td>
+<td>Private utility constructor.</td>
+</tr>
+<tr>
+<td><code>BenchmarkProfileRegistry.requiredProfiles()</code></td>
+<td>Returns immutable static list in specification order: 15 LOCAL, nine DISTRIBUTED.</td>
+</tr>
+<tr>
+<td><code>BenchmarkProfileRegistry.find(id)</code></td>
+<td>Exact lookup into immutable index, Optional when absent. No case/whitespace normalization or executable check.</td>
+</tr>
+<tr>
+<td><code>BenchmarkProfileRegistry.localProfiles()</code></td>
+<td>Filters static list for LOCAL into new unmodifiable list in list order.</td>
+</tr>
+<tr>
+<td><code>BenchmarkProfileRegistry.distributedProfiles()</code></td>
+<td>Same for DISTRIBUTED.</td>
+</tr>
+<tr>
+<td><code>BenchmarkProfileRegistry.local(id, description)</code></td>
+<td>Constructs LOCAL metadata.</td>
+</tr>
+<tr>
+<td><code>BenchmarkProfileRegistry.distributed(id, description)</code></td>
+<td>Constructs DISTRIBUTED metadata.</td>
+</tr>
+<tr>
+<td><code>BenchmarkProfileRegistry.index(profiles)</code></td>
+<td>Builds LinkedHashMap; duplicate ID raises IllegalStateException during initialization; returns Map.copyOf. Result map ordering is not guaranteed.</td>
+</tr>
+</tbody>
+</table>
+<p>BenchmarkProfileScope LOCAL and DISTRIBUTED describe required environment, not
+implemented behavior. Generated record accessors/equality expose immutable strings
+and enum. Registry profile IDs:</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Group</th>
+<th>IDs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Local writes</td>
+<td>local.write.sequential.group_sync; local.write.random.group_sync; local.write.sync_per_write; local.write.async_wal; local.write.batch_matrix</td>
+</tr>
+<tr>
+<td>Local reads/mixed</td>
+<td>local.read.point_warm; local.read.point_cold_open; local.read.range_scan; local.mixed.read_write</td>
+</tr>
+<tr>
+<td>Local maintenance</td>
+<td>local.compaction_active; local.recovery.wal_replay; local.open.close; local.cache.hit_miss; local.checkpoint; local.restore_verify</td>
+</tr>
+<tr>
+<td>RPC</td>
+<td>rpc.echo; rpc.write.leader</td>
+</tr>
+<tr>
+<td>Raft</td>
+<td>raft.write.replicated_3; raft.write.replicated_5; raft.read.linearizable; raft.read_follower_stale_if_enabled; raft.leader_failover; raft.snapshot_transfer; raft.membership_change</td>
+</tr>
+</tbody>
+</table>
+<h2 id="plan-and-cli-functions">Plan and CLI Functions</h2>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/BenchmarkProfileRunPlan.java">BenchmarkProfileRunPlan.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/BenchmarkProfileRunner.java">BenchmarkProfileRunner.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BenchmarkProfileRunPlan.BenchmarkProfileRunPlan(profile, directory, output, cvArguments)</code></td>
+<td>Requires fields, List.copyOf owns immutable arguments. Null elements fail copying. Does not verify path safety/existence, argument syntax or profile/argument consistency.</td>
+</tr>
+<tr>
+<td><code>BenchmarkProfileRunPlan.executable()</code></td>
+<td>True iff argument list nonempty, not a runtime readiness/disk-space check.</td>
+</tr>
+<tr>
+<td><code>BenchmarkProfileRunner.BenchmarkProfileRunner()</code></td>
+<td>Private utility constructor.</td>
+</tr>
+<tr>
+<td><code>BenchmarkProfileRunner.main(args)</code></td>
+<td>Calls runCli; System.exit only for nonzero result. Exceptions propagate from execution.</td>
+</tr>
+<tr>
+<td><code>BenchmarkProfileRunner.runCli(args)</code></td>
+<td>Exactly one --list prints all profiles as tab-separated metadata and returns 0. Otherwise catches IllegalArgumentException from planning and returns 2; unsupported plan prints message and returns 3. Supported plan calls CvBenchmark.main, returns 0 on success; execution errors are not converted to these plan exit codes.</td>
+</tr>
+<tr>
+<td><code>BenchmarkProfileRunner.plan(args)</code></td>
+<td>Parses option/value pairs; requires profile and directory. Defaults output to normalized absolute sibling named directory-file-name-results.json; exact registry lookup. Defaults records/reads=100000, crashes=0, batch=1000, value=256, GROUP_SYNC, REOPENED_WARMUP. Duplicate options overwrite earlier values; unknown/missing options or numeric parse fail. Does not validate numeric ranges or enum membership before building plan.</td>
+</tr>
+<tr>
+<td><code>BenchmarkProfileRunner.cvArguments(profileId, directory, output, records, reads, crashPoints, batchSize, valueBytes, durability, cacheMode)</code></td>
+<td>Unsupported IDs return empty list. Sequential-write profile clamps reads to 1..1000, crashes=0, durability=GROUP_SYNC. Warm-read sets crashes=0/cache=REOPENED_WARMUP. Recovery sets crashes&gt;=1. Emits immutable option/value list; all use combined CvBenchmark workflow.</td>
+</tr>
+<tr>
+<td><code>BenchmarkProfileRunner.add(values, option, value)</code></td>
+<td>Adds two list entries, no validation.</td>
+</tr>
+<tr>
+<td><code>BenchmarkProfileRunner.normalizeEnum(value)</code></td>
+<td>Locale.ROOT uppercase, hyphens replaced by underscores; does not trim or validate enum.</td>
+</tr>
+</tbody>
+</table>
+<p>An executable plan can still contain invalid counts/enums that CvBenchmark.parse
+rejects later. Path selection is not a sandbox; fresh-directory check prevents
+reuse of a nonempty database but output may overwrite an existing report.</p>
+<h2 id="coordinator-and-reporting-functions">Coordinator and Reporting Functions</h2>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/main/java/io/aetherdb/benchmarks/CvBenchmark.java">CvBenchmark.java</a>.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CvBenchmark.CvBenchmark()</code></td>
+<td>Private utility constructor.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.main(arguments)</code></td>
+<td>First token crash-worker selects internal worker, directly indexing/parsing four following values without normal CLI validation. Otherwise parses Config and runs coordinator. Exceptions propagate.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.run(config)</code></td>
+<td>Requires fresh database directory, loads deterministic batches using requested durability, closes database, sizes files; warmups/reopens and validates measured random point reads; optionally launches halted child markers and reopens to check markers/base read/new write. Writes report only after all stages succeed. Owns normal databases/batches with try-with-resources, but halted child intentionally skips close. Leaves database/output artifacts in place; no cleanup/deletion.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.jsonReport(config, writes, writeElapsedNanos, databaseBytesAfterLoad, reads, readElapsedNanos, readDatabaseOpenNanos, hits, recoveries, finalDatabaseBytes)</code></td>
+<td>Builds environment/config/workload/storage maps, obtains git metadata, constructs BenchmarkResultV1 and encodes JSON. Top-level throughput/latency are measured reads; write throughput/percentiles are workload metadata. Profile fixed local.cv.persistence. Uses exact arithmetic for logical bytes and selected counter totals, so overflow can abort reporting.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.decimal(value)</code></td>
+<td>Locale.ROOT three decimal places for metadata strings. Rounds displayed values.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.seconds(nanos)</code></td>
+<td>max(1,nanos)/1e9, minimum one nanosecond denominator.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.histogram()</code></td>
+<td>HdrHistogram with highest trackable latency one minute, three significant digits.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.record(histogram, nanos)</code></td>
+<td>Clamps latency into 0..one minute before recording; does not preserve values above cap.</td>
+</tr>
+</tbody>
+</table>
+<p>Write wall time begins before Aether.open and ends after close, including batch
+construction, key/value generation, progress output and close. Write latency
+samples cover database.write only, one sample per batch; returned WriteResult
+is ignored. Record throughput is not batch throughput. No storage-policy override
+is applied; pressure/admission errors can stop a run.</p>
+<p>Read-open time is reported separately. Warmup count is
+min(reads,max(1000,reads/10)); random generator has fixed seed 0xC0FFEE42 and its
+state advances during warmup. Measured wall time includes key selection/generation,
+get, expected-value construction and validation. Each latency sample starts before
+key(record) is evaluated and ends after get: key allocation is included, expected
+value validation excluded. Read close is outside measured read wall time. Every
+measured read must match expected bytes, otherwise no successful report is emitted.</p>
+<p>REOPENED_WARMUP uses the measured database for warmup; OS page cache is uncontrolled.
+COLD_OPEN first warmups in a separate database, closes it, then attempts macOS cache
+purge before timed open. This is not an out-of-core random-read experiment.</p>
+<p>The report's fixed storagePath and COLD_OPEN description claim checkpoint
+materialization/heap-resident point reads. Treat these as report text, not proof
+of the current engine path: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-engine/src/main/java/io/aetherdb/engine/PersistentAetherDatabase.java">PersistentAetherDatabase</a>
+now owns SSTable readers and searches table lookups. These strings alone cannot
+establish which reads hit native memtables, block cache or mapped SSTable data.</p>
+<p>Counters aggregate base records, measured reads and crash markers, not all
+invocations. Warmups, recovery validation reads and post-recovery writes are
+excluded. submitted=records+reads+crashPoints; acknowledged=records+hits+successful
+recoveries. Timed-out/rejected/error values are zero on the success-only report
+path, not comprehensive instrumentation. acknowledgedWritesLost is literal &quot;0&quot;
+after selected markers validate; walBytesReplayed is literal &quot;unavailable&quot;.
+RecoveryTrial validation duration is collected but not serialized per trial here.
+Git command failure yields unknown commit; failed git status becomes empty and can
+appear clean. No source-tree digest or frozen harness identity is recorded here.</p>
+<h2 id="crash-payload-and-resource-helpers">Crash, Payload and Resource Helpers</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CvBenchmark.crashWorker(directory, markerKey, point, valueBytes)</code></td>
+<td>Starts java.home/bin/java with --enable-preview, current classpath and crash-worker arguments; inherits output/input. Does not inherit coordinator JVM argument list. No wait timeout/kill/retry policy; coordinator waits indefinitely for exit.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.runCrashWorker(directory, markerKey, point, valueBytes)</code></td>
+<td>Opens database, puts one marker using ordinary put defaults (currently GROUP_SYNC), prints/flushes stdout, Runtime.halt(91). No try-with-resources/close before halt. Not a crash injected inside commit/publication.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.key(record)</code></td>
+<td>Allocates 16-byte default big-endian buffer, writes two mixed long values. Sequential numeric record generation does not produce lexicographically sequential storage keys.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.value(record, bytes)</code></td>
+<td>Allocates requested byte count, fills deterministically by mixing record-derived state and taking eight-byte groups. Not external/compressibility-controlled data. Zero size allowed.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.mix64(value)</code></td>
+<td>Shift/XOR/multiply mixer with wrapping long arithmetic; deterministic payload/key utility, not cryptographic identity.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.requireValue(result, expected)</code></td>
+<td>Requires found lookup and Arrays.equals bytes, otherwise IllegalStateException. Null result fails naturally; validation has no sampling of byte equality.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.directoryBytes(directory)</code></td>
+<td>Files.walk with resource close; sums Files.size of regular files, wrapping size failures in IllegalStateException. Logical file sizes, not cumulative bytes written or device allocation. No symlink-follow traversal option.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.median(values)</code></td>
+<td>Empty=&gt;0, otherwise sorts input in place and returns element length/2 (upper middle for even count, not mean of middles).</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.cpuDescription()</code></td>
+<td>Tries sysctl CPU brand; falls back to PROCESSOR_IDENTIFIER, then os.arch. Fallback is not exact CPU model.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.purgeMacFileSystemCache()</code></td>
+<td>Requires exact os.name Mac OS X; launches osascript administrator-privilege purge dialog, inherits IO, waits and requires exit=0. No timeout. Rejects other platforms instead of claiming a cold cache.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.command(command)</code></td>
+<td>Starts merged stdout/stderr subprocess, reads all output and waits, returns stripped output only for exit=0. Any Exception returns empty; interrupts not restored, no timeout/bounded output. Runs in inherited working directory.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.requireFreshDirectory(directory)</code></td>
+<td>Creates directory hierarchy then rejects any existing entry. Does not erase files; failure can leave newly created directory. No explicit path ownership/alias policy.</td>
+</tr>
+</tbody>
+</table>
+<p>Recovery loop requires child exit 91. For trial point P it verifies all P marker
+keys, one base key, then performs/reads a new negative-record write before closing.
+Open timer excludes validation/close; validation timer includes close. Trials
+accumulate markers in the same database. This checks selected acknowledged-marker
+survival after process halt, not power loss, arbitrary interrupted write points,
+partial bulk publication, distributed failover or exhaustive database integrity.</p>
+<h2 id="nested-configuration-functions">Nested Configuration Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CvBenchmark.CacheMode.CacheMode(description)</code></td>
+<td>Stores descriptive text for REOPENED_WARMUP and COLD_OPEN.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.CacheMode.description()</code></td>
+<td>Returns stored literal; does not inspect actual cache state.</td>
+</tr>
+<tr>
+<td><code>CvBenchmark.Config.parse(arguments)</code></td>
+<td>Parses option/value pairs with defaults records/reads=100000, crashes=4, batch=1000, value=256, GROUP_SYNC, REOPENED_WARMUP. Requires directory; default sibling output. Requires records/reads&gt;=1, crashes&gt;=0, batch 1..WriteBatch.MAX_OPERATIONS, value&gt;=0. Enum.valueOf validates normalized strings. No upper record/read/value cap or batch byte-budget preflight.</td>
+</tr>
+</tbody>
+</table>
+<p>Config and RecoveryTrial use generated immutable record accessors. Config direct
+implicit constructor has no validation; parse is the validated entry point.
+Runner's default crash count is zero, direct CvBenchmark default four. Report
+writing creates output parent then Files.writeString overwrites existing report;
+no atomic temporary/rename/force receipt publication. A failed run can leave
+database data without a final report; a prior output may remain unchanged.</p>
+<h2 id="build-and-verification-scope">Build and Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/build.gradle.kts">build.gradle.kts</a> uses application
+mainClass BenchmarkProfileRunner, dependencies API/engine and HdrHistogram 2.2.2.
+Only AETHER_JFR exactly &quot;true&quot; adds Gradle run recording at
+build/jfr/aether-benchmark.jfr with profile settings, disk=true, dumponexit=true,
+maxsize=2g, and aether.benchmark.jfr.path property. Child crash workers do not
+automatically receive these JVM recording arguments.</p>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/test/java/io/aetherdb/benchmarks/BenchmarkProfileRunnerTest.java">BenchmarkProfileRunnerTest.java</a>
+has three plan tests: canonical sequential arguments, unsupported range plan,
+unknown profile. <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-benchmarks/src/test/java/io/aetherdb/benchmarks/BenchmarkProfileRegistryTest.java">BenchmarkProfileRegistryTest.java</a>
+has two registry-order/lookup tests. Neither executes CvBenchmark, crash recovery,
+cache purge, payload validation, report provenance or subprocess cleanup.</p>
+<pre><code class="language-powershell">.\gradlew.bat --no-daemon :modules:aether-benchmarks:test --tests '*BenchmarkProfileRunnerTest' --tests '*BenchmarkProfileRegistryTest' --rerun
+.venv\Scripts\python.exe -m pytest scripts/tests/test_contributor_docs.py -q
+</code></pre>
+<p>These lightweight tests do not establish performance, durability or executable
+distributed profiles. Before a real benchmark, use a disposable empty directory
+and inspect current engine defaults, disk pressure and output ownership separately.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#executable-architecture">Executable Architecture</a><a href="#profile-metadata-and-registry-functions">Profile Metadata and Registry Functions</a><a href="#plan-and-cli-functions">Plan and CLI Functions</a><a href="#coordinator-and-reporting-functions">Coordinator and Reporting Functions</a><a href="#crash-payload-and-resource-helpers">Crash, Payload and Resource Helpers</a><a href="#nested-configuration-functions">Nested Configuration Functions</a><a href="#build-and-verification-scope">Build and Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

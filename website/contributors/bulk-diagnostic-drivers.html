@@ -1,0 +1,162 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/BULK-DIAGNOSTIC-DRIVERS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Bulk JFR and compaction diagnostics: source-backed contributor documentation for Aether Engine.">
+  <title>Bulk JFR and compaction diagnostics | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html" aria-current="page">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/BULK-DIAGNOSTIC-DRIVERS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="bulk-jfr-and-background-compaction-drivers">Bulk JFR and Background Compaction Drivers</h1>
+<p><a href="function-index.html">Function index</a> | <a href="jfr-analysis-functions.html">JFR analysis</a> | <a href="population-profile-functions.html">Population diagnostics</a></p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/profile_bulk_jfr.py">profile_bulk_jfr.py</a> and
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/profile_background_compaction.py">profile_background_compaction.py</a>.
+This page covers all <strong>3 explicit declarations</strong> across the two modules. Their
+two main functions are listed under their owning module below.</p>
+<h2 id="recording-and-reopen-architecture">Recording and Reopen Architecture</h2>
+<pre><code class="language-text">bulk JFR driver
+  -&gt; common source/reference preflight
+  -&gt; fresh store: control-before -&gt; fresh store: jfr-run -&gt; fresh store: control-after
+     or candidate-only: one jfr-run
+  -&gt; isolated population worker -&gt; durable finish -&gt; ordinary-reader validation
+  -&gt; export events/summary -&gt; analyzer -&gt; completion -&gt; output checksums
+
+background diagnostic
+  -&gt; synthetic batch publications -&gt; shared daemon helper drains -&gt; shutdown
+  -&gt; inspect drain receipt -&gt; reopen same store -&gt; batch byte parity
+  -&gt; reject foreground compaction traces -&gt; summary
+</code></pre>
+<p>These are storage diagnostics, not GPU training or persistent-daemon dataset
+revision experiments. Bulk arms each get a fresh scratch store. The background
+diagnostic intentionally reopens one store after shutdown. Their timings, receipts
+and checks cannot be substituted for H2 cumulative lifecycle results.</p>
+<h2 id="bulk-jfr-driver-functions">Bulk JFR Driver Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>run(output, manifest, samples=1200, scratch_root=None, smoke=False, candidate_only=False)</code></td>
+<td>Requires jfr on PATH, resolves output, computes canonical 256-pixel reference tensors from the supplied manifest, creates scratch root and enters an evidence campaign. Launches one or three isolated population workers with fixed 32 MiB SSTable target, batch/lookup 16 and tracing off. Only jfr-run requests a recording with stock profile settings. Saves receipts, exports JFR events at stack depth 256, invokes analyze, writes completion and finally hashes output files.</td>
+</tr>
+<tr>
+<td><code>main()</code></td>
+<td>Parses output/scratch/smoke/candidate-only, verifies the configured longitudinal manifest set and chooses V0. Rejects candidate-only plus smoke, then calls run with 65 smoke or 1,200 normal samples. The CLI enforces the full candidate workload; direct run callers can supply other manifests/counts and must establish their own validity.</td>
+</tr>
+</tbody>
+</table>
+<p>Reference preprocessing is common preflight, outside the worker population timer.
+Its integrity/reference scan can warm source data. Protocol metadata identifies
+the offline BulkArtifactWriter JVM as the target; the ordinary restart reader is
+not profiled. V0 population includes finish/quiescence; readback is outside that
+timer. The driver delegates those actual boundaries to the population/bulk worker.
+It performs no model training and does not control OS-cache coldness.</p>
+<p>Default sequence is control-before, jfr-run, control-after, each a separate store.
+Candidate-only uses one recording and calls profile_bulk_verification.validate_report
+with candidate/reference before saving its receipt. Control mode relies on worker
+correctness and later analyzer gates rather than that extra candidate validator.
+Fixed sequence is not randomized; analyzer overhead ratios remain descriptive.
+Candidate metadata retains priorPerformanceGate='failed; unchanged', not a new
+performance decision. verificationPolicy strings are declarations, not independent
+verification of a current implementation; inspect the worker and receipt.</p>
+<p>Every arm checks 1 GiB available capacity, creates a bulk-jfr-prefixed scratch
+directory and writes a request/log/worker result. The checked worker subprocess
+has no timeout here. Finally copies top-level scratch/store.* files to named
+output diagnostics, not the whole store directory. Success removes scratch only
+after checking its resolved parent and prefix; failure retains it. The JFR file
+is written directly under output, so successful scratch cleanup does not remove it.</p>
+<p>After all workers, checked jfr print and summary subprocesses write directly to
+their destination files. They can leave partial output on failure; stderr is not
+redirected into those files. run has no independent nonempty-recording check,
+export-hash binding or DataLoss rejection; subprocess/worker/analyzer gates provide
+the actual checks. Candidate analysis additionally requires a unique authoritative
+verification marker. completion.json follows successful analysis.</p>
+<p>checksums.sha256 is produced <strong>after</strong> exiting the campaign context and covers all
+then-existing output files recursively, excluding itself, sorted by path. It is
+not independently verified here. A hash/write failure can occur after completion
+has already been written. The driver does not resume completed arms or choose an
+optimization automatically.</p>
+<h2 id="background-compaction-diagnostic-function">Background Compaction Diagnostic Function</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>main()</code></td>
+<td>Parses output, samples (default 1440) and payload bytes (default 196849); creates a new output directory and deterministic synthetic keys/payload. Publishes in batches of 16 with client/server tracing. After daemon-helper drain/shutdown saves requests, reads the last sorted compaction receipt and requires completed&gt;=1 with no failures. Reopens the same store, verifies requested bytes in batches, rejects compactions reported in foreground server traces, then writes summary.json and prints its path.</td>
+</tr>
+</tbody>
+</table>
+<p>Keys use namespace background-diagnostic and the shared
+background-compaction-diagnostic-v1 transformation fingerprint. Every key's value
+is the same byte pattern i%251. This tests durable byte parity after reopen, not
+source identity evolution, distinct tensor contents, segmentation accuracy or
+training throughput. The script does not validate positive sample/payload counts;
+negative ranges can produce empty inputs and later fail the compaction gate.</p>
+<p>The shared paper_common.java_daemon helper defaults to DURABLE, waits for background
+compaction on exit, writes store.compaction-&lt;time_ns&gt;.json and rejects drain failure
+or failed work before termination. Therefore this script's first shutdown is also
+its drain boundary. Reopening creates another daemon and its own exit drain receipt.
+The summary uses the <strong>first</strong> daemon's receipt captured before reopening, not the
+later one. A missing receipt raises at drains[-1]; there is no fallback diagnostic.</p>
+<p>Reopen checks require every requested key to map to the expected payload, but do
+not reject extra stored keys or independently count unique artifacts. Foreground
+compaction detection examines only available server_trace events. The script
+does not enforce trace counts, trace_errors, complete outcomes, retry absence or
+server/client trace-ID reconciliation. Empty trace evidence can therefore pass the
+foreground check; foregroundCompactionCount=0 is a checked conclusion only over
+the traces received, not an independent observation of all work.</p>
+<p>Flush count and totalNs/1e6 values come from received foreground trace records.
+There is no additional completed-flush assertion or isolated background timing
+measurement. requests.json is saved before compaction/reopen gates; failures retain
+the directory, store and available diagnostics, without a successful summary.
+Existing output directories fail rather than overwrite or resume.</p>
+<h2 id="coverage-and-evidence">Coverage and Evidence</h2>
+<p>AST coverage checks both modules separately against their sections. Existing
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_bulk_jfr.py">bulk JFR tests</a> exercise candidate-only
+orchestration with subprocess doubles and verify analyzer constraints. Live
+recording/pipe tests are opt-in. Focused driver contracts additionally check CLI
+rejection and synthetic publication/drain/reopen control flow without a real JVM.</p>
+<p>These two files have <strong>3/3 declarations covered (100%; 0% remaining)</strong>. Other
+profilers, operational tooling and repository subsystems remain in scope.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#recording-and-reopen-architecture">Recording and Reopen Architecture</a><a href="#bulk-jfr-driver-functions">Bulk JFR Driver Functions</a><a href="#background-compaction-diagnostic-function">Background Compaction Diagnostic Function</a><a href="#coverage-and-evidence">Coverage and Evidence</a></nav></aside>
+  </div>
+</body>
+</html>

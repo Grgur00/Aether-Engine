@@ -1,0 +1,180 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/RESEARCH-CAMPAIGN-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Research campaigns and evidence: source-backed contributor documentation for Aether Engine.">
+  <title>Research campaigns and evidence | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html" aria-current="page">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/RESEARCH-CAMPAIGN-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="research-campaign-identity-and-evidence-functions">Research Campaign Identity and Evidence Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="research-process-functions.html">Process and build ownership</a> | <a href="research-lifecycle-functions.html">Stage and daemon lifecycle</a></p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/system_campaign.py">system_campaign.py</a> and
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/evidence.py">evidence.py</a>. All nine explicit functions are covered.
+These modules support different experiment families: the systems campaign API
+uses campaign.json and environment.json; the training-matrix evidence validator
+uses protocol.json and environment-ID files. Their validators are not interchangeable
+with <a href="h2-execution-functions.html">H2's archived block gate</a>.</p>
+<h2 id="architecture-and-authority">Architecture and Authority</h2>
+<pre><code class="language-text">Java build validation -&gt; environment probes -&gt; selected measurement identity
+systems campaign: OS lock -&gt; fresh immutable metadata or exact resume checks
+trial report -&gt; protocol/environment fields -&gt; atomic JSON -&gt; byte-hash receipt
+load result -&gt; recorded bytes and identity checks
+
+training matrix: protocol + condition/block/block.json
+  -&gt; environment identity + underlying training/manifests
+  -&gt; checksum/model/durability/cache/order/throughput consistency
+  -&gt; optional declared workflow validation -&gt; accepted block
+</code></pre>
+<p>OS locks prevent cooperating controllers from owning one campaign simultaneously.
+Unkeyed hashes detect change relative to the recorded receipts; they do not sign
+results or independently observe training. A caller can fabricate a self-consistent
+fixture. Correctness flags are necessary evidence gates, not independent proof of
+model quality, device execution or all storage invariants.</p>
+<h2 id="systems-campaign-functions">Systems Campaign Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>measurement_identity(report)</code></td>
+<td>Selects current host name, platform, CPU text/count, Python, full Java/package command result objects and named performance environment variables. Removes CPU lines containing MHz, BogoMIPS or CPU(s) scaling. Does not include capturedAt, executable path, GPU/storage/mount probes, javaBuild, archive provenance or source hashes in this identity; source is compared separately.</td>
+</tr>
+<tr>
+<td><code>load_campaign(root)</code></td>
+<td>Reads saved campaign/environment JSON and checks campaign schema, protocol digest, environment file byte digest, recorded measurement-identity digest and source-inventory equality. Returns saved metadata. Does not probe current host, validate a Java build, enforce clean Git or inspect trial files; campaign's resume path performs current-state comparison.</td>
+</tr>
+<tr>
+<td><code>campaign(root, protocol, resume=False)</code></td>
+<td>Context-manager generator resolving/creating output, opening persistent .campaign.lock and acquiring nonblocking kernel ownership: one byte with msvcrt on Windows, flock on Unix. Validates Java classpath before collecting environment. Existing campaign requires explicit resume and exactly matching protocol/source/measurement identity. Fresh creation rejects any unversioned content beyond the lock, writes environment then campaign metadata, yields under lock and unlocks in finally.</td>
+</tr>
+<tr>
+<td><code>save_result(path, report, meta)</code></td>
+<td>Shallow-copies report, overwrites protocolHash/environmentId from meta, atomically replaces report JSON, then separately writes its .receipt.json byte SHA. Returns augmented report. Does not validate scientific payload or prohibit replacement; interruption between the two writes can leave unmatched report/receipt.</td>
+</tr>
+<tr>
+<td><code>load_result(path, meta)</code></td>
+<td>Reads report and sidecar, rehashes report bytes, requires exact protocol/environment fields and returns it. Missing/malformed data can raise before the mismatch error. Does not rerun science, verify a campaign independently, or interpret performance.</td>
+</tr>
+</tbody>
+</table>
+<p>The lock file may remain after normal completion or a controller crash; kernel
+ownership expires when its open handle closes. File existence is not a live-owner
+test, and deleting the pathname is not the unlock protocol. Lock acquisition errors
+are translated to the same ownership error, including errors other than contention.
+The lock coordinates this campaign path, not all output paths or remote hosts.</p>
+<p>Resume re-collects environment but preserves the original environment.json bytes.
+measurement_identity builds a new outer dict but retains nested Java/package and
+performance-environment objects from its report; it is not an immutable deep copy.
+Later in-memory mutation of those objects can change both views until serialization.
+Package output, Java output and selected environment variables are compared exactly;
+host name is part of identity. GPU identity is recorded descriptively but is not
+included by measurement_identity itself. A generic systems campaign does not
+require clean Git; the caller's frozen protocol/source policy supplies that guard.
+H2's exact runtime and source checks add constraints, not a universal capability
+of this context manager. Source equality covers the declared inventory only.</p>
+<p>Fresh environment and campaign writes are separate. A failure after environment
+publication can leave an incomplete directory which a later call rejects instead
+of repairing or overwriting. The JSON helper uses replace, not fsync or a multi-file
+transaction. No remote scheduler or live progress monitor is started here.</p>
+<h2 id="shared-digest-and-training-evidence-functions">Shared Digest and Training Evidence Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>digest(value)</code></td>
+<td>SHA-256 of compact JSON encoded with sorted mapping keys. Stable for mapping insertion order, not a general semantic normalization: list order, numeric representation and JSON serialization choices matter. Uses default ensure_ascii and allow_nan; unlike write_json it does not reject NaN/Infinity at serialization. Unsupported values raise.</td>
+</tr>
+<tr>
+<td><code>file_digest(path)</code></td>
+<td>Streams a binary file through hashlib.file_digest using SHA-256. Returns byte identity including whitespace, not parsed-object identity. Missing/unreadable files raise; no path containment or signature verification.</td>
+</tr>
+<tr>
+<td><code>read(path)</code></td>
+<td>UTF-8 JSON read/parse without independent schema, ownership, checksum or field validation. JSON's default parser can accept nonfinite constants; later validators determine which fields require finite values.</td>
+</tr>
+<tr>
+<td><code>validate_block(path)</code></td>
+<td>Reads a training-matrix block, infers campaign root as path.parent.parent.parent and validates schema/PASSED/correctness, frozen protocol digest, exact condition membership/ID, actual-int block index/seed, environment ID/source and optional confirmatory design/clean-source checks. Rehashes training.json and V1/V2 manifests, requires Java/CUDA/passed/checksum flags and one run, paired model/durability/cache/order/reuse/throughput consistency, and optional workflow evidence. Returns the block. This is not the H2 or systems-trial loader.</td>
+</tr>
+</tbody>
+</table>
+<p>For a confirmatory training block, the validator dynamically calls confirmatory
+plan/training guards. When its design equals the current DESIGN, it additionally
+checks the frozen append-only manifest hashes and training seed. Older supported
+designs remain separate. It does not convert an arbitrary record to the current
+design or authorize mixing campaigns. Source cleanliness can be established by
+recorded clean Git or verified clean archive flags in the bound environment.</p>
+<p>Throughput is compared exactly with steadyState.effectiveSamplesPerSecond derived
+from the underlying run and must be positive/finite for every backend, with at least
+raw/Aether/mmap. The number/type checks use isinstance(int, float), so bool is not
+universally excluded as a numeric value. The block-index check specifically excludes
+bool. Model parity, Java engine and CUDA availability are reported flags, not
+per-operation hardware traces or a model evaluation metric.</p>
+<h2 id="optional-repeated-workflow-evidence">Optional Repeated-Workflow Evidence</h2>
+<p>When protocol has workflowExperiments, optional population.json must match its
+byte hash and embedded population summary. Initial costs come from the report's
+Aether/mmap populationWallMs and zero for other backends. With no population
+report, expected initial costs are zero. This is not H2's six-phase lifecycle.</p>
+<p>Each workflow entry must be ordered, name its expected training file, match the
+saved byte hash, have successful Java/model/cache flags, and match per-backend
+lifecycle totals and reuse summaries. The validator accumulates those costs,
+checks every recorded cumulativeWorkflowMs, then the final workflowCostMs. It
+does not repeat every top-level CUDA/confirmatory/count/finite-throughput check
+on each workflow report. Describe the checks actually present, not a recursive
+promise that all reports underwent identical validation.</p>
+<p>This function validates one block at a fixed path layout. It does not ensure all
+planned blocks exist, enforce between-block independent starts, establish balanced
+ordering across the campaign or compute a statistical test. The family-specific
+orchestrator and analysis loader own those responsibilities.</p>
+<h2 id="verification-scope">Verification Scope</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_system_campaign.py">test_system_campaign.py</a> uses real
+local lock/file behavior with substituted environment/build probes for ownership,
+resume and tamper guards. <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_evidence.py">test_evidence.py</a>
+uses explicit artificial reports, manifest bytes and flags to check training-block
+consistency/rejection; those fixtures are not GPU evidence. The
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_research_infrastructure_contracts.py">documentation contracts</a>
+check identity selection, two-write publication boundaries and recorded-vs-current
+validation. Qualified AST coverage checks enumerate all nine declarations here.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-authority">Architecture and Authority</a><a href="#systems-campaign-functions">Systems Campaign Functions</a><a href="#shared-digest-and-training-evidence-functions">Shared Digest and Training Evidence Functions</a><a href="#optional-repeated-workflow-evidence">Optional Repeated-Workflow Evidence</a><a href="#verification-scope">Verification Scope</a></nav></aside>
+  </div>
+</body>
+</html>

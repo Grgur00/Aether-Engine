@@ -1,0 +1,299 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/RAFT-STORAGE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Raft vote and state-slot codecs: source-backed contributor documentation for Aether Engine.">
+  <title>Raft vote and state-slot codecs | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html" aria-current="page">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/RAFT-STORAGE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="raft-vote-and-state-slot-codec-functions">Raft Vote and State-Slot Codec Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="raft-core-functions.html">Raft core</a> | <a href="replication-format-functions.html">Replicated log formats</a></p>
+<p>Sources: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-storage/src/main/java/io/aetherdb/raft/storage/VoteCodecV1.java">VoteCodecV1.java</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-storage/src/main/java/io/aetherdb/raft/storage/RaftPersistentState.java">RaftPersistentState.java</a>,
+and <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-storage/src/main/java/io/aetherdb/raft/storage/RaftStateSlotCodecV1.java">RaftStateSlotCodecV1.java</a>.
+This reference covers <strong>17 explicit declarations across all three module files</strong>:
+nine vote codec, one state record, and seven slot codec declarations. Generated
+record accessors/equality are outside the count.</p>
+<h2 id="architecture-and-missing-persistence-owner">Architecture and Missing Persistence Owner</h2>
+<pre><code class="language-text">VoteRequest/Response &lt;-&gt; exact fixed-size vote payload + masked CRC32C
+RaftPersistentState + identities + fingerprint &lt;-&gt; 512-byte slot + CRC + SHA
+</code></pre>
+<p>All functions here operate on values and byte arrays. Despite the module name,
+there is <strong>no file writer, slot alternation/selection manager, force barrier,
+directory ownership, highest-valid-generation chooser, or vote-before-reply
+ordering implementation</strong>. No method reads two slots or restores an election loop.
+The slot generation represents a caller-supplied value; its monotonicity is not
+checked against a previous state. Valid encoding alone is not durable persistence.</p>
+<p>Vote payloads are <strong>big-endian</strong>. State slots are <strong>little-endian</strong>, as are the
+replicated-log formats. UUID halves are most-significant then least-significant,
+each encoded in that buffer's byte order. All CRCs use MaskedCrc32c. State SHA-256
+is unkeyed integrity metadata, not a signature or proof of node authenticity;
+the decoder's comment about authentication does not establish a trust boundary.</p>
+<h2 id="vote-codec-functions">Vote Codec Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VoteCodecV1.VoteCodecV1()</code></td>
+<td>Private empty utility constructor.</td>
+</tr>
+<tr>
+<td><code>VoteCodecV1.encodeRequest(value)</code></td>
+<td>Allocates 128 bytes; writes AEVR magic, version/header length, kind code, zero flags/reserved, term, candidate/session UUIDs, tip coordinates/state/hash, nonce/config version, and CRC over 0..123. Reads hash through defensive accessor. Does not validate membership/log tip or strengthen record validation. Null value/kind/UUID can raise NullPointerException.</td>
+</tr>
+<tr>
+<td><code>VoteCodecV1.decodeRequest(in)</code></td>
+<td>Requires exact size/magic/CRC, version=1/header=128 and zero flags/reserved. Reads fields and maps kind 1/2 to PRE_VOTE/REQUEST_VOTE, <strong>all other kinds to null</strong>, then constructs VoteRequest. That constructor accepts null kind, so a checksum-correct unknown kind is accepted. Term&gt;0, nonce!=0 and 32-byte hash are checked by record; remaining coordinate/identity semantics are not.</td>
+</tr>
+<tr>
+<td><code>VoteCodecV1.encodeResponse(value)</code></td>
+<td>Allocates 96 bytes; writes AEVP/version/header, kind code, grant byte, VoteReason.ordinal as short, metadata, zero reserved long and CRC over 0..91. No responder authentication/correlation or coordinate checks. Null value/kind/reason/UUID may cause NullPointerException; a false/null-reason record can exist but cannot encode.</td>
+</tr>
+<tr>
+<td><code>VoteCodecV1.decodeResponse(in)</code></td>
+<td>Checks exact size/magic/CRC/version/header, grant byte&lt;=1, reason ordinal within values length, and zero reserved long. Unknown kind maps to null and is accepted by VoteResponse. Constructor checks grant/reason consistency; term/index/config/nonce/UUID validity and request correlation are not enforced.</td>
+</tr>
+<tr>
+<td><code>VoteCodecV1.require(in, size, magic, crcOffset)</code></td>
+<td>Rejects null/wrong length, wrong big-endian magic, or CRC mismatch with invalid(). Checks integrity before public decoder field validation. Caller supplies known size/offset; not a general framing parser.</td>
+</tr>
+<tr>
+<td><code>VoteCodecV1.putUuid(b, id)</code></td>
+<td>Writes most/least-significant longs using caller buffer order; no null/nonzero identity validation.</td>
+</tr>
+<tr>
+<td><code>VoteCodecV1.getUuid(b)</code></td>
+<td>Reads UUID halves and constructs value; all-zero identity is not rejected here.</td>
+</tr>
+<tr>
+<td><code>VoteCodecV1.invalid()</code></td>
+<td>Returns IllegalArgumentException with message invalid Raft vote body. Does not log, retry, or change election state.</td>
+</tr>
+</tbody>
+</table>
+<p>CRC detects accidental changed bytes but cannot authenticate a sender. Payload
+parsing does not check receiver/cluster membership, replay, election session,
+candidate freshness or lease contact. Re-encoding a decoded unknown-kind record
+fails when encode dereferences null kind rather than round-tripping the unknown code.
+Reason codes use <strong>Java enum ordinals</strong>: reordering VoteReason changes wire meaning.</p>
+<h2 id="vote-wire-layouts">Vote Wire Layouts</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Request offset</th>
+<th>Bytes and meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0..11</td>
+<td>AEVR magic (4), version=1 (2), length=128 (2), kind=1/2 (1), flags=0 (1), reserved=0 (2).</td>
+</tr>
+<tr>
+<td>12..51</td>
+<td>Candidate election term (8), candidate UUID (16), session UUID (16).</td>
+</tr>
+<tr>
+<td>52..75</td>
+<td>Last log index, last log term, last state sequence (three longs).</td>
+</tr>
+<tr>
+<td>76..123</td>
+<td>Last entry hash (32), nonce (8), configuration version (8).</td>
+</tr>
+<tr>
+<td>124..127</td>
+<td>Big-endian masked CRC32C over bytes 0..123.</td>
+</tr>
+</tbody>
+</table>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Response offset</th>
+<th>Bytes and meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0..11</td>
+<td>AEVP magic (4), version=1 (2), length=96 (2), kind (1), granted=0/1 (1), reason ordinal (2).</td>
+</tr>
+<tr>
+<td>12..51</td>
+<td>Receiver term (8), responder UUID (16), session UUID (16).</td>
+</tr>
+<tr>
+<td>52..83</td>
+<td>Nonce, last log index, last log term, configuration version (four longs).</td>
+</tr>
+<tr>
+<td>84..91</td>
+<td>Reserved zero long, explicitly checked on decode.</td>
+</tr>
+<tr>
+<td>92..95</td>
+<td>Big-endian masked CRC32C over bytes 0..91.</td>
+</tr>
+</tbody>
+</table>
+<p>Current reason ordinals: GRANTED=0, STALE_TERM=1, ALREADY_VOTED=2,
+LOG_NOT_UP_TO_DATE=3, RECENT_LEADER_CONTACT=4, NOT_VOTER=5,
+CANDIDATE_NOT_MEMBER=6, CONFIGURATION_MISMATCH=7, LOG_HASH_MISMATCH=8,
+NODE_NOT_ELIGIBLE=9, STORAGE_UNAVAILABLE=10, INVALID_REQUEST=11.
+The codec does not encode AppendEntriesReason or provide AppendEntries payloads.</p>
+<h2 id="persistent-state-and-slot-functions">Persistent State and Slot Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RaftPersistentState.RaftPersistentState(generation, currentTerm, votedFor)</code></td>
+<td>Requires generation&gt;0 and term&gt;=0, otherwise IllegalArgumentException. Normalizes null Optional to Optional.empty. Rejects any present vote at term zero; positive term with empty vote is allowed. Does not reject all-zero candidate UUID at a positive term, compare prior generations/terms, or prevent a different vote in the same term.</td>
+</tr>
+<tr>
+<td><code>RaftStateSlotCodecV1.RaftStateSlotCodecV1()</code></td>
+<td>Private empty utility constructor.</td>
+</tr>
+<tr>
+<td><code>RaftStateSlotCodecV1.encode(cluster, node, state, reason, fingerprint, epochMillis)</code></td>
+<td>Requires fingerprint length=32 and reason in 1..5, otherwise IllegalArgumentException (null fingerprint raises NullPointerException). Allocates zero-filled 512 bytes, writes identity/state/presence/vote/time/reason/fingerprint, semantic hash, and CRC over 0..507. Does not reject zero IDs or negative epoch, validate prior state, choose a slot, write, or force. Null identity/state fails on dereference.</td>
+</tr>
+<tr>
+<td><code>RaftStateSlotCodecV1.decode(in, cluster, node, fingerprint)</code></td>
+<td>Null input raises NullPointerException; requires exact 512 bytes and CRC. Checks magic/version/length/flags and expected UUID equality, reads generation/term/presence/vote, skips epoch and reserved int, reads fingerprint/hash and constructs state. Rejects presence&gt;1, reason outside 1..5, fingerprint mismatch and semantic-hash mismatch. Expected fingerprint length is not independently checked, but stored 32-byte equality requires a match. No slot selection or file I/O.</td>
+</tr>
+<tr>
+<td><code>RaftStateSlotCodecV1.hash(c, n, s, fp)</code></td>
+<td>SHA-256 of ASCII AETHER-RAFT-STATE-V1, a 57-byte little-endian identity/state block, 16-byte canonical vote UUID, then fingerprint. Identity block writes only 49 bytes (two UUIDs, generation, term, presence); remaining <strong>eight zero bytes are also hashed</strong> because the entire allocated array is fed to digest. Epoch/reason/physical reserved bytes are excluded. Missing SHA-256 raises IllegalStateException.</td>
+</tr>
+<tr>
+<td><code>RaftStateSlotCodecV1.put(b, u)</code></td>
+<td>Writes UUID halves in caller buffer order; no identity check.</td>
+</tr>
+<tr>
+<td><code>RaftStateSlotCodecV1.get(b)</code></td>
+<td>Reads UUID halves; no identity check.</td>
+</tr>
+<tr>
+<td><code>RaftStateSlotCodecV1.invalid()</code></td>
+<td>Constructs IllegalArgumentException with message invalid RAFT-STATE slot. Constructor state-validation errors can instead propagate their own messages.</td>
+</tr>
+</tbody>
+</table>
+<p>RaftPersistentState has immutable scalar/Optional/UUID fields, so generated record
+equality is value-based without an array-identity caveat. decode returns only this
+state: it discards the update reason/time rather than exposing a receipt. Reason
+1..5 is a numeric range in this codec, not an enum or named update transition.</p>
+<h2 id="slot-bytes-and-integrity-coverage">Slot Bytes and Integrity Coverage</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Slot offset</th>
+<th>Bytes and validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0..15</td>
+<td>AETHRFS1 (8), version=1 (2), length=512 (2), flags=0 (4); all checked.</td>
+</tr>
+<tr>
+<td>16..47</td>
+<td>Cluster UUID and node UUID; compared with expected values. Nonzero identities not independently required.</td>
+</tr>
+<tr>
+<td>48..64</td>
+<td>Generation (8), current term (8), vote-present byte (1). Record checks generation/term; decoder checks present&lt;=1.</td>
+</tr>
+<tr>
+<td>65..71</td>
+<td>Seven zero bytes emitted, skipped without a zero check.</td>
+</tr>
+<tr>
+<td>72..87</td>
+<td>Vote UUID. With present=1 retained in state; with present=0 ignored and hash uses canonical all-zero vote instead.</td>
+</tr>
+<tr>
+<td>88..103</td>
+<td>Epoch millis (8), reason (4), reserved int (4). Epoch/reserved are read and ignored; reason must be 1..5.</td>
+</tr>
+<tr>
+<td>104..167</td>
+<td>Compatibility fingerprint (32), semantic state SHA-256 (32).</td>
+</tr>
+<tr>
+<td>168..507</td>
+<td>Zero tail emitted, not individually validated.</td>
+</tr>
+<tr>
+<td>508..511</td>
+<td>Little-endian masked CRC32C over bytes 0..507.</td>
+</tr>
+</tbody>
+</table>
+<p>All skipped/reserved/time bytes are still CRC-covered, but the parser does not
+require canonical zeros or nonnegative epoch when a CRC is recomputed. The SHA
+does not cover epoch/reason or physical padding. For absent votes it hashes a zero
+UUID regardless of physical vote bytes. Thus changed ignored fields plus a correct
+CRC can decode successfully without changing the state SHA. That is existing
+acceptance behavior, not cryptographic authentication or strict canonical parsing.</p>
+<p>The codec accepts caller-supplied expected identities/fingerprint as its trust
+inputs. There is no compatibility-fingerprint generator in this module and no
+comparison against a node's configured/durable identity outside those arguments.
+Concurrent mutation of caller-owned byte inputs is not synchronized by the codec.</p>
+<h2 id="verification-and-remaining-boundaries">Verification and Remaining Boundaries</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-raft-storage/src/test/java/io/aetherdb/raft/storage/RaftStorageFormatTest.java">RaftStorageFormatTest.java</a>
+contains six tests: exact-size vote round-trip; request, response and state-slot
+golden fingerprints; state-slot changed-byte rejection; shared corruption-mutator
+checks for request/slot. They verify selected byte images and integrity failures,
+not persistence ordering, dual-slot repair, or every protocol/constructor condition.</p>
+<p>Unknown kinds, recomputed-CRC ignored fields, reason-ordinal compatibility,
+absent-vote canonicalization, identity/epoch/null cases and state monotonicity lack
+dedicated coverage in that suite. A module named storage is not evidence that
+the node persists a vote before replying. Full election/replication integration,
+slot publication/selection and restart invariants remain caller/system work.
+Runtime and frozen experiment sources remain unchanged by this documentation.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-missing-persistence-owner">Architecture and Missing Persistence Owner</a><a href="#vote-codec-functions">Vote Codec Functions</a><a href="#vote-wire-layouts">Vote Wire Layouts</a><a href="#persistent-state-and-slot-functions">Persistent State and Slot Functions</a><a href="#slot-bytes-and-integrity-coverage">Slot Bytes and Integrity Coverage</a><a href="#verification-and-remaining-boundaries">Verification and Remaining Boundaries</a></nav></aside>
+  </div>
+</body>
+</html>

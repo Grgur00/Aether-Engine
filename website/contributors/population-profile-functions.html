@@ -1,0 +1,251 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/POPULATION-PROFILE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Population diagnostics and traces: source-backed contributor documentation for Aether Engine.">
+  <title>Population diagnostics and traces | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html" aria-current="page">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/POPULATION-PROFILE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="population-diagnostic-and-publication-trace-functions">Population Diagnostic and Publication Trace Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="research.html">Research tooling</a> | <a href="research-adapter-functions.html">Comparison adapters</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/profile_population.py">profile_population.py</a>.
+This reference covers all <strong>18 explicit function declarations</strong>, including the
+nested preprocessing callback. Anonymous callbacks are described separately.
+This tool diagnoses population costs; it does not train a model or produce an H2
+confirmatory result. The bulk-layout mode adds an excluded post-population update
+regression despite the module's shorter V0-only description.</p>
+<h2 id="parent-and-worker-architecture">Parent and Worker Architecture</h2>
+<pre><code class="language-text">main (parent)
+  -&gt; verify frozen version manifests and package versions
+  -&gt; compute common reference tensors outside measured arms
+  -&gt; choose arm order and create a fresh scratch store
+  -&gt; subprocess main --request (one isolated worker per arm)
+       -&gt; run_case: startup -&gt; populate -&gt; drain -&gt; validate -&gt; close
+       -&gt; bulk backend delegates to bulk_population.run_bulk_case
+  -&gt; save result with campaign metadata; update descriptive summary
+  -&gt; remove successful scratch store; retain failed store
+  -&gt; CSV, plot and completion receipt
+</code></pre>
+<p>Each ordinary Aether arm starts and stops its own daemon. This is <strong>not</strong> the
+persistent-daemon V0-through-V4 longitudinal experiment. Fresh stores avoid reuse
+between arms, but the common reference preflight warms source data and the page
+cache is uncontrolled. Native backends retain their own durability policies;
+the runner does not force durability equivalence.</p>
+<h2 id="arm-selection-and-workload-arguments">Arm Selection and Workload Arguments</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>layout_cases()</code></td>
+<td>Returns three offline-bulk arms with 32, 64 and 128 MiB SSTable targets, lookup/publication batch 16 and online tracing disabled. Returns configuration only; does not run, validate or select a winning layout.</td>
+</tr>
+<tr>
+<td><code>cases(include_bulk=False)</code></td>
+<td>Returns six traced online Aether publication sweeps (chunks 1/4/8/16/32/64 with lookup groups fixed at 64), two batch-16 traced/untraced controls, then the three native backends from base.BACKENDS[1:]. Default is 11 arms; include_bulk adds a twelfth offline-bulk batch-16 arm.</td>
+</tr>
+<tr>
+<td><code>expected_puts(count, lookup_batch, put_batch)</code></td>
+<td>Sums ceil(group length / publication chunk) independently for each lookup group. This is not necessarily ceil(count / put_batch): chunking restarts at every lookup. For 1,200 samples, lookup 64, publication 32 gives 38 requests. Caller must provide valid positive batch sizes.</td>
+</tr>
+<tr>
+<td><code>workload_args(manifest, count, size, trusted=False)</code></td>
+<td>Uses the benchmark parser to configure OCT5K, supplied manifest/count/resize, four preprocessing passes, batch 16 and zero prefetch. trusted adds trust-manifest-hashes; it does not itself verify source integrity. Other benchmark options retain parser defaults.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="inclusive-instrumentation-wrappers">Inclusive Instrumentation Wrappers</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TimedTransform.__init__(args)</code></td>
+<td>Initializes the shared CanonicalTransform, including its identity/call accounting, then a zero elapsed_ns accumulator. Does not change transformation semantics.</td>
+</tr>
+<tr>
+<td><code>TimedTransform.__call__(item)</code></td>
+<td>Delegates transformation and accumulates perf_counter_ns elapsed in finally, including time spent in failed calls. This is inclusive source loading/preprocessing time, not an independent partition of population wall. Accumulator is not synchronized for concurrent callers.</td>
+</tr>
+<tr>
+<td><code>TimedCodec.__init__(codec)</code></td>
+<td>Keeps the delegate and zeroes encode_ns, decode_ns and successful encoded-byte count. Does not select or alter a serialization format.</td>
+</tr>
+<tr>
+<td><code>TimedCodec.encode(value)</code></td>
+<td>Returns the delegate payload unchanged and counts its length only after successful encoding. finally records elapsed even on failure. No durability, transport or physical-write measurement.</td>
+</tr>
+<tr>
+<td><code>TimedCodec.decode(value)</code></td>
+<td>Returns the delegate result unchanged; finally records successful or failed decoding time. No payload copy or validation is added by this wrapper.</td>
+</tr>
+<tr>
+<td><code>PublicationClient.__init__(*, put_batch, traced, **kwargs)</code></td>
+<td>Sets chunk size, record/publication lists and active=None; enables the production client's trace sink and server trace together when traced. Does not validate a positive chunk size itself.</td>
+</tr>
+<tr>
+<td><code>PublicationClient.put_many(values)</code></td>
+<td>Materializes input and submits successive chunks through the production encoder/exchange. Records artifact/payload counts, then starts timing, and appends a publication only after success. finally clears active for every chunk. A later failure does not undo earlier successful publications; the failed chunk is absent from successful-publication records. Payload-byte summation occurs before its startedNs timestamp.</td>
+</tr>
+<tr>
+<td><code>PublicationClient._round_trip(body, **kwargs)</code></td>
+<td>While a publication is active and operation byte body[1] is 6, records body-construction elapsed and body length before delegating unchanged. This is body construction, not framing/send/server time. Assumes a well-formed body of at least two bytes on that path.</td>
+</tr>
+</tbody>
+</table>
+<p>The trace sink is records.append. The dataset identity callback returns
+item[&quot;source_identity&quot;] and deliberately ignores index, retaining source-identity
+reuse semantics. Neither is a new storage implementation.</p>
+<h2 id="trace-reconciliation">Trace Reconciliation</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>summarize_trace(records, publications, completed)</code></td>
+<td>Rejects non-complete outcomes or attempt_failed events for every client record, including non-publication operations. For operation 6, subtracts client event marks into framing/send/response phases and sums server publication/write stages, write counters and completed foreground flush stages/causes. Requires no dropped completed traces and equality of client/server trace-ID sets. Adds completed-server stages only for publication IDs. Returns publication totals and explicit timing/transfer/force-attribution caveats. Missing events/fields fail rather than fabricate data.</td>
+</tr>
+</tbody>
+</table>
+<p>Set equality is not a duplicate-ID uniqueness check. This helper does not establish
+one publication record per trace, monotonic event ordering or nonnegative stage
+durations. run_case separately checks request and operation counts. Repeated event
+names overwrite earlier timestamps when building the marks dictionary.</p>
+<p>Client and server timings overlap. responseWaitAndRead includes server storage
+work; socketSend measures local sendall duration, not isolated network bandwidth.
+WAL force can be nested in databaseWriteAndSync. A shared group force is attributed
+to the first request, and this diagnostic assumes one serial writer. Do not sum
+these fields into an additive end-to-end cost model.</p>
+<h2 id="population-and-validation-worker">Population and Validation Worker</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>run_case(request)</code></td>
+<td>Immediately delegates aether_bulk requests to run_bulk_case. For other backends rejects an existing store, loads trusted-manifest sources, installs the timed preprocessing wrapper, starts disk sampling and enters an Aether daemon or native null context. Aether must initially report zero entries, DURABLE, background compaction enabled and immutable-inline-admission-v1. Builds the selected dataset, fetches all lookup groups once, checks transformation and RPC cardinality, drains, then performs excluded full tensor readback/count checks without new preprocessing. Closes dataset/daemon and reports stage times, counters, storage suffix bytes and resource deltas.</td>
+</tr>
+<tr>
+<td><code>run_case.capture_preprocessing(*a, **kw)</code></td>
+<td>Calls the saved preprocess_sample_with_timing, adds returned counters and returns the original pair. A failing delegate produces no counters here. Installed temporarily on the shared benchmark module, so worker-process isolation matters; this is not a thread-local hook.</td>
+</tr>
+</tbody>
+</table>
+<p>For Aether, expected publication count must match both successful publications
+and operation-6 count; operation-5 count must match lookup groups. Traced arms also
+require summed server write operations to equal source count. Before trace export,
+tracing is disabled and same-connection engine_info acts as a barrier so the final
+write's completed trace is available. Trace-sink errors reject the arm.</p>
+<p>Unique-artifact counting uses Aether cacheEntries, mmap index size, PersistentDataset
+*.pt count or LMDB entries. Readback must match the supplied reference hash and
+leave transform.calls unchanged. It is a full dataset check, not model parity.</p>
+<p>Reported totalMs = startup + population + quiescence + close. validationMs is
+separate and excluded. Population includes adapter opening and the admission scan.
+Codec/protocol/cache snapshots are captured before readback; process/disk counters
+span readback too. Java resource deltas exclude shutdown; Python deltas extend
+through close and final inspection. These observations have different windows.</p>
+<p>finally restores preprocessing, stops sampling, closes any remaining dataset and
+exits an entered manager. Setup before the try (including sampler startup/resource
+snapshot) is not covered by that finally. Cleanup calls are not individually
+protected, so one cleanup error can prevent later cleanup. Failed stores are not
+rolled back or deleted by this worker.</p>
+<h2 id="summary-plot-and-campaign-controller">Summary, Plot and Campaign Controller</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and boundaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>summarize(reports)</code></td>
+<td>Groups only recognized case names and emits raw population times plus medians of population, total and preprocessing. Traced and bulk stage medians use the union of observed keys with missing keys treated as zero. Layout reports add warm throughput, incremental admission+drain, table counts and sampled RSS; ratios pair by blockIndex against the 32 MiB arm. Unknown cases are omitted. Does not certify complete blocks, homogeneous protocols or statistical significance.</td>
+</tr>
+<tr>
+<td><code>plot(reports, output)</code></td>
+<td>Writes population.csv and an Agg-rendered population.png. Left panel shows per-case median population seconds. Ordinary mode draws six publication-size curves for Python body construction, inclusive DB write+sync and nested WAL force; layout mode instead shows warm lookup throughput. Requires an existing output directory and nonempty reports; ordinary curves require every sweep size. Anonymous getter lambdas extract those three fields without changing units until division by 1e9.</td>
+</tr>
+<tr>
+<td><code>main(argv=None)</code></td>
+<td>Parses parent/worker modes; rejects simultaneous include-bulk and bulk-layout. Worker mode reads a request, runs it and writes JSON, bypassing parent manifest/package/campaign gates. Parent requires frozen counts 1200/1260/1323/1389/1458, seed 20260926, MONAI 1.6.0 and LMDB 2.1.1; computes references, establishes campaign metadata, launches isolated arms, saves results/partial summaries, plots and writes completion. Smoke uses 65 samples/one repetition; normal uses 1200/three. No model training occurs.</td>
+</tr>
+</tbody>
+</table>
+<p>Ordinary arm order is shuffled deterministically per block from seed 20260929.
+include-bulk inserts the bulk arm at (block*5)%12 without changing the eleven-arm
+relative order. Layout-only order rotates three sizes, balancing their positions
+over three repetitions. Layout update uses 68 smoke or 1,260 normal samples,
+computed against V1 separately; it remains outside V0 timing.</p>
+<p>The optional artifact-provenance.json hash can be null. Protocol strings such as
+bulk-deferred-inventory-v2 are declared metadata, not independent proof of the
+current verifier implementation. Inspect the delegated bulk writer and frozen
+campaign evidence before making implementation or performance claims.</p>
+<p>Each parent arm requires available scratch capacity, creates a new output location
+and scratch/store path, and runs a checked subprocess with its output in worker.log.
+There is no subprocess timeout or completed-arm resume path here. Finally copies
+top-level scratch/store.* files, not the whole store directory. Successful validated
+stores are removed only after checking the scratch parent and name prefix; failures
+retain the scratch store and diagnostics. Existing arm directories fail rather
+than silently overwrite evidence.</p>
+<p>Layout pairing uses the last 32 MiB report for a duplicate block index and does not
+guard a zero baseline throughput. Plot mode is selected from the first report;
+mixed/incomplete report collections are not a supported aggregation protocol.</p>
+<h2 id="coverage-and-evidence">Coverage and Evidence</h2>
+<p>The declaration test checks all 18 qualified names against the source AST.
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_profile_population.py">Population tests</a> cover arm
+construction and unchanged production publication bodies across six chunk sizes.
+The all-backend readback/plot test is opt-in with AETHER_JAVA_TEST=1; a default
+passing test run is not evidence that it executed a real daemon or GPU workload.</p>
+<p>This file's declaration coverage is <strong>18/18 (100%; 0% remaining)</strong>. Other profiling
+tools and broader repository function references remain separate work.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#parent-and-worker-architecture">Parent and Worker Architecture</a><a href="#arm-selection-and-workload-arguments">Arm Selection and Workload Arguments</a><a href="#inclusive-instrumentation-wrappers">Inclusive Instrumentation Wrappers</a><a href="#trace-reconciliation">Trace Reconciliation</a><a href="#population-and-validation-worker">Population and Validation Worker</a><a href="#summary-plot-and-campaign-controller">Summary, Plot and Campaign Controller</a><a href="#coverage-and-evidence">Coverage and Evidence</a></nav></aside>
+  </div>
+</body>
+</html>

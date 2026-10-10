@@ -1,0 +1,321 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/PYTHON-LIFECYCLE-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Python ML lifecycle and operations: source-backed contributor documentation for Aether Engine.">
+  <title>Python ML lifecycle and operations | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html" aria-current="page">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/PYTHON-LIFECYCLE-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="python-ml-client-lifecycle-and-operations">Python ML Client Lifecycle and Operations</h1>
+<p><a href="function-index.html">Function index</a> | <a href="python-transform-functions.html">Transform cache</a> | <a href="python-framework-functions.html">Framework integration</a></p>
+<p>This reference covers every explicit function in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/config.py">config.py</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/lifecycle.py">lifecycle.py</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/namespace.py">namespace.py</a>,
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/metrics.py">metrics.py</a>, and
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/cli.py">cli.py</a>. Exception types are defined in
+<a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/exceptions.py">exceptions.py</a>; public exports are
+listed in <a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/aether_ml/__init__.py"><strong>init</strong>.py</a>.</p>
+<h2 id="architecture-and-ownership">Architecture and Ownership</h2>
+<pre><code class="language-text">explicit AetherConfig or process environment
+  -&gt; create_client
+  -&gt; construct low-level AetherTrainingCache
+  -&gt; engine_info exchange / capability validation
+  -&gt; return one client to the transform-cache owner
+  -&gt; owner eventually calls client.close
+</code></pre>
+<p>The lifecycle module does not launch Java, open a database directory, choose bulk
+loading, or enforce a persistent-daemon research protocol. It connects to a
+separately managed service. Closing the Python client closes that connection,
+not the daemon or stored artifacts.</p>
+<p><code>AetherTransformCache(client=None, ...)</code> stores create_client as a lazy factory;
+the first enabled lookup/plan triggers this path. Supplying an explicit client
+bypasses create_client's capability check unless the caller invokes it separately.
+Supplying a factory lets each process obtain its own client through the wrapper's
+PID check; the factory is not automatically called once per thread or per batch.</p>
+<h2 id="configuration-functions-and-data">Configuration Functions and Data</h2>
+<p><code>AetherConfig</code> is a frozen dataclass with host, port, timeout, and optional
+namespace. Its generated constructor/accessors are implicit, not handwritten
+function declarations. Defaults are loopback, port 9484, timeout 30 seconds, and
+namespace None. Frozen prevents normal field assignment; it does not validate
+values or make a network connection.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior and failure boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherConfig.from_environment()</code></td>
+<td>Reads AETHER_HOST, AETHER_PORT, AETHER_TIMEOUT, and AETHER_NAMESPACE from the current process environment. Converts port with int and timeout with float; invalid numeric text raises ValueError. Returns a new configuration on every call, without changing environment variables.</td>
+</tr>
+</tbody>
+</table>
+<p>Missing variables use defaults; present empty strings do not. Empty host or
+namespace is retained; empty numeric text fails conversion. Negative/out-of-range
+ports and negative/nonfinite timeouts are not checked here. They can fail later in
+socket operations. The classmethod returns cls, so a compatible subclass can be
+constructed; it does not create a shared global configuration registry.</p>
+<p>The namespace field is descriptive configuration here: create_client passes only
+host, port, and timeout. AetherTransformCache still requires its own namespace
+argument. AETHER_NAMESPACE does not automatically override that argument.</p>
+<p>This configuration has no TLS context, Unix-socket, request trace, authentication,
+or server-launch fields. The low-level client's separate constructor supports
+additional transport settings; create_client does not expose them. See the
+<a href="python-client-functions.html">client reference</a> before choosing a different transport.
+Do not infer secure remote transport from an ML configuration's host string.</p>
+<h2 id="capability-and-client-functions">Capability and Client Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>validate_capabilities(client, required_features)</code></td>
+<td>Calls engine_info and wraps failures of that call as ProtocolCompatibilityError. Requires reported protocol to compare equal to 1, computes required minus advertised features, and rejects missing features with a sorted diagnostic. Returns the original info dictionary without copying it. Default features are get-many, put-many, and contains-many.</td>
+</tr>
+<tr>
+<td><code>create_client(config)</code></td>
+<td>Imports the low-level AetherTrainingCache lazily, selects explicit config or from_environment, constructs a host/port/timeout client, and validates capabilities. On a validation Exception it closes the client and re-raises. On success returns the client for caller-owned cleanup.</td>
+</tr>
+</tbody>
+</table>
+<p>The low-level constructor does not connect immediately. engine_info drives the
+actual exchange and may use the client's normal connection/retry machinery;
+create_client itself has no extra retry loop. A constructor failure occurs before
+the cleanup try block and propagates directly.</p>
+<p>The capability check is feature negotiation, not a validation of every payload or
+an attestation of source commit, Java version, checksum policy, or durability mode.
+It does not inspect implementation semantics behind an advertised feature name.
+The default feature set is a frozenset, and callers may supply another required set.</p>
+<p>Malformed engine_info values are not uniformly wrapped: dictionary .get and set
+conversion run outside the protected engine_info call. A non-dictionary response,
+unhashable features, or incompatible values can raise ordinary Python errors.
+Protocol comparison uses normal equality, not a strict integer type check. Cleanup
+in create_client still runs for those ordinary Exceptions, but client.close failure
+can replace the original validation error. BaseException paths are not covered by
+this cleanup handler.</p>
+<h2 id="namespace-function">Namespace Function</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>normalize_namespace(namespace)</code></td>
+<td>Strips outer whitespace, splits on slash, removes empty path components, and rejoins. Requires nonempty ASCII letters/digits/dot/underscore/hyphen components; otherwise raises IdentityError. Does not lowercase or hash the result.</td>
+</tr>
+</tbody>
+</table>
+<p>For example, <code>&quot;  team//images/  &quot;</code> becomes <code>&quot;team/images&quot;</code>. Interior spaces remain
+invalid. Dot and dot-dot components are accepted by this character rule; the result
+is a logical cache namespace, not a validated filesystem path. Never use it as a
+substitute for managed-path security validation.</p>
+<p>This helper is opt-in. artifact_key checks only for a nonempty string namespace;
+the dataset/transform constructors do not call normalize_namespace. Equivalent
+spellings will therefore remain different cache identities unless the caller
+normalizes before constructing them. Non-string arguments can fail at strip rather
+than producing IdentityError.</p>
+<h2 id="metrics-export-function">Metrics Export Function</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>export_metrics(stats, emit, prefix)</code></td>
+<td>Iterates its fixed name mapping, emits only keys present in stats as float values, and invokes emit with prefix/name. Does not fetch statistics, reset counters, import a metric service, or catch sink exceptions.</td>
+</tr>
+</tbody>
+</table>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Wrapper counter</th>
+<th>Exported suffix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>lookups / hits / misses</td>
+<td>cache_lookups / cache_hits / cache_misses</td>
+</tr>
+<tr>
+<td>publishes / hitRate</td>
+<td>cache_publishes / cache_hit_rate</td>
+</tr>
+<tr>
+<td>bytesRead / bytesPublished</td>
+<td>bytes_read / bytes_written</td>
+</tr>
+<tr>
+<td>cacheErrors</td>
+<td>cache_errors</td>
+</tr>
+</tbody>
+</table>
+<p>The exporter emits cumulative wrapper counters, not server measurements or per-step
+deltas. bytes_written means encoded successfully published payload bytes as counted
+by the wrapper, not physical disk writes, WAL bytes, or compaction amplification.
+lookupNs and nested latency summaries are not exported. Conversion can lose integer
+precision for very large values. If float conversion or the sink fails, earlier
+emissions remain; there is no transactional metrics batch or automatic retry.</p>
+<p>To send values to a TensorBoard or other sink, provide a callable conforming to
+emit(name, float). Any step/epoch association is owned by that callable, not this
+module. Missing counter keys are omitted rather than emitted as zeros.</p>
+<h2 id="cli-functions-and-trust-boundary">CLI Functions and Trust Boundary</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Function</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>load_dataset(path)</code></td>
+<td>Resolves the Python configuration path, constructs an import specification named aether_ml_user_config, executes that module, and retrieves its dataset attribute. Requires a non-None value with plan/populate/stats attributes. Returns it without a concrete AetherDataset type check.</td>
+</tr>
+<tr>
+<td><code>main(argv)</code></td>
+<td>Parses plan/populate/stats, config path, and integer --workers (default 1). Loads the dataset, invokes the chosen operation, JSON-prints sorted/indented output, and calls dataset.close in finally after a successful load.</td>
+</tr>
+</tbody>
+</table>
+<p>The installed <code>aether-ml</code> entry point targets cli.main. Argument parsing errors
+follow argparse's normal usage/error exit behavior. --workers is passed only to
+populate; it does not change plan or stats. Workers are the dataset's population
+threads, not a daemon count or a guarantee of multiprocessing/GPU execution.</p>
+<p>The configuration file is <strong>executable Python</strong>, not inert YAML/JSON. Importing it
+can run arbitrary code, access files, start work, or create clients. Use trusted
+configuration files only. Resolving its pathname is not a sandbox. The loader's
+attribute checks do not verify that plan/populate/stats are callable and do not
+require close, although main unconditionally calls close in finally.</p>
+<p>The loader does not change the process working directory, insert the configuration
+directory into sys.path, or register the loaded module in sys.modules. Relative
+paths inside configuration code follow the process's current directory unless
+the configuration resolves them explicitly. A new module object is executed on
+each load rather than reusing a normally imported configuration module.</p>
+<p>The cleanup try begins after load_dataset returns. A configuration that creates a
+resource and then raises during import is not automatically cleaned up by main.
+Conversely, once loaded, close is attempted after operation/JSON/printing failures;
+close failure can replace those failures. The CLI prints results, not a sealed
+scientific receipt, and has no progress log, checkpoint, resumable campaign, daemon
+launcher, or inference gate.</p>
+<p>Each CLI invocation executes configuration anew. stats therefore reports the
+dataset object's current wrapper statistics, not automatically historical metrics
+from another process or the Java server. A configuration could implement different
+behavior; attribute names alone do not establish persistence semantics.</p>
+<h2 id="exception-hierarchy">Exception Hierarchy</h2>
+<p>All custom types below have empty bodies and inherit normal Python exception
+construction/string behavior. No type automatically performs a retry or cleanup.</p>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Type</th>
+<th>Parent and use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AetherMLError</td>
+<td>Exception; root integration error.</td>
+</tr>
+<tr>
+<td>IdentityError</td>
+<td>AetherMLError; source/namespace/schema identity failures.</td>
+</tr>
+<tr>
+<td>TransformIdentityError</td>
+<td>IdentityError; unsupported transform description/configuration.</td>
+</tr>
+<tr>
+<td>ArtifactDecodeError</td>
+<td>AetherMLError; payload framing/decoding failures.</td>
+</tr>
+<tr>
+<td>ArtifactSchemaMismatch</td>
+<td>ArtifactDecodeError; exported specialization, not raised by the current built-in codecs.</td>
+</tr>
+<tr>
+<td>CacheMissError</td>
+<td>AetherMLError; read-only lookup with missing keys.</td>
+</tr>
+<tr>
+<td>CacheUnavailableError</td>
+<td>AetherMLError; lookup/planning failure.</td>
+</tr>
+<tr>
+<td>PublishError</td>
+<td>CacheUnavailableError; publication failure, potentially with an uncertain server outcome.</td>
+</tr>
+<tr>
+<td>WorkerLifecycleError</td>
+<td>AetherMLError; exported specialization, not raised by the current worker-init helper.</td>
+</tr>
+<tr>
+<td>ProtocolCompatibilityError</td>
+<td>AetherMLError; capability/protocol negotiation failure.</td>
+</tr>
+</tbody>
+</table>
+<p>The low-level client's exceptions are a different hierarchy. Wrappers translate
+some errors and leave callback, NumPy/Torch, import, numeric conversion, and malformed
+metadata errors untouched. Catching AetherMLError alone is not a universal safety
+boundary for every operation these adapters call.</p>
+<h2 id="verification-and-reading-exercise">Verification and Reading Exercise</h2>
+<p><a href="https://github.com/Grgur00/Aether-Engine/blob/main/clients/python/tests/test_aether_ml.py">test_aether_ml.py</a> exercises feature
+negotiation, metrics export, and the transform cache's factory replacement on a PID
+change. <a href="https://github.com/Grgur00/Aether-Engine/blob/main/scripts/tests/test_ml_documented_contracts.py">Documented-contract tests</a>
+check configuration/namespace behavior, capability cleanup, CLI lifetime, and the
+small framework identity boundaries with local fixtures. Those tests do not start
+a Java daemon or prove an actual remote service advertises the correct semantics.</p>
+<p>Trace the first lookup from a client=None transform cache through environment
+reading and engine_info. Then trace the same cache with an explicit client and
+explain why negotiation is no longer automatic. Finally distinguish closing a
+connection from stopping the process that owns the database directory.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#architecture-and-ownership">Architecture and Ownership</a><a href="#configuration-functions-and-data">Configuration Functions and Data</a><a href="#capability-and-client-functions">Capability and Client Functions</a><a href="#namespace-function">Namespace Function</a><a href="#metrics-export-function">Metrics Export Function</a><a href="#cli-functions-and-trust-boundary">CLI Functions and Trust Boundary</a><a href="#exception-hierarchy">Exception Hierarchy</a><a href="#verification-and-reading-exercise">Verification and Reading Exercise</a></nav></aside>
+  </div>
+</body>
+</html>
