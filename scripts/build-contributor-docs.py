@@ -7,7 +7,7 @@ from urllib.parse import urlsplit
 from markdown_it import MarkdownIt
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "Docs/onboarding"
+SOURCE = ROOT / "docs/onboarding"
 OUTPUT = ROOT / "website/contributors"
 REPO = "https://github.com/Grgur00/Aether-Engine/blob/main/"
 PAGES = [
@@ -278,7 +278,7 @@ def page(source_name, output, title):
         nav += f'<a href="{target}"{current}>{escape(label)}</a>'
     toc = "".join(f'<a href="#{anchor}">{escape(label)}</a>' for anchor, label in headings)
     return f'''<!doctype html>
-<!-- Generated from Docs/onboarding/{source_name}; run scripts/build-contributor-docs.py. -->
+<!-- Generated from docs/onboarding/{source_name}; run scripts/build-contributor-docs.py. -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -308,7 +308,7 @@ def page(source_name, output, title):
       <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
       <nav class="docs-nav-group"><strong>Working on Aether</strong>{nav}</nav>
       <p class="docs-nav-empty" hidden>No matching guides</p>
-      <div class="docs-sidebar-footer"><a href="{REPO}Docs/onboarding/{source_name}">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+      <div class="docs-sidebar-footer"><a href="{REPO}docs/onboarding/{source_name}">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
     </aside>
     <main id="docs-content" class="docs-content contributor-content">
       <p class="docs-kicker">Aether Engine / Contributor handbook</p>

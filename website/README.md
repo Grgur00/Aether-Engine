@@ -5,7 +5,7 @@ Open `index.html` directly for a local preview. The contributor handbook is at
 The existing GitHub Pages workflow publishes `website/` on an authorized push to
 `main`. Generating pages locally does not deploy them.
 
-Contributor pages are generated from `Docs/onboarding`, excluding the separate
+Contributor pages are generated from `docs/onboarding`, excluding the separate
 H2 protocol supplement. Do not edit generated HTML by hand. Update the Markdown,
 then regenerate using the pinned Markdown parser:
 

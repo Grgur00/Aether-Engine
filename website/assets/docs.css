@@ -11,9 +11,11 @@
 .docs-sidebar {
   position: sticky;
   top: 72px;
+  min-width: 0;
   overflow-y: auto;
   height: calc(100vh - 72px);
-  padding: 32px 25px 35px max(22px, calc((100vw - 1320px) / 2));
+  /* The grid is already centered; viewport gutters would overflow this column. */
+  padding: 32px 24px 35px;
   border-right: 1px solid var(--line);
   background: var(--paper);
 }

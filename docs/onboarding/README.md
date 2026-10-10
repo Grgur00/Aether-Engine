@@ -1479,6 +1479,21 @@ all **86 originally identified missing names are resolved (0% of that backlog
 remaining)**. This does not certify whole-codebase semantic coverage, overloads,
 generated code, tests or resources; those broader audits remain open.
 
+Remote handbook integration on 2026-10-10 preserves the expanded 136 guides,
+the published ML example page and the remote sidebar/diagram work. Duplicate
+uppercase/lowercase onboarding paths were consolidated under tracked
+`docs/onboarding`; the renderer, edit links and root entry links use that spelling.
+**147 documentation tests passed**, the website audit passed **139 pages**, and
+six responsive checks passed across the home, ML and contributor pages at 1440
+and 390 pixels. Mobile ML screenshot inspection passed. No experiment was run.
+
+A stricter exploratory scan found **1,464 of 2,524 explicit main-Java declarations
+without an exact class-qualified function-table row**. Many are documented under
+prose headings, so this is a review queue, not an undocumented-code percentage.
+The scan exposed a concrete gap in ReadDiagnostics function-level contracts,
+which remains for follow-up alongside the byte-database and snapshot interfaces.
+The whole-codebase completion estimate remains unverified.
+
 Update the relevant page when changing public APIs, configuration consumers,
 durability boundaries, CLI arguments, source layout or experiment protocols.
 Keep graph edges honest: label conceptual relationships, and do not draw a

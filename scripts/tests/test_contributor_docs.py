@@ -16,6 +16,13 @@ docs = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(docs)
 
 
+def test_handbook_source_and_edit_links_use_tracked_lowercase_directory():
+    assert docs.SOURCE.relative_to(ROOT).as_posix() == "docs/onboarding"
+    html = docs.page("README.md", "index.html", "Overview")
+    assert docs.REPO + "docs/onboarding/README.md" in html
+    assert docs.REPO + "Docs/onboarding/" not in html
+
+
 def test_cli_recovery_and_combined_references_cover_complete_compiler_inventory():
     java = shutil.which("java")
     if not java:

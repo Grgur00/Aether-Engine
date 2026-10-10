@@ -7,13 +7,13 @@ The current checkout includes a deterministic in-memory engine and a local persi
 > **Status:** `0.1.0` is available from Maven Central. Aether remains pre-1.0;
 > do not use it for irreplaceable production data yet.
 
-**New contributors: start with [Developer onboarding](Docs/onboarding/README.md).**
+**New contributors: start with [Developer onboarding](docs/onboarding/README.md).**
 It covers setup, architecture diagrams, storage internals, typed schemas,
 Python/ML integration, testing, operations and experiment methodology against
 the current source tree.
 
-For a hands-on source-reading session, follow the [guided code tour](Docs/onboarding/CODE-TOUR.md).
-Use the [49-module reference](Docs/onboarding/MODULE-GUIDE.md) to locate entry classes,
+For a hands-on source-reading session, follow the [guided code tour](docs/onboarding/CODE-TOUR.md).
+Use the [49-module reference](docs/onboarding/MODULE-GUIDE.md) to locate entry classes,
 dependency boundaries and the right place for a contribution.
 
 **[Developer documentation](https://grgur00.github.io/Aether-Engine/docs/)** — setup,
@@ -21,6 +21,10 @@ typed collections, schema evolution, the byte API, durability, metrics, limits, 
 behavior.
 
 ## Highlights
+
+New contributors: start with the [Contributor Handbook](https://grgur00.github.io/Aether-Engine/contributors/).
+It covers setup, all 49 modules, concrete code tours, testing and ownership boundaries.
+The source guides live in [docs/onboarding](docs/onboarding/README.md).
 
 - Typed collections with stable UUID identities
 - Versioned key and value codecs with compatibility fingerprints
@@ -42,7 +46,7 @@ behavior.
 
 A global Gradle installation is not required. Java 21 preview bytecode requires
 a compatible runtime; do not assume a later JVM can load it. See
-[Getting started](Docs/onboarding/GETTING-STARTED.md) for Windows and POSIX setup.
+[Getting started](docs/onboarding/GETTING-STARTED.md) for Windows and POSIX setup.
 
 ## Build and test
 
@@ -62,7 +66,7 @@ Run the configured Gradle verification tasks with:
 
 These commands do not run the Python suites, every standalone crash harness or
 remote experiments. Some task names are currently placeholders; see
-[Testing and contributing](Docs/onboarding/TESTING-AND-CONTRIBUTING.md) for the
+[Testing and contributing](docs/onboarding/TESTING-AND-CONTRIBUTING.md) for the
 actual coverage and focused commands.
 
 ## Runtime latency metrics
@@ -142,7 +146,7 @@ per-reader heap caches, even though it also retains a file channel. Subsequent
 SSTable lookups use those cached entries, and the benchmark additionally warms
 the read path. Do not describe these later read percentiles as cold-disk
 performance. See
-[Storage internals](Docs/onboarding/STORAGE-ENGINE.md) for the current read path.
+[Storage internals](docs/onboarding/STORAGE-ENGINE.md) for the current read path.
 
 ## Typed API quick start
 
@@ -356,8 +360,8 @@ The persistent view recognizes typed record envelopes and displays text payloads
 - Dynamic membership foundations exist, but full runtime orchestration is incomplete.
 - API and persistent formats may change before the first stable release.
 
-See [Architecture](Docs/onboarding/ARCHITECTURE.md) for implemented boundaries and
-[Operations and debugging](Docs/onboarding/OPERATIONS-AND-DEBUGGING.md) before
+See [Architecture](docs/onboarding/ARCHITECTURE.md) for implemented boundaries and
+[Operations and debugging](docs/onboarding/OPERATIONS-AND-DEBUGGING.md) before
 opening, repairing or moving a persistent store.
 
 ## Contributing
