@@ -1,0 +1,292 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/CLI-BACKUP-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CLI backup and restore: source-backed contributor documentation for Aether Engine.">
+  <title>CLI backup and restore | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="cli-inspection-functions.html">CLI inspection and verification</a><a href="cli-diagnostic-functions.html">CLI diagnostics and configuration</a><a href="cli-checkpoint-functions.html">CLI checkpoint publication</a><a href="cli-backup-functions.html" aria-current="page">CLI backup and restore</a><a href="cli-recovery-functions.html">CLI repair and salvage</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/CLI-BACKUP-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="cli-backup-and-restore-functions">CLI Backup and Restore Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="cli-checkpoint-functions.html">CLI checkpoint</a> | <a href="backup-archive-functions.html">Archive format</a> | <a href="backup-restore-functions.html">Restore writer</a> | <a href="crypto-functions.html">Crypto</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-tools/src/main/java/io/aetherdb/tools/AetherCli.java">AetherCli.java</a>.
+This reference covers <strong>32 explicit declarations</strong> in the backup command paths,
+renderers, option/key/report types and local encryption/hash helpers. Archive
+format, AEAD envelope and restore-writer contracts are separate linked references.
+This CLI orchestrates embedded database checkpoints; it is not a live distributed
+snapshot or complete backup of application-owned external artifact segments.</p>
+<h2 id="four-command-boundaries">Four Command Boundaries</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Command</th>
+<th>Ordered work</th>
+<th>Success/failure evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>backup-create</td>
+<td>Validate checkpoint/archive options; lock and verify checkpoint; materialize object bytes; unlock; optional encryption; admission; CREATE_NEW archive write; archive reread.</td>
+<td>Status 0 after format reread; admission rejection reports status 2 before archive write. No temp-rename or archive fsync in wrapper.</td>
+</tr>
+<tr>
+<td>backup-restore-preflight</td>
+<td>Parse options; read archive; run preflight on supplied key-epoch availability and target/options; render.</td>
+<td>Status 0 or 2 without writing target. Availability declaration is not successful decryption with actual key material.</td>
+</tr>
+<tr>
+<td>backup-restore</td>
+<td>Parse/read; decrypt; admission on plaintext contents; delegate checkpoint-layout writer; render.</td>
+<td>Status 0 after writer returns; no extra CLI checkpoint verification pass. Exceptions use dispatcher error mapping.</td>
+</tr>
+<tr>
+<td>backup-restore-drill</td>
+<td>Parse/read; preflight encrypted contents; decrypt; admission; writer; lock restored target; checkpoint verification; report.</td>
+<td>Preflight/admission or caught post-restore verification failures return 2. Read/decrypt/writer errors can abort without a drill report.</td>
+</tr>
+</tbody>
+</table>
+<p>Admission uses manifest bytes/object count after content construction/decryption,
+not a streaming memory reservation. Create may allocate both plaintext/encrypted
+objects before rejection; restore reads/decrypts before rejection. A successful
+admission does not prove bounded process memory or device free space. All current
+command calls pass draining=false; the helper can accept a different value.</p>
+<h2 id="command-and-content-functions">Command and Content Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and failure boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherCli.backupCreate(arguments)</code></td>
+<td>Requires checkpoint/archive paths; validates existing root and absent normalized archive; parses admission and optional encryption. Locks checkpoint while checkpointBackupContents verifies/reads, then unlocks. Encrypts if requested, rejects admission with text/JSON status 2, requires existing archive parent, writes CREATE_NEW archive and rereads it for format validity. Prints UUID/object/byte receipt and returns 0. No automatic partial-archive removal, force or atomic rename.</td>
+</tr>
+<tr>
+<td><code>AetherCli.checkpointBackupContents(checkpoint)</code></td>
+<td>Verifies WAL-free checkpoint then decodes identity/options/metadata and inspects manifest again. Reads DB-IDENTITY, FORMAT-OPTIONS, CHECKPOINT-METADATA, CURRENT, current manifest and all live SSTables under objects/ names. Builds per-object kind/length/SHA-256/format-1 descriptors, empty encryption refs and new backup UUID/time. Manifest preserves database UUID/fingerprint/checkpoint sequence; cluster null, Raft index/term -1, no key epochs. Returns materialized contents; caller owns lock.</td>
+</tr>
+<tr>
+<td><code>AetherCli.encryptBackupContents(contents, key)</code></td>
+<td>Encrypts every manifest object using BackupObjectAead with backup UUID/path, cloned key and epoch. Replaces bytes with envelopes and descriptors with envelope length/hash/reference; preserves kind/required format and manifest identity/provenance fields. Manifest key-epoch list becomes this one epoch. Allocates new content map/manifest, not in-place streaming encryption.</td>
+</tr>
+<tr>
+<td><code>AetherCli.decryptBackupContents(contents, keys)</code></td>
+<td>If all encryption refs empty, returns original contents. Otherwise processes every object: keeps plaintext objects, parses epoch from encrypted references, requires matching key, decrypts authenticated envelope using UUID/path. Rebuilds plaintext descriptors/hashes with empty refs and empty manifest epoch list, preserving other fields. Missing key/authentication failures propagate before restore target writes.</td>
+</tr>
+<tr>
+<td><code>AetherCli.keyEpoch(metadataReference)</code></td>
+<td>Uses last :key_epoch= marker, rejects absence and parses entire remaining suffix as long. Does not validate full metadata grammar or positivity here; malformed numeric suffix rejects.</td>
+</tr>
+<tr>
+<td><code>AetherCli.putBackupObject(objects, root, sourceName, objectPath)</code></td>
+<td>Reads root.resolve(sourceName) fully and stores under objectPath, replacing existing mapping if any. No helper-specific containment, filename or duplicate rejection; current caller supplies controlled names and holds source lock.</td>
+</tr>
+<tr>
+<td><code>AetherCli.backupKind(objectPath)</code></td>
+<td>Classifies basename exactly for identity/options/checkpoint/CURRENT, by MANIFEST-/SST- prefix otherwise; rejects unsupported basename. Prefix alone is not canonical filename validation.</td>
+</tr>
+<tr>
+<td><code>AetherCli.sha256(bytes)</code></td>
+<td>MessageDigest using manifest HASH_SHA256 over entire array. Missing algorithm becomes AssertionError, not mapped normal CLI invalid/I/O status.</td>
+</tr>
+<tr>
+<td><code>AetherCli.backupRestorePreflight(arguments)</code></td>
+<td>Parses shared restore arguments, reads BackupArchiveV1, calls BackupRestorePreflight.check without decrypting, prints report and returns passed ? 0 : 2. Declared epochs can satisfy availability check without proving key bytes/authentication.</td>
+</tr>
+<tr>
+<td><code>AetherCli.backupRestore(arguments)</code></td>
+<td>Parses/reads archive, decrypts using supplied key map, evaluates admission on resulting plaintext manifest. Rejection prints admission-specific shape/status 2; accepted delegates restoreCheckpointLayout with parsed options, renders result and returns 0. Does not separately acquire target lock or run verifyCheckpointDirectory; writer owns its write/preflight contract.</td>
+</tr>
+<tr>
+<td><code>AetherCli.backupRestoreDrill(arguments)</code></td>
+<td>Timer starts after parsing, before archive read. Checks original archive preflight first; rejection constructs failed report. Decrypts and evaluates admission, reporting failure similarly. Delegates restore writer, then locks target and verifies checkpoint; catches only IllegalArgumentException/IOException from that post-write block into failure list. Builds completed report and returns 0/2. Does not remove restored target after failed verification or test engine reads/writes.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="rendering-and-admission-functions">Rendering and Admission Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and failure boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherCli.printBackupPreflightText(contents, report, arguments)</code></td>
+<td>Prints PASS/FAIL, backup/database/cluster IDs, mode and object/byte totals, followed by failure strings when failing. Renderer does not validate or mutate target.</td>
+</tr>
+<tr>
+<td><code>AetherCli.printBackupPreflightJson(contents, report, arguments)</code></td>
+<td>Emits mode, passed, restoreMode, backup/database IDs, nullable clusterId, objectCount/totalBytes and escaped failures. UUID/enum fields are controlled; report totals are preflight totals.</td>
+</tr>
+<tr>
+<td><code>AetherCli.printBackupRestoreText(contents, result, arguments)</code></td>
+<td>Prints COMPLETE, backup ID, mode, target, preflight object/byte totals and restored object count. COMPLETE describes returned writer result, not extra checkpoint/engine verification.</td>
+</tr>
+<tr>
+<td><code>AetherCli.printBackupRestoreJson(contents, result, arguments)</code></td>
+<td>Emits backup-restore mode, completed:true, restoreMode/backupId, escaped target, preflight object/byte totals and restored count. No independent validation, failure array or checkpointVerified field.</td>
+</tr>
+<tr>
+<td><code>AetherCli.printBackupRestoreDrillText(report)</code></td>
+<td>Prints PASS/FAIL, IDs/mode/target, counts, checkpoint verified flag, elapsed Duration and each failure. Does not execute recovery test.</td>
+</tr>
+<tr>
+<td><code>AetherCli.printBackupRestoreDrillJson(report)</code></td>
+<td>Emits passed, restoreMode, backup/database IDs, escaped target, object/byte/restored counts, checkpointVerified, elapsedNanos and escaped failures. Represents report fields, not arbitrary uncaught read/decrypt/writer failures.</td>
+</tr>
+<tr>
+<td><code>AetherCli.backupAdmission(contents, options, draining)</code></td>
+<td>Evaluates static ADMISSION controller with options policy, zero measured BACKUP_OPERATION_BYTES/OBJECT_COUNT usage and requested manifest totalBytes/objectCount plus draining flag. No disk/heap sampling, reservation lease or accumulated concurrent usage tracking in wrapper.</td>
+</tr>
+<tr>
+<td><code>AetherCli.printBackupAdmissionText(mode, contents, admission)</code></td>
+<td>Prints FAIL, command mode, backup ID, manifest totals, outcome and reasons. Intended for rejected decisions; literal FAIL even if miscalled with accepted decision.</td>
+</tr>
+<tr>
+<td><code>AetherCli.printBackupAdmissionJson(mode, contents, admission)</code></td>
+<td>Emits supplied mode, admitted:false, outcome, backup ID, manifest totals and escaped failure reasons. Mode interpolated directly; current callers supply fixed command strings. Shape differs from normal create/restore success response.</td>
+</tr>
+</tbody>
+</table>
+<p>Encrypted manifest totals count envelope bytes. Normal restore admission/report
+totals count rebuilt plaintext bytes. Drill early preflight failure reports
+encrypted preflight totals, while completed drill reports writer plaintext totals.
+Do not treat these as identical logical-size or physical-write measurements.
+Renderer success does not establish durable archive publication or output delivery;
+the PrintStreams are not checked for output errors.</p>
+<h2 id="options-keys-and-reports">Options, Keys and Reports</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and failure boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherCli.BackupPreflightArguments.parse(arguments)</code></td>
+<td>Requires archive/target after command. Defaults SINGLE_NODE_NEW_DATABASE_ID, supported format 1; first --mode/--supported-format-version and optional existing UUID fields use requiredValue. Scans from index 3 for repeated --available-key-epoch and --key-epoch immediately followed by --key-hex; actual keys also add available epochs. Later same epoch replaces prior key. Normalizes paths, detects allow-non-empty/json membership and parses admission options. Does not reject all unknown tokens or repeated first-index options; epoch/format constraints partly delegated.</td>
+</tr>
+<tr>
+<td><code>AetherCli.BackupPreflightArguments.options()</code></td>
+<td>Constructs BackupRestorePreflightOptions from mode, target occupancy allowance, supported format, available epochs and existing IDs. Actual decryption keys/admission limits/JSON flag are not supplied to preflight options.</td>
+</tr>
+<tr>
+<td><code>AetherCli.BackupAdmissionOptions.BackupAdmissionOptions(hardBytes, hardObjects)</code></td>
+<td>Requires both limits positive. Does not validate actual archive or reserve resources.</td>
+</tr>
+<tr>
+<td><code>AetherCli.BackupAdmissionOptions.parse(values)</code></td>
+<td>Defaults bytes Long.MAX_VALUE/4 and objects Integer.MAX_VALUE; first --backup-hard-bytes/--backup-hard-objects parsed as long, then constructor validation. Unknown options not rejected here.</td>
+</tr>
+<tr>
+<td><code>AetherCli.BackupAdmissionOptions.policy()</code></td>
+<td>Builds limits for operation bytes/object count with soft, hard and resume all equal to their respective configured limit. Delegates semantics to AdmissionController.</td>
+</tr>
+<tr>
+<td><code>AetherCli.BackupEncryptionKey.BackupEncryptionKey(epoch, key)</code></td>
+<td>Requires positive epoch and non-null 32-byte key, clones array before storage. No keystore retrieval, zeroization or persistence.</td>
+</tr>
+<tr>
+<td><code>AetherCli.BackupEncryptionKey.key()</code></td>
+<td>Defensive clone on every accessor; encryption loop can allocate one per object. Caller cannot mutate stored array through this accessor.</td>
+</tr>
+<tr>
+<td><code>AetherCli.BackupEncryptionKey.create(values)</code></td>
+<td>Neither encrypt flag returns null; only one rejects; both parse long epoch and 64-char key using parseHexKey then validated constructor. Uses first occurrences, not a vault or interactive secret prompt.</td>
+</tr>
+<tr>
+<td><code>AetherCli.parseHexKey(value)</code></td>
+<td>Requires 64 characters, HexFormat parses into 32 bytes; invalid hex is wrapped with backup-key-must-be-hex message. Null input fails before explicit length validation.</td>
+</tr>
+<tr>
+<td><code>AetherCli.BackupRestoreDrillReport.BackupRestoreDrillReport(passed, backupId, databaseId, restoreMode, target, objectCount, totalBytes, restoredObjects, verified, failures, elapsedNanos)</code></td>
+<td>Requires IDs/mode/target/failures non-null, copies failure list, enforces passed equals failure-list emptiness, and nonnegative counts/time. Does not independently enforce verified equals passed, file existence or count parity.</td>
+</tr>
+<tr>
+<td><code>AetherCli.BackupRestoreDrillReport.failed(contents, arguments, preflight, failure, startedNanos)</code></td>
+<td>Prepends supplied failure and includes preflight failures; sets passed/verified false, restored count zero, original preflight totals and elapsed since start. Used before writes on preflight/admission failure; not a general catcher for thrown failures.</td>
+</tr>
+<tr>
+<td><code>AetherCli.BackupRestoreDrillReport.completed(contents, arguments, result, failures, startedNanos)</code></td>
+<td>Uses result's preflight totals/restored count, sets passed and verified to failures empty, preserves supplied IDs/mode/target and elapsed. Does not inspect files itself; trusts caller's completed writer and verification failure list.</td>
+</tr>
+</tbody>
+</table>
+<p>Records receive implicit accessors/equality/hash/toString. BackupEncryptionKey's
+explicit constructor/accessor clone key bytes, but byte arrays are not erased after
+use and record equality is not a constant-time secret comparison. Its implicit
+toString does not print array contents, but --key-hex/--encrypt-key-hex values are
+command arguments: shell history/process inspection can expose them. Keep real
+keys out of shared command logs and review operational handling separately.</p>
+<p>BackupPreflightArguments has no explicit defensive-copy constructor for its
+available-key set, key map or arrays; parser-local mutable collections are passed
+to it. BackupRestorePreflightOptions owns its own validation/copy behavior. Merely
+declaring a record is not deep immutability.</p>
+<h2 id="restore-evidence-and-failure-limits">Restore Evidence and Failure Limits</h2>
+<p>Create verifies the checkpoint before capture and format-rereads the archive, but
+does not perform a restore drill or decrypt its newly written encrypted contents
+as part of that reread. Checkpoint source lock ends before archive write; captured
+bytes remain in memory. Archive output uses CREATE_NEW, with no wrapper fsync,
+rename or rollback; write/reread failure can leave a path that prevents retry.</p>
+<p>Preflight validates supplied availability declarations; actual decrypt authenticates
+objects. Default new-database restore mode and identity rewriting are owned by
+BackupRestoreWriter, not a blind directory copy. Drill's post-write checkpoint
+verification is separate from writer completion and does not open the engine for
+application CRUD or check externally referenced payloads. Failures after target
+writes preserve that target, and lock reacquisition can fail if another owner
+intervenes. Not all errors become a structured drill failure: read, decrypt,
+writer and unexpected runtime errors can escape to dispatcher/uncaught failures.</p>
+<p>Archive capture includes only checkpoint identity/options/metadata/CURRENT/manifest
+and live SSTables. It does not discover training-cache segments, application files,
+cluster runtime state or remote replicas. A successful embedded restore drill is
+not proof of complete training artifact or production disaster recovery.</p>
+<h2 id="verification-evidence">Verification Evidence</h2>
+<p>AetherCliTest source assertions cover archive objects and existing archive
+rejection, create/restore admission rejection before output/target writes, plaintext
+checkpoint roundtrip, encrypted epoch/reference capture, missing actual key rejection,
+encrypted restore verification, successful encrypted drill and no-write preflight
+failure. These were read, not executed in this documentation batch. They do not
+establish exhaustive platform/power-loss behavior, bounded memory, every restore
+mode, secret handling or all partial-output cases.</p>
+<p>Compiler-tree checks match all 32 scoped declaration rows. No real key material,
+archive, checkpoint or target database was used to author this guide.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#four-command-boundaries">Four Command Boundaries</a><a href="#command-and-content-functions">Command and Content Functions</a><a href="#rendering-and-admission-functions">Rendering and Admission Functions</a><a href="#options-keys-and-reports">Options, Keys and Reports</a><a href="#restore-evidence-and-failure-limits">Restore Evidence and Failure Limits</a><a href="#verification-evidence">Verification Evidence</a></nav></aside>
+  </div>
+</body>
+</html>

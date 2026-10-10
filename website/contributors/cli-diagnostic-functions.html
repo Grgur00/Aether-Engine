@@ -1,0 +1,224 @@
+<!doctype html>
+<!-- Generated from Docs/onboarding/CLI-DIAGNOSTIC-FUNCTIONS.md; run scripts/build-contributor-docs.py. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CLI diagnostics and configuration: source-backed contributor documentation for Aether Engine.">
+  <title>CLI diagnostics and configuration | Aether Engine Contributors</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="../assets/contributors.css?v=20261008-1">
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/vendor/mermaid-10.9.5.min.js" defer></script>
+  <script src="../assets/contributors.js?v=20261007-3" defer></script>
+</head>
+<body class="docs-body contributor-body">
+  <a class="skip-link" href="#docs-content">Skip to documentation</a>
+  <header class="site-header docs-header" data-header>
+    <div class="header-inner">
+      <a class="brand" href="../index.html"><img class="brand-mark" src="../assets/favicon.svg" alt="" width="38" height="38"><span>Aether Engine</span></a>
+      <span class="docs-label">Contributor handbook</span>
+      <button class="docs-menu-button" type="button" aria-expanded="false" aria-controls="docs-sidebar">Browse guides</button>
+      <nav class="docs-top-nav" aria-label="Project navigation"><a href="../index.html">Home</a><a href="../docs/index.html">API docs</a><a href="https://github.com/Grgur00/Aether-Engine">Source</a></nav>
+    </div>
+  </header>
+  <div class="docs-layout">
+    <aside id="docs-sidebar" class="docs-sidebar" aria-label="Contributor navigation">
+      <div class="docs-search"><label for="guide-search">Filter guides</label><input id="guide-search" type="search" placeholder="Find a guide" autocomplete="off"></div>
+      <nav class="docs-nav-group"><strong>Working on Aether</strong><a href="index.html">Overview</a><a href="getting-started.html">Getting started</a><a href="architecture.html">Architecture</a><a href="modules.html">Module guide</a><a href="code-tour.html">Code tour</a><a href="function-index.html">Function reference index</a><a href="engine-functions.html">Engine function reference</a><a href="persistent-internals.html">Persistent internals</a><a href="sstable-block-functions.html">SSTable block functions</a><a href="sstable-read-functions.html">SSTable reads and verification</a><a href="sstable-build-functions.html">SSTable construction</a><a href="manifest-version-functions.html">Manifest publication and versions</a><a href="manifest-codec-functions.html">Manifest wire formats</a><a href="wal-functions.html">WAL format functions</a><a href="mvcc-reference-functions.html">Heap MVCC functions</a><a href="native-memtable-functions.html">Native memtable functions</a><a href="native-region-functions.html">Native regions and allocation</a><a href="native-record-functions.html">Native records and access</a><a href="compaction-planning-functions.html">Compaction planning</a><a href="lsm-iterator-functions.html">LSM iterators and reclamation</a><a href="read-view-functions.html">Read views and snapshot ownership</a><a href="write-pressure-functions.html">Write pressure functions</a><a href="admission-functions.html">Resource admission functions</a><a href="reliability-functions.html">Reliability and fault injection</a><a href="block-cache-functions.html">Block cache functions</a><a href="format-catalog-functions.html">Format catalogs and fixtures</a><a href="typed-key-functions.html">Typed keys and namespaces</a><a href="typed-value-functions.html">Typed values and envelopes</a><a href="collection-schema-functions.html">Collection metadata and compatibility</a><a href="canonical-record-functions.html">Canonical record functions</a><a href="generated-container-functions.html">Generated containers and codec lookup</a><a href="typed-adapter-functions.html">Embedded typed adapter functions</a><a href="schema-annotation-functions.html">Schema annotations and validation</a><a href="schema-resource-functions.html">Schema locks and generated resources</a><a href="codec-generation-functions.html">Record codec generation functions</a><a href="filesystem-identity-functions.html">Filesystem ownership and identity</a><a href="backup-archive-functions.html">Backup manifests and archives</a><a href="backup-restore-functions.html">Backup restore functions</a><a href="config-loading-functions.html">Configuration loading and validation</a><a href="config-change-functions.html">Configuration reload and cluster policy</a><a href="training-identity-functions.html">Training artifact identity and policy</a><a href="training-cache-functions.html">Training cache operations and segments</a><a href="training-driver-functions.html">Java training diagnostic drivers</a><a href="training-daemon-functions.html">Training cache daemon lifecycle</a><a href="training-protocol-functions.html">Training cache protocol and traces</a><a href="bulk-publication-functions.html">Offline bulk publication</a><a href="python-client-functions.html">Python client connections and retries</a><a href="python-cache-value-functions.html">Python cache values and batches</a><a href="python-mapping-functions.html">Python mapped views and tensors</a><a href="python-pipeline-functions.html">Python loading, workers and prefetch</a><a href="python-store-adapter-functions.html">Python store adapters and resources</a><a href="python-transform-functions.html">Python transform cache and codecs</a><a href="python-dataset-functions.html">Python dataset integration</a><a href="python-lifecycle-functions.html">Python ML lifecycle and operations</a><a href="python-framework-functions.html">Python PyTorch and MONAI adapters</a><a href="python-provenance-store-functions.html">Filesystem artifact publication</a><a href="python-provenance-workflow-functions.html">Filesystem datasets and lineage</a><a href="python-provenance-diagnostic-functions.html">Filesystem validation and diagnostics</a><a href="h2-protocol-functions.html">H2 protocol and source freeze</a><a href="h2-execution-functions.html">H2 execution and evidence</a><a href="h2-session-functions.html">H2 amended session controller</a><a href="dali-comparison-functions.html">DALI workload and comparisons</a><a href="bulk-layout-functions.html">Bulk layout regression checks</a><a href="dataset-preparation-functions.html">Dataset preparation and manifests</a><a href="transform-evolution-functions.html">Transform evolution checks</a><a href="preflight-utility-functions.html">Preflight and smoke utilities</a><a href="system-driver-functions.html">Concurrency and fault drivers</a><a href="system-analysis-functions.html">Cache comparisons and systems exports</a><a href="campaign-audit-functions.html">Campaign audit and preservation</a><a href="build-utility-functions.html">Build and documentation utilities</a><a href="root-build-architecture.html">Root build architecture</a><a href="module-build-architecture.html">Module build topology</a><a href="example-application-functions.html">Example application functions</a><a href="flush-diagnostic-functions.html">Flush and compaction diagnostics</a><a href="cli-inspection-functions.html">CLI inspection and verification</a><a href="cli-diagnostic-functions.html" aria-current="page">CLI diagnostics and configuration</a><a href="cli-checkpoint-functions.html">CLI checkpoint publication</a><a href="cli-backup-functions.html">CLI backup and restore</a><a href="cli-recovery-functions.html">CLI repair and salvage</a><a href="h2-analysis-functions.html">H2 analysis and figures</a><a href="research-campaign-functions.html">Research campaigns and evidence</a><a href="research-process-functions.html">Research build and process ownership</a><a href="research-lifecycle-functions.html">Research checkpoints and persistent service</a><a href="research-manifest-functions.html">Research dataset version manifests</a><a href="research-adapter-functions.html">Research MONAI comparison adapters</a><a href="longitudinal-worker-functions.html">Longitudinal stage worker</a><a href="longitudinal-runner-functions.html">Longitudinal pilot and analysis</a><a href="benchmark-data-functions.html">Benchmark sources and artifact payloads</a><a href="benchmark-training-functions.html">Benchmark model and training</a><a href="benchmark-backend-functions.html">Benchmark backend ownership</a><a href="benchmark-metrics-functions.html">Benchmark utilization and process metrics</a><a href="benchmark-runner-functions.html">Benchmark run control and validity</a><a href="benchmark-accounting-functions.html">Benchmark lifecycle and comparisons</a><a href="benchmark-aggregation-functions.html">Benchmark aggregation and statistics</a><a href="population-profile-functions.html">Population diagnostics and traces</a><a href="cache-profile-functions.html">Cache request and JFR diagnostics</a><a href="jfr-analysis-functions.html">JFR analysis and attribution</a><a href="bulk-diagnostic-drivers.html">Bulk JFR and compaction diagnostics</a><a href="verification-campaign-functions.html">Bulk verification campaign</a><a href="hit-path-functions.html">Steady-state hit path diagnostics</a><a href="experiment-ownership-functions.html">Experiment output and scratch ownership</a><a href="rpc-frame-functions.html">RPC frames and handshake</a><a href="rpc-api-functions.html">RPC API and admission</a><a href="rpc-transport-limits.html">RPC transport limits and identity</a><a href="rpc-server-functions.html">Development RPC server and sockets</a><a href="rpc-client-functions.html">Development RPC client and admission</a><a href="remote-routing-functions.html">Remote client routing and retries</a><a href="remote-facade-functions.html">Remote client facade and typed collections</a><a href="client-protocol-functions.html">Client protocol contracts</a><a href="client-codec-functions.html">Client message codecs</a><a href="crypto-functions.html">Encryption and key wrapping</a><a href="security-functions.html">Authorization, audit and node identity</a><a href="replication-contract-functions.html">Replication contracts and applied state</a><a href="replication-format-functions.html">Replicated log formats and codecs</a><a href="replicated-store-functions.html">Replicated log storage and recovery</a><a href="raft-core-functions.html">Raft contracts and progress</a><a href="raft-storage-functions.html">Raft vote and state-slot codecs</a><a href="cluster-membership-functions.html">Cluster membership and quorum</a><a href="cluster-codec-functions.html">Cluster identity and configuration codecs</a><a href="observability-functions.html">Observability and database metrics</a><a href="java-benchmark-runner-functions.html">Java benchmark profiles and execution</a><a href="java-benchmark-evidence-functions.html">Java benchmark evidence and baselines</a><a href="java-benchmark-comparison-functions.html">Java benchmark comparisons and gates</a><a href="release-certification-functions.html">Release certification functions</a><a href="gradle-plugin-functions.html">Gradle plugin and build conventions</a><a href="workbench-workspace-functions.html">Workbench workspace and inspectors</a><a href="workbench-typed-value-functions.html">Workbench universal typed values</a><a href="workbench-record-dialog-functions.html">Workbench record dialog</a><a href="workbench-window-functions.html">Workbench window and actions</a><a href="storage.html">Storage engine</a><a href="schemas.html">Typed API and schemas</a><a href="python.html">Python and training cache</a><a href="testing.html">Testing and contributing</a><a href="operations.html">Operations and debugging</a><a href="research.html">Research tooling</a><a href="glossary.html">Glossary</a></nav>
+      <p class="docs-nav-empty" hidden>No matching guides</p>
+      <div class="docs-sidebar-footer"><a href="https://github.com/Grgur00/Aether-Engine/blob/main/Docs/onboarding/CLI-DIAGNOSTIC-FUNCTIONS.md">Edit this guide on GitHub</a><span>Current source, not release certification</span></div>
+    </aside>
+    <main id="docs-content" class="docs-content contributor-content">
+      <p class="docs-kicker">Aether Engine / Contributor handbook</p>
+      <h1 id="cli-diagnostics-and-configuration-functions">CLI Diagnostics and Configuration Functions</h1>
+<p><a href="function-index.html">Function index</a> | <a href="cli-inspection-functions.html">CLI inspection</a> | <a href="config-loading-functions.html">Configuration loading</a> | <a href="release-certification-functions.html">Release certification</a></p>
+<p>Source: <a href="https://github.com/Grgur00/Aether-Engine/blob/main/modules/aether-tools/src/main/java/io/aetherdb/tools/AetherCli.java">AetherCli.java</a>.
+This page covers <strong>20 explicit declarations</strong> for diagnostics bundles, config
+validation, static command schemas, release evaluation, shared argument/JSON
+helpers and the two report/schema records. It complements the inspection page;
+checkpoint, backup and repair/salvage function contracts remain separate work.</p>
+<h2 id="command-ownership">Command Ownership</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Command</th>
+<th>Inputs and outputs</th>
+<th>What it does not do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>diagnostics</td>
+<td>New ZIP path, optional --config properties file; current process environment and Java/OS version; text or JSON receipt.</td>
+<td>Does not inspect a database, collect runtime stacks/logs, lock a store or certify absence of secrets.</td>
+</tr>
+<tr>
+<td>config-validate</td>
+<td>Properties file, current environment and --set name=value overrides; resolved redacted settings or validation error.</td>
+<td>Does not open/reconfigure a database, verify external services or prove deployment readiness.</td>
+</tr>
+<tr>
+<td>command-schema</td>
+<td>No argument returns nine static command schemas; one exact command name returns one schema.</td>
+<td>Does not derive schemas from execution, list every dispatcher branch or enforce CLI parsing.</td>
+</tr>
+<tr>
+<td>release-certify</td>
+<td>Supplied release manifest decoded and evaluated; human output or evaluator JSON; readiness determines status.</td>
+<td>Does not execute missing tests or independently collect release evidence.</td>
+</tr>
+</tbody>
+</table>
+<p>All four route through the same run dispatch/error mapping documented in the
+inspection reference. JSON flags are recognized by membership for diagnostics,
+config validation and release certification; command-schema is always JSON and
+rejects more than one argument. Some commands ignore extra/unknown flags while
+configOverrides rejects unrecognized config options; parsing is not uniform.</p>
+<h2 id="command-and-export-functions">Command and Export Functions</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and failure boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherCli.releaseCertify(arguments)</code></td>
+<td>Requires manifest path, normalizes it, reads/decode/evaluates release manifest, then chooses evaluator JSON or text via --json membership. Returns 0 if productionReady, otherwise 2. I/O/decode errors propagate to dispatcher. No test execution or evidence download; extra arguments are not exhaustively rejected.</td>
+</tr>
+<tr>
+<td><code>AetherCli.diagnostics(arguments)</code></td>
+<td>Requires bundle path, normalizes it and rejects an existing destination before export. First --config uses requiredValue; passes System.getenv to writer. Prints JSON mode/bundle/entries or text receipt, returns 0. Path existence check is supplemented by CREATE_NEW in writer. Does not create parent directories or clean a partially written archive.</td>
+</tr>
+<tr>
+<td><code>AetherCli.configValidate(arguments)</code></td>
+<td>Requires file, parses overrides, uses AetherConfigLoader.defaults to load file/environment/overrides and obtains loader's redacted diagnostic view. Success prints settings and returns 0. Catches ConfigValidationException for valid:false/error JSON or stderr and returns 2. Override parsing occurs outside this local catch; other argument/I/O failures use dispatch status 3/4.</td>
+</tr>
+<tr>
+<td><code>AetherCli.commandSchema(arguments)</code></td>
+<td>Rejects more than two tokens including command itself. With one requested command selects exact name or throws unknown-schema IllegalArgumentException. Otherwise serializes all static schemas inside mode/commands object. Prints JSON and returns 0; no store/config inspection.</td>
+</tr>
+<tr>
+<td><code>AetherCli.cliCommandSchemas()</code></td>
+<td>Returns immutable list of nine newly constructed schemas: inspect, verify, backup-create, backup-restore-preflight, backup-restore, backup-restore-drill, release-certify, diagnostics and config-validate. Most list statuses 0,2,3,4; diagnostics lists 0,3,4. Lists selected JSON fields, not every field or a typed JSON Schema. Missing help/version/checkpoint/restore-verify/repair/rebuild/salvage/command-schema entries are not evidence those commands do not exist.</td>
+</tr>
+<tr>
+<td><code>AetherCli.writeDiagnosticsBundle(bundle, config, environment)</code></td>
+<td>Requires existing normalized destination parent. Opens original bundle path with CREATE_NEW and ZIP stream; writes manifest.json and environment.properties, plus config.properties when supplied. Close finalizes archive; returns normalized absolute path and entry count 2 or 3. No temp-rename, fsync or failure deletion, so exceptions can leave a partial ZIP. Does not validate supplied map/config before opening output.</td>
+</tr>
+<tr>
+<td><code>AetherCli.diagnosticsManifestJson(config)</code></td>
+<td>Locale.ROOT JSON containing diagnostics mode, hard-coded CLI version/epoch, escaped java.version/os.name (empty defaults) and configIncluded based only on non-null config. No source commit, config digest, database identity or manifest signature.</td>
+</tr>
+<tr>
+<td><code>AetherCli.redactedEnvironment(environment)</code></td>
+<td>Sorts whole map by key, then emits only case-sensitive AETHER_ names as name=value newline, redacting by name. Other environment names are omitted regardless of content. Null selected values become empty strings; null keys fail sorting. Does not escape property delimiters or embedded newlines.</td>
+</tr>
+<tr>
+<td><code>AetherCli.redactedProperties(config)</code></td>
+<td>Loads Properties with Files.newBufferedReader, sorts decoded property names and emits name=redactedValue newline. Exports all names, including custom properties. Does not invoke config catalog validation or reproduce file comments/order/duplicate definitions. Raw newline/backslash/delimiter characters are not Properties-escaped on output.</td>
+</tr>
+<tr>
+<td><code>AetherCli.redactIfSensitive(name, value)</code></td>
+<td>Null value becomes empty string. Otherwise lowercases name with Locale.ROOT; substrings secret, password, token, credential, private, kek or key cause SecretRedactor.redact with diagnostic kind. Other values pass through unchanged. Broad key substring can redact nonsecrets; unrelated names can expose secrets. No value-content scanning or exhaustive credential recognition.</td>
+</tr>
+<tr>
+<td><code>AetherCli.putZipEntry(zip, name, value)</code></td>
+<td>Creates supplied entry name, sets timestamp zero, writes UTF-8 bytes and closes entry. No name/content validation or atomicity; callers here supply fixed entry names. Stable timestamps alone do not prove fully byte-reproducible archives.</td>
+</tr>
+<tr>
+<td><code>AetherCli.printReleaseCertificationText(manifest, report)</code></td>
+<td>Prints PASS/FAIL from productionReady, releaseVersion/gitCommit/createdAt, green/not-applicable/red/missing counts, failure lines and warning lines. Renderer does not independently validate report or verify output delivery.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="shared-helpers-and-explicit-records">Shared Helpers and Explicit Records</h2>
+<table class="docs-function-table">
+<thead>
+<tr>
+<th>Declaration</th>
+<th>Behavior and failure boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AetherCli.requiredValue(values, optionIndex, option)</code></td>
+<td>Requires a following token not starting --; returns it unchanged. Assumes a valid option index supplied by caller. Cannot accept -- prefixed values; does not trim or validate semantic type.</td>
+</tr>
+<tr>
+<td><code>AetherCli.configOverrides(values)</code></td>
+<td>Scans tokens after command/file. Skips --json, accepts repeated --set followed by name=value using first equals sign, rejects unknown options and empty name. Empty value allowed; later same name overwrites earlier. Returns Map.copyOf; whitespace and key validity are delegated to loader.</td>
+</tr>
+<tr>
+<td><code>AetherCli.requireText(value, field)</code></td>
+<td>Rejects null or isBlank text with field-required message, otherwise returns unchanged without trimming. Shared schema/helper validation, not JSON escaping.</td>
+</tr>
+<tr>
+<td><code>AetherCli.jsonString(value)</code></td>
+<td>Adds quotes and escapes quote, backslash, backspace, formfeed, newline, carriage return, tab and remaining control chars below U+0020. Leaves other Java chars unchanged, including surrogate code units; no Unicode-normalization/valid-surrogate check. Null input fails.</td>
+</tr>
+<tr>
+<td><code>AetherCli.settingsJson(settings)</code></td>
+<td>Iterates map order, encodes each key/value with jsonString and joins comma-separated members. Returns object interior without braces. No ordering guarantee beyond supplied map, redaction or null filtering.</td>
+</tr>
+<tr>
+<td><code>AetherCli.DiagnosticsBundleReport.DiagnosticsBundleReport(bundle, entries)</code></td>
+<td>Compact constructor requires non-null bundle and positive entry count. Does not prove file exists, ZIP validity or entry count matches file contents. Implicit accessors expose stored path/count.</td>
+</tr>
+<tr>
+<td><code>AetherCli.CliCommandSchema.CliCommandSchema(command, jsonMode, exitCodes, jsonFields)</code></td>
+<td>Requires nonblank command/jsonMode and nonempty lists, copying lists with List.copyOf (null lists/elements fail). Does not constrain exit-code range, duplicates, field syntax or actual command behavior.</td>
+</tr>
+<tr>
+<td><code>AetherCli.CliCommandSchema.toJson()</code></td>
+<td>Formats command/jsonMode directly into quoted positions, joins integer codes and jsonString-escapes field names. Built-in names are controlled; constructor accepts text that this direct interpolation would not safely escape. Not a general arbitrary-schema serializer.</td>
+</tr>
+</tbody>
+</table>
+<p>Records also receive implicit accessors, equals/hashCode/toString from Java.
+The copied schema lists are immutable snapshots, unlike arbitrary mutable caller
+lists. These implicit members are not counted among the 20 explicit declarations.</p>
+<h2 id="redaction-and-publication-limits">Redaction and Publication Limits</h2>
+<p>The diagnostics export and config-validation output use <strong>different redaction
+paths</strong>. Config validation uses loader catalog-aware redactedDiagnosticView;
+ZIP properties/environment use substring-based redactIfSensitive. Do not assume
+they redact the same fields or produce the same representation.</p>
+<p>SecretRedactor emits diagnostic-prefixed redaction with the first eight SHA-256
+digest bytes in hex, or an empty marker. This is deterministic correlation, not
+encryption or a salted password hash: equal secrets correlate and low-entropy
+values can be guessed by hashing candidates. A field without a matching sensitive
+name remains plaintext. Review bundles before sharing them; neither status 0 nor
+the word redacted certifies a secret-free export.</p>
+<p>The ZIP is created directly at its final path. Failure during properties loading,
+redaction or writing can leave a partial file, and a retry to the same path then
+rejects existing output. There is no rollback, durable publication protocol or
+guarantee that printed receipt implies stable storage after host failure. Bundle
+creation does not acquire a database lock because it collects configuration and
+selected process environment, not a consistent database snapshot.</p>
+<p>Static schema fields are selected interface descriptions, not full output
+validation. For example config-validate lists both settings and error although
+success/failure output chooses one. Release command name release-certify maps to
+JSON mode release-certification. Warnings/readiness evaluation is owned by the
+release evaluator, not the text printer or schema catalog.</p>
+<h2 id="verification-evidence">Verification Evidence</h2>
+<p>Source tests in AetherCliTest assert ZIP entry count/manifest, selected AETHER_
+environment filtering, removal of named secret plaintext, preservation of normal
+values, rejection of existing bundle without replacing bytes, resolved override
+and redacted settings, unsafe production config returning status 2, and full/single
+command-schema output plus unknown-command rejection. They were read, not executed
+in this documentation batch. They do not establish exhaustive secret detection,
+atomic output, arbitrary schema-string escaping or every file-error path.</p>
+<p>Compiler-tree documentation checks compare all 20 scoped declaration rows against
+source. No user's config, environment bundle, database or release manifest was
+exported/evaluated to write this guide.</p>
+
+      <footer class="docs-end"><a href="index.html">All contributor guides</a><a href="../docs/index.html">Public API documentation</a></footer>
+    </main>
+    <aside class="docs-toc" aria-label="On this page"><strong>On this page</strong><nav><a href="#command-ownership">Command Ownership</a><a href="#command-and-export-functions">Command and Export Functions</a><a href="#shared-helpers-and-explicit-records">Shared Helpers and Explicit Records</a><a href="#redaction-and-publication-limits">Redaction and Publication Limits</a><a href="#verification-evidence">Verification Evidence</a></nav></aside>
+  </div>
+</body>
+</html>

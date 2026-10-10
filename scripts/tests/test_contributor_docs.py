@@ -16,6 +16,117 @@ docs = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(docs)
 
 
+def test_cli_recovery_and_combined_references_cover_complete_compiler_inventory():
+    java = shutil.which("java")
+    if not java:
+        pytest.skip("JDK needed for compiler-tree inventory")
+    source = ROOT / "modules/aether-tools/src/main/java/io/aetherdb/tools/AetherCli.java"
+    result = subprocess.run([java, str(ROOT / "scripts/InventoryJavaFunctions.java"), str(source)],
+                            check=True, capture_output=True, text=True, encoding="utf-8")
+    declarations = [line.split("\t") for line in result.stdout.splitlines()]
+    expected = {f"AetherCli.{name}" for name in
+                ("repairTail", "validWalEnd", "rebuildCurrent", "equivalentTerminalVersion", "salvage",
+                 "latestState", "recoverWalForSalvage", "decodeWalGroup", "mergeSalvageEntry",
+                 "publishSalvage", "writeWalHeader", "usage")}
+    expected.add("AetherCli.SalvageConflictException.SalvageConflictException")
+    text = (docs.SOURCE / "CLI-RECOVERY-FUNCTIONS.md").read_text(encoding="utf-8")
+    documented = re.findall(r"^\| `([\w.]+)\(", text, re.MULTILINE)
+    assert len(expected) == 13
+    assert sorted(documented) == sorted(expected)
+    all_rows = []
+    for section in ("INSPECTION", "DIAGNOSTIC", "CHECKPOINT", "BACKUP", "RECOVERY"):
+        guide = (docs.SOURCE / f"CLI-{section}-FUNCTIONS.md").read_text(encoding="utf-8")
+        all_rows.extend(re.findall(r"^\| `([\w.]+)\(", guide, re.MULTILINE))
+    assert len(declarations) == 85
+    assert sorted(all_rows) == sorted(f"{row[1]}.{row[2]}" for row in declarations)
+    for boundary in ("not a persisted plan hash", "only the two newest", "remain in the identity map",
+                     "not exact source equivalence", "not executed"):
+        assert boundary.lower() in " ".join(text.split()).lower()
+
+
+def test_cli_backup_reference_covers_scoped_compiler_inventory():
+    java = shutil.which("java")
+    if not java:
+        pytest.skip("JDK needed for compiler-tree inventory")
+    source = ROOT / "modules/aether-tools/src/main/java/io/aetherdb/tools/AetherCli.java"
+    result = subprocess.run([java, str(ROOT / "scripts/InventoryJavaFunctions.java"), str(source)],
+                            check=True, capture_output=True, text=True, encoding="utf-8")
+    declarations = [line.split("\t") for line in result.stdout.splitlines()]
+    expected = {f"AetherCli.{name}" for name in
+                ("backupCreate", "checkpointBackupContents", "encryptBackupContents", "decryptBackupContents",
+                 "keyEpoch", "putBackupObject", "backupKind", "sha256", "backupRestorePreflight",
+                 "backupRestore", "backupRestoreDrill", "printBackupPreflightText", "printBackupPreflightJson",
+                 "printBackupRestoreText", "printBackupRestoreJson", "printBackupRestoreDrillText",
+                 "printBackupRestoreDrillJson", "backupAdmission", "printBackupAdmissionText",
+                 "printBackupAdmissionJson", "parseHexKey")}
+    for owner, methods in {
+        "BackupPreflightArguments": ("parse", "options"),
+        "BackupAdmissionOptions": ("BackupAdmissionOptions", "parse", "policy"),
+        "BackupEncryptionKey": ("BackupEncryptionKey", "key", "create"),
+        "BackupRestoreDrillReport": ("BackupRestoreDrillReport", "failed", "completed"),
+    }.items():
+        expected.update(f"AetherCli.{owner}.{method}" for method in methods)
+    available = {f"{fields[1]}.{fields[2]}" for fields in declarations}
+    assert len(expected) == 32
+    assert expected <= available
+    text = (docs.SOURCE / "CLI-BACKUP-FUNCTIONS.md").read_text(encoding="utf-8")
+    documented = re.findall(r"^\| `([\w.]+)\(", text, re.MULTILINE)
+    assert sorted(documented) == sorted(expected)
+    for boundary in ("not a streaming memory reservation", "no wrapper fsync",
+                     "availability declaration", "partial-output", "not executed"):
+        assert boundary.lower() in " ".join(text.split()).lower()
+
+
+def test_cli_checkpoint_reference_covers_scoped_compiler_inventory():
+    java = shutil.which("java")
+    if not java:
+        pytest.skip("JDK needed for compiler-tree inventory")
+    source = ROOT / "modules/aether-tools/src/main/java/io/aetherdb/tools/AetherCli.java"
+    result = subprocess.run([java, str(ROOT / "scripts/InventoryJavaFunctions.java"), str(source)],
+                            check=True, capture_output=True, text=True, encoding="utf-8")
+    declarations = [line.split("\t") for line in result.stdout.splitlines()]
+    expected = {f"AetherCli.{name}" for name in
+                ("checkpoint", "hitCheckpointAfterCopyBeforeMetadata", "checkpointCrashContext",
+                 "restoreVerify", "verifyCheckpointDirectory", "copyForced", "writeForced",
+                 "syncDirectory", "cleanupTemporaryDirectory")}
+    available = {f"{fields[1]}.{fields[2]}" for fields in declarations}
+    assert len(expected) == 9
+    assert expected <= available
+    text = (docs.SOURCE / "CLI-CHECKPOINT-FUNCTIONS.md").read_text(encoding="utf-8")
+    documented = re.findall(r"^\| `([\w.]+)\(", text, re.MULTILINE)
+    assert sorted(documented) == sorted(expected)
+    for boundary in ("not an inspect-only command", "no non-atomic rename fallback",
+                     "after rename", "external segment references", "not executed"):
+        assert boundary.lower() in " ".join(text.split()).lower()
+
+
+def test_cli_diagnostic_reference_covers_scoped_compiler_inventory():
+    java = shutil.which("java")
+    if not java:
+        pytest.skip("JDK needed for compiler-tree inventory")
+    source = ROOT / "modules/aether-tools/src/main/java/io/aetherdb/tools/AetherCli.java"
+    result = subprocess.run([java, str(ROOT / "scripts/InventoryJavaFunctions.java"), str(source)],
+                            check=True, capture_output=True, text=True, encoding="utf-8")
+    declarations = [line.split("\t") for line in result.stdout.splitlines()]
+    expected = {f"AetherCli.{name}" for name in
+                ("releaseCertify", "diagnostics", "configValidate", "commandSchema",
+                 "cliCommandSchemas", "writeDiagnosticsBundle", "diagnosticsManifestJson",
+                 "redactedEnvironment", "redactedProperties", "redactIfSensitive", "putZipEntry",
+                 "printReleaseCertificationText", "requiredValue", "configOverrides",
+                 "requireText", "jsonString", "settingsJson")}
+    expected.update(("AetherCli.DiagnosticsBundleReport.DiagnosticsBundleReport",
+                     "AetherCli.CliCommandSchema.CliCommandSchema", "AetherCli.CliCommandSchema.toJson"))
+    available = {f"{fields[1]}.{fields[2]}" for fields in declarations}
+    assert len(expected) == 20
+    assert expected <= available
+    text = (docs.SOURCE / "CLI-DIAGNOSTIC-FUNCTIONS.md").read_text(encoding="utf-8")
+    documented = re.findall(r"^\| `([\w.]+)\(", text, re.MULTILINE)
+    assert sorted(documented) == sorted(expected)
+    for boundary in ("different redaction paths", "not encryption", "partial ZIP",
+                     "not a general arbitrary-schema serializer", "not executed"):
+        assert boundary.lower() in " ".join(text.split()).lower()
+
+
 def test_cli_inspection_reference_covers_scoped_compiler_inventory():
     java = shutil.which("java")
     if not java:

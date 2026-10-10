@@ -178,6 +178,11 @@ uniform across byte-array, packed-batch, reference, and mapping APIs.
 | [Module build topology](MODULE-BUILD-ARCHITECTURE.md) | All 49 module and two example build files | Which dependencies are exported, implementation-only or processor/test-scoped; what do application and packaging actions configure? |
 | [Example applications](EXAMPLE-APPLICATION-FUNCTIONS.md) | Both examples' complete main source trees | How do notes persistence, Swing ownership, social CRUD and application-side joins work, and where do sequential guards stop? |
 | [Flush diagnostics](FLUSH-DIAGNOSTIC-FUNCTIONS.md) | Complete FlushDiagnostics source, including nested types | How do collectors follow writes, charge stage intervals and link flush/compaction/table-finish evidence? |
+| [CLI inspection and verification](CLI-INSPECTION-FUNCTIONS.md) | AetherCli dispatch, inspect/verify, WAL and cross-table identity checks | What checks actually run at each offline level, and what do output and exit status omit? |
+| [CLI diagnostics and configuration](CLI-DIAGNOSTIC-FUNCTIONS.md) | Diagnostics ZIP, config validation, command schemas and release dispatch | What is collected/redacted, how can export fail, and what do static command schemas guarantee? |
+| [CLI checkpoint publication](CLI-CHECKPOINT-FUNCTIONS.md) | Checkpoint, restore-verify, force/sync and cleanup helpers | What changes the source, when is the destination published, and what remains after failure? |
+| [CLI backup and restore](CLI-BACKUP-FUNCTIONS.md) | Archive capture, encryption, admission, preflight, restore and drills | Which checks run before/after writing, how are keys handled, and what can a successful drill prove? |
+| [CLI repair and salvage](CLI-RECOVERY-FUNCTIONS.md) | Tail truncation, CURRENT reconstruction, salvage selection and publication | What is confirmed, preserved, skipped or discarded, and why does success not prove complete recovery? |
 | [Analysis and figures](H2-ANALYSIS-FUNCTIONS.md) | All five functions in h2_analysis.py, including the figure writer | Which checkpoint is primary? How are ratios, ties, break-even and uncertainty calculated from validated evidence? |
 
 These cover the separately deployable H2 harness, not all imported campaign,

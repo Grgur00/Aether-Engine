@@ -6,6 +6,8 @@ This reference covers portable backup inventory and ZIP serialization in the
 current checkout. Archive integrity, restore eligibility, and destination publication
 are separate boundaries; see [restore functions](BACKUP-RESTORE-FUNCTIONS.md) for
 preflight and restore writing.
+For command-level capture, encryption, admission and restore drills, see
+[CLI backup functions](CLI-BACKUP-FUNCTIONS.md).
 
 ## Sources
 

@@ -1397,6 +1397,88 @@ percentage; semantic, overload, implicit/generated, Python, test and resource
 coverage requires stronger evidence. Next focus is complete CLI function
 contracts, not merely adding its missing names.
 
+CLI inspection/verification reference added on 2026-10-10: **11 explicit
+declarations** cover dispatch, offline ownership, argument parsing, manifest/WAL
+checks, cross-table duplicate scanning, reporting and lock-error mapping. The
+page makes clear that METADATA already invokes live SSTable verification, FULL's
+extra duplicate pass materializes entries, inspection text can label stronger
+checks as METADATA, and JSON omits warning text/actual level. Source test assertions
+were read, not executed; no user's database was opened. **142 documentation tests
+passed**; website audit passed **134 pages / 132 guides**; three responsive browser
+checks and mobile screenshot inspection passed; diff whitespace check passed.
+
+This removes six more absent declaration names: **31 of the original 86 resolved,
+55 remaining**, approximately **64.0% of the identified backlog remaining**.
+The CLI reference is explicitly partial: checkpoint, backup, diagnostics/config/
+schema, repair/salvage and their helpers remain. Whole-codebase semantic and
+generated/test/resource coverage is still unproven. Local documentation can
+continue while the snapshot push awaits explicit remote/scope confirmation.
+
+CLI diagnostics/configuration reference added on 2026-10-10: **20 explicit
+declarations** cover ZIP export, name-based versus catalog-aware redaction,
+configuration overrides, command schemas, release dispatch and JSON/report helpers.
+The guide explains partial output on failure, deterministic secret correlation,
+unescaped property output, schemas as descriptions rather than enforcement and
+absence of runtime evidence collection. Existing source test assertions were read,
+not executed; no environment/config bundle was exported. After correcting a
+case-sensitive prose assertion, **143 documentation tests passed**; website audit
+passed **135 pages / 133 guides**; three responsive browser checks and mobile
+screenshot inspection passed; diff whitespace check passed.
+
+The CLI missing-name audit now has **39 candidates**, resolving 16 more names:
+**47 of the original 86 resolved, 39 remaining** (approximately **45.3% of that
+backlog remaining**). Explicit function tables now cover 31 scoped CLI declarations;
+checkpoint/backup and repair/salvage contracts are still outstanding. Neither
+this backlog ratio nor matching names proves whole-codebase semantic coverage.
+The earlier snapshot commits remain local; the push attempt stopped while GitHub
+authentication was pending. No remote upload or experiment launch occurred here.
+
+CLI checkpoint publication reference added on 2026-10-10: **nine explicit
+declarations** explain source open/close mutation, lock handoff, new manifest and
+WAL-free inventory, metadata/force/sync order, fault context, atomic publication
+and verification limits. The guide distinguishes database checkpoints from external
+training segment backup, and documents a published destination surviving a
+post-rename failure. Source fixture/crash-hook assertions were read, not executed;
+no checkpoint/store was created. **144 documentation tests passed**; website audit
+passed **136 pages / 134 guides**; three responsive browser checks and mobile
+screenshot inspection passed; diff whitespace check passed.
+
+Seven more missing declaration names are resolved: **54 of the original 86 resolved,
+32 remain** (approximately **37.2% of that backlog remaining**). Three CLI references
+now cover 40 scoped explicit declarations. Backup and repair/salvage function
+contracts still remain; whole-codebase semantic/generated/test/resource coverage
+is not proven by this count. No new remote push or experiment run was attempted.
+
+CLI backup/restore reference added on 2026-10-10: **32 explicit declarations**
+cover checkpoint archive capture, per-object encryption/decryption, option/key
+handling, admission, preflight, restore/drill sequencing and text/JSON reports.
+It explains full materialization before admission, ciphertext versus plaintext
+totals, declared epochs versus actual keys, partial archives and preserved targets
+after failed verification. Archive/restore guides now link the CLI orchestration.
+Existing source test assertions were read, not executed; no real archive/key/store
+was used. **145 documentation tests passed**; website audit passed **137 pages /
+135 guides**; three responsive browser checks and mobile screenshot inspection
+passed. No new remote upload or experiment run was attempted.
+
+The CLI audit now has **11 missing names**, all repair/salvage helpers; **75 of the
+original 86 resolved, 11 remaining** (approximately **12.8% of that backlog
+remaining**). Four scoped CLI references cover **72 explicit declarations**;
+the remaining CLI declarations and broader semantic/generated/test/resource
+coverage still require audit. These percentages are not whole-codebase completion.
+
+CLI repair/salvage reference added on 2026-10-10: **13 explicit declarations**
+cover tail repair, CURRENT reconstruction, WAL salvage, conflict handling and
+publication. Five CLI references now cover all **85 explicit declarations** in
+the compiler inventory. **146 documentation tests passed**; website audit passed
+**138 pages / 136 guides**; three responsive browser checks and mobile screenshot
+inspection passed. Source recovery assertions were read, not executed; no user
+database was repaired or salvaged.
+
+The main-Java scan found **2,524 explicit declarations and zero missing names**:
+all **86 originally identified missing names are resolved (0% of that backlog
+remaining)**. This does not certify whole-codebase semantic coverage, overloads,
+generated code, tests or resources; those broader audits remain open.
+
 Update the relevant page when changing public APIs, configuration consumers,
 durability boundaries, CLI arguments, source layout or experiment protocols.
 Keep graph edges honest: label conceptual relationships, and do not draw a

@@ -5,6 +5,8 @@
 This reference covers restore preflight and object writing in the current checkout.
 It distinguishes policy labels from actions actually implemented by these helpers.
 No runtime fixes or crash-safety certification accompany this documentation.
+The [CLI backup reference](CLI-BACKUP-FUNCTIONS.md) covers command parsing,
+decrypt/admission ordering, report shapes and the extra checkpoint-verification drill.
 
 ## Sources and Call Chain
 

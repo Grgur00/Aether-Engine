@@ -6,6 +6,12 @@ This is a development runbook for the current pre-production implementation, not
 a production deployment guide. Practice on disposable stores. Keep the original
 bytes and logs when diagnosing corruption; a successful repair is not proof that
 every acknowledged application record was recovered.
+For actual inspect/verify levels, output fields and status limits, see the
+[CLI inspection function contracts](CLI-INSPECTION-FUNCTIONS.md).
+Checkpoint creation and its source-mutation/publication limits are covered by
+[CLI checkpoint functions](CLI-CHECKPOINT-FUNCTIONS.md).
+For destructive recovery plans, authority selection and valid-prefix evidence,
+see [CLI repair and salvage](CLI-RECOVERY-FUNCTIONS.md).
 
 ## Ownership and Shutdown
 
