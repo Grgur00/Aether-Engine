@@ -16,6 +16,31 @@ docs = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(docs)
 
 
+def test_cli_inspection_reference_covers_scoped_compiler_inventory():
+    java = shutil.which("java")
+    if not java:
+        pytest.skip("JDK needed for compiler-tree inventory")
+    source = ROOT / "modules/aether-tools/src/main/java/io/aetherdb/tools/AetherCli.java"
+    result = subprocess.run([java, str(ROOT / "scripts/InventoryJavaFunctions.java"), str(source)],
+                            check=True, capture_output=True, text=True, encoding="utf-8")
+    declarations = [line.split("\t") for line in result.stdout.splitlines()]
+    expected = {f"AetherCli.{name}" for name in
+                ("AetherCli", "main", "run", "inspect", "readReport", "inspectWals",
+                 "verifyNoDuplicateInternalIdentities", "printText", "printJson")}
+    expected.update(("AetherCli.Arguments.parse",
+                     "AetherCli.LockUnavailableException.LockUnavailableException"))
+    available = {f"{fields[1]}.{fields[2]}" for fields in declarations}
+    assert len(expected) == 11
+    assert expected <= available
+    text = (docs.SOURCE / "CLI-INSPECTION-FUNCTIONS.md").read_text(encoding="utf-8")
+    documented = re.findall(r"^\| `([\w.]+)\(", text, re.MULTILINE)
+    assert sorted(documented) == sorted(expected)
+    for boundary in ("not a cheap header-only", "does not obtain a coherent snapshot",
+                     "not itself streaming", "always displays METADATA",
+                     "not executed in this documentation batch"):
+        assert boundary in " ".join(text.split())
+
+
 def test_training_driver_reference_covers_complete_compiler_inventory():
     java = shutil.which("java")
     if not java:
