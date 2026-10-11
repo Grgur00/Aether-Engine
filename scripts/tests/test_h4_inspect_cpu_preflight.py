@@ -4,7 +4,7 @@ import zipfile
 
 import pytest
 
-from h4.inspect_cpu_preflight import inspect
+from h4.inspect_cpu_preflight import inspect, capacity_summary, java_test_summary
 
 
 def bundle(path, reports):
@@ -62,3 +62,44 @@ def test_zip_checksum_tampering_is_rejected(tmp_path):
         archive.writestr("run-status.json", "{}")
     with pytest.raises(ValueError, match="checksum mismatch"):
         inspect(path, {})
+
+
+def test_capacity_block_is_not_an_engine_failure():
+    status = dict(stage="completed", capacity_gates={"1": False}, all_capacity_gates_passed=False)
+    files = {"online-1gib/preflight.json": json.dumps(dict(passed=False,
+             primary_h4_eligible=False, reason="insufficient safe disk capacity",
+             required_free_bytes=26 * 1024 ** 3, actual_free_bytes=19 * 1024 ** 3)).encode()}
+    result = capacity_summary(files, status)
+    assert result["1"]["reason"] == "insufficient safe disk capacity"
+    assert "2" not in result
+    files["online-2gib/preflight.json"] = files["online-1gib/preflight.json"]
+    with pytest.raises(ValueError, match="after the capacity gate stopped"):
+        capacity_summary(files, status)
+
+
+@pytest.mark.parametrize("gates", [{"2": True}, {"1": False, "2": True}, {"1": 1}, {}])
+def test_capacity_requires_ordered_boolean_prefix(gates):
+    with pytest.raises(ValueError, match="ordered prefix"):
+        capacity_summary({}, dict(capacity_gates=gates))
+
+
+def test_capacity_requires_report_and_consistent_status():
+    status = dict(stage="completed", capacity_gates={"1": True}, all_capacity_gates_passed=False)
+    with pytest.raises(ValueError, match="missing"):
+        capacity_summary({}, status)
+    files = {"online-1gib/preflight.json": json.dumps(dict(passed=False, primary_h4_eligible=False)).encode()}
+    with pytest.raises(ValueError, match="disagrees"):
+        capacity_summary(files, status)
+
+
+def test_java_summary_requires_actual_cases_and_all_modules():
+    files = {"java-tests/" + module + "/TEST-fixture.xml":
+             b'<testsuite tests="1" failures="0" errors="0" skipped="0"><testcase name="fixture"/></testsuite>'
+             for module in ("aether-engine", "aether-lsm", "aether-sstable", "aether-training-cache")}
+    result = java_test_summary(files)
+    assert result["passed"] and result["tests"] == 4
+    del files["java-tests/aether-engine/TEST-fixture.xml"]
+    assert not java_test_summary(files)["passed"]
+    files["java-tests/aether-engine/TEST-fixture.xml"] = b'<testsuite tests="99" failures="0" errors="0" skipped="0"/>'
+    with pytest.raises(ValueError, match="counts disagree"):
+        java_test_summary(files)

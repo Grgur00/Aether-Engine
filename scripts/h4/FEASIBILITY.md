@@ -152,11 +152,50 @@ Its exact remotely downloaded transport SHA-256 is
 `ff247f86b5052bb407d13ea3d1b4b6ba8459dd9ca94afa03245df6f53f5355c6`, pinned to
 `grgur321/aether-h4-storage-revision-source/1`. It runs the regression gates and
 1/2/4/8 GiB capacity diagnostics in sequence, stopping on failure. It requests
-no GPU and never runs PCam retrieval or H2. Submission was confirmed RUNNING;
-the result is pending, not a passed 8 GiB gate. The uploaded source and launcher
+no GPU and never runs PCam retrieval or H2. The returned archive is now verified;
+8 GiB was disk-blocked, not passed. The uploaded source and launcher
 receipts remain frozen even though the local status utility now records Kaggle's
 title-derived canonical job identifier.
 
 The delegated memory-control and physical-read gates remain unqualified.
 `LINUX-EXECUTION-PLAN.md` describes the controlled VM fallback. No beyond-RAM
 scalability result is claimed.
+
+## Verified CPU Continuation Results
+
+Downloaded archive `aether-h4-preflight-results (2).zip` SHA-256:
+`72a5b6d98c4d391d548eae0ca13130a51b5af4bcb0592dceaf9d875eb227de1e`.
+Its exact report inventory and source inventory match the private upload above.
+The structured JUnit cases confirm 141 tests, zero failures/errors/skips across
+the four storage/training-cache modules. The notebook completed, but its capacity
+chain did not: 1/2/4 GiB passed; 8 GiB required 27,917,520,896 free bytes and had
+20,617,547,776. It did not attempt ingestion at that size. No controller was
+delegated, so primary eligibility and out-of-core verification remain false.
+
+| Logical size | Population including generation | Shuffled read | Artifacts/s | Recorded compaction output / payload | Summed recorded compaction service |
+| --- | --- | --- | --- | --- | --- |
+| 1 GiB | 73.76 s | 15.45 s | 628.30 | 2.94x | 35.01 s |
+| 2 GiB | 205.26 s | 30.73 s | 632.02 | 5.13x | 111.43 s |
+| 4 GiB | 566.11 s | 58.65 s | 662.23 | 9.17x | 378.94 s |
+
+Compaction output totals are 3,160,791,140 / 11,022,979,211 / 39,374,421,873
+bytes from 18 / 36 / 60 completed, manifest-published diagnostic records before
+the persistence restart. These are recorded SSTable output bytes, not total
+physical writes: they omit WAL, initial flush and filesystem effects. Summed
+service time may overlap population/generation and must not be treated as its
+exclusive wall-time contribution. The trend establishes increasing recorded
+compaction work, not complete causal attribution of superlinear population time.
+
+Read timing remains a synthetic, uncontrolled-cache diagnostic. The archive
+contains no paired mmap timing or qualified primary PCam read observation.
+Full artifact validation, fresh-JVM restart and quiescence were checked using
+the admission validator. The summary is reproducible with:
+
+```powershell
+$env:PYTHONPATH = 'scripts'
+.\.venv\Scripts\python.exe -m h4.inspect_cpu_preflight 'C:\Users\Korisnik\Downloads\aether-h4-preflight-results (2).zip' --source-inventory build/h4-kaggle-storage-v1/source-inventory.json
+```
+
+Next runtime requirements remain safe 8 GiB capacity, administrator-delegated
+whole-workload memory isolation and measured physical-read/reclaim windows.
+No storage tuning, H2 rerun or new remote job followed this archive inspection.
