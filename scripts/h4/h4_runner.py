@@ -102,10 +102,14 @@ def run(args):
         raise ValueError("unique block IDs from the frozen assignment required")
     if len(set(args.conditions)) != len(args.conditions) or any(index not in range(5) for index in args.conditions):
         raise ValueError("unique condition IDs 0 through 4 required")
+    import paper_common
+    paper_common.java_classpath()
+    java_sources = paper_common.java_build_sources(paper_common.ROOT)
     for index in args.conditions:
         payload = binding["manifest"]["conditions"][index]["payload_bytes"]
         rounded = math.ceil(payload / 1024 ** 3) * 1024 ** 3
-        require_previous_sizes(max(2 * 1024 ** 3, rounded), args.prior_preflight)
+        require_previous_sizes(max(2 * 1024 ** 3, rounded), args.prior_preflight,
+                               expected_java_sources=java_sources)
     source = source_identity()
     host = host_identity(args.scratch, protocol["memory_limit_bytes"])
     if design is not None:

@@ -46,3 +46,67 @@ misses. State this limitation explicitly, and qualify the storage-read claim at
 the observable guest block-device/process-I/O level.
 
 H2 is neither modified nor rerun at any stage.
+
+## Delegation Layout
+
+Have the host administrator provide a delegated systemd service/scope subtree
+owned by the benchmark account, with memory control enabled for its children.
+The launcher occupies a separate leaf; the delegated parent is empty. Export
+`H4_CGROUP_PARENT` as the absolute path to that parent. H4 accepts it only when
+it is a non-root ancestor of the launcher's verified current cgroup, contains
+no direct processes, and already delegates memory control. H4 never enables
+controllers, moves the launcher or changes parent limits itself.
+
+Example layout, established by the administrator before execution:
+
+```text
+delegated-h4.service/          empty; memory delegated; benchmark-account ownership
+  launcher/                   shell and orchestration Python
+  aether-h4-<unique-id>/       created by H4; Python/JVM + charged file cache; 2 GiB; swap 0
+```
+
+This separation follows the cgroup v2 no-internal-process constraint and
+[systemd's delegation guidance](https://github.com/systemd/systemd/blob/main/docs/CGROUP_DELEGATION.md).
+The administrator should use the host's supported delegation mechanism, not
+grant benchmark code write access to the system cgroup root. See also the
+[kernel delegation rules](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html).
+
+## Runnable Readiness Check
+
+Run from a newly prepared isolated candidate, after its Java regression build.
+Use a fresh evidence directory for each attempt. These commands do not provision
+a VM, change parent controls, download PCam or launch the full experiment.
+
+```bash
+export PYTHONPATH="$PWD/scripts:$PWD/clients/python"
+export H4_CGROUP_PARENT=/sys/fs/cgroup/PATH_TO_ADMIN_DELEGATED_PARENT
+python -m h4.linux_readiness --scratch /mnt/h4-scratch --output /mnt/h4-results/readiness-01
+python -m h4.kaggle_preflight --scratch /mnt/h4-scratch --output /mnt/h4-results/capability-01 --attempt-memory-control
+```
+
+Readiness verifies candidate inventory and compiled-source provenance, captures
+mount/block-device attribution, checks the delegated-parent configuration and
+requires at least 26 GiB free for the 8 GiB admission stage alone. Additional
+input/prepared-artifact space is not included in that reserve. tmpfs, overlay,
+network filesystem and unidentifiable/loop-backed scratch are rejected. A VM's
+reported free capacity must also be checked against its underlying physical
+storage; thin provisioning is not a physical-capacity guarantee.
+
+`linux_readiness` exits 0 only for host/source readiness, never performance
+qualification. The capability probe still exits 2 because it deliberately
+cannot qualify primary H4. Inspect its explicit memory-control, file-accounting,
+Python/JVM membership and cleanup fields before advancing. Do not blindly chain
+commands based on that exit code, and do not weaken either gate to obtain a pass.
+
+Once readiness and capability checks succeed, run the ordered admission commands
+in the H4 README from the same candidate. Their new source-bound receipts are
+required by the paired runner and worker. Old Kaggle diagnostic receipts remain
+valuable diagnostic evidence but cannot be silently promoted to primary runs
+when they lack a matching Java source binding. Keep profiler output excluded
+from primary timing, and retain guest/host cache limitations in the final analysis.
+
+Local WSL negative-path check: `build/h4-linux-readiness-local-v1/readiness.json`
+records failed readiness because the root checkout is not an inventoried isolated
+candidate and its launcher cgroup does not delegate memory. The check changed no
+parent controls and started no workload. This verifies refusal behavior, not a
+provisioned-host success or experimental result.

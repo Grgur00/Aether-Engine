@@ -26,6 +26,13 @@ in `FEASIBILITY.md`; full H4 qualification is still pending.
 
 ## Resource Discovery
 
+For an administrator-delegated Linux VM, use
+`python -m h4.linux_readiness --scratch SCRATCH --output NEW_REPORT_DIRECTORY`
+inside the built isolated candidate. This read-only, fail-closed check captures
+source/build provenance, block-backed scratch and safe capacity. It cannot
+qualify primary retrieval. The concrete delegation layout and next commands are
+in [the Linux execution plan](LINUX-EXECUTION-PLAN.md).
+
 From the repository's `scripts` directory:
 
 ```powershell

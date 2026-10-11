@@ -105,6 +105,19 @@ def assess_read_window(before, after, *, limit, payload_bytes, consumed_bytes, p
     return report
 
 
+def delegated_parent(current, mount, explicit):
+    current, mount = Path(current).resolve(strict=True), Path(mount).resolve(strict=True)
+    parent = Path(explicit).resolve(strict=True)
+    if (parent == mount or parent == current or not parent.is_relative_to(mount)
+            or not current.is_relative_to(parent)):
+        raise RuntimeError("explicit cgroup parent must be a non-root ancestor of the launcher leaf")
+    if (parent / "cgroup.procs").read_text().split():
+        raise RuntimeError("delegated parent contains processes; launcher must occupy a leaf")
+    if "memory" not in (parent / "cgroup.subtree_control").read_text().split():
+        raise RuntimeError("explicit parent has no delegated memory controller; parent unchanged")
+    return parent
+
+
 def discover_parent(mount=Path("/sys/fs/cgroup")):
     mount = Path(mount).resolve(strict=True)
     lines = Path("/proc/self/cgroup").read_text().splitlines()
@@ -119,6 +132,9 @@ def discover_parent(mount=Path("/sys/fs/cgroup")):
         try:
             members = (resolved / "cgroup.procs").read_text().split()
             if str(os.getpid()) in members:
+                explicit = os.environ.get("H4_CGROUP_PARENT")
+                if explicit:
+                    return delegated_parent(resolved, mount, explicit)
                 return resolved
         except OSError:
             continue
