@@ -1,0 +1,84 @@
+--- a/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableReader.java
++++ b/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableReader.java
+@@ -290,39 +290,11 @@
+     /** Performs complete structural and metadata consistency verification. */
+     public void verify() {
+         ensureOpen();
+-        long count = 0, keyBytes = 0, valueBytes = 0, smallest = Long.MAX_VALUE, largest = 0;
+-        byte[] previous = null;
+-        for (DataBlock block : dataBlocks) {
+-            for (DataBlockEntry entry : block.loadEntriesUnchecked(channel, fileSize)) {
+-                byte[] encoded = entry.encodedKey();
+-                InternalKey decoded = InternalKey.decode(encoded);
+-                if (previous != null && INTERNAL_ORDER.compare(previous, encoded) >= 0)
+-                    throw corrupt("table entries are not strictly ordered");
+-                previous = encoded;
+-                count++;
+-                keyBytes += encoded.length;
+-                valueBytes += entry.value().length;
+-                smallest = Math.min(smallest, decoded.sequence());
+-                largest = Math.max(largest, decoded.sequence());
+-                if (!filter.mayContain(encoded, 0, encoded.length - 9))
+-                    throw corrupt("Bloom filter false negative");
+-            }
+-        }
+-        if (count != expected.entryCount()
+-                || keyBytes != expected.rawKeyBytes()
+-                || valueBytes != expected.rawValueBytes()
+-                || smallest != expected.smallestSequence()
+-                || largest != expected.largestSequence()
+-                || !Arrays.equals(
+-                        dataBlocks
+-                                .get(0)
+-                                .loadEntriesUnchecked(channel, fileSize)
+-                                .get(0)
+-                                .encodedKey(),
+-                        expected.smallestInternalKey())
+-                || !Arrays.equals(previous, expected.largestInternalKey()))
+-            throw corrupt("observed table content disagrees with metadata");
+-        SSTableVerificationTrace.verified(fileSize);
++        try {
++            SSTableVerifier.verify(channel, path, expected);
++        } catch (IOException failure) {
++            throw new SSTableCorruptionException("cannot verify table", failure);
++        }
+     }
+ 
+     /**
+--- a/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableVerifier.java
++++ b/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableVerifier.java
+@@ -21,8 +21,24 @@
+     /** Verifies a table before publication without opening a general-purpose reader. */
+     public static VerificationResult verify(Path path, UUID databaseId, ManifestFileMetadata manifest)
+             throws IOException {
++        try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
++            return verify(channel, path, databaseId, manifest, null);
++        }
++    }
++
++    /** Verifies the reader's already-open channel without materializing or caching DATA values. */
++    static VerificationResult verify(FileChannel channel, Path path, TableFileMetadata expected)
++            throws IOException {
++        var manifest = new ManifestFileMetadata(expected.fileNumber(), 0, expected.fileSize(),
++                expected.entryCount(), expected.smallestSequence(), expected.largestSequence(),
++                expected.smallestInternalKey(), expected.largestInternalKey());
++        return verify(channel, path, expected.databaseId(), manifest, expected);
++    }
++
++    private static VerificationResult verify(FileChannel channel, Path path, UUID databaseId,
++            ManifestFileMetadata manifest, TableFileMetadata authoritative) throws IOException {
+         long started = System.nanoTime();
+-        try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
++        try {
+             long size = channel.size();
+             if (size != manifest.fileSize()
+                     || size < SSTableHeaderV1.HEADER_REGION_BYTES + SSTableFooterV1.FOOTER_BYTES)
+@@ -34,7 +50,7 @@
+             footer.validateHandles();
+             byte[] properties = SSTableReader.raw(channel, footer.properties(), BlockKind.PROPERTIES, size);
+             var values = SSTableReader.bytewiseMap(RestartBlock.decode(properties));
+-            var expected = new TableFileMetadata(path, databaseId, manifest.fileNumber(), size,
++            var expected = authoritative != null ? authoritative : new TableFileMetadata(path, databaseId, manifest.fileNumber(), size,
+                     manifest.entryCount(), header.dataBlockCount(), manifest.smallestInternalKey(),
+                     manifest.largestInternalKey(), manifest.smallestSequence(), manifest.largestSequence(),
+                     SSTableReader.propertyLong(values, "aether.raw.key.bytes"),

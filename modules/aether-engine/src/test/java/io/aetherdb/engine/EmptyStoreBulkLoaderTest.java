@@ -64,6 +64,27 @@ class EmptyStoreBulkLoaderTest {
         }
     }
 
+    @Test void defaultWholeImportCeilingIs512MiBAndRejectsTheNextEntry() throws Exception {
+        long ceiling = 512L * 1024 * 1024;
+        assertEquals(ceiling, EmptyStoreBulkLoader.DEFAULT_MAX_BUFFER_BYTES);
+        try (var bulk = new EmptyStoreBulkLoader(temp, config)) {
+            var maxBytes = EmptyStoreBulkLoader.class.getDeclaredField("maxBytes");
+            maxBytes.setAccessible(true);
+            assertEquals(ceiling, maxBytes.getLong(bulk));
+            // Exercise the actual boundary guard without allocating a 512 MiB test fixture.
+            var bufferedBytes = EmptyStoreBulkLoader.class.getDeclaredField("bufferedBytes");
+            bufferedBytes.setAccessible(true);
+            bufferedBytes.setLong(bulk, ceiling - 2);
+            bulk.add(new byte[] {1}, new byte[] {2});
+            assertEquals(ceiling, bufferedBytes.getLong(bulk));
+            assertThrows(IllegalArgumentException.class, () -> bulk.add(new byte[] {3}, new byte[] {4}));
+            assertThrows(IllegalStateException.class, bulk::finish);
+        }
+        try (var db = Aether.open(temp, config)) {
+            assertFalse(db.get(new byte[] {1}).isFound());
+        }
+    }
+
     @Test void publicationFailureRecoversAllOrNothing() throws Exception {
         for (String point : new String[] {"bulk.after_table", "bulk.before_manifest", "bulk.after_manifest"}) {
             Path root = temp.resolve(point);

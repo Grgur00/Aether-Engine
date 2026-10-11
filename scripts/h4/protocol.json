@@ -1,0 +1,74 @@
+{
+  "schema": "aether-h4-draft-v1",
+  "phase": "feasibility",
+  "confirmatory_frozen": false,
+  "dataset": {
+    "source": "https://github.com/basveeling/pcam",
+    "split": "train",
+    "samples": 262144,
+    "image_shape": [96, 96, 3],
+    "official_gzip_md5": {
+      "camelyonpatch_level_2_split_train_x.h5.gz": "1571f514728f59376b705fc836ff4b63",
+      "camelyonpatch_level_2_split_train_y.h5.gz": "35c2d7259d906cfc8143347bb8e05be7"
+    }
+  },
+  "artifact": {
+    "shape": [3, 96, 96],
+    "dtype": "<f4",
+    "layout": "contiguous-CHW",
+    "payload_bytes": 110592,
+    "transform": "uint8.astype(float32) / float32(255); transpose(2,0,1); contiguous little-endian",
+    "compression": false,
+    "augmentation": false
+  },
+  "memory_limit_bytes": 2147483648,
+  "ratios": [0.25, 0.5, 1, 2, 4],
+  "subset_seed": 20261011,
+  "lookup_seed": 20261012,
+  "backends": ["aether", "mmap"],
+  "aether": {
+    "java_major": 21,
+    "heap_bytes": 536870912,
+    "target_sstable_bytes": null,
+    "prior_bulk_target_sstable_bytes": 33554432,
+    "sstable_policy": "isolated H4 bounded-storage-v1 candidate; production flush target retained; compaction output targets 32 MiB at user-key boundaries; actual file sizes recorded",
+    "storage_revision": "bounded-storage-v1",
+    "compaction_target_bytes": 33554432,
+    "decoded_block_cache_charge_limit_bytes": 8388608,
+    "admission_batch": 16,
+    "population_drain_interval_artifacts": 256,
+    "population": "online-durable-put-many-v1",
+    "verifier": "single authoritative streaming verifier on the open channel; checksummed envelopes and publication integrity preserved; full artifact readback outside timing",
+    "durability": "DURABLE",
+    "jfr": false,
+    "server_trace": false
+  },
+  "amendments": [{
+    "id": "H4-online-admission-v1",
+    "approved": "user explicitly approved existing online admission",
+    "reason": "direct bulk loader buffers the full import and has a 512 MiB whole-import limit",
+    "scope": "all H4 sizes use existing online durable PUT_MANY with batch 16; no Java/H2 changes",
+    "limitations": "32 MiB was a bulk-only table target, not a configurable target of the existing online daemon; no new bulk streaming-verifier claim is made"
+  }, {
+    "id": "H4-bounded-storage-v1",
+    "approved": "user explicitly approved a separate H4-only bounded-memory storage revision after reproduced heap exhaustion",
+    "scope": "isolated reviewable patch: streaming verification, compaction and cache-index reconstruction; bounded decoded-block cache; online durable batches drain every 256 artifacts",
+    "limitations": "capacity diagnostics remain unqualified for beyond-RAM claims; metadata and key memory still scale with store size; cache charge is not an exact heap measurement",
+    "preservation": "H2 implementation, source snapshots and results unchanged; prior uploaded diagnostics retain their original protocol and inventory"
+  }],
+  "access_patterns": ["sequential", "shuffled"],
+  "warmup_passes": 1,
+  "measured_passes": 3,
+  "lookup_batch_size": 16,
+  "consumer": "SHA256 of all returned bytes in frozen request order; same implementation for both backends",
+  "latency_sampling": {
+    "maximum_samples": 128,
+    "strategy": "evenly spaced request-order positions; separate single-artifact lookup pass",
+    "unit": "seconds",
+    "excludes": "consumer hashing and view release; excluded from throughput pass timings"
+  },
+  "pilot_paired_blocks": 5,
+  "soft_deadline_seconds": 32400,
+  "primary_candidate": "shuffled at payload/memory ratio 4",
+  "confirmatory": null
+}

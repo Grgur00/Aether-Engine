@@ -1,0 +1,693 @@
+--- a/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableReader.java
++++ b/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableReader.java
+@@ -22,11 +22,18 @@
+ import java.util.Comparator;
+ import java.util.HashMap;
+ import java.util.List;
++import java.util.Iterator;
++import java.util.NoSuchElementException;
++import java.util.LinkedHashMap;
+ import java.util.Map;
+ import java.util.Objects;
+ 
+ /** Strict reader and verifier for one immutable SSTable v1. */
+ public final class SSTableReader implements AutoCloseable {
++    private static final long BLOCK_CACHE_LIMIT = 8L * 1024 * 1024;
++    private static final Map<DataBlock, CachedBlock> BLOCK_CACHE = new LinkedHashMap<>(16, .75f, true);
++    private static long cachedBytes;
++    private record CachedBlock(List<DataBlockEntry> entries, long bytes) {}
+     private static final Comparator<byte[]> INTERNAL_ORDER =
+             (left, right) -> InternalKey.compareEncoded(left, right);
+     private final Path path;
+@@ -287,42 +294,39 @@
+         return List.copyOf(result);
+     }
+ 
++    /** Forward scan retaining only the current decoded block; does not populate the read cache. */
++    public Iterator<SSTableEntry> streamingEntries() {
++        ensureOpen();
++        return new Iterator<>() {
++            private int blockIndex;
++            private Iterator<DataBlockEntry> current = List.<DataBlockEntry>of().iterator();
++            public boolean hasNext() {
++                ensureOpen();
++                while (!current.hasNext() && blockIndex < dataBlocks.size()) {
++                    try {
++                        current = dataBlocks.get(blockIndex++).decodeEntries(channel, fileSize).iterator();
++                    } catch (IOException failure) {
++                        throw new SSTableCorruptionException("cannot scan table", failure);
++                    }
++                }
++                return current.hasNext();
++            }
++            public SSTableEntry next() {
++                if (!hasNext()) throw new NoSuchElementException();
++                DataBlockEntry entry = current.next();
++                return new SSTableEntry(InternalKey.decode(entry.encodedKey()), entry.value());
++            }
++        };
++    }
++
+     /** Performs complete structural and metadata consistency verification. */
+     public void verify() {
+         ensureOpen();
+-        long count = 0, keyBytes = 0, valueBytes = 0, smallest = Long.MAX_VALUE, largest = 0;
+-        byte[] previous = null;
+-        for (DataBlock block : dataBlocks) {
+-            for (DataBlockEntry entry : block.loadEntriesUnchecked(channel, fileSize)) {
+-                byte[] encoded = entry.encodedKey();
+-                InternalKey decoded = InternalKey.decode(encoded);
+-                if (previous != null && INTERNAL_ORDER.compare(previous, encoded) >= 0)
+-                    throw corrupt("table entries are not strictly ordered");
+-                previous = encoded;
+-                count++;
+-                keyBytes += encoded.length;
+-                valueBytes += entry.value().length;
+-                smallest = Math.min(smallest, decoded.sequence());
+-                largest = Math.max(largest, decoded.sequence());
+-                if (!filter.mayContain(encoded, 0, encoded.length - 9))
+-                    throw corrupt("Bloom filter false negative");
+-            }
+-        }
+-        if (count != expected.entryCount()
+-                || keyBytes != expected.rawKeyBytes()
+-                || valueBytes != expected.rawValueBytes()
+-                || smallest != expected.smallestSequence()
+-                || largest != expected.largestSequence()
+-                || !Arrays.equals(
+-                        dataBlocks
+-                                .get(0)
+-                                .loadEntriesUnchecked(channel, fileSize)
+-                                .get(0)
+-                                .encodedKey(),
+-                        expected.smallestInternalKey())
+-                || !Arrays.equals(previous, expected.largestInternalKey()))
+-            throw corrupt("observed table content disagrees with metadata");
+-        SSTableVerificationTrace.verified(fileSize);
++        try {
++            SSTableVerifier.verify(channel, path, expected);
++        } catch (IOException failure) {
++            throw new SSTableCorruptionException("cannot verify table", failure);
++        }
+     }
+ 
+     /**
+@@ -339,6 +343,12 @@
+     @Override
+     public void close() throws IOException {
+         closed = true;
++        synchronized (BLOCK_CACHE) {
++            for (DataBlock block : dataBlocks) {
++                CachedBlock removed = BLOCK_CACHE.remove(block);
++                if (removed != null) cachedBytes -= removed.bytes();
++            }
++        }
+         channel.close();
+     }
+ 
+@@ -537,38 +547,58 @@
+     private static final class DataBlock {
+         private final BlockHandle handle;
+         private final byte[] upperBoundKey;
+-        private volatile List<DataBlockEntry> entries;
+ 
+         private DataBlock(BlockHandle handle, byte[] upperBoundKey, List<DataBlockEntry> entries) {
+             this.handle = handle;
+             this.upperBoundKey = upperBoundKey;
+-            this.entries = entries;
+         }
+ 
+         private List<DataBlockEntry> loadEntries(FileChannel channel, long fileSize)
+                 throws IOException {
+-            ReadDiagnostics.count(entries == null ? "blockCacheMisses" : "blockCacheHits", 1);
+-            if (entries == null) {
+-                synchronized (this) {
+-                    if (entries == null) {
+-                        byte[] rawBlock = raw(channel, handle, BlockKind.DATA, fileSize);
+-                        long decodeStarted = ReadDiagnostics.start();
+-                        try {
+-                        List<RestartBlock.Entry> decoded =
+-                                RestartBlock.decode(rawBlock, INTERNAL_ORDER);
+-                        List<DataBlockEntry> converted = new ArrayList<>(decoded.size());
+-                        for (RestartBlock.Entry entry : decoded) {
+-                            InternalKey key = InternalKey.decode(entry.key());
+-                            if (key.type() == 2 && entry.value().length != 0)
+-                                throw corrupt("tombstone has a value");
+-                            converted.add(new DataBlockEntry(entry.key(), entry.value()));
+-                        }
+-                        entries = List.copyOf(converted);
+-                        } finally { ReadDiagnostics.end("decode", decodeStarted); }
++            synchronized (this) {
++                synchronized (BLOCK_CACHE) {
++                    CachedBlock resident = BLOCK_CACHE.get(this);
++                    if (resident != null) {
++                        ReadDiagnostics.count("blockCacheHits", 1);
++                        return resident.entries();
+                     }
+                 }
+-            }
+-            return entries;
++                ReadDiagnostics.count("blockCacheMisses", 1);
++                List<DataBlockEntry> decoded = decodeEntries(channel, fileSize);
++                long bytes = 128;
++                for (DataBlockEntry entry : decoded)
++                    bytes += 192L + entry.encodedKey.length +
++                            entry.valueBytes;
++                synchronized (BLOCK_CACHE) {
++                    if (bytes <= BLOCK_CACHE_LIMIT) {
++                        while (cachedBytes + bytes > BLOCK_CACHE_LIMIT && !BLOCK_CACHE.isEmpty()) {
++                            var iterator = BLOCK_CACHE.entrySet().iterator();
++                            var oldest = iterator.next();
++                            cachedBytes -= oldest.getValue().bytes();
++                            iterator.remove();
++                        }
++                        BLOCK_CACHE.put(this, new CachedBlock(decoded, bytes));
++                        cachedBytes += bytes;
++                    }
++                }
++                return decoded;
++            }
++        }
++
++        private List<DataBlockEntry> decodeEntries(FileChannel channel, long fileSize) throws IOException {
++            byte[] rawBlock = raw(channel, handle, BlockKind.DATA, fileSize);
++            long decodeStarted = ReadDiagnostics.start();
++            try {
++                List<RestartBlock.Entry> decoded = RestartBlock.decode(rawBlock, INTERNAL_ORDER);
++                List<DataBlockEntry> converted = new ArrayList<>(decoded.size());
++                for (RestartBlock.Entry entry : decoded) {
++                    byte[] value = entry.value();
++                    if (InternalKey.decode(entry.key()).type() == 2 && value.length != 0)
++                        throw corrupt("tombstone has a value");
++                    converted.add(new DataBlockEntry(entry.key(), value));
++                }
++                return List.copyOf(converted);
++            } finally { ReadDiagnostics.end("decode", decodeStarted); }
+         }
+ 
+         private List<DataBlockEntry> loadEntriesUnchecked(FileChannel channel, long fileSize) {
+@@ -588,9 +618,11 @@
+     private static final class DataBlockEntry {
+         private final byte[] encodedKey;
+         private final SSTableLookup lookup;
++        private final int valueBytes;
+ 
+         private DataBlockEntry(byte[] encodedKey, byte[] value) {
+             this.encodedKey = encodedKey;
++            this.valueBytes = value.length;
+             long sequence = sequence(encodedKey);
+             this.lookup = value.length == 0 ? new SSTableLookup.Tombstone(sequence)
+                     : new SSTableLookup.Found(sequence, value);
+--- a/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableVerifier.java
++++ b/modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableVerifier.java
+@@ -21,8 +21,24 @@
+     /** Verifies a table before publication without opening a general-purpose reader. */
+     public static VerificationResult verify(Path path, UUID databaseId, ManifestFileMetadata manifest)
+             throws IOException {
++        try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
++            return verify(channel, path, databaseId, manifest, null);
++        }
++    }
++
++    /** Verifies the reader's already-open channel without materializing or caching DATA values. */
++    static VerificationResult verify(FileChannel channel, Path path, TableFileMetadata expected)
++            throws IOException {
++        var manifest = new ManifestFileMetadata(expected.fileNumber(), 0, expected.fileSize(),
++                expected.entryCount(), expected.smallestSequence(), expected.largestSequence(),
++                expected.smallestInternalKey(), expected.largestInternalKey());
++        return verify(channel, path, expected.databaseId(), manifest, expected);
++    }
++
++    private static VerificationResult verify(FileChannel channel, Path path, UUID databaseId,
++            ManifestFileMetadata manifest, TableFileMetadata authoritative) throws IOException {
+         long started = System.nanoTime();
+-        try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
++        try {
+             long size = channel.size();
+             if (size != manifest.fileSize()
+                     || size < SSTableHeaderV1.HEADER_REGION_BYTES + SSTableFooterV1.FOOTER_BYTES)
+@@ -34,7 +50,7 @@
+             footer.validateHandles();
+             byte[] properties = SSTableReader.raw(channel, footer.properties(), BlockKind.PROPERTIES, size);
+             var values = SSTableReader.bytewiseMap(RestartBlock.decode(properties));
+-            var expected = new TableFileMetadata(path, databaseId, manifest.fileNumber(), size,
++            var expected = authoritative != null ? authoritative : new TableFileMetadata(path, databaseId, manifest.fileNumber(), size,
+                     manifest.entryCount(), header.dataBlockCount(), manifest.smallestInternalKey(),
+                     manifest.largestInternalKey(), manifest.smallestSequence(), manifest.largestSequence(),
+                     SSTableReader.propertyLong(values, "aether.raw.key.bytes"),
+--- a/modules/aether-engine/src/main/java/io/aetherdb/engine/PersistentAetherDatabase.java
++++ b/modules/aether-engine/src/main/java/io/aetherdb/engine/PersistentAetherDatabase.java
+@@ -25,6 +25,7 @@
+ import io.aetherdb.lsm.compaction.CompactionDroppingIterator;
+ import io.aetherdb.lsm.compaction.LevelCompactionConfig;
+ import io.aetherdb.lsm.iterator.InternalEntry;
++import io.aetherdb.lsm.iterator.InternalIterator;
+ import io.aetherdb.lsm.iterator.ListInternalIterator;
+ import io.aetherdb.lsm.pressure.WritePressureController;
+ import io.aetherdb.lsm.pressure.WritePressureInput;
+@@ -407,6 +408,23 @@
+                 : LookupResult.notFound();
+     }
+ 
++    synchronized void visitEntries(java.util.function.BiConsumer<byte[], byte[]> visitor) {
++        ensureOpen();
++        try (Snapshot snapshot = newSnapshot()) {
++            long visibleSequence = validateSnapshot(snapshot).sequence();
++            TreeSet<byte[]> keys = new TreeSet<>(BYTE_ORDER);
++            keys.addAll(active.userKeys());
++            for (SSTableReader table : tables) {
++                var entries = table.streamingEntries();
++                while (entries.hasNext()) keys.add(entries.next().key().userKey());
++            }
++            for (byte[] key : keys) {
++                LookupResult value = lookup(key, visibleSequence);
++                if (value.isFound()) visitor.accept(key.clone(), value.value());
++            }
++        }
++    }
++
+     private AetherCursor scanAt(byte[] startInclusive, byte[] endExclusive, long visibleSequence) {
+         ensureOpen();
+         if (startInclusive != null) validateKey(startInclusive);
+@@ -726,43 +744,19 @@
+         var inputs = plan.inputs;
+         int outputLevel = plan.outputLevel;
+         compactionStage(trace, "inputRead");
+-        List<InternalEntry> merged = new ArrayList<>();
+-        for (SSTableReader table : plan.readers) {
+-                for (SSTableEntry entry : table.entries()) {
+-                    InternalKey key = entry.key();
+-                    merged.add(
+-                            key.type() == 2
+-                                    ? InternalEntry.tombstone(key.userKey(), key.sequence())
+-                                    : InternalEntry.value(
+-                                            key.userKey(), key.sequence(), entry.value()));
+-                }
+-            }
+-        compactionStage(trace, "mergeSort");
+-        merged.sort(InternalEntry::compareTo);
+-        compactionStage(trace, "mergeDeduplicate");
+-        merged = deduplicateInternalEntries(merged);
+-        compactionStage(trace, "mergeRetention");
+         long oldestSnapshot = plan.oldestSnapshot;
+-        List<InternalEntry> retained = new ArrayList<>();
+-        try (CompactionDroppingIterator dropping =
+-                new CompactionDroppingIterator(
+-                        new ListInternalIterator(merged),
+-                        oldestSnapshot,
+-                        key -> isBaseLevelForKey(key, outputLevel, plan.version))) {
+-            while (dropping.next()) retained.add(dropping.current());
+-        }
+-
+-        compactionStage(trace, "outputPartition");
+-        List<List<InternalEntry>> partitions =
+-                partitionCompactionOutput(
+-                        retained, configuration.compactionConfig().targetOutputFileBytes(outputLevel));
+         List<ManifestFileMetadata> additions = new ArrayList<>();
+         List<Path> created = new ArrayList<>();
+         List<SSTableReader> replacements = new ArrayList<>();
+         boolean publicationAttempted = false;
+         boolean installed = false;
+-        try {
+-            for (List<InternalEntry> partition : partitions) {
++        try (CompactionDroppingIterator dropping = new CompactionDroppingIterator(
++                mergeCompactionReaders(plan.readers), oldestSnapshot,
++                key -> isBaseLevelForKey(key, outputLevel, plan.version))) {
++            long targetBytes = Math.min(32L * 1024 * 1024,
++                    configuration.compactionConfig().targetOutputFileBytes(outputLevel));
++            boolean positioned = dropping.next();
++            while (positioned) {
+                 compactionStage(trace, "outputBuild");
+                 long fileNumber = allocateTableFileNumber();
+                 String name = VersionSet.sstableName(fileNumber);
+@@ -774,18 +768,31 @@
+                     SSTableBuilder builder =
+                             new SSTableBuilder(
+                                     temporary, fileNumber, databaseId, System.currentTimeMillis());
+-                    for (InternalEntry entry : partition)
++                    long outputBytes = 0;
++                    do {
++                        InternalEntry entry = dropping.current();
++                        byte[] userKey = entry.userKey();
++                        byte[] value = entry.type() == InternalEntry.Type.TOMBSTONE
++                                ? new byte[0] : entry.value();
+                         builder.add(
+                                 new InternalKey(
+-                                        entry.userKey(),
++                                        userKey,
+                                         entry.sequence(),
+                                         (byte)
+                                                 (entry.type() == InternalEntry.Type.TOMBSTONE
+                                                         ? 2
+                                                         : 1)),
+-                                entry.type() == InternalEntry.Type.TOMBSTONE
+-                                        ? new byte[0]
+-                                        : entry.value());
++                                value);
++                        outputBytes += userKey.length + 32L + value.length;
++                        positioned = dropping.next();
++                        if (positioned) {
++                            InternalEntry next = dropping.current();
++                            long nextBytes = next.userKey().length + 32L +
++                                    (next.type() == InternalEntry.Type.VALUE ? next.value().length : 0);
++                            if (outputBytes + nextBytes > targetBytes &&
++                                    !Arrays.equals(userKey, next.userKey())) break;
++                        }
++                    } while (positioned);
+                     compactionStage(trace, "outputFinish");
+                     TableFileMetadata built = builder.finish(FlushDiagnostics.beginTableFinish(fileNumber, null, trace));
+                     compactionStage(trace, "outputRename");
+@@ -915,6 +922,66 @@
+     private static boolean overlaps(ManifestFileMetadata file, byte[] smallest, byte[] largest) {
+         return BYTE_ORDER.compare(file.smallestUserKey(), largest) <= 0
+                 && BYTE_ORDER.compare(smallest, file.largestUserKey()) <= 0;
++    }
++
++    /** K-way merge with the existing identical-duplicate acceptance rule. */
++    private static InternalIterator mergeCompactionReaders(List<SSTableReader> readers) {
++        return new InternalIterator() {
++            record Head(java.util.Iterator<SSTableEntry> source, InternalEntry entry) {}
++            final java.util.PriorityQueue<Head> heads = new java.util.PriorityQueue<>(
++                    Comparator.comparing(Head::entry));
++            InternalEntry current;
++            InternalEntry previous;
++            boolean initialized;
++            boolean closed;
++
++            void advance(java.util.Iterator<SSTableEntry> source) {
++                if (source.hasNext()) {
++                    SSTableEntry entry = source.next();
++                    InternalKey key = entry.key();
++                    heads.add(new Head(source, key.type() == 2
++                            ? InternalEntry.tombstone(key.userKey(), key.sequence())
++                            : InternalEntry.value(key.userKey(), key.sequence(), entry.value())));
++                }
++            }
++
++            public boolean next() {
++                if (closed) throw new IllegalStateException("merge is closed");
++                if (!initialized) {
++                    initialized = true;
++                    for (SSTableReader reader : readers) advance(reader.streamingEntries());
++                }
++                current = null;
++                while (!heads.isEmpty()) {
++                    Head head = heads.remove();
++                    InternalEntry entry = head.entry();
++                    advance(head.source());
++                    if (previous != null && previous.sameIdentity(entry)) {
++                        if (entry.type() == InternalEntry.Type.VALUE &&
++                                !Arrays.equals(previous.value(), entry.value()))
++                            throw new IllegalStateException("duplicate internal identity has different values");
++                        continue;
++                    }
++                    previous = entry;
++                    current = entry;
++                    return true;
++                }
++                previous = null;
++                return false;
++            }
++
++            public InternalEntry current() {
++                if (closed || current == null) throw new IllegalStateException("merge is not positioned");
++                return current;
++            }
++
++            public void close() {
++                closed = true;
++                current = null;
++                previous = null;
++                heads.clear();
++            }
++        };
+     }
+ 
+     private static List<InternalEntry> deduplicateInternalEntries(List<InternalEntry> sorted)
+--- a/modules/aether-engine/src/main/java/io/aetherdb/engine/Aether.java
++++ b/modules/aether-engine/src/main/java/io/aetherdb/engine/Aether.java
+@@ -46,6 +46,18 @@
+                 ? persistent.compactionDiagnostics() : java.util.Map.of("state", "UNAVAILABLE");
+     }
+ 
++    /** Visits snapshot-consistent owned entries without retaining all payloads in the persistent engine. */
++    public static void visitEntries(AetherDatabase database, java.util.function.BiConsumer<byte[], byte[]> visitor) {
++        java.util.Objects.requireNonNull(visitor);
++        if (database instanceof PersistentAetherDatabase persistent) {
++            persistent.visitEntries(visitor);
++        } else {
++            try (var cursor = database.scanAll()) {
++                while (cursor.next()) visitor.accept(cursor.key(), cursor.value());
++            }
++        }
++    }
++
+     /** Waits for scheduled work without changing compaction policy. */
+     public static void awaitCompactionIdle(AetherDatabase database) throws InterruptedException {
+         if (database instanceof PersistentAetherDatabase persistent) persistent.awaitCompactionIdle();
+--- a/modules/aether-lsm/src/main/java/io/aetherdb/lsm/compaction/CompactionDroppingIterator.java
++++ b/modules/aether-lsm/src/main/java/io/aetherdb/lsm/compaction/CompactionDroppingIterator.java
+@@ -15,9 +15,9 @@
+     private final InternalIterator source;
+     private final long oldestSnapshotSequence;
+     private final Predicate<byte[]> baseLevelForKey;
+-    private InternalEntry buffered;
+     private InternalEntry current;
+-    private final ArrayDeque<InternalEntry> retained = new ArrayDeque<>();
++    private byte[] groupKey;
++    private boolean boundaryHandled;
+     private long droppedVersions;
+     private long droppedTombstones;
+     private boolean closed;
+@@ -44,39 +44,30 @@
+     public boolean next() {
+         ensureOpen();
+         current = null;
+-        while (retained.isEmpty()) {
+-            InternalEntry first = take();
+-            if (first == null) return false;
+-            byte[] key = first.userKey();
+-            List<InternalEntry> group = new ArrayList<>();
+-            InternalEntry candidate = first;
+-            do {
+-                group.add(candidate);
+-                candidate = take();
+-            } while (candidate != null && Arrays.equals(key, candidate.userKey()));
+-            buffered = candidate;
+-            boolean boundaryHandled = false;
+-            for (InternalEntry entry : group) {
+-                if (entry.sequence() > oldestSnapshotSequence) retained.add(entry);
+-                else if (!boundaryHandled) {
+-                    boundaryHandled = true;
+-                    if (entry.type() == InternalEntry.Type.TOMBSTONE && baseLevelForKey.test(key))
+-                        droppedTombstones++;
+-                    else retained.add(entry);
+-                } else droppedVersions++;
++        while (source.next()) {
++            InternalEntry entry = source.current();
++            byte[] key = entry.userKey();
++            if (!Arrays.equals(groupKey, key)) {
++                groupKey = key;
++                boundaryHandled = false;
++            }
++            if (entry.sequence() > oldestSnapshotSequence) {
++                current = entry;
++                return true;
++            }
++            if (!boundaryHandled) {
++                boundaryHandled = true;
++                if (entry.type() == InternalEntry.Type.TOMBSTONE && baseLevelForKey.test(key)) {
++                    droppedTombstones++;
++                } else {
++                    current = entry;
++                    return true;
++                }
++            } else {
++                droppedVersions++;
+             }
+         }
+-        current = retained.remove();
+-        return true;
+-    }
+-
+-    private InternalEntry take() {
+-        if (buffered != null) {
+-            InternalEntry entry = buffered;
+-            buffered = null;
+-            return entry;
+-        }
+-        return source.next() ? source.current() : null;
++        return false;
+     }
+ 
+     @Override
+--- a/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCache.java
++++ b/modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCache.java
+@@ -456,10 +456,7 @@
+     }
+ 
+     private void loadIndex() {
+-        try (AetherCursor cursor = database.scanAll()) {
+-            while (cursor.next()) {
+-                byte[] key = cursor.key();
+-                byte[] value = cursor.value();
++        Aether.visitEntries(database, (key, value) -> {
+                 try {
+                     decode(value, key);
+                     int storedBytes = value.length;
+@@ -473,8 +470,7 @@
+                     database.delete(key);
+                     if (segmentStore != null) segmentStore.delete(segmentName(key));
+                 }
+-            }
+-        }
++        });
+         synchronized (entries) { evictIfNeeded(); }
+     }
+ 
+--- /dev/null
++++ b/modules/aether-engine/src/test/java/io/aetherdb/engine/H4StreamingStorageTest.java
+@@ -0,0 +1,70 @@
++package io.aetherdb.engine;
++
++import io.aetherdb.api.AetherDatabase;
++import io.aetherdb.config.AetherConfiguration;
++import io.aetherdb.lsm.iterator.InternalIterator;
++import io.aetherdb.sstable.InternalKey;
++import io.aetherdb.sstable.SSTableBuilder;
++import io.aetherdb.sstable.SSTableReader;
++import org.junit.jupiter.api.Test;
++import org.junit.jupiter.api.io.TempDir;
++import java.nio.file.Path;
++import java.util.List;
++import java.util.Map;
++import java.util.UUID;
++import static org.assertj.core.api.Assertions.*;
++
++class H4StreamingStorageTest {
++    @TempDir Path temporary;
++
++    private SSTableReader table(int number, byte[] value) throws Exception {
++        var builder = new SSTableBuilder(temporary.resolve("table-" + number), number, UUID.randomUUID(), 1);
++        builder.add(new InternalKey(new byte[]{1}, 10, (byte)1), value);
++        var metadata = builder.finish();
++        return SSTableReader.open(metadata.path(), metadata);
++    }
++
++    private InternalIterator merge(List<SSTableReader> readers) throws Exception {
++        var method = PersistentAetherDatabase.class.getDeclaredMethod("mergeCompactionReaders", List.class);
++        method.setAccessible(true);
++        return (InternalIterator) method.invoke(null, readers);
++    }
++
++    @Test void acceptsIdenticalDuplicatesAndRejectsConflictingValues() throws Exception {
++        try (var first = table(1, new byte[]{2}); var identical = table(2, new byte[]{2});
++             var conflict = table(3, new byte[]{3})) {
++            try (var iterator = merge(List.of(first, identical))) {
++                assertThat(iterator.next()).isTrue();
++                assertThat(iterator.current().value()).containsExactly((byte)2);
++                assertThat(iterator.next()).isFalse();
++            }
++            try (var iterator = merge(List.of(first, conflict))) {
++                assertThat(iterator.next()).isTrue();
++                assertThatThrownBy(iterator::next).isInstanceOf(IllegalStateException.class)
++                        .hasMessageContaining("different values");
++            }
++        }
++    }
++
++    @Test void visitorOwnsBytesAndProtectsItsSnapshot() {
++        Path path = temporary.resolve("database");
++        var configuration = new AetherConfiguration(Map.of("aether.storage.disk_pressure.enabled", "false",
++                "aether.security.profile", "development"));
++        try (AetherDatabase database = Aether.open(path, configuration)) {
++            database.put(new byte[]{1}, new byte[]{10});
++            database.put(new byte[]{2}, new byte[]{20});
++            var observed = new java.util.ArrayList<Byte>();
++            Aether.visitEntries(database, (key, value) -> {
++                observed.add(value[0]);
++                database.put(new byte[]{2}, new byte[]{30});
++                key[0] = 99;
++                value[0] = 99;
++            });
++            assertThat(observed).containsExactly((byte)10, (byte)20);
++            assertThat(database.get(new byte[]{2}).value()).containsExactly((byte)30);
++        }
++        try (AetherDatabase database = Aether.open(path, configuration)) {
++            assertThat(database.get(new byte[]{2}).value()).containsExactly((byte)30);
++        }
++    }
++}
+--- /dev/null
++++ b/modules/aether-lsm/src/test/java/io/aetherdb/lsm/compaction/H4StreamingRetentionTest.java
+@@ -0,0 +1,27 @@
++package io.aetherdb.lsm.compaction;
++
++import io.aetherdb.lsm.iterator.InternalEntry;
++import io.aetherdb.lsm.iterator.InternalIterator;
++import org.junit.jupiter.api.Test;
++import static org.assertj.core.api.Assertions.*;
++
++class H4StreamingRetentionTest {
++    @Test void doesNotConsumeWholeVersionGroupBeforeReturningFirstEntry() {
++        int[] consumed = {0};
++        var source = new InternalIterator() {
++            public boolean next() { return ++consumed[0] <= 100000; }
++            public InternalEntry current() {
++                return InternalEntry.value(new byte[]{1}, 100001L - consumed[0], new byte[]{2});
++            }
++            public void close() {}
++        };
++        try (var dropping = new CompactionDroppingIterator(source, 99999, key -> false)) {
++            assertThat(dropping.next()).isTrue();
++            assertThat(consumed[0]).isEqualTo(1);
++            assertThat(dropping.next()).isTrue();
++            assertThat(dropping.current().sequence()).isEqualTo(99999);
++            assertThat(dropping.next()).isFalse();
++            assertThat(dropping.droppedVersions()).isEqualTo(99998);
++        }
++    }
++}
+--- /dev/null
++++ b/modules/aether-sstable/src/test/java/io/aetherdb/sstable/H4BoundedBlockCacheTest.java
+@@ -0,0 +1,40 @@
++package io.aetherdb.sstable;
++
++import org.junit.jupiter.api.Test;
++import org.junit.jupiter.api.io.TempDir;
++import java.nio.file.Path;
++import java.util.Map;
++import java.util.UUID;
++import static org.assertj.core.api.Assertions.*;
++
++class H4BoundedBlockCacheTest {
++    @TempDir Path temporary;
++
++    @Test void verificationAndStreamingScanDoNotPopulateCacheAndEvictionReloads() throws Exception {
++        var builder = new SSTableBuilder(temporary.resolve("cache-table"), 1, UUID.randomUUID(), 1);
++        byte[] payload = new byte[128 * 1024];
++        for (int index = 0; index < 100; index++)
++            builder.add(new InternalKey(new byte[]{(byte)index}, 1, (byte)1), payload);
++        var metadata = builder.finish();
++        var bytesField = SSTableReader.class.getDeclaredField("cachedBytes");
++        bytesField.setAccessible(true);
++        var cacheField = SSTableReader.class.getDeclaredField("BLOCK_CACHE");
++        cacheField.setAccessible(true);
++        try (var reader = SSTableReader.open(metadata.path(), metadata)) {
++            long before = bytesField.getLong(null);
++            var stream = reader.streamingEntries();
++            int count = 0;
++            while (stream.hasNext()) { stream.next(); count++; }
++            assertThat(count).isEqualTo(100);
++            assertThat(bytesField.getLong(null)).isEqualTo(before);
++            var first = reader.lookup(new byte[]{0}, 1);
++            assertThat(reader.lookup(new byte[]{0}, 1)).isSameAs(first);
++            for (int index = 1; index < 100; index++) reader.lookup(new byte[]{(byte)index}, 1);
++            assertThat(bytesField.getLong(null)).isLessThanOrEqualTo(8L * 1024 * 1024);
++            var reloaded = reader.lookup(new byte[]{0}, 1);
++            assertThat(reloaded).isNotSameAs(first);
++            assertThat(((SSTableLookup.Found)reloaded).value()).containsExactly(payload);
++        }
++        assertThat(((Map<?, ?>)cacheField.get(null)).size()).isEqualTo(0);
++    }
++}

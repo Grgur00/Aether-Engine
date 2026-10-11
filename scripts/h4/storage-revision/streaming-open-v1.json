@@ -1,0 +1,19 @@
+{
+  "schema": "aether-h4-storage-candidate-patch-v1",
+  "baseline_transport_sha256": "3488c44729b081061e3e4d92fa66bfbd8956940be3a6660aed3ff92b3f552521",
+  "patch_sha256": "ff1a0f4b18146fad81afdc58b695b09378a0e1560fe7c619e081a04fb84025bb",
+  "changed_sources": {
+    "modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableReader.java": {
+      "baseline_sha256": "64f84d1d209a13722de1d9860205c347b322c4dfc9a5f735b288d1e6c5ff64b6",
+      "candidate_sha256": "742008bfe15ecacabbd2ad6f33d8a1d50be541b6a3c897693ce6ffc2c50dd797"
+    },
+    "modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableVerifier.java": {
+      "baseline_sha256": "5e33fb1e56fd8f9d281fb5f5b47e671acb3e5292af30c3cd5b304788c5051a07",
+      "candidate_sha256": "7d338388bb8414ab277fcfe2048ef5f28dc3533234f89f726e6caaae5fcb0d65"
+    }
+  },
+  "scope": "H4-only experimental candidate; not frozen H2",
+  "capacity_qualified": false,
+  "primary_h4_eligible": false,
+  "out_of_core_verified": false
+}

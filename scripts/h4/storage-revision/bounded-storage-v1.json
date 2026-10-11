@@ -1,0 +1,56 @@
+{
+  "schema": "aether-h4-storage-candidate-patch-v1",
+  "baseline_transport_sha256": "3488c44729b081061e3e4d92fa66bfbd8956940be3a6660aed3ff92b3f552521",
+  "patch_sha256": "e5bc1d283bca00bfa64f7851cf440313a4b36f8d4ceda8af9571bc6c6911d32f",
+  "changed_sources": {
+    "modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableReader.java": {
+      "baseline_sha256": "64f84d1d209a13722de1d9860205c347b322c4dfc9a5f735b288d1e6c5ff64b6",
+      "candidate_sha256": "a587084624046ac12138d52d5e0d6af30ae3baf230e4cbaf0986be8df6a05fc7",
+      "candidate_text_sha256": "a587084624046ac12138d52d5e0d6af30ae3baf230e4cbaf0986be8df6a05fc7"
+    },
+    "modules/aether-sstable/src/main/java/io/aetherdb/sstable/SSTableVerifier.java": {
+      "baseline_sha256": "5e33fb1e56fd8f9d281fb5f5b47e671acb3e5292af30c3cd5b304788c5051a07",
+      "candidate_sha256": "7d338388bb8414ab277fcfe2048ef5f28dc3533234f89f726e6caaae5fcb0d65",
+      "candidate_text_sha256": "7d338388bb8414ab277fcfe2048ef5f28dc3533234f89f726e6caaae5fcb0d65"
+    },
+    "modules/aether-engine/src/main/java/io/aetherdb/engine/PersistentAetherDatabase.java": {
+      "baseline_sha256": "18c6bcc446d80268b07320a2a1b03826cedbc87acd98a9fde9b57d34b7b1676e",
+      "candidate_sha256": "9f83f0ef9d3eb0cc83e725d5d54391fba4863e8dd5c34543a7ee266afe541072",
+      "candidate_text_sha256": "9f83f0ef9d3eb0cc83e725d5d54391fba4863e8dd5c34543a7ee266afe541072"
+    },
+    "modules/aether-engine/src/main/java/io/aetherdb/engine/Aether.java": {
+      "baseline_sha256": "7e286627948c7a12e62ab7b3e1b89bc6d45104c25689b2024c36b8b176734420",
+      "candidate_sha256": "70bd1726d7eb2f1c6ce2c876002749dd9d0523c83490307a50e4156e75340944",
+      "candidate_text_sha256": "70bd1726d7eb2f1c6ce2c876002749dd9d0523c83490307a50e4156e75340944"
+    },
+    "modules/aether-lsm/src/main/java/io/aetherdb/lsm/compaction/CompactionDroppingIterator.java": {
+      "baseline_sha256": "d0b973ebf5c8c80654eb53cb85ef4660772060bbf53deb557613b8c488c64ff4",
+      "candidate_sha256": "a15ce01aea415c26c05c0e09fb6a1bc6ac0f651e875a59df122da54c490b8c83",
+      "candidate_text_sha256": "a15ce01aea415c26c05c0e09fb6a1bc6ac0f651e875a59df122da54c490b8c83"
+    },
+    "modules/aether-training-cache/src/main/java/io/aetherdb/training/cache/TrainingCache.java": {
+      "baseline_sha256": "76ffa2a519995859bc43e50258a3be2d709ee6448f02ec5b93090b19d1766585",
+      "candidate_sha256": "57db9b6be9796e952108eb17006e84573d09e723b5cfc65fdd0a493dc8c8329d",
+      "candidate_text_sha256": "57db9b6be9796e952108eb17006e84573d09e723b5cfc65fdd0a493dc8c8329d"
+    },
+    "modules/aether-engine/src/test/java/io/aetherdb/engine/H4StreamingStorageTest.java": {
+      "baseline_sha256": null,
+      "candidate_sha256": "3fa9e0b964838024ce5747dc9c88454916f968fd51a77d8396eb24d2111a19af",
+      "candidate_text_sha256": "3fa9e0b964838024ce5747dc9c88454916f968fd51a77d8396eb24d2111a19af"
+    },
+    "modules/aether-lsm/src/test/java/io/aetherdb/lsm/compaction/H4StreamingRetentionTest.java": {
+      "baseline_sha256": null,
+      "candidate_sha256": "d9f0dff295288335c4659acb019a45d03af9927be31f555f07bfef9744f543a5",
+      "candidate_text_sha256": "d9f0dff295288335c4659acb019a45d03af9927be31f555f07bfef9744f543a5"
+    },
+    "modules/aether-sstable/src/test/java/io/aetherdb/sstable/H4BoundedBlockCacheTest.java": {
+      "baseline_sha256": null,
+      "candidate_sha256": "e68e9a7aa745df7b6871b285637748e4291e041f1be786a41cb7750ee5b27000",
+      "candidate_text_sha256": "e68e9a7aa745df7b6871b285637748e4291e041f1be786a41cb7750ee5b27000"
+    }
+  },
+  "scope": "H4-only experimental candidate; not frozen H2",
+  "capacity_qualified": false,
+  "primary_h4_eligible": false,
+  "out_of_core_verified": false
+}
